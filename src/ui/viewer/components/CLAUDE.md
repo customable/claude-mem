@@ -13,6 +13,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #6026 | 5:54 PM | 🔵 | LogsModal component analysis reveals comprehensive logging UI | ~336 |
+| #6023 | " | 🔵 | UI component discovery for logs functionality | ~175 |
 | #5534 | 4:33 PM | 🔵 | Found existing CLAUDE_MEM_FOLDER_MD_EXCLUDE implementation | ~258 |
 | #4832 | 10:18 AM | 🔵 | ContextSettingsModal comprehensive UI with collapsible sections and live preview | ~576 |
 | #4822 | 10:17 AM | 🔵 | ThemeToggle component cycles through three theme preferences | ~380 |

@@ -7,6 +7,14 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #6042 | 7:04 PM | 🟣 | LogsDrawer component integrated into main App | ~207 |
+| #6043 | 5:57 PM | 🟣 | Logs viewer state management added to main App | ~250 |
+| #6030 | 5:55 PM | 🔵 | Main application component structure analyzed | ~301 |
+| #6029 | " | 🔵 | Main application structure and routing analysis | ~308 |
+| #6027 | 5:54 PM | 🔵 | Main application component location identified | ~170 |
+| #5950 | 5:33 PM | 🟣 | Added worker bind address setting to UI types | ~207 |
+| #5947 | " | 🟣 | Added worker bind address setting to UI types | ~191 |
+| #5946 | " | 🔵 | Examined UI viewer types interface | ~265 |
 | #5534 | 4:33 PM | 🔵 | Found existing CLAUDE_MEM_FOLDER_MD_EXCLUDE implementation | ~258 |
 | #5343 | 2:56 PM | 🔵 | Hardcoded IPv4 addresses found throughout codebase | ~211 |
 | #5249 | 12:10 PM | 🟣 | Project Selection Handler Connected to DashboardLayout | ~278 |
