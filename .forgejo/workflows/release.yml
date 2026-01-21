@@ -193,34 +193,29 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           DATE=$(date +%Y-%m-%d)
-          CHANGELOG=$(cat /tmp/changelog.md)
 
-          # Create new changelog entry
-          NEW_ENTRY="## [${VERSION}] - ${DATE}
+          # Create new changelog entry file
+          echo "## [${VERSION}] - ${DATE}" > /tmp/new_entry.md
+          echo "" >> /tmp/new_entry.md
+          cat /tmp/changelog.md >> /tmp/new_entry.md
+          echo "" >> /tmp/new_entry.md
 
-${CHANGELOG}
-
-"
           # Prepend to CHANGELOG.md (or create if doesn't exist)
           if [ -f CHANGELOG.md ]; then
-            # Insert after the first line (title) or at the beginning
             if head -1 CHANGELOG.md | grep -q "^# "; then
-              # Has title, insert after it
               head -1 CHANGELOG.md > /tmp/changelog_new.md
               echo "" >> /tmp/changelog_new.md
-              echo "$NEW_ENTRY" >> /tmp/changelog_new.md
+              cat /tmp/new_entry.md >> /tmp/changelog_new.md
               tail -n +2 CHANGELOG.md >> /tmp/changelog_new.md
             else
-              # No title, prepend
-              echo "$NEW_ENTRY" > /tmp/changelog_new.md
+              cat /tmp/new_entry.md > /tmp/changelog_new.md
               cat CHANGELOG.md >> /tmp/changelog_new.md
             fi
             mv /tmp/changelog_new.md CHANGELOG.md
           else
-            # Create new file
             echo "# Changelog" > CHANGELOG.md
             echo "" >> CHANGELOG.md
-            echo "$NEW_ENTRY" >> CHANGELOG.md
+            cat /tmp/new_entry.md >> CHANGELOG.md
           fi
 
           echo "Updated CHANGELOG.md"
