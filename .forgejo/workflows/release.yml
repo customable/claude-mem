@@ -211,24 +211,24 @@ jobs:
           CHANGELOG=$(cat /tmp/changelog.md)
           VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ steps.version.outputs.tag }}"
+          BACKTICKS='```'
 
-          # Build release body without leading whitespace
-          cat > /tmp/release_body.md << 'BODYEOF'
-## Installation
-
-```
-> /plugin marketplace add https://git.customable.host/customable/claude-plugins.git
-> /plugin install claude-mem
-```
-
-## Changes
-
-BODYEOF
-
-          echo "$CHANGELOG" >> /tmp/release_body.md
-          echo "" >> /tmp/release_body.md
-          echo "---" >> /tmp/release_body.md
-          echo "Built from commit ${{ steps.version.outputs.sha }}" >> /tmp/release_body.md
+          # Build release body
+          {
+            echo "## Installation"
+            echo ""
+            echo "$BACKTICKS"
+            echo "> /plugin marketplace add https://git.customable.host/customable/claude-plugins.git"
+            echo "> /plugin install claude-mem"
+            echo "$BACKTICKS"
+            echo ""
+            echo "## Changes"
+            echo ""
+            echo "$CHANGELOG"
+            echo ""
+            echo "---"
+            echo "Built from commit ${{ steps.version.outputs.sha }}"
+          } > /tmp/release_body.md
 
           BODY=$(cat /tmp/release_body.md)
 
@@ -245,3 +245,26 @@ BODYEOF
 
           echo "Release $TAG created!"
           echo "$RESPONSE" | jq .
+
+      - name: Update marketplace version
+        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Clone marketplace repo
+          git clone https://git.customable.host/customable/claude-plugins.git /tmp/claude-plugins
+          cd /tmp/claude-plugins
+
+          # Update version in marketplace.json
+          jq --arg v "$VERSION" '.plugins[0].version = $v' .claude-plugin/marketplace.json > marketplace.json.tmp
+          mv marketplace.json.tmp .claude-plugin/marketplace.json
+
+          # Commit and push
+          git config user.name "Release Bot"
+          git config user.email "release@customable.de"
+          git remote set-url origin "https://release-bot:${{ secrets.RELEASE_TOKEN }}@git.customable.host/customable/claude-plugins.git"
+          git add .claude-plugin/marketplace.json
+          git commit -m "chore: update claude-mem to v${VERSION}"
+          git push origin main
+
+          echo "Marketplace updated to v${VERSION}"
