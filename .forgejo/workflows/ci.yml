@@ -42,7 +42,7 @@ jobs:
       - name: Validate plugin structure
         run: |
           # Check required files exist
-          test -f plugin/manifest.json || test -f .claude-plugin/plugin.json
+          test -f plugin/.claude-plugin/plugin.json
           test -d plugin/hooks
           test -d plugin/scripts
           echo "Plugin structure validated"
