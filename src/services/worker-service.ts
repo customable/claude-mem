@@ -665,16 +665,8 @@ async function main() {
     }
 
     case 'status': {
-      const running = await isPortInUse(port);
-      const pidInfo = readPidFile();
-      if (running && pidInfo) {
-        console.log('Worker is running');
-        console.log(`  PID: ${pidInfo.pid}`);
-        console.log(`  Port: ${pidInfo.port}`);
-        console.log(`  Started: ${pidInfo.startedAt}`);
-      } else {
-        console.log('Worker is not running');
-      }
+      const { runCLI } = await import('../cli/commands.js');
+      await runCLI(process.argv.slice(2));
       process.exit(0);
     }
 
@@ -696,6 +688,18 @@ async function main() {
       const { hookCommand } = await import('../cli/hook-command.js');
       await hookCommand(platform, event);
       break;
+    }
+
+    // CLI commands that use the API
+    case 'search':
+    case 'export':
+    case 'import':
+    case 'cleanup':
+    case 'backup':
+    case 'doctor': {
+      const { runCLI } = await import('../cli/commands.js');
+      await runCLI(process.argv.slice(2));
+      process.exit(0);
     }
 
     case '--daemon':
