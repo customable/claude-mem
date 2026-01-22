@@ -5,13 +5,17 @@
  * Ensures Bun runtime and uv (Python package manager) are installed
  * (auto-installs if missing) and handles dependency installation when needed.
  */
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { execSync, spawnSync } from 'child_process';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { homedir } from 'os';
 
-const ROOT = join(homedir(), '.claude', 'plugins', 'marketplaces', 'customable');
+// Determine the Claude config directory (supports CLAUDE_CONFIG_DIR env var)
+const CLAUDE_CONFIG_DIR = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
+const ROOT = join(CLAUDE_CONFIG_DIR, 'plugins', 'marketplaces', 'customable');
+const PLUGIN_ROOT = join(ROOT, 'plugin');
 const MARKER = join(ROOT, '.install-version');
+const SETTINGS_PATH = join(CLAUDE_CONFIG_DIR, 'settings.json');
 const IS_WINDOWS = process.platform === 'win32';
 
 // Minimum Bun version required for SQLite .changes property and multi-statement SQL
@@ -310,6 +314,73 @@ function installDeps() {
   }));
 }
 
+/**
+ * Register plugin hooks in settings.json
+ * Claude Code reads hooks from settings.json, not from a separate hooks.json file.
+ * This function merges plugin hooks into the user's settings.json.
+ */
+function registerHooks() {
+  const hooksJsonPath = join(PLUGIN_ROOT, 'hooks', 'hooks.json');
+
+  if (!existsSync(hooksJsonPath)) {
+    console.error('⚠️  Plugin hooks.json not found, skipping hook registration');
+    return;
+  }
+
+  try {
+    // Read plugin hooks
+    const pluginHooksJson = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
+    const pluginHooks = pluginHooksJson.hooks;
+
+    if (!pluginHooks) {
+      console.error('⚠️  No hooks found in plugin hooks.json');
+      return;
+    }
+
+    // Replace ${CLAUDE_PLUGIN_ROOT} with actual path
+    const hooksString = JSON.stringify(pluginHooks)
+      .replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, PLUGIN_ROOT.replace(/\\/g, '\\\\'));
+    const resolvedHooks = JSON.parse(hooksString);
+
+    // Read existing settings or create new object
+    let settings = {};
+    if (existsSync(SETTINGS_PATH)) {
+      try {
+        const content = readFileSync(SETTINGS_PATH, 'utf-8').trim();
+        if (content) {
+          settings = JSON.parse(content);
+        }
+      } catch (parseError) {
+        console.error('⚠️  Could not parse existing settings.json, creating backup');
+        const backupPath = SETTINGS_PATH + '.backup-' + Date.now();
+        writeFileSync(backupPath, readFileSync(SETTINGS_PATH));
+      }
+    }
+
+    // Check if hooks need updating
+    const existingHooksStr = JSON.stringify(settings.hooks || {});
+    const newHooksStr = JSON.stringify(resolvedHooks);
+
+    if (existingHooksStr === newHooksStr) {
+      // Hooks already up to date
+      return;
+    }
+
+    // Merge hooks into settings (plugin hooks replace existing hooks for same event types)
+    settings.hooks = resolvedHooks;
+
+    // Ensure directory exists
+    mkdirSync(dirname(SETTINGS_PATH), { recursive: true });
+
+    // Write updated settings
+    writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
+    console.error('✅ Hooks registered in settings.json');
+  } catch (error) {
+    console.error('⚠️  Failed to register hooks:', error.message);
+    // Don't throw - hook registration failure shouldn't block the plugin
+  }
+}
+
 // Main execution
 try {
   if (!isBunInstalled()) {
@@ -322,6 +393,8 @@ try {
     installDeps();
     console.error('✅ Dependencies installed');
   }
+  // Always check and register hooks
+  registerHooks();
 } catch (e) {
   console.error('❌ Installation failed:', e.message);
   process.exit(1);
