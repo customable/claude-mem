@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0] - 2026-01-22
+
+### Features
+- Added Session Timeline View
+- Added Queue Management UI
+
+
 ## [1.6.0] - 2026-01-22
 
 ### Features
