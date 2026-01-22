@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.13.0] - 2026-01-22
+
+### Features
+- Added new CLI commands for power users
+
+
 ## [1.12.0] - 2026-01-22
 
 ### Features
