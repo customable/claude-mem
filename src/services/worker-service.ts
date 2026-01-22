@@ -442,16 +442,31 @@ export class WorkerService {
     const sessionStore = this.dbManager.getSessionStore();
 
     // Clean up stale 'active' sessions before processing
-    // Sessions older than 30 minutes without activity are likely orphaned
+    // Sessions without any activity for 30+ minutes are likely orphaned
     const staleThresholdMs = 30 * 60 * 1000; // 30 minutes
     const staleThreshold = Date.now() - staleThresholdMs;
 
     try {
-      // First, get the IDs of stale sessions before updating them
+      // Get stale sessions by checking BOTH started_at AND last activity
+      // A session is stale if:
+      // - It started more than 30 min ago AND
+      // - No pending_messages were created in the last 30 min AND
+      // - No observations were created in the last 30 min
       const staleSessionIds = sessionStore.db.prepare(`
-        SELECT id FROM sdk_sessions
-        WHERE status = 'active' AND started_at_epoch < ?
-      `).all(staleThreshold) as { id: number }[];
+        SELECT s.id FROM sdk_sessions s
+        WHERE s.status = 'active'
+        AND s.started_at_epoch < ?
+        AND NOT EXISTS (
+          SELECT 1 FROM pending_messages pm
+          WHERE pm.session_db_id = s.id
+          AND pm.created_at_epoch > ?
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM observations o
+          WHERE o.memory_session_id = s.memory_session_id
+          AND o.created_at_epoch > ?
+        )
+      `).all(staleThreshold, staleThreshold, staleThreshold) as { id: number }[];
 
       if (staleSessionIds.length > 0) {
         const ids = staleSessionIds.map(r => r.id);

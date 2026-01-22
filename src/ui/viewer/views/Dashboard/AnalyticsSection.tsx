@@ -113,8 +113,8 @@ export function AnalyticsSection() {
             </CardBody>
           </Card>
 
-          {/* Three Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Charts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Types Pie Chart */}
             <Card>
               <CardBody>
