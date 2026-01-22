@@ -3,8 +3,10 @@ import { DashboardLayout } from './layouts';
 import { Router, useRouter } from './router';
 import { DashboardView, MemoriesView, SearchView, SettingsView, LiveView, SessionsView } from './views';
 import { LogsDrawer } from './components/LogsModal';
+import { CommandPalette } from './components/CommandPalette';
 import { useTheme } from './hooks/useTheme';
 import { useStats } from './hooks/useStats';
+import { useHotkeys } from './hooks/useHotkeys';
 import { ToastProvider } from './context';
 
 const routes = [
@@ -42,6 +44,7 @@ export function App() {
       return false;
     }
   });
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
 
   // Fetch projects (without individual counts for performance)
   useEffect(() => {
@@ -107,6 +110,30 @@ export function App() {
     });
   }, []);
 
+  // Keyboard shortcuts handler
+  const handleShortcut = useCallback(
+    (action: string) => {
+      if (action === 'openCommandPalette') {
+        setShowCommandPalette(true);
+      } else if (action === 'escape') {
+        setShowCommandPalette(false);
+        setShowLogs(false);
+      } else if (action === 'toggleTheme') {
+        setThemePreference(resolvedTheme === 'light' ? 'dark' : 'light');
+      } else if (action === 'toggleSidebar') {
+        handleToggleSidebar();
+      } else if (action === 'focusSearch') {
+        const searchInput = document.querySelector('input[type="search"]') as HTMLInputElement;
+        searchInput?.focus();
+      } else if (action.startsWith('navigate:')) {
+        navigate(action.replace('navigate:', ''));
+      }
+    },
+    [resolvedTheme, setThemePreference, navigate, handleToggleSidebar]
+  );
+
+  useHotkeys(handleShortcut);
+
   return (
     <ToastProvider>
       <DashboardLayout
@@ -127,6 +154,15 @@ export function App() {
         <Router routes={routes} />
       </DashboardLayout>
       <LogsDrawer isOpen={showLogs} onClose={() => setShowLogs(false)} />
+      <CommandPalette
+        open={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        onNavigate={navigate}
+        onToggleTheme={handleToggleTheme}
+        onToggleSidebar={handleToggleSidebar}
+        projects={projects}
+        onSelectProject={handleSelectProject}
+      />
     </ToastProvider>
   );
 }
