@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.16.2] - 2026-01-22
+
+### Bug Fixes
+- Fixed rate-limit handling by updating to use the Mistral SDK with automatic rate-limit management.
+
+
 ## [1.16.1] - 2026-01-22
 
 ### Bug Fixes
