@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
 
+# Don't cancel running releases - let them finish
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Create Release
