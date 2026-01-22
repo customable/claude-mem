@@ -70,7 +70,8 @@ function getBunPath() {
     const result = spawnSync('bun', ['--version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: IS_WINDOWS
+      shell: IS_WINDOWS,
+      windowsHide: true  // Prevent Windows Terminal popup
     });
     if (result.status === 0) return 'bun';
   } catch {
@@ -99,7 +100,8 @@ function getBunVersion() {
     const result = spawnSync(bunPath, ['--version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: IS_WINDOWS
+      shell: IS_WINDOWS,
+      windowsHide: true  // Prevent Windows Terminal popup
     });
     return result.status === 0 ? result.stdout.trim() : null;
   } catch {
@@ -116,7 +118,8 @@ function getUvPath() {
     const result = spawnSync('uv', ['--version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: IS_WINDOWS
+      shell: IS_WINDOWS,
+      windowsHide: true  // Prevent Windows Terminal popup
     });
     if (result.status === 0) return 'uv';
   } catch {
@@ -145,7 +148,8 @@ function getUvVersion() {
     const result = spawnSync(uvPath, ['--version'], {
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
-      shell: IS_WINDOWS
+      shell: IS_WINDOWS,
+      windowsHide: true  // Prevent Windows Terminal popup
     });
     return result.status === 0 ? result.stdout.trim() : null;
   } catch {
@@ -169,13 +173,15 @@ function installBun(isUpgrade = false) {
       console.error('   Installing via PowerShell...');
       execSync('powershell -c "irm bun.sh/install.ps1 | iex"', {
         stdio: 'inherit',
-        shell: true
+        shell: true,
+        windowsHide: true  // Prevent Windows Terminal popup
       });
     } else {
       console.error('   Installing via curl...');
       execSync('curl -fsSL https://bun.sh/install | bash', {
         stdio: 'inherit',
-        shell: true
+        shell: true,
+        windowsHide: true  // Prevent Windows Terminal popup
       });
     }
 
@@ -220,13 +226,15 @@ function installUv() {
       console.error('   Installing via PowerShell...');
       execSync('powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"', {
         stdio: 'inherit',
-        shell: true
+        shell: true,
+        windowsHide: true  // Prevent Windows Terminal popup
       });
     } else {
       console.error('   Installing via curl...');
       execSync('curl -LsSf https://astral.sh/uv/install.sh | sh', {
         stdio: 'inherit',
-        shell: true
+        shell: true,
+        windowsHide: true  // Prevent Windows Terminal popup
       });
     }
 
@@ -282,7 +290,7 @@ function installDeps() {
   // Quote path for Windows paths with spaces
   const bunCmd = IS_WINDOWS && bunPath.includes(' ') ? `"${bunPath}"` : bunPath;
 
-  execSync(`${bunCmd} install`, { cwd: ROOT, stdio: 'inherit', shell: IS_WINDOWS });
+  execSync(`${bunCmd} install`, { cwd: ROOT, stdio: 'inherit', shell: IS_WINDOWS, windowsHide: true });
 
   // Write version marker
   const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf-8'));
