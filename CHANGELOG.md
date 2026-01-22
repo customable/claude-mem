@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.12.0] - 2026-01-22
+
+### Features
+- Added remote worker architecture to support distributed task execution.
+
+
 ## [1.11.0] - 2026-01-22
 
 ### Features
