@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.18.4] - 2026-01-22
+
+### Bug Fixes
+- Fixed stale session detection
+
+### Improvements
+- Improved session timeline
+
+
 ## [1.18.3] - 2026-01-22
 
 ### Bug Fixes
