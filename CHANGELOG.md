@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.3] - 2026-01-22
+
+### Bug Fixes
+- Added built-in exclude patterns for CLAUDE.md generation to prevent unnecessary file inclusions.
+
+
 ## [1.3.2] - 2026-01-22
 
 ### Bug Fixes
