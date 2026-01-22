@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.6] - 2026-01-22
+
+### Bug Fixes
+- Fixed non-blocking worker startup with graceful degradation in hooks
+
+### Improvements
+- Added fallback for `github.repository` variable in release workflow
+
+
 ## [1.3.5] - 2026-01-22
 
 ### Bug Fixes
