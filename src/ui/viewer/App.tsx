@@ -5,6 +5,7 @@ import { DashboardView, MemoriesView, SearchView, SettingsView, LiveView } from 
 import { LogsDrawer } from './components/LogsModal';
 import { useTheme } from './hooks/useTheme';
 import { useStats } from './hooks/useStats';
+import { ToastProvider } from './context';
 
 const routes = [
   { path: '/', component: DashboardView },
@@ -106,7 +107,7 @@ export function App() {
   }, []);
 
   return (
-    <>
+    <ToastProvider>
       <DashboardLayout
         currentPath={`#${path}`}
         projects={projects}
@@ -125,6 +126,6 @@ export function App() {
         <Router routes={routes} />
       </DashboardLayout>
       <LogsDrawer isOpen={showLogs} onClose={() => setShowLogs(false)} />
-    </>
+    </ToastProvider>
   );
 }
