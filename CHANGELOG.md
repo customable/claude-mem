@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.18.1] - 2026-01-22
+
+### Bug Fixes
+- Allow unauthenticated access to `/login` page
+
+
 ## [1.18.0] - 2026-01-22
 
 ### Features
