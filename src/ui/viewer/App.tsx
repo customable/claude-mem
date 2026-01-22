@@ -32,6 +32,9 @@ export function App() {
   const [projects, setProjects] = useState<{ name: string; observationCount: number }[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    // Default to collapsed on mobile (< 1024px)
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    if (isMobile) return true;
     try {
       return localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === 'true';
     } catch {
