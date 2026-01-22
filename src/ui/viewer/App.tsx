@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from './layouts';
 import { Router, useRouter } from './router';
-import { DashboardView, MemoriesView, SearchView, SettingsView, LiveView } from './views';
+import { DashboardView, MemoriesView, SearchView, SettingsView, LiveView, SessionsView } from './views';
 import { LogsDrawer } from './components/LogsModal';
 import { useTheme } from './hooks/useTheme';
 import { useStats } from './hooks/useStats';
@@ -11,6 +11,7 @@ const routes = [
   { path: '/', component: DashboardView },
   { path: '/memories', component: MemoriesView },
   { path: '/memories/:type', component: MemoriesView },
+  { path: '/sessions', component: SessionsView },
   { path: '/search', component: SearchView },
   { path: '/live', component: LiveView },
   { path: '/settings', component: SettingsView },
