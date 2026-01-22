@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.1] - 2026-01-22
+
+### Bug Fixes
+- Added null checks to analytics charts to prevent crashes
+
+
 ## [1.15.0] - 2026-01-22
 
 ### Features
