@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.0] - 2026-01-22
+
+### Features
+- Added export functionality and bulk actions for memories
+- Implemented keyboard shortcuts and command palette
+
+### Bug Fixes
+- Replaced inline SVGs with Icon component for consistent icons in LogsModal
+
+### Improvements
+- Replaced CSS iconify icons with Icon component for consistent icons
+
+
 ## [1.7.0] - 2026-01-22
 
 ### Features
