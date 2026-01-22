@@ -3,6 +3,7 @@ import { StatsGrid } from './StatsGrid';
 import { WorkerStatus } from './WorkerStatus';
 import { VectorDbStatus } from './VectorDbStatus';
 import { RecentActivity } from './RecentActivity';
+import { AnalyticsSection } from './AnalyticsSection';
 import { useStats } from '../../hooks/useStats';
 
 export function DashboardView() {
@@ -40,6 +41,8 @@ export function DashboardView() {
         />
         <RecentActivity items={recentActivity} />
       </div>
+
+      <AnalyticsSection />
     </div>
   );
 }

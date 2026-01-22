@@ -71,8 +71,11 @@ export class DataRoutes extends BaseRouteHandler {
     app.delete('/api/observation/:id', this.handleDeleteObservation.bind(this));
     app.post('/api/observations/delete', this.handleBulkDeleteObservations.bind(this));
 
-    // Retry individual message
-    app.post('/api/pending-queue/:id/retry', this.handleRetryMessage.bind(this));
+    // Analytics endpoints
+    app.get('/api/analytics/timeline', this.handleGetAnalyticsTimeline.bind(this));
+    app.get('/api/analytics/types', this.handleGetAnalyticsTypes.bind(this));
+    app.get('/api/analytics/projects', this.handleGetAnalyticsProjects.bind(this));
+    app.get('/api/analytics/tokens', this.handleGetAnalyticsTokens.bind(this));
   }
 
   /**
@@ -828,7 +831,7 @@ export class DataRoutes extends BaseRouteHandler {
   });
 
   /**
-* Retry a failed message
+   * Retry a failed message
    * POST /api/pending-queue/:id/retry
    * Resets the message to pending status for reprocessing
    */
@@ -901,5 +904,206 @@ export class DataRoutes extends BaseRouteHandler {
     logger.info('DATA', 'Bulk deleted observations', { count: deletedCount, requested: ids.length });
 
     res.json({ success: true, deletedCount });
+  });
+
+  /**
+   * Get analytics timeline - memories created over time
+   * GET /api/analytics/timeline?range=7d|30d|90d|all&project=<name>
+   * Returns daily counts for line chart
+   */
+  private handleGetAnalyticsTimeline = this.wrapHandler((req: Request, res: Response): void => {
+    const range = (req.query.range as string) || '30d';
+    const project = req.query.project as string | undefined;
+    const db = this.dbManager.getSessionStore().db;
+
+    // Calculate date range
+    let daysBack = 30;
+    if (range === '7d') daysBack = 7;
+    else if (range === '90d') daysBack = 90;
+    else if (range === 'all') daysBack = 365 * 10; // 10 years = "all"
+
+    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+
+    // Build query with optional project filter
+    const projectFilter = project ? 'AND project = ?' : '';
+    const params = project ? [startDate, project] : [startDate];
+
+    const rows = db.prepare(`
+      SELECT
+        date(created_at_epoch, 'unixepoch', 'localtime') as date,
+        COUNT(*) as count
+      FROM observations
+      WHERE created_at_epoch >= ? ${projectFilter}
+      GROUP BY date(created_at_epoch, 'unixepoch', 'localtime')
+      ORDER BY date ASC
+    `).all(...params) as Array<{ date: string; count: number }>;
+
+    res.json({
+      range,
+      project: project || 'all',
+      data: rows
+    });
+  });
+
+  /**
+   * Get analytics by type - distribution of observation types
+   * GET /api/analytics/types?range=7d|30d|90d|all&project=<name>
+   * Returns counts per type for pie chart
+   */
+  private handleGetAnalyticsTypes = this.wrapHandler((req: Request, res: Response): void => {
+    const range = (req.query.range as string) || '30d';
+    const project = req.query.project as string | undefined;
+    const db = this.dbManager.getSessionStore().db;
+
+    // Calculate date range
+    let daysBack = 30;
+    if (range === '7d') daysBack = 7;
+    else if (range === '90d') daysBack = 90;
+    else if (range === 'all') daysBack = 365 * 10;
+
+    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+
+    // Build query with optional project filter
+    const projectFilter = project ? 'AND project = ?' : '';
+    const params = project ? [startDate, project] : [startDate];
+
+    const rows = db.prepare(`
+      SELECT
+        type,
+        COUNT(*) as count
+      FROM observations
+      WHERE created_at_epoch >= ? ${projectFilter}
+      GROUP BY type
+      ORDER BY count DESC
+    `).all(...params) as Array<{ type: string; count: number }>;
+
+    // Add colors for each type
+    const typeColors: Record<string, string> = {
+      bugfix: '#ef4444',    // red
+      feature: '#8b5cf6',   // purple
+      discovery: '#3b82f6', // blue
+      refactor: '#f59e0b',  // amber
+      decision: '#10b981',  // emerald
+      change: '#6b7280'     // gray
+    };
+
+    const data = rows.map(row => ({
+      ...row,
+      color: typeColors[row.type] || '#6b7280'
+    }));
+
+    res.json({
+      range,
+      project: project || 'all',
+      data
+    });
+  });
+
+  /**
+   * Get analytics by project - most active projects
+   * GET /api/analytics/projects?range=7d|30d|90d|all&limit=10
+   * Returns top projects by observation count for bar chart
+   */
+  private handleGetAnalyticsProjects = this.wrapHandler((req: Request, res: Response): void => {
+    const range = (req.query.range as string) || '30d';
+    const limit = Math.min(parseInt(req.query.limit as string, 10) || 10, 50);
+    const db = this.dbManager.getSessionStore().db;
+
+    // Calculate date range
+    let daysBack = 30;
+    if (range === '7d') daysBack = 7;
+    else if (range === '90d') daysBack = 90;
+    else if (range === 'all') daysBack = 365 * 10;
+
+    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+
+    const rows = db.prepare(`
+      SELECT
+        COALESCE(project, 'Unknown') as project,
+        COUNT(*) as count,
+        SUM(COALESCE(token_count, 0)) as tokens
+      FROM observations
+      WHERE created_at_epoch >= ?
+        AND project IS NOT NULL
+        AND project != ''
+      GROUP BY project
+      ORDER BY count DESC
+      LIMIT ?
+    `).all(startDate, limit) as Array<{ project: string; count: number; tokens: number }>;
+
+    res.json({
+      range,
+      limit,
+      data: rows
+    });
+  });
+
+  /**
+   * Get token usage analytics
+   * GET /api/analytics/tokens?range=7d|30d|90d|all&project=<name>
+   * Returns token usage statistics
+   */
+  private handleGetAnalyticsTokens = this.wrapHandler((req: Request, res: Response): void => {
+    const range = (req.query.range as string) || '30d';
+    const project = req.query.project as string | undefined;
+    const db = this.dbManager.getSessionStore().db;
+
+    // Calculate date range
+    let daysBack = 30;
+    if (range === '7d') daysBack = 7;
+    else if (range === '90d') daysBack = 90;
+    else if (range === 'all') daysBack = 365 * 10;
+
+    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+
+    // Build query with optional project filter
+    const projectFilter = project ? 'AND project = ?' : '';
+    const params = project ? [startDate, project] : [startDate];
+
+    // Get total tokens and daily breakdown
+    const totals = db.prepare(`
+      SELECT
+        SUM(COALESCE(token_count, 0)) as totalTokens,
+        AVG(COALESCE(token_count, 0)) as avgTokens,
+        COUNT(*) as totalObservations
+      FROM observations
+      WHERE created_at_epoch >= ? ${projectFilter}
+    `).get(...params) as { totalTokens: number; avgTokens: number; totalObservations: number };
+
+    // Daily token usage
+    const daily = db.prepare(`
+      SELECT
+        date(created_at_epoch, 'unixepoch', 'localtime') as date,
+        SUM(COALESCE(token_count, 0)) as tokens,
+        COUNT(*) as observations
+      FROM observations
+      WHERE created_at_epoch >= ? ${projectFilter}
+      GROUP BY date(created_at_epoch, 'unixepoch', 'localtime')
+      ORDER BY date ASC
+    `).all(...params) as Array<{ date: string; tokens: number; observations: number }>;
+
+    // Tokens by type
+    const byType = db.prepare(`
+      SELECT
+        type,
+        SUM(COALESCE(token_count, 0)) as tokens,
+        COUNT(*) as count
+      FROM observations
+      WHERE created_at_epoch >= ? ${projectFilter}
+      GROUP BY type
+      ORDER BY tokens DESC
+    `).all(...params) as Array<{ type: string; tokens: number; count: number }>;
+
+    res.json({
+      range,
+      project: project || 'all',
+      totals: {
+        totalTokens: totals.totalTokens || 0,
+        avgTokensPerObservation: Math.round(totals.avgTokens || 0),
+        totalObservations: totals.totalObservations || 0
+      },
+      daily,
+      byType
+    });
   });
 }
