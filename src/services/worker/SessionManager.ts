@@ -124,6 +124,7 @@ export class SessionManager {
 
     // Create active session
     // Load memorySessionId from database if previously captured (enables resume across restarts)
+    const now = Date.now();
     session = {
       sessionDbId,
       contentSessionId: dbSession.content_session_id,
@@ -134,7 +135,8 @@ export class SessionManager {
       abortController: new AbortController(),
       generatorPromise: null,
       lastPromptNumber: promptNumber || this.dbManager.getSessionStore().getPromptNumberFromUserPrompts(dbSession.content_session_id),
-      startTime: Date.now(),
+      startTime: now,
+      lastActivityTime: now,  // Track last activity for stale session detection
       cumulativeInputTokens: 0,
       cumulativeOutputTokens: 0,
       earliestPendingTimestamp: null,
@@ -188,6 +190,9 @@ export class SessionManager {
       session = this.initializeSession(sessionDbId);
     }
 
+    // Update last activity time for stale detection
+    session.lastActivityTime = Date.now();
+
     // CRITICAL: Persist to database FIRST
     const message: PendingMessage = {
       type: 'observation',
@@ -231,6 +236,9 @@ export class SessionManager {
     if (!session) {
       session = this.initializeSession(sessionDbId);
     }
+
+    // Update last activity time for stale detection
+    session.lastActivityTime = Date.now();
 
     // CRITICAL: Persist to database FIRST
     const message: PendingMessage = {
@@ -385,5 +393,86 @@ export class SessionManager {
    */
   getPendingMessageStore(): PendingMessageStore {
     return this.getPendingStore();
+  }
+
+  /**
+   * Cleanup stale sessions that have no activity for longer than the threshold.
+   * Sessions with active generators are skipped unless force is true.
+   * @param thresholdMs Sessions idle longer than this are considered stale (default 30 minutes)
+   * @param force If true, also cleanup sessions with active generators
+   * @returns Number of sessions cleaned up
+   */
+  async cleanupStaleSessions(thresholdMs: number = 30 * 60 * 1000, force: boolean = false): Promise<number> {
+    const now = Date.now();
+    const cutoff = now - thresholdMs;
+    let cleanedUp = 0;
+
+    const staleSessionIds: number[] = [];
+    for (const [sessionId, session] of this.sessions) {
+      if (session.lastActivityTime < cutoff) {
+        // Skip sessions with active generators unless force is true
+        if (session.generatorPromise && !force) {
+          logger.debug('SESSION', 'Skipping stale session with active generator', {
+            sessionId,
+            idleMinutes: Math.round((now - session.lastActivityTime) / 60000)
+          });
+          continue;
+        }
+        staleSessionIds.push(sessionId);
+      }
+    }
+
+    for (const sessionId of staleSessionIds) {
+      const session = this.sessions.get(sessionId);
+      if (!session) continue;
+
+      const idleMinutes = Math.round((now - session.lastActivityTime) / 60000);
+      logger.info('SESSION', 'Cleaning up stale session', {
+        sessionId,
+        project: session.project,
+        idleMinutes,
+        hadGenerator: !!session.generatorPromise
+      });
+
+      await this.deleteSession(sessionId);
+      cleanedUp++;
+    }
+
+    if (cleanedUp > 0) {
+      logger.info('SESSION', `Cleaned up ${cleanedUp} stale sessions`);
+    }
+
+    return cleanedUp;
+  }
+
+  /**
+   * Get session statistics for monitoring
+   */
+  getSessionStats(): {
+    activeSessions: number;
+    totalQueueDepth: number;
+    oldestSessionAge: number | null;
+    sessionsWithGenerators: number;
+  } {
+    const now = Date.now();
+    let oldestAge: number | null = null;
+    let sessionsWithGenerators = 0;
+
+    for (const session of this.sessions.values()) {
+      const age = now - session.startTime;
+      if (oldestAge === null || age > oldestAge) {
+        oldestAge = age;
+      }
+      if (session.generatorPromise) {
+        sessionsWithGenerators++;
+      }
+    }
+
+    return {
+      activeSessions: this.sessions.size,
+      totalQueueDepth: this.getTotalQueueDepth(),
+      oldestSessionAge: oldestAge,
+      sessionsWithGenerators
+    };
   }
 }

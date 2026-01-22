@@ -324,20 +324,28 @@ export class WorkerService {
         logger.error('SYSTEM', 'Auto-recovery of pending queues failed', {}, error as Error);
       });
 
-      // Start periodic cleanup for zombie/orphaned processes (every 5 minutes)
+      // Start periodic cleanup for zombie/orphaned processes and stale sessions (every 5 minutes)
       // This catches processes that get re-parented to init/PID 1 after parent death
-      // Reduced from 15 to 5 minutes for faster cleanup to prevent RAM accumulation
+      // and cleans up in-memory sessions that have gone stale
       const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+      const STALE_SESSION_THRESHOLD_MS = 30 * 60 * 1000; // 30 minutes
       this.cleanupInterval = setInterval(async () => {
         try {
+          // Cleanup stale in-memory sessions (no activity for 30 minutes)
+          const staleSessions = await this.sessionManager.cleanupStaleSessions(STALE_SESSION_THRESHOLD_MS);
+          if (staleSessions > 0) {
+            logger.info('SYSTEM', `Periodic cleanup: removed ${staleSessions} stale sessions`);
+          }
+
+          // Cleanup orphaned OS processes
           await cleanupOrphanedProcesses();
           await cleanupOrphanedClaudeProcesses();
-          logger.debug('SYSTEM', 'Periodic orphan cleanup completed');
+          logger.debug('SYSTEM', 'Periodic cleanup completed');
         } catch (error) {
-          logger.error('SYSTEM', 'Periodic orphan cleanup failed', {}, error as Error);
+          logger.error('SYSTEM', 'Periodic cleanup failed', {}, error as Error);
         }
       }, CLEANUP_INTERVAL_MS);
-      logger.info('SYSTEM', 'Started periodic orphan cleanup (every 15 minutes)');
+      logger.info('SYSTEM', 'Started periodic cleanup (every 5 minutes)');
     } catch (error) {
       logger.error('SYSTEM', 'Background initialization failed', {}, error as Error);
       throw error;
@@ -411,8 +419,8 @@ export class WorkerService {
     const sessionStore = this.dbManager.getSessionStore();
 
     // Clean up stale 'active' sessions before processing
-    // Sessions older than 6 hours without activity are likely orphaned
-    const staleThresholdMs = 6 * 60 * 60 * 1000; // 6 hours
+    // Sessions older than 30 minutes without activity are likely orphaned
+    const staleThresholdMs = 30 * 60 * 1000; // 30 minutes
     const staleThreshold = Date.now() - staleThresholdMs;
 
     try {

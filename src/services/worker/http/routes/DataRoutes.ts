@@ -223,14 +223,19 @@ export class DataRoutes extends BaseRouteHandler {
 
     // Worker metadata
     const uptime = Math.floor((Date.now() - this.startTime) / 1000);
-    const activeSessions = this.sessionManager.getActiveSessionCount();
     const sseClients = this.sseBroadcaster.getClientCount();
+
+    // Session stats for monitoring
+    const sessionStats = this.sessionManager.getSessionStats();
 
     res.json({
       worker: {
         version,
         uptime,
-        activeSessions,
+        activeSessions: sessionStats.activeSessions,
+        sessionsWithGenerators: sessionStats.sessionsWithGenerators,
+        queueDepth: sessionStats.totalQueueDepth,
+        oldestSessionAgeMs: sessionStats.oldestSessionAge,
         sseClients,
         port: getWorkerPort()
       },

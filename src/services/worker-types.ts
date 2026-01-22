@@ -28,6 +28,7 @@ export interface ActiveSession {
   generatorPromise: Promise<void> | null;
   lastPromptNumber: number;
   startTime: number;
+  lastActivityTime: number;         // Last activity timestamp for stale session detection
   cumulativeInputTokens: number;   // Track input tokens for discovery cost
   cumulativeOutputTokens: number;  // Track output tokens for discovery cost
   earliestPendingTimestamp: number | null;  // Original timestamp of earliest pending message (for accurate observation timestamps)
