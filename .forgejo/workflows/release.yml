@@ -391,13 +391,16 @@ jobs:
 
           echo "Marketplace updated to v${VERSION}"
 
-  # Build and push Docker image (optional - requires Docker-in-Docker on runner)
+  # Build and push Docker image
   docker:
     name: Build Docker Image
     runs-on: [docker, light]
     needs: release
     if: needs.release.result == 'success'
     continue-on-error: true  # Don't fail release if Docker build fails
+    container:
+      image: catthehacker/ubuntu:act-latest
+      options: --volume /var/run/docker.sock:/var/run/docker.sock
 
     steps:
       - name: Checkout
