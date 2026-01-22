@@ -357,7 +357,7 @@ export class OpenRouterAgent {
         model,
         messages,
         temperature: 0.3,  // Lower temperature for structured extraction
-        max_tokens: 4096,
+        maxTokens: 4096,
         stream: false
       });
     } catch (sdkError) {
@@ -383,13 +383,14 @@ export class OpenRouterAgent {
       return { content: '' };
     }
 
-    const content = response.choices[0].message.content;
-    const tokensUsed = response.usage?.total_tokens;
+    const messageContent = response.choices[0].message.content;
+    const content = typeof messageContent === 'string' ? messageContent : '';
+    const tokensUsed = response.usage?.totalTokens;
 
     // Log actual token usage for cost tracking
     if (tokensUsed) {
-      const inputTokens = response.usage?.prompt_tokens || 0;
-      const outputTokens = response.usage?.completion_tokens || 0;
+      const inputTokens = response.usage?.promptTokens || 0;
+      const outputTokens = response.usage?.completionTokens || 0;
       // Token usage (cost varies by model - many OpenRouter models are free)
       const estimatedCost = (inputTokens / 1000000 * 3) + (outputTokens / 1000000 * 15);
 

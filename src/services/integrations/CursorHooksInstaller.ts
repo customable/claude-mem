@@ -13,6 +13,7 @@ import path from 'path';
 import { existsSync, readFileSync, writeFileSync, unlinkSync, mkdirSync } from 'fs';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { homedir } from 'os';
 import { logger } from '../../utils/logger.js';
 import { getWorkerPort, getWorkerHost } from '../../shared/worker-utils.js';
 import { DATA_DIR, MARKETPLACE_ROOT, PLUGINS_DIR } from '../../shared/paths.js';

@@ -17,6 +17,7 @@ export interface HookResult {
   suppressOutput?: boolean;
   hookSpecificOutput?: { hookEventName: string; additionalContext: string };
   exitCode?: number;
+  context?: string;
 }
 
 export interface PlatformAdapter {

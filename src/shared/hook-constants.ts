@@ -21,6 +21,8 @@ export const HOOK_EXIT_CODES = {
   FAILURE: 1,
   /** Blocking error - for SessionStart, shows stderr to user only */
   BLOCKING_ERROR: 2,
+  /** User message only - shows message to user without injecting into Claude context */
+  USER_MESSAGE_ONLY: 3,
 } as const;
 
 export function getTimeout(baseTimeout: number): number {

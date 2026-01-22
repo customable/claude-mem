@@ -29,6 +29,17 @@ interface ChromaDocument {
   metadata: Record<string, string | number>;
 }
 
+/** MCP tool response content item */
+interface McpContentItem {
+  type: string;
+  text?: string;
+}
+
+/** MCP tool response */
+interface McpToolResult {
+  content: McpContentItem[];
+}
+
 interface StoredObservation {
   id: number;
   memory_session_id: string;
@@ -561,10 +572,10 @@ export class ChromaSync implements IVectorSync {
             where: { project: this.project }, // Filter by project
             include: ['metadatas']
           }
-        });
+        }) as McpToolResult;
 
         const data = result.content[0];
-        if (data.type !== 'text') {
+        if (!data || data.type !== 'text' || !data.text) {
           throw new Error('Unexpected response type from chroma_get_documents');
         }
 
@@ -808,12 +819,12 @@ export class ChromaSync implements IVectorSync {
       where: whereStringified
     };
 
-    let result;
+    let result: McpToolResult;
     try {
       result = await this.client.callTool({
         name: 'chroma_query_documents',
         arguments: arguments_obj
-      });
+      }) as McpToolResult;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const isConnectionError =
