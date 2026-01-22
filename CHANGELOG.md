@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.9.0] - 2026-01-22
+
+### Features
+- Added semantic search with similarity scores
+
+
 ## [1.8.1] - 2026-01-22
 
 ### Bug Fixes
