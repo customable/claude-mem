@@ -122,6 +122,61 @@ IMPORTANT: Generate EXACTLY ONE <observation> block for this tool call. Do not r
 }
 
 /**
+ * Build prompt to process multiple tool observations in a single API call (batch processing)
+ * This significantly improves throughput by reducing API call overhead.
+ *
+ * @param observations Array of observations to process in batch
+ * @returns Prompt string requesting multiple observation blocks
+ */
+export function buildBatchObservationPrompt(observations: Observation[]): string {
+  if (observations.length === 0) {
+    throw new Error('buildBatchObservationPrompt requires at least one observation');
+  }
+
+  if (observations.length === 1) {
+    // Fall back to single observation prompt for batch size of 1
+    return buildObservationPrompt(observations[0]);
+  }
+
+  const toolEventsXml = observations.map((obs, index) => {
+    // Safely parse tool_input and tool_output
+    let toolInput: any;
+    let toolOutput: any;
+
+    try {
+      toolInput = typeof obs.tool_input === 'string' ? JSON.parse(obs.tool_input) : obs.tool_input;
+    } catch {
+      toolInput = obs.tool_input;
+    }
+
+    try {
+      toolOutput = typeof obs.tool_output === 'string' ? JSON.parse(obs.tool_output) : obs.tool_output;
+    } catch {
+      toolOutput = obs.tool_output;
+    }
+
+    return `  <tool_event index="${index + 1}">
+    <what_happened>${obs.tool_name}</what_happened>
+    <occurred_at>${new Date(obs.created_at_epoch).toISOString()}</occurred_at>${obs.cwd ? `\n    <working_directory>${obs.cwd}</working_directory>` : ''}
+    <parameters>${JSON.stringify(toolInput, null, 2)}</parameters>
+    <outcome>${JSON.stringify(toolOutput, null, 2)}</outcome>
+  </tool_event>`;
+  }).join('\n\n');
+
+  return `<observed_from_primary_session>
+  <batch_size>${observations.length}</batch_size>
+${toolEventsXml}
+</observed_from_primary_session>
+
+IMPORTANT: Generate EXACTLY ${observations.length} <observation> blocks - one for each tool_event above.
+- Process each tool_event independently
+- Output observations in the same order as the tool_events (index 1, 2, 3, ...)
+- Each observation should be complete and self-contained
+- Do not combine or merge observations
+- Do not skip any tool_event`;
+}
+
+/**
  * Build prompt to generate progress summary
  */
 export function buildSummaryPrompt(session: SDKSession, mode: ModeConfig): string {

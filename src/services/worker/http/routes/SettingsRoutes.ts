@@ -320,9 +320,13 @@ export class SettingsRoutes extends BaseRouteHandler {
   private validateSettings(settings: any): { valid: boolean; error?: string } {
     // Validate CLAUDE_MEM_PROVIDER
     if (settings.CLAUDE_MEM_PROVIDER) {
-    const validProviders = ['claude', 'gemini', 'mistral', 'openrouter'];
-    if (!validProviders.includes(settings.CLAUDE_MEM_PROVIDER)) {
-      return { valid: false, error: 'CLAUDE_MEM_PROVIDER must be "claude", "gemini", "mistral", or "openrouter"' };
+      // Normalize "anthropic" to "claude" (UI may send either)
+      if (settings.CLAUDE_MEM_PROVIDER === 'anthropic') {
+        settings.CLAUDE_MEM_PROVIDER = 'claude';
+      }
+      const validProviders = ['claude', 'gemini', 'mistral', 'openrouter', 'openai'];
+      if (!validProviders.includes(settings.CLAUDE_MEM_PROVIDER)) {
+        return { valid: false, error: 'CLAUDE_MEM_PROVIDER must be one of: claude, gemini, mistral, openrouter, openai' };
       }
     }
 
@@ -387,8 +391,12 @@ export class SettingsRoutes extends BaseRouteHandler {
     ];
 
     for (const key of booleanSettings) {
-      if (settings[key] && !['true', 'false'].includes(settings[key])) {
-        return { valid: false, error: `${key} must be "true" or "false"` };
+      const value = settings[key];
+      if (value !== undefined && value !== null) {
+        // Accept both actual booleans and string "true"/"false"
+        if (typeof value !== 'boolean' && !['true', 'false'].includes(value)) {
+          return { valid: false, error: `${key} must be true or false` };
+        }
       }
     }
 

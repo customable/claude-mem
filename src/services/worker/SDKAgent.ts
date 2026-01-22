@@ -141,6 +141,14 @@ export class SDKAgent {
           // Add to shared conversation history
           session.conversationHistory.push({ role: 'user', content: obsPrompt });
 
+          // Limit history to prevent exponential slowdown (keep first 2 + last 10 messages)
+          if (session.conversationHistory.length > 12) {
+            const first = session.conversationHistory.slice(0, 2);  // Init prompt + response
+            const last = session.conversationHistory.slice(-10);    // Last 10 messages
+            session.conversationHistory.length = 0;
+            session.conversationHistory.push(...first, ...last);
+          }
+
           // Send and process response
           await sdkSession.send(obsPrompt);
           await this.processStreamResponse(sdkSession, session, worker, lastCwd);
