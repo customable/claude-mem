@@ -12,6 +12,7 @@ interface CLIOptions {
   project?: string;
   limit?: number;
   type?: string;
+  dryRun?: boolean;
 }
 
 interface SearchResult {
@@ -616,6 +617,94 @@ export async function retentionCommand(subcommand: string | undefined, options: 
 }
 
 // ============================================================================
+// CLAUDE.md Generation Commands
+// ============================================================================
+
+/**
+ * Generate CLAUDE.md files for folders in the current project
+ * Uses git ls-files to respect .gitignore
+ */
+export async function generateCommand(options: CLIOptions): Promise<void> {
+  const { spawn } = await import('child_process');
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+
+  // Find the regenerate script
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const scriptPath = path.resolve(__dirname, '../../scripts/regenerate-claude-md.ts');
+
+  const args: string[] = [];
+  if (options.dryRun) {
+    args.push('--dry-run');
+  }
+
+  if (options.json) {
+    console.log(JSON.stringify({ action: 'generate', dryRun: options.dryRun ?? false }));
+  }
+
+  return new Promise((resolve, reject) => {
+    const child = spawn('bun', [scriptPath, ...args], {
+      stdio: 'inherit',
+      cwd: process.cwd(),
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Generate script exited with code ${code}`));
+      }
+    });
+
+    child.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+/**
+ * Clean auto-generated CLAUDE.md content
+ * Strips <claude-mem-context> tags, deletes empty files
+ */
+export async function cleanCommand(options: CLIOptions): Promise<void> {
+  const { spawn } = await import('child_process');
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+
+  // Find the regenerate script
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const scriptPath = path.resolve(__dirname, '../../scripts/regenerate-claude-md.ts');
+
+  const args: string[] = ['--clean'];
+  if (options.dryRun) {
+    args.push('--dry-run');
+  }
+
+  if (options.json) {
+    console.log(JSON.stringify({ action: 'clean', dryRun: options.dryRun ?? false }));
+  }
+
+  return new Promise((resolve, reject) => {
+    const child = spawn('bun', [scriptPath, ...args], {
+      stdio: 'inherit',
+      cwd: process.cwd(),
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Clean script exited with code ${code}`));
+      }
+    });
+
+    child.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+// ============================================================================
 // CLI Entry Point
 // ============================================================================
 
@@ -637,6 +726,8 @@ export async function runCLI(args: string[]): Promise<void> {
       options.limit = parseInt(subArgs[++i], 10);
     } else if (arg === '--type' || arg === '-t') {
       options.type = subArgs[++i];
+    } else if (arg === '--dry-run' || arg === '-n') {
+      options.dryRun = true;
     } else if (!arg.startsWith('-')) {
       positionalArgs.push(arg);
     }
@@ -684,6 +775,14 @@ export async function runCLI(args: string[]): Promise<void> {
         await retentionCommand(positionalArgs[0], options);
         break;
 
+      case 'generate':
+        await generateCommand(options);
+        break;
+
+      case 'clean':
+        await cleanCommand(options);
+        break;
+
       default:
         console.log(`Unknown command: ${command}`);
         console.log('');
@@ -700,11 +799,14 @@ export async function runCLI(args: string[]): Promise<void> {
         console.log('  retention preview   Preview cleanup');
         console.log('  retention run       Run cleanup');
         console.log('  retention archive   Show archived observations');
+        console.log('  generate            Generate CLAUDE.md files for project folders');
+        console.log('  clean               Remove auto-generated CLAUDE.md content');
         console.log('');
         console.log('Options:');
         console.log('  --json, -j          Output as JSON');
         console.log('  --project, -p       Filter by project');
         console.log('  --limit, -l         Limit results');
+        console.log('  --dry-run, -n       Preview changes without writing');
         process.exit(1);
     }
   } catch (error) {
