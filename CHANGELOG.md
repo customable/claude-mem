@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.8.1] - 2026-01-22
+
+### Bug Fixes
+- Fixed CI to make the Docker job non-blocking in the release workflow.
+
+
 ## [1.8.0] - 2026-01-22
 
 ### Features
