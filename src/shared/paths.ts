@@ -49,7 +49,7 @@ export const CLAUDE_CREDENTIALS_PATH = join(CLAUDE_CONFIG_DIR, '.credentials.jso
 
 // Plugin marketplace paths (respects CLAUDE_CONFIG_DIR)
 export const PLUGINS_DIR = join(CLAUDE_CONFIG_DIR, 'plugins');
-export const MARKETPLACE_ROOT = join(PLUGINS_DIR, 'marketplaces', 'thedotmack');
+export const MARKETPLACE_ROOT = join(PLUGINS_DIR, 'marketplaces', 'customable');
 
 /**
  * Get project-specific archive directory

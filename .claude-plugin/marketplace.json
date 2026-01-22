@@ -1,11 +1,11 @@
 {
-  "name": "thedotmack",
+  "name": "customable",
   "owner": {
-    "name": "Alex Newman"
+    "name": "Customable"
   },
   "metadata": {
-    "description": "Plugins by Alex Newman (thedotmack)",
-    "homepage": "https://github.com/thedotmack/claude-mem"
+    "description": "Plugins by Customable (fork of claude-mem)",
+    "homepage": "https://github.com/customable/claude-mem"
   },
   "plugins": [
     {
