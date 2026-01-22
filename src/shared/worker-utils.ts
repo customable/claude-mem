@@ -150,8 +150,50 @@ async function checkWorkerVersion(): Promise<void> {
 
 
 /**
- * Ensure worker service is running
+ * Result of a non-blocking worker readiness check
+ */
+export interface WorkerReadyResult {
+  ready: boolean;
+  waited: number;  // milliseconds waited
+}
+
+/**
+ * Try to ensure worker is running with a configurable timeout
+ * Non-blocking version that returns status instead of throwing
+ * @param maxWaitMs Maximum time to wait for worker (default 3000ms)
+ * @returns Object with ready status and time waited
+ */
+export async function tryEnsureWorkerRunning(maxWaitMs: number = 3000): Promise<WorkerReadyResult> {
+  const pollInterval = 100;  // Faster polling for quicker response
+  const maxRetries = Math.ceil(maxWaitMs / pollInterval);
+  const startTime = Date.now();
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      if (await isWorkerHealthy()) {
+        // Fire and forget version check - don't block on it
+        checkWorkerVersion().catch(() => {});
+        return { ready: true, waited: Date.now() - startTime };
+      }
+    } catch (e) {
+      // Don't log every retry for non-blocking version
+      if (i === 0) {
+        logger.debug('SYSTEM', 'Worker not ready, polling...', {
+          maxWaitMs,
+          error: e instanceof Error ? e.message : String(e)
+        });
+      }
+    }
+    await new Promise(r => setTimeout(r, pollInterval));
+  }
+
+  return { ready: false, waited: Date.now() - startTime };
+}
+
+/**
+ * Ensure worker service is running (blocking version)
  * Polls until worker is ready (assumes worker-service.cjs start was called by hooks.json)
+ * @deprecated Prefer tryEnsureWorkerRunning() for non-blocking checks
  */
 export async function ensureWorkerRunning(): Promise<void> {
   const maxRetries = 75;  // 15 seconds total

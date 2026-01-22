@@ -7,7 +7,7 @@
  */
 
 import type { EventHandler, NormalizedHookInput, HookResult } from '../types.js';
-import { ensureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
+import { tryEnsureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
 import { fetchWithRetry } from '../../shared/fetch-utils.js';
 import { isProjectExcluded, isMemoryDisabledByProjectConfig } from '../../shared/project-exclusion.js';
 import { getProjectName } from '../../utils/project-name.js';
@@ -16,8 +16,15 @@ import { extractLastMessage } from '../../shared/transcript-parser.js';
 
 export const summarizeHandler: EventHandler = {
   async execute(input: NormalizedHookInput): Promise<HookResult> {
-    // Ensure worker is running before any other logic
-    await ensureWorkerRunning();
+    // Try to ensure worker is running with a short timeout (2 seconds)
+    // Summary is non-critical - if worker is not ready, skip silently
+    const workerStatus = await tryEnsureWorkerRunning(2000);
+    if (!workerStatus.ready) {
+      logger.debug('HOOK', 'summarize: Worker not ready, skipping summary', {
+        waited: workerStatus.waited
+      });
+      return { continue: true, suppressOutput: true };
+    }
 
     const { sessionId, cwd, transcriptPath } = input;
 

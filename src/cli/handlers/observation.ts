@@ -5,7 +5,7 @@
  */
 
 import type { EventHandler, NormalizedHookInput, HookResult } from '../types.js';
-import { ensureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
+import { tryEnsureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
 import { fetchWithRetry } from '../../shared/fetch-utils.js';
 import { isProjectExcluded, isMemoryDisabledByProjectConfig } from '../../shared/project-exclusion.js';
 import { getProjectName } from '../../utils/project-name.js';
@@ -13,8 +13,15 @@ import { logger } from '../../utils/logger.js';
 
 export const observationHandler: EventHandler = {
   async execute(input: NormalizedHookInput): Promise<HookResult> {
-    // Ensure worker is running before any other logic
-    await ensureWorkerRunning();
+    // Try to ensure worker is running with a short timeout (2 seconds)
+    // Observations are non-critical - if worker is not ready, skip silently
+    const workerStatus = await tryEnsureWorkerRunning(2000);
+    if (!workerStatus.ready) {
+      logger.debug('HOOK', 'observation: Worker not ready, skipping observation', {
+        waited: workerStatus.waited
+      });
+      return { continue: true, suppressOutput: true };
+    }
 
     const { sessionId, cwd, toolName, toolInput, toolResponse } = input;
 

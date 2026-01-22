@@ -5,7 +5,7 @@
  */
 
 import type { EventHandler, NormalizedHookInput, HookResult } from '../types.js';
-import { ensureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
+import { tryEnsureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
 import { fetchWithRetry } from '../../shared/fetch-utils.js';
 import { isProjectExcluded, isMemoryDisabledByProjectConfig } from '../../shared/project-exclusion.js';
 import { getProjectName } from '../../utils/project-name.js';
@@ -13,8 +13,16 @@ import { logger } from '../../utils/logger.js';
 
 export const sessionInitHandler: EventHandler = {
   async execute(input: NormalizedHookInput): Promise<HookResult> {
-    // Ensure worker is running before any other logic
-    await ensureWorkerRunning();
+    // Try to ensure worker is running with a short timeout (3 seconds)
+    // If worker is not ready, proceed gracefully - memory features will be limited
+    const workerStatus = await tryEnsureWorkerRunning(3000);
+    if (!workerStatus.ready) {
+      logger.info('HOOK', 'session-init: Worker not ready, memory features disabled for this session', {
+        waited: workerStatus.waited
+      });
+      // Return success but with suppressed output - don't block Claude Code
+      return { continue: true, suppressOutput: true };
+    }
 
     const { sessionId, cwd, prompt } = input;
 

@@ -7,14 +7,22 @@
 
 import { basename } from 'path';
 import type { EventHandler, NormalizedHookInput, HookResult } from '../types.js';
-import { ensureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
+import { tryEnsureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
 import { fetchWithRetry } from '../../shared/fetch-utils.js';
 import { HOOK_EXIT_CODES } from '../../shared/hook-constants.js';
+import { logger } from '../../utils/logger.js';
 
 export const userMessageHandler: EventHandler = {
   async execute(input: NormalizedHookInput): Promise<HookResult> {
-    // Ensure worker is running
-    await ensureWorkerRunning();
+    // Try to ensure worker is running with a short timeout (2 seconds)
+    // User message is informational only - if worker not ready, skip silently
+    const workerStatus = await tryEnsureWorkerRunning(2000);
+    if (!workerStatus.ready) {
+      logger.debug('HOOK', 'user-message: Worker not ready, skipping context display', {
+        waited: workerStatus.waited
+      });
+      return { continue: true, suppressOutput: true };
+    }
 
     const baseUrl = getWorkerBaseUrl();
     const project = basename(input.cwd ?? process.cwd());

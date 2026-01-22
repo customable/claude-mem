@@ -6,9 +6,10 @@
  */
 
 import type { EventHandler, NormalizedHookInput, HookResult } from '../types.js';
-import { ensureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
+import { tryEnsureWorkerRunning, getWorkerBaseUrl } from '../../shared/worker-utils.js';
 import { fetchWithRetry } from '../../shared/fetch-utils.js';
 import { getProjectContext } from '../../utils/project-name.js';
+import { logger } from '../../utils/logger.js';
 
 export const contextHandler: EventHandler = {
   async execute(input: NormalizedHookInput): Promise<HookResult> {
@@ -23,8 +24,20 @@ export const contextHandler: EventHandler = {
       };
     }
 
-    // Ensure worker is running before any other logic
-    await ensureWorkerRunning();
+    // Try to ensure worker is running with a short timeout (3 seconds)
+    // Context is important but we shouldn't block Claude Code startup
+    const workerStatus = await tryEnsureWorkerRunning(3000);
+    if (!workerStatus.ready) {
+      logger.info('HOOK', 'context: Worker not ready, proceeding without memory context', {
+        waited: workerStatus.waited
+      });
+      return {
+        hookSpecificOutput: {
+          hookEventName: 'SessionStart',
+          additionalContext: ''  // Empty context when worker not ready
+        }
+      };
+    }
 
     const cwd = input.cwd ?? process.cwd();
     const context = getProjectContext(cwd);

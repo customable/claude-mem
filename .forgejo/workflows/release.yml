@@ -294,6 +294,11 @@ jobs:
           BODY=$(cat /tmp/release_body.md)
 
           # Create release via API
+          REPO="${{ github.repository }}"
+          if [ -z "$REPO" ]; then
+            REPO="customable/claude-mem"
+          fi
+
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
             -H "Content-Type: application/json" \
@@ -302,7 +307,7 @@ jobs:
               --arg name "Release $TAG" \
               --arg body "$BODY" \
               '{tag_name: $tag, name: $name, body: $body}')" \
-            "https://git.customable.host/api/v1/repos/${{ github.repository }}/releases")
+            "https://git.customable.host/api/v1/repos/${REPO}/releases")
 
           echo "Release $TAG created!"
           echo "$RESPONSE" | jq .
