@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.0] - 2026-01-22
+
+### Features
+- Added memory tagging and categorization functionality.
+
+
 ## [1.9.0] - 2026-01-22
 
 ### Features
