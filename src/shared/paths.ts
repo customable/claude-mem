@@ -1,10 +1,13 @@
 import { join, dirname, basename, sep } from 'path';
 import { homedir } from 'os';
-import { existsSync, mkdirSync } from 'fs';
+import { existsSync, mkdirSync, readFileSync } from 'fs';
 import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 import { SettingsDefaultsManager } from './SettingsDefaultsManager.js';
 import { logger } from '../utils/logger.js';
+
+// Cache version to avoid repeated file reads
+let cachedVersion: string | null = null;
 
 // Get __dirname that works in both ESM (hooks) and CJS (worker) contexts
 function getDirname(): string {
@@ -145,4 +148,41 @@ export function createBackupFilename(originalPath: string): string {
     .slice(0, 19);
 
   return `${originalPath}.backup.${timestamp}`;
+}
+
+/**
+ * Get the current package version from package.json or plugin.json
+ * Used for cache-busting and version display
+ */
+export function getVersion(): string {
+  if (cachedVersion) {
+    return cachedVersion;
+  }
+
+  const packageRoot = getPackageRoot();
+
+  // Try multiple locations for version info
+  const versionPaths = [
+    join(packageRoot, 'package.json'),
+    join(packageRoot, '.claude-plugin', 'plugin.json'),
+    join(packageRoot, '..', 'package.json')
+  ];
+
+  for (const versionPath of versionPaths) {
+    try {
+      if (existsSync(versionPath)) {
+        const content = JSON.parse(readFileSync(versionPath, 'utf-8'));
+        if (content.version) {
+          cachedVersion = content.version;
+          return cachedVersion;
+        }
+      }
+    } catch {
+      // Continue to next path
+    }
+  }
+
+  // Fallback to timestamp-based version for cache-busting
+  cachedVersion = `0.0.0-${Date.now()}`;
+  return cachedVersion;
 }

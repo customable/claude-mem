@@ -13,6 +13,12 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #5942 | 5:33 PM | 🟣 | Implemented worker bind address management | ~232 |
+| #5941 | " | 🟣 | Added worker bind address caching | ~194 |
+| #5940 | 5:32 PM | 🔵 | Worker utility functions and health check mechanism | ~286 |
+| #5939 | " | ✅ | Added CLAUDE_MEM_WORKER_BIND configuration option | ~246 |
+| #5938 | " | 🔵 | Settings configuration structure | ~293 |
+| #5936 | " | 🔵 | Worker host configuration implementation | ~297 |
 | #5534 | 4:33 PM | 🔵 | Found existing CLAUDE_MEM_FOLDER_MD_EXCLUDE implementation | ~258 |
 | #5345 | 3:21 PM | 🔵 | worker-utils.ts contains partial host configuration implementation | ~227 |
 | #5489 | 3:18 PM | 🔄 | Consolidated credentials path management in claude-subscription | ~234 |
