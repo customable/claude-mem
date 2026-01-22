@@ -459,6 +459,162 @@ export async function doctorCommand(options: CLIOptions): Promise<void> {
   }
 }
 
+/**
+ * Retention policy management
+ */
+export async function retentionCommand(subcommand: string | undefined, options: CLIOptions): Promise<void> {
+  if (!await checkWorkerRunning()) {
+    console.error('Error: Worker is not running. Start with: claude-mem start');
+    process.exit(1);
+  }
+
+  switch (subcommand) {
+    case 'preview': {
+      const result = await apiRequest<{
+        preview: {
+          totalObservations: number;
+          toDelete: { byAge: number; byCount: number; total: number };
+          excluded: number;
+          affectedProjects: string[];
+        };
+        policy: { enabled: boolean; maxAgeDays: number; maxCount: number; excludeTypes: string[]; softDelete: boolean };
+      }>('/api/retention/preview');
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        const { preview, policy } = result;
+        console.log('Retention Preview');
+        console.log('─'.repeat(50));
+        console.log(`Total observations:   ${preview.totalObservations.toLocaleString()}`);
+        console.log(`Would delete by age:  ${preview.toDelete.byAge.toLocaleString()}`);
+        console.log(`Would delete by count: ${preview.toDelete.byCount.toLocaleString()}`);
+        console.log(`Total to delete:      ${preview.toDelete.total.toLocaleString()}`);
+        console.log(`Excluded (protected): ${preview.excluded.toLocaleString()}`);
+        console.log('');
+        console.log('Policy:');
+        console.log(`  Enabled:      ${policy.enabled ? 'yes' : 'no'}`);
+        console.log(`  Max age:      ${policy.maxAgeDays} days`);
+        console.log(`  Max count:    ${policy.maxCount} per project`);
+        console.log(`  Exclude:      ${policy.excludeTypes.join(', ') || 'none'}`);
+        console.log(`  Soft delete:  ${policy.softDelete ? 'yes (archive)' : 'no (permanent)'}`);
+        if (preview.affectedProjects.length > 0) {
+          console.log('');
+          console.log(`Affected projects: ${preview.affectedProjects.slice(0, 5).join(', ')}${preview.affectedProjects.length > 5 ? '...' : ''}`);
+        }
+      }
+      break;
+    }
+
+    case 'run': {
+      const result = await apiRequest<{
+        success: boolean;
+        result: { deleted: number; archived: number; errors: string[]; duration: number };
+        policy: { enabled: boolean; maxAgeDays: number; maxCount: number; excludeTypes: string[]; softDelete: boolean };
+      }>('/api/retention/run', { method: 'POST', body: {} });
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        if (result.success) {
+          console.log('\x1b[32mRetention cleanup completed\x1b[0m');
+          console.log(`  Deleted:  ${result.result.deleted}`);
+          console.log(`  Archived: ${result.result.archived}`);
+          console.log(`  Duration: ${result.result.duration}ms`);
+        } else {
+          console.log('\x1b[31mRetention cleanup failed\x1b[0m');
+          for (const err of result.result.errors) {
+            console.log(`  Error: ${err}`);
+          }
+        }
+      }
+      break;
+    }
+
+    case 'archive': {
+      const result = await apiRequest<{
+        observations: Array<{
+          id: number;
+          type: string;
+          title: string | null;
+          project: string;
+          deleted_at_epoch: number;
+          deletion_reason: string | null;
+        }>;
+        count: number;
+        total: number;
+      }>('/api/retention/archive/list');
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(`Archived Observations (${result.count} of ${result.total})`);
+        console.log('─'.repeat(60));
+        if (result.observations.length === 0) {
+          console.log('No archived observations');
+        } else {
+          for (const obs of result.observations) {
+            const deletedAt = new Date(obs.deleted_at_epoch).toLocaleString();
+            console.log(`  #${obs.id} ${obs.title || '(untitled)'}`);
+            console.log(`    Type: ${obs.type} | Project: ${obs.project}`);
+            console.log(`    Deleted: ${deletedAt} | Reason: ${obs.deletion_reason || 'unknown'}`);
+          }
+        }
+      }
+      break;
+    }
+
+    case 'restore': {
+      const result = await apiRequest<{
+        success: boolean;
+        restored: number;
+        errors: string[];
+      }>('/api/retention/restore', { method: 'POST', body: {} });
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        if (result.success) {
+          console.log(`\x1b[32mRestored ${result.restored} observations from archive\x1b[0m`);
+        } else {
+          console.log('\x1b[31mRestore failed\x1b[0m');
+          for (const err of result.errors) {
+            console.log(`  Error: ${err}`);
+          }
+        }
+      }
+      break;
+    }
+
+    default: {
+      // Show current policy
+      const result = await apiRequest<{
+        policy: { enabled: boolean; maxAgeDays: number; maxCount: number; excludeTypes: string[]; softDelete: boolean };
+      }>('/api/retention/policy');
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        const { policy } = result;
+        console.log('Retention Policy');
+        console.log('─'.repeat(40));
+        console.log(`  Enabled:      ${policy.enabled ? '\x1b[32myes\x1b[0m' : '\x1b[33mno\x1b[0m'}`);
+        console.log(`  Max age:      ${policy.maxAgeDays > 0 ? `${policy.maxAgeDays} days` : 'disabled'}`);
+        console.log(`  Max count:    ${policy.maxCount > 0 ? `${policy.maxCount} per project` : 'unlimited'}`);
+        console.log(`  Exclude:      ${policy.excludeTypes.join(', ') || 'none'}`);
+        console.log(`  Soft delete:  ${policy.softDelete ? 'yes (archive)' : 'no (permanent)'}`);
+        console.log('');
+        console.log('Commands:');
+        console.log('  retention preview   Preview what would be deleted');
+        console.log('  retention run       Run cleanup');
+        console.log('  retention archive   Show archived observations');
+        console.log('  retention restore   Restore all from archive');
+      }
+      break;
+    }
+  }
+}
+
 // ============================================================================
 // CLI Entry Point
 // ============================================================================
@@ -524,6 +680,10 @@ export async function runCLI(args: string[]): Promise<void> {
         await doctorCommand(options);
         break;
 
+      case 'retention':
+        await retentionCommand(positionalArgs[0], options);
+        break;
+
       default:
         console.log(`Unknown command: ${command}`);
         console.log('');
@@ -536,6 +696,10 @@ export async function runCLI(args: string[]): Promise<void> {
         console.log('  backup              Create a backup');
         console.log('  backup list         List existing backups');
         console.log('  doctor              Diagnose issues');
+        console.log('  retention           Show retention policy');
+        console.log('  retention preview   Preview cleanup');
+        console.log('  retention run       Run cleanup');
+        console.log('  retention archive   Show archived observations');
         console.log('');
         console.log('Options:');
         console.log('  --json, -j          Output as JSON');
