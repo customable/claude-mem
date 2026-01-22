@@ -5,6 +5,7 @@ import { ProviderTab } from './tabs/ProviderTab';
 import { ContextTab } from './tabs/ContextTab';
 import { VectorDbTab } from './tabs/VectorDbTab';
 import { AdvancedTab } from './tabs/AdvancedTab';
+import { BackupTab } from './tabs/BackupTab';
 import { Button, Icon, Spinner } from '../../components/ui';
 import { useToast } from '../../context';
 
@@ -89,6 +90,8 @@ export function SettingsView({ tab: initialTab }: SettingsViewProps) {
         return <ContextTab {...props} />;
       case 'vectordb':
         return <VectorDbTab {...props} />;
+      case 'backup':
+        return <BackupTab {...props} />;
       case 'advanced':
         return <AdvancedTab {...props} />;
       default:

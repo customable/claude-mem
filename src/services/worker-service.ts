@@ -72,6 +72,7 @@ import { SettingsRoutes } from './worker/http/routes/SettingsRoutes.js';
 import { LogsRoutes } from './worker/http/routes/LogsRoutes.js';
 import { MemoryRoutes } from './worker/http/routes/MemoryRoutes.js';
 import { TagRoutes } from './worker/http/routes/TagRoutes.js';
+import { BackupRoutes } from './worker/http/routes/BackupRoutes.js';
 
 /**
  * Build JSON status output for hook framework communication.
@@ -206,6 +207,7 @@ export class WorkerService {
     this.server.registerRoutes(new LogsRoutes());
     this.server.registerRoutes(new MemoryRoutes(this.dbManager, 'claude-mem'));
     this.server.registerRoutes(new TagRoutes(this.dbManager.getSessionStore()));
+    this.server.registerRoutes(new BackupRoutes(this.dbManager));
 
     // Early handler for /api/context/inject to avoid 404 during startup
     this.server.app.get('/api/context/inject', async (req, res, next) => {
