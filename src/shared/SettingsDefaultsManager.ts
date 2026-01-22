@@ -68,6 +68,12 @@ export interface SettingsDefaults {
   CLAUDE_MEM_REMOTE_TOKEN: string;       // Bearer token for authentication
   CLAUDE_MEM_REMOTE_VERIFY_SSL: boolean; // Verify SSL certificates (default: true)
   CLAUDE_MEM_REMOTE_TIMEOUT_MS: string;  // Request timeout in milliseconds (default: 30000)
+  // Retention Policy Configuration
+  CLAUDE_MEM_RETENTION_ENABLED: boolean;         // Enable automatic retention cleanup
+  CLAUDE_MEM_RETENTION_MAX_AGE_DAYS: string;     // Delete observations older than N days (0 = disabled)
+  CLAUDE_MEM_RETENTION_MAX_COUNT: string;        // Keep only last N observations per project (0 = unlimited)
+  CLAUDE_MEM_RETENTION_EXCLUDE_TYPES: string;    // JSON array of observation types to exclude from cleanup
+  CLAUDE_MEM_RETENTION_SOFT_DELETE: boolean;     // Use soft delete instead of hard delete (archive)
 }
 
 export class SettingsDefaultsManager {
@@ -130,6 +136,12 @@ export class SettingsDefaultsManager {
     CLAUDE_MEM_REMOTE_TOKEN: '',             // Empty = no auth
     CLAUDE_MEM_REMOTE_VERIFY_SSL: true,      // Verify SSL by default
     CLAUDE_MEM_REMOTE_TIMEOUT_MS: '30000',   // 30 second timeout
+    // Retention Policy Configuration
+    CLAUDE_MEM_RETENTION_ENABLED: false,             // Disabled by default (safety)
+    CLAUDE_MEM_RETENTION_MAX_AGE_DAYS: '0',          // 0 = no age-based cleanup
+    CLAUDE_MEM_RETENTION_MAX_COUNT: '0',             // 0 = unlimited
+    CLAUDE_MEM_RETENTION_EXCLUDE_TYPES: '["summary"]',  // Keep summaries by default
+    CLAUDE_MEM_RETENTION_SOFT_DELETE: true,          // Archive instead of delete by default
   };
 
   /**
@@ -217,6 +229,8 @@ export class SettingsDefaultsManager {
         'CLAUDE_MEM_CHROMA_ENABLED',
         'CLAUDE_MEM_REMOTE_MODE',
         'CLAUDE_MEM_REMOTE_VERIFY_SSL',
+        'CLAUDE_MEM_RETENTION_ENABLED',
+        'CLAUDE_MEM_RETENTION_SOFT_DELETE',
       ];
 
       // Merge file settings with defaults (flat schema)
