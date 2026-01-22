@@ -1,6 +1,6 @@
 {
   "name": "claude-mem",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "Persistent memory for Claude Code - extended fork with Qdrant, OpenCode support, and more",
   "author": {
     "name": "Customable",

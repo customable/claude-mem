@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0] - 2026-01-22
+
+### Features
+- Added backup and restore functionality
+- Added Analytics Dashboard with Charts
+
+
 ## [1.10.0] - 2026-01-22
 
 ### Features
