@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.2] - 2026-01-22
+
+### Bug Fixes
+- Resolved TypeScript type errors (partial fix for #49)
+
+### Improvements
+- Updated built scripts
+
+### Documentation
+- Added documentation link to README
+
+
 ## [1.3.1] - 2026-01-22
 
 ### Bug Fixes
