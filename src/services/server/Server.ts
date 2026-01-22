@@ -16,7 +16,7 @@ import path from 'path';
 import { logger } from '../../utils/logger.js';
 import { createMiddleware, summarizeRequestBody, requireLocalhost } from './Middleware.js';
 import { errorHandler, notFoundHandler } from './ErrorHandler.js';
-import { authMiddleware, rateLimitMiddleware } from './middleware/index.js';
+import { authMiddleware, rateLimitMiddleware, isRemoteAuthConfigured } from './middleware/index.js';
 import { getWorkerBind } from '../../shared/worker-utils.js';
 
 // Build-time injected version constant (set by esbuild define)
@@ -142,12 +142,16 @@ export class Server {
     // Add rate limiting for remote requests (localhost bypassed)
     this.app.use(rateLimitMiddleware(1000, 60000));
 
-    // Add authentication middleware only when binding to non-localhost
-    // This allows network access with token-based authentication
+    // Add authentication middleware only when:
+    // 1. Binding to non-localhost (network access)
+    // 2. AND a remote token is configured
     const bind = getWorkerBind();
-    if (bind !== '127.0.0.1' && bind !== 'localhost') {
+    const authConfigured = isRemoteAuthConfigured();
+    if (bind !== '127.0.0.1' && bind !== 'localhost' && authConfigured) {
       logger.info('SYSTEM', 'Enabling authentication middleware for network access', { bind });
       this.app.use(authMiddleware);
+    } else if (bind !== '127.0.0.1' && bind !== 'localhost' && !authConfigured) {
+      logger.warn('SYSTEM', 'Network access enabled WITHOUT authentication - set CLAUDE_MEM_REMOTE_TOKEN for security', { bind });
     }
   }
 

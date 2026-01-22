@@ -133,6 +133,11 @@ export function authMiddleware(
     return next();
   }
 
+  // Allow unauthenticated access to login page and auth endpoints
+  if (req.path === '/login' || req.path.startsWith('/api/auth/')) {
+    return next();
+  }
+
   const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
 
   // Check for session cookie first (for browser access)
