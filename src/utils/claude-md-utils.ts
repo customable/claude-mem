@@ -17,8 +17,81 @@ import { getWorkerHost } from '../shared/worker-utils.js';
 const SETTINGS_PATH = path.join(os.homedir(), '.claude-mem', 'settings.json');
 
 /**
+ * Directories that should NEVER have CLAUDE.md files created.
+ * These are either:
+ * - System/tool directories (.git)
+ * - Dependency directories (node_modules, vendor)
+ * - Build/cache directories (dist, __pycache__)
+ * - Virtual environments (.venv, venv)
+ */
+const ALWAYS_EXCLUDED_DIRS = [
+  '.git',
+  'node_modules',
+  '__pycache__',
+  '.pycache',
+  'venv',
+  '.venv',
+  '.env',
+  'vendor',
+  'dist',
+  'build',
+  '.next',
+  '.nuxt',
+  '.output',
+  '.cache',
+  '.turbo',
+  'coverage',
+  '.nyc_output',
+  '.pytest_cache',
+  '.mypy_cache',
+  '.tox',
+  'eggs',
+  '*.egg-info',
+  '.eggs',
+  'target',  // Rust/Java build output
+  'out',
+  '.gradle',
+  '.maven',
+];
+
+/**
+ * Check if a path segment matches an excluded directory pattern.
+ * Handles both exact matches and glob patterns (e.g., *.egg-info).
+ */
+function matchesExcludedDir(segment: string): boolean {
+  for (const pattern of ALWAYS_EXCLUDED_DIRS) {
+    if (pattern.includes('*')) {
+      // Simple glob matching for *.ext patterns
+      const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+      if (regex.test(segment)) return true;
+    } else {
+      if (segment === pattern) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Check if a path contains any always-excluded directory.
+ * This catches paths like /project/node_modules/package/file.js
+ */
+function containsExcludedDir(filePath: string): boolean {
+  // Normalize path separators
+  const normalized = filePath.replace(/\\/g, '/');
+  const segments = normalized.split('/');
+
+  for (const segment of segments) {
+    if (matchesExcludedDir(segment)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Validate that a file path is safe for CLAUDE.md generation.
- * Rejects tilde paths, URLs, command-like strings, and paths with invalid chars.
+ * Rejects tilde paths, URLs, command-like strings, paths with invalid chars,
+ * and paths containing always-excluded directories.
  *
  * @param filePath - The file path to validate
  * @param projectRoot - Optional project root for boundary checking
@@ -40,9 +113,8 @@ function isValidPathForClaudeMd(filePath: string, projectRoot?: string): boolean
   // Reject paths with # (GitHub issue/PR references)
   if (filePath.includes('#')) return false;
 
-  // Reject paths inside .git directory (causes git pull failures)
-  if (filePath.includes('/.git/') || filePath.includes('\\.git\\') ||
-      filePath.endsWith('/.git') || filePath.endsWith('\\.git')) {
+  // Reject paths containing always-excluded directories
+  if (containsExcludedDir(filePath)) {
     return false;
   }
 
@@ -308,13 +380,21 @@ function isProjectRoot(folderPath: string): boolean {
 
 /**
  * Check if a folder path is excluded from CLAUDE.md generation.
- * A folder is excluded if it starts with any path in the exclude list.
+ * A folder is excluded if:
+ * 1. It contains an always-excluded directory (node_modules, .git, etc.)
+ * 2. It starts with any path in the user's exclude list
  *
  * @param folderPath - Absolute path to check
- * @param excludePaths - Array of paths to exclude
+ * @param excludePaths - Array of user-configured paths to exclude
  * @returns true if folder should be excluded
  */
 function isExcludedFolder(folderPath: string, excludePaths: string[]): boolean {
+  // Always check for built-in excluded directories first
+  if (containsExcludedDir(folderPath)) {
+    return true;
+  }
+
+  // Check user-configured exclude paths
   const normalizedFolder = path.resolve(folderPath);
   for (const excludePath of excludePaths) {
     const normalizedExclude = path.resolve(excludePath);
