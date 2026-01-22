@@ -598,7 +598,7 @@ export function checkCursorHooksStatus(): number {
 export async function detectClaudeCode(): Promise<boolean> {
   try {
     // Check for Claude Code CLI
-    const { stdout } = await execAsync('which claude || where claude', { timeout: 5000 });
+    const { stdout } = await execAsync('which claude || where claude', { timeout: 5000, windowsHide: true });
     if (stdout.trim()) {
       return true;
     }

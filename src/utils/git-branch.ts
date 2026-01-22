@@ -18,7 +18,8 @@ export function getCurrentGitBranch(cwd?: string): string | null {
       cwd: cwd || process.cwd(),
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],  // Suppress stderr
-      timeout: 5000  // 5 second timeout
+      timeout: 5000,  // 5 second timeout
+      windowsHide: true  // Prevent Windows Terminal popup
     }).trim();
 
     // HEAD is returned when in detached HEAD state
@@ -28,7 +29,8 @@ export function getCurrentGitBranch(cwd?: string): string | null {
         cwd: cwd || process.cwd(),
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe'],
-        timeout: 5000
+        timeout: 5000,
+        windowsHide: true  // Prevent Windows Terminal popup
       }).trim();
       return `detached@${commit}`;
     }
