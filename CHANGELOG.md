@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.14.1] - 2026-01-22
+
+### Bug Fixes
+- Fixed CI builds by adding Docker socket mount.
+
+
 ## [1.14.0] - 2026-01-22
 
 ### Features
