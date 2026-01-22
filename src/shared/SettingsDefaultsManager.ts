@@ -58,7 +58,7 @@ export interface SettingsDefaults {
   CLAUDE_MEM_FOLDER_MD_EXCLUDE: string;  // JSON array of folder paths to exclude from CLAUDE.md generation
   // Vector Database Configuration
   CLAUDE_MEM_CHROMA_ENABLED: boolean;  // Disable Chroma to save RAM/avoid zombie processes (auto-disabled on Windows)
-  CLAUDE_MEM_VECTOR_DB: string;  // 'chroma' | 'qdrant'
+  CLAUDE_MEM_VECTOR_DB: string;  // 'chroma' | 'qdrant' | 'none' (disabled)
   CLAUDE_MEM_EMBEDDING_MODEL: string;  // Embedding model for Qdrant (e.g., 'Xenova/all-MiniLM-L6-v2')
   // Project Exclusion
   CLAUDE_MEM_EXCLUDE_PROJECTS: string;  // JSON array of glob patterns to exclude projects (e.g., '["temp-*", "test-?"]')

@@ -20,7 +20,7 @@ export class NoopVectorSync implements IVectorSync {
 
   private logDisabled(): void {
     if (!this.loggedOnce) {
-      logger.info('VECTOR_SYNC', 'Vector database disabled (CLAUDE_MEM_CHROMA_ENABLED=false)', {
+      logger.info('VECTOR_SYNC', 'Vector database disabled - using SQLite-only mode', {
         project: this.project
       });
       this.loggedOnce = true;

@@ -13,7 +13,7 @@ import { SettingsDefaultsManager } from '../../shared/SettingsDefaultsManager.js
 import { USER_SETTINGS_PATH } from '../../shared/paths.js';
 import { logger } from '../../utils/logger.js';
 
-export type VectorDbBackend = 'chroma' | 'qdrant' | 'disabled';
+export type VectorDbBackend = 'chroma' | 'qdrant' | 'none' | 'disabled';
 
 /**
  * Create a VectorSync instance based on settings
@@ -32,6 +32,12 @@ export function createVectorSync(project: string): IVectorSync {
   }
 
   const backend = (settings.CLAUDE_MEM_VECTOR_DB || 'chroma') as VectorDbBackend;
+
+  // Check if vector DB is explicitly disabled via CLAUDE_MEM_VECTOR_DB setting
+  if (backend === 'none' || backend === 'disabled') {
+    logger.info('VECTOR_SYNC', 'Vector database disabled via CLAUDE_MEM_VECTOR_DB setting', { project, backend });
+    return new NoopVectorSync(project);
+  }
 
   // On Windows, auto-disable Chroma to avoid console popups from MCP SDK subprocess
   // Users can still use Qdrant which runs as a Docker container without popup issues
