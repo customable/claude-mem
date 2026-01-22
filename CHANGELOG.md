@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.0] - 2026-01-22
+
+### Features
+- Added Docker deployment support
+
+
 ## [1.5.0] - 2026-01-22
 
 ### Features
