@@ -156,3 +156,5 @@ Original project: https://github.com/thedotmack/claude-mem
 ---
 
 **Built with Claude Agent SDK** | **Powered by Claude Code** | **Made with TypeScript**
+
+<!-- PR Reviewer Test -->
