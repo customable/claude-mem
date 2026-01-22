@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0] - 2026-01-22
+
+### Features
+- Migrate to Customable marketplace with auto MCP registration
+
+### Improvements
+- Rebuild bundled scripts
+
+
 ## [1.2.2] - 2026-01-22
 
 ### Bug Fixes
