@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.17.0] - 2026-01-22
+
+### Features
+- Added support for OpenAI provider integration.
+
+
 ## [1.16.2] - 2026-01-22
 
 ### Bug Fixes
