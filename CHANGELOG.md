@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.15.0] - 2026-01-22
+
+### Features
+- Added metrics and observability endpoints
+
+
 ## [1.14.2] - 2026-01-22
 
 ### Bug Fixes
