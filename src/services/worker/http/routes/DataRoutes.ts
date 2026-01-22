@@ -41,6 +41,8 @@ export class DataRoutes extends BaseRouteHandler {
     app.get('/api/observation/:id', this.handleGetObservationById.bind(this));
     app.post('/api/observations/batch', this.handleGetObservationsByIds.bind(this));
     app.get('/api/session/:id', this.handleGetSessionById.bind(this));
+    app.get('/api/sessions', this.handleGetSessions.bind(this));
+    app.get('/api/sessions/:id/timeline', this.handleGetSessionTimeline.bind(this));
     app.post('/api/sdk-sessions/batch', this.handleGetSdkSessionsByIds.bind(this));
     app.get('/api/prompt/:id', this.handleGetPromptById.bind(this));
 
@@ -159,6 +161,149 @@ export class DataRoutes extends BaseRouteHandler {
     }
 
     res.json(sessions[0]);
+  });
+
+  /**
+   * Get paginated list of sessions
+   * GET /api/sessions?offset=0&limit=20&project=<name>
+   */
+  private handleGetSessions = this.wrapHandler((req: Request, res: Response): void => {
+    const offset = parseInt(req.query.offset as string, 10) || 0;
+    const limit = Math.min(parseInt(req.query.limit as string, 10) || 20, 100);
+    const project = req.query.project as string | undefined;
+
+    const db = this.dbManager.getSessionStore().db;
+
+    // Build query with observation counts
+    let whereClause = '';
+    const params: any[] = [];
+
+    if (project) {
+      whereClause = 'WHERE o.project = ?';
+      params.push(project);
+    }
+
+    // Get sessions with counts
+    const query = `
+      SELECT
+        s.id,
+        s.content_session_id,
+        s.memory_session_id,
+        s.project,
+        s.user_prompt,
+        s.started_at,
+        s.started_at_epoch,
+        s.completed_at,
+        s.completed_at_epoch,
+        s.status,
+        COUNT(DISTINCT o.id) as observation_count,
+        COUNT(DISTINCT p.id) as prompt_count
+      FROM sdk_sessions s
+      LEFT JOIN observations o ON o.sdk_session_id = s.id ${project ? 'AND o.project = ?' : ''}
+      LEFT JOIN user_prompts p ON p.sdk_session_id = s.id
+      ${project ? 'WHERE EXISTS (SELECT 1 FROM observations WHERE sdk_session_id = s.id AND project = ?)' : ''}
+      GROUP BY s.id
+      ORDER BY s.started_at_epoch DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const queryParams = project ? [project, project, limit, offset] : [limit, offset];
+    const sessions = db.prepare(query).all(...queryParams);
+
+    // Get total count
+    const countQuery = project
+      ? `SELECT COUNT(DISTINCT s.id) as total FROM sdk_sessions s
+         INNER JOIN observations o ON o.sdk_session_id = s.id WHERE o.project = ?`
+      : 'SELECT COUNT(*) as total FROM sdk_sessions';
+    const countParams = project ? [project] : [];
+    const { total } = db.prepare(countQuery).get(...countParams) as { total: number };
+
+    res.json({
+      items: sessions,
+      total,
+      offset,
+      limit,
+      hasMore: offset + sessions.length < total
+    });
+  });
+
+  /**
+   * Get session timeline with all observations, prompts, and summary
+   * GET /api/sessions/:id/timeline
+   */
+  private handleGetSessionTimeline = this.wrapHandler((req: Request, res: Response): void => {
+    const id = this.parseIntParam(req, res, 'id');
+    if (id === null) return;
+
+    const db = this.dbManager.getSessionStore().db;
+
+    // Get session info
+    const session = db.prepare('SELECT * FROM sdk_sessions WHERE id = ?').get(id);
+    if (!session) {
+      this.notFound(res, `Session #${id} not found`);
+      return;
+    }
+
+    // Get observations for this session
+    const observations = db.prepare(`
+      SELECT id, type, title, narrative, text, created_at, created_at_epoch, files_read, files_modified, concepts
+      FROM observations
+      WHERE sdk_session_id = ?
+      ORDER BY created_at_epoch ASC
+    `).all(id);
+
+    // Get prompts for this session
+    const prompts = db.prepare(`
+      SELECT id, prompt_text, prompt_number, created_at, created_at_epoch
+      FROM user_prompts
+      WHERE sdk_session_id = ?
+      ORDER BY created_at_epoch ASC
+    `).all(id);
+
+    // Get summary for this session
+    const summary = db.prepare(`
+      SELECT request, investigated, learned, completed, next_steps, created_at
+      FROM session_summaries
+      WHERE sdk_session_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    `).get(id);
+
+    // Combine into timeline
+    const timeline: any[] = [];
+
+    // Add prompts to timeline
+    for (const prompt of prompts as any[]) {
+      timeline.push({
+        type: 'prompt',
+        id: prompt.id,
+        timestamp: prompt.created_at_epoch,
+        data: prompt
+      });
+    }
+
+    // Add observations to timeline
+    for (const obs of observations as any[]) {
+      timeline.push({
+        type: 'observation',
+        id: obs.id,
+        timestamp: obs.created_at_epoch,
+        data: obs
+      });
+    }
+
+    // Sort by timestamp
+    timeline.sort((a, b) => a.timestamp - b.timestamp);
+
+    res.json({
+      session,
+      timeline,
+      summary,
+      stats: {
+        observations: observations.length,
+        prompts: prompts.length
+      }
+    });
   });
 
   /**
