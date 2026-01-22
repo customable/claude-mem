@@ -193,6 +193,17 @@ jobs:
 
           echo "Updated plugin.json to version $VERSION"
 
+      - name: Update version in plugin/package.json
+        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Update plugin/package.json
+          jq --arg v "$VERSION" '.version = $v' plugin/package.json > plugin-package.json.tmp
+          mv plugin-package.json.tmp plugin/package.json
+
+          echo "Updated plugin/package.json to version $VERSION"
+
       - name: Update CHANGELOG.md
         if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
         run: |
@@ -243,7 +254,7 @@ jobs:
           git config user.name "Release Bot"
           git config user.email "release@customable.de"
 
-          git add package.json plugin/.claude-plugin/plugin.json CHANGELOG.md README.md
+          git add package.json plugin/.claude-plugin/plugin.json plugin/package.json CHANGELOG.md README.md
           git commit -m "chore(release): bump version to ${VERSION}" || echo "No changes to commit"
           git push origin main
 
