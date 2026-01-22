@@ -7,6 +7,9 @@
 <h4 align="center">Persistent memory system for <a href="https://claude.ai/download" target="_blank">Claude Code</a>.</h4>
 
 <p align="center">
+  <a href="https://github.com/customable/claude-mem">
+    <img src="https://img.shields.io/badge/GitHub-customable%2Fclaude--mem-blue?logo=github" alt="GitHub">
+  </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   </a>
@@ -39,12 +42,17 @@ This is a fork of [thedotmack/claude-mem](https://github.com/thedotmack/claude-m
 
 ## Quick Start
 
-Install via the Customable plugin marketplace:
+### Option 1: Customable Marketplace (recommended)
 
 ```
 > /plugin marketplace add https://git.customable.host/customable/claude-plugins.git
-
 > /plugin install claude-mem
+```
+
+### Option 2: GitHub
+
+```
+> /plugin install https://github.com/customable/claude-mem.git
 ```
 
 Restart Claude Code. Context from previous sessions will automatically appear in new sessions.
@@ -139,7 +147,9 @@ Original project: https://github.com/thedotmack/claude-mem
 
 ## Support
 
-- **Repository**: [git.customable.host/customable/claude-mem](https://git.customable.host/customable/claude-mem)
+- **GitHub**: [github.com/customable/claude-mem](https://github.com/customable/claude-mem)
+- **Forgejo**: [git.customable.host/customable/claude-mem](https://git.customable.host/customable/claude-mem)
+- **Issues & PRs**: Please submit via [GitHub](https://github.com/customable/claude-mem/issues)
 - **Maintainer**: [Customable](https://customable.de)
 
 ---
