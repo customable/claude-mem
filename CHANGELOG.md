@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.18.2] - 2026-01-22
+
+### Bug Fixes
+- Fixed analytics queries to use milliseconds for `created_at_epoch`
+
+
 ## [1.18.1] - 2026-01-22
 
 ### Bug Fixes
