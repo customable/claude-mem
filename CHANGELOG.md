@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.4] - 2026-01-22
+
+### Bug Fixes
+- Improved zombie process cleanup mechanism
+
+### Improvements
+- Added monitoring for zombie process cleanup
+
+
 ## [1.3.3] - 2026-01-22
 
 ### Bug Fixes
