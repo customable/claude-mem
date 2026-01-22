@@ -20,6 +20,7 @@ export class SearchRoutes extends BaseRouteHandler {
   setupRoutes(app: express.Application): void {
     // Unified endpoints (new consolidated API)
     app.get('/api/search', this.handleUnifiedSearch.bind(this));
+    app.get('/api/search/semantic', this.handleSemanticSearch.bind(this));
     app.get('/api/timeline', this.handleUnifiedTimeline.bind(this));
     app.get('/api/decisions', this.handleDecisions.bind(this));
     app.get('/api/changes', this.handleChanges.bind(this));
@@ -50,6 +51,16 @@ export class SearchRoutes extends BaseRouteHandler {
    */
   private handleUnifiedSearch = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
     const result = await this.searchManager.search(req.query);
+    res.json(result);
+  });
+
+  /**
+   * Semantic search with similarity scores for UI
+   * GET /api/search/semantic?query=...&type=observations&limit=20&project=...
+   * Returns JSON with results including similarity scores
+   */
+  private handleSemanticSearch = this.wrapHandler(async (req: Request, res: Response): Promise<void> => {
+    const result = await this.searchManager.semanticSearchWithScores(req.query);
     res.json(result);
   });
 

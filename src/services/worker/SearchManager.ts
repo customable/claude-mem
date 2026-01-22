@@ -360,6 +360,192 @@ export class SearchManager {
   }
 
   /**
+   * Semantic search with similarity scores for UI
+   * Returns structured JSON with similarity scores from vector search
+   */
+  async semanticSearchWithScores(args: any): Promise<{
+    results: Array<{
+      id: number;
+      type: 'observation' | 'summary' | 'prompt';
+      title: string;
+      content: string;
+      project: string;
+      timestamp: string;
+      score: number;
+      obsType?: string;
+    }>;
+    query: string;
+    usedSemantic: boolean;
+    vectorDbAvailable: boolean;
+  }> {
+    const normalized = this.normalizeParams(args);
+    const { query, type, obs_type, project, limit = 20, dateStart, dateEnd } = normalized;
+
+    const results: Array<{
+      id: number;
+      type: 'observation' | 'summary' | 'prompt';
+      title: string;
+      content: string;
+      project: string;
+      timestamp: string;
+      score: number;
+      obsType?: string;
+    }> = [];
+
+    let usedSemantic = false;
+    const vectorDbAvailable = !!this.vectorSync;
+
+    // No query - return empty or list all recent
+    if (!query || query === '*') {
+      // List recent items without semantic ranking
+      const obsOptions = { limit, project, type: obs_type };
+      const observations = this.sessionSearch.searchObservations(undefined, obsOptions);
+
+      for (const obs of observations) {
+        results.push({
+          id: obs.id,
+          type: 'observation',
+          title: obs.title || 'Untitled',
+          content: obs.narrative || obs.text || '',
+          project: obs.project || '',
+          timestamp: obs.created_at,
+          score: 0, // No semantic score for filter-only
+          obsType: obs.type
+        });
+      }
+
+      return { results: results.slice(0, limit), query: query || '', usedSemantic: false, vectorDbAvailable };
+    }
+
+    // Semantic search with vector DB
+    if (this.vectorSync) {
+      try {
+        // Build where filter
+        let whereFilter: Record<string, any> | undefined;
+        if (type === 'observations') {
+          whereFilter = { doc_type: 'observation' };
+        } else if (type === 'sessions') {
+          whereFilter = { doc_type: 'session_summary' };
+        } else if (type === 'prompts') {
+          whereFilter = { doc_type: 'user_prompt' };
+        }
+
+        // Query vector DB
+        const vectorResults = await this.queryVector(query, 100, whereFilter);
+        usedSemantic = true;
+
+        if (vectorResults.ids.length > 0) {
+          // Create ID to score map (distance to similarity conversion)
+          // Lower distance = higher similarity, so we invert: score = 1 - distance
+          const idToScore = new Map<number, number>();
+          const idToDocType = new Map<number, string>();
+
+          // Filter by recency
+          const ninetyDaysAgo = Date.now() - SEARCH_CONSTANTS.RECENCY_WINDOW_MS;
+
+          for (let i = 0; i < vectorResults.ids.length; i++) {
+            const meta = vectorResults.metadatas[i];
+            if (meta && meta.created_at_epoch > ninetyDaysAgo) {
+              const id = vectorResults.ids[i];
+              // Convert distance to similarity score (0-1 range)
+              // Assuming cosine distance: score = 1 - (distance / 2)
+              const distance = vectorResults.distances[i] || 0;
+              const score = Math.max(0, Math.min(1, 1 - distance / 2));
+
+              // Keep highest score per ID (may have multiple embeddings)
+              if (!idToScore.has(id) || score > idToScore.get(id)!) {
+                idToScore.set(id, score);
+                idToDocType.set(id, meta.doc_type);
+              }
+            }
+          }
+
+          // Categorize IDs
+          const obsIds: number[] = [];
+          const sessionIds: number[] = [];
+          const promptIds: number[] = [];
+
+          for (const [id, docType] of idToDocType) {
+            if (docType === 'observation' && (!type || type === 'observations')) {
+              obsIds.push(id);
+            } else if (docType === 'session_summary' && (!type || type === 'sessions')) {
+              sessionIds.push(id);
+            } else if (docType === 'user_prompt' && (!type || type === 'prompts')) {
+              promptIds.push(id);
+            }
+          }
+
+          // Hydrate observations
+          if (obsIds.length > 0) {
+            const obsOptions = { type: obs_type, project };
+            const observations = this.sessionStore.getObservationsByIds(obsIds, obsOptions);
+
+            for (const obs of observations) {
+              results.push({
+                id: obs.id,
+                type: 'observation',
+                title: obs.title || 'Untitled',
+                content: obs.narrative || obs.text || '',
+                project: obs.project || '',
+                timestamp: obs.created_at,
+                score: idToScore.get(obs.id) || 0,
+                obsType: obs.type
+              });
+            }
+          }
+
+          // Hydrate sessions
+          if (sessionIds.length > 0) {
+            const sessions = this.sessionStore.getSessionSummariesByIds(sessionIds, { project });
+
+            for (const sess of sessions) {
+              results.push({
+                id: sess.id,
+                type: 'summary',
+                title: sess.request || 'Session Summary',
+                content: sess.learned || sess.completed || '',
+                project: sess.project || '',
+                timestamp: sess.created_at,
+                score: idToScore.get(sess.id) || 0
+              });
+            }
+          }
+
+          // Hydrate prompts
+          if (promptIds.length > 0) {
+            const prompts = this.sessionStore.getUserPromptsByIds(promptIds, { project });
+
+            for (const prompt of prompts) {
+              results.push({
+                id: prompt.id,
+                type: 'prompt',
+                title: `Prompt #${prompt.prompt_number}`,
+                content: prompt.prompt_text || '',
+                project: prompt.project || '',
+                timestamp: prompt.created_at,
+                score: idToScore.get(prompt.id) || 0
+              });
+            }
+          }
+
+          // Sort by score (highest first)
+          results.sort((a, b) => b.score - a.score);
+        }
+      } catch (error) {
+        logger.error('SEARCH', 'Semantic search failed', {}, error as Error);
+        usedSemantic = false;
+      }
+    }
+
+    return {
+      results: results.slice(0, limit),
+      query,
+      usedSemantic,
+      vectorDbAvailable
+    };
+  }
+
+  /**
    * Tool handler: timeline
    */
   async timeline(args: any): Promise<any> {
