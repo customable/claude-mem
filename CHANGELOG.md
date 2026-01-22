@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.5] - 2026-01-22
+
+### Bug Fixes
+- Added stale session detection and auto-cleanup to prevent orphaned sessions.
+
+
 ## [1.3.4] - 2026-01-22
 
 ### Bug Fixes
