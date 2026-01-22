@@ -922,7 +922,7 @@ export class DataRoutes extends BaseRouteHandler {
     else if (range === '90d') daysBack = 90;
     else if (range === 'all') daysBack = 365 * 10; // 10 years = "all"
 
-    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+    const startDate = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
 
     // Build query with optional project filter
     const projectFilter = project ? 'AND project = ?' : '';
@@ -930,11 +930,11 @@ export class DataRoutes extends BaseRouteHandler {
 
     const rows = db.prepare(`
       SELECT
-        date(created_at_epoch, 'unixepoch', 'localtime') as date,
+        date(created_at_epoch / 1000, 'unixepoch', 'localtime') as date,
         COUNT(*) as count
       FROM observations
       WHERE created_at_epoch >= ? ${projectFilter}
-      GROUP BY date(created_at_epoch, 'unixepoch', 'localtime')
+      GROUP BY date(created_at_epoch / 1000, 'unixepoch', 'localtime')
       ORDER BY date ASC
     `).all(...params) as Array<{ date: string; count: number }>;
 
@@ -961,7 +961,7 @@ export class DataRoutes extends BaseRouteHandler {
     else if (range === '90d') daysBack = 90;
     else if (range === 'all') daysBack = 365 * 10;
 
-    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+    const startDate = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
 
     // Build query with optional project filter
     const projectFilter = project ? 'AND project = ?' : '';
@@ -1015,13 +1015,13 @@ export class DataRoutes extends BaseRouteHandler {
     else if (range === '90d') daysBack = 90;
     else if (range === 'all') daysBack = 365 * 10;
 
-    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+    const startDate = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
 
     const rows = db.prepare(`
       SELECT
         COALESCE(project, 'Unknown') as project,
         COUNT(*) as count,
-        SUM(COALESCE(token_count, 0)) as tokens
+        SUM(COALESCE(discovery_tokens, 0)) as tokens
       FROM observations
       WHERE created_at_epoch >= ?
         AND project IS NOT NULL
@@ -1054,7 +1054,7 @@ export class DataRoutes extends BaseRouteHandler {
     else if (range === '90d') daysBack = 90;
     else if (range === 'all') daysBack = 365 * 10;
 
-    const startDate = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
+    const startDate = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
 
     // Build query with optional project filter
     const projectFilter = project ? 'AND project = ?' : '';
@@ -1063,8 +1063,8 @@ export class DataRoutes extends BaseRouteHandler {
     // Get total tokens and daily breakdown
     const totals = db.prepare(`
       SELECT
-        SUM(COALESCE(token_count, 0)) as totalTokens,
-        AVG(COALESCE(token_count, 0)) as avgTokens,
+        SUM(COALESCE(discovery_tokens, 0)) as totalTokens,
+        AVG(COALESCE(discovery_tokens, 0)) as avgTokens,
         COUNT(*) as totalObservations
       FROM observations
       WHERE created_at_epoch >= ? ${projectFilter}
@@ -1073,12 +1073,12 @@ export class DataRoutes extends BaseRouteHandler {
     // Daily token usage
     const daily = db.prepare(`
       SELECT
-        date(created_at_epoch, 'unixepoch', 'localtime') as date,
-        SUM(COALESCE(token_count, 0)) as tokens,
+        date(created_at_epoch / 1000, 'unixepoch', 'localtime') as date,
+        SUM(COALESCE(discovery_tokens, 0)) as tokens,
         COUNT(*) as observations
       FROM observations
       WHERE created_at_epoch >= ? ${projectFilter}
-      GROUP BY date(created_at_epoch, 'unixepoch', 'localtime')
+      GROUP BY date(created_at_epoch / 1000, 'unixepoch', 'localtime')
       ORDER BY date ASC
     `).all(...params) as Array<{ date: string; tokens: number; observations: number }>;
 
@@ -1086,7 +1086,7 @@ export class DataRoutes extends BaseRouteHandler {
     const byType = db.prepare(`
       SELECT
         type,
-        SUM(COALESCE(token_count, 0)) as tokens,
+        SUM(COALESCE(discovery_tokens, 0)) as tokens,
         COUNT(*) as count
       FROM observations
       WHERE created_at_epoch >= ? ${projectFilter}
