@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.5.0] - 2026-01-22
+
+### Features
+- Added toast notification system for user feedback and alerts.
+
+
 ## [1.4.0] - 2026-01-22
 
 ### Features
