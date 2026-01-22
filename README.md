@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   </a>
   <a href="package.json">
-    <img src="https://img.shields.io/badge/version-1.1.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.2.0-green.svg" alt="Version">
   </a>
   <a href="package.json">
     <img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg" alt="Node">

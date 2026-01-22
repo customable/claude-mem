@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] - 2026-01-22
+
+### Features
+- Sync releases to GitHub
+
+### Improvements
+- Remove `.playwright-mcp` from tracking
+
+
 ## [1.1.0] - 2026-01-22
 
 ### Features
