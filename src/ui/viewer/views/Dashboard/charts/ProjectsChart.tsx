@@ -6,7 +6,7 @@ interface ProjectsChartProps {
 }
 
 export function ProjectsChart({ data }: ProjectsChartProps) {
-  if (data.length === 0) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-base-content/50">
         No data available

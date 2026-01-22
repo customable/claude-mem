@@ -37,9 +37,10 @@ function formatTokens(n: number): string {
 }
 
 export function TokensChart({ data }: TokensChartProps) {
-  const { totals, byType } = data;
+  const totals = data?.totals ?? { totalTokens: 0, avgTokensPerObservation: 0, totalObservations: 0 };
+  const byType = data?.byType ?? [];
 
-  if (totals.totalObservations === 0) {
+  if (!data || totals.totalObservations === 0) {
     return (
       <div className="flex items-center justify-center h-48 text-base-content/50">
         No data available

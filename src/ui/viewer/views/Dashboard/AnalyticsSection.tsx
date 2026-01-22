@@ -37,13 +37,13 @@ export function AnalyticsSection() {
       ]);
 
       setData({
-        timeline: timeline.data,
-        types: types.data,
-        projects: projects.data,
+        timeline: timeline?.data ?? [],
+        types: types?.data ?? [],
+        projects: projects?.data ?? [],
         tokens: {
-          totals: tokens.totals,
-          daily: tokens.daily,
-          byType: tokens.byType,
+          totals: tokens?.totals ?? { totalTokens: 0, avgTokensPerObservation: 0, totalObservations: 0 },
+          daily: tokens?.daily ?? [],
+          byType: tokens?.byType ?? [],
         },
       });
     } catch (err) {
