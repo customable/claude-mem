@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.4.0] - 2026-01-22
+
+### Features
+- Added support for `CLAUDE_MEM_VECTOR_DB=none` to enable SQLite-only mode.
+
+
 ## [1.3.8] - 2026-01-22
 
 ### Bug Fixes
