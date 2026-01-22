@@ -12,3 +12,5 @@ export { Spinner } from './Spinner';
 export { Icon } from './Icon';
 export { EmptyState } from './EmptyState';
 export { Tooltip } from './Tooltip';
+export { Toast, ToastContainer } from './Toast';
+export type { ToastData, ToastType } from './Toast';

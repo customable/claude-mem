@@ -6,6 +6,7 @@ import { ContextTab } from './tabs/ContextTab';
 import { VectorDbTab } from './tabs/VectorDbTab';
 import { AdvancedTab } from './tabs/AdvancedTab';
 import { Button, Icon, Spinner } from '../../components/ui';
+import { useToast } from '../../context';
 
 interface SettingsViewProps {
   tab?: string;
@@ -17,6 +18,7 @@ export function SettingsView({ tab: initialTab }: SettingsViewProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  const toast = useToast();
 
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
@@ -26,10 +28,11 @@ export function SettingsView({ tab: initialTab }: SettingsViewProps) {
       setSettings(data);
     } catch (error) {
       console.error('Failed to fetch settings:', error);
+      toast.error('Failed to load settings');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     fetchSettings();
@@ -43,14 +46,19 @@ export function SettingsView({ tab: initialTab }: SettingsViewProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await fetch('/api/settings', {
+      const response = await fetch('/api/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
       });
+      if (!response.ok) {
+        throw new Error('Failed to save');
+      }
       setHasChanges(false);
+      toast.success('Settings saved successfully');
     } catch (error) {
       console.error('Failed to save settings:', error);
+      toast.error('Failed to save settings');
     } finally {
       setIsSaving(false);
     }
@@ -59,6 +67,7 @@ export function SettingsView({ tab: initialTab }: SettingsViewProps) {
   const handleReset = () => {
     fetchSettings();
     setHasChanges(false);
+    toast.info('Settings reset to last saved values');
   };
 
   if (isLoading) {
