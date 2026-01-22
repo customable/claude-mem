@@ -209,9 +209,9 @@ export class DataRoutes extends BaseRouteHandler {
         COUNT(DISTINCT o.id) as observation_count,
         COUNT(DISTINCT p.id) as prompt_count
       FROM sdk_sessions s
-      LEFT JOIN observations o ON o.sdk_session_id = s.id ${project ? 'AND o.project = ?' : ''}
-      LEFT JOIN user_prompts p ON p.sdk_session_id = s.id
-      ${project ? 'WHERE EXISTS (SELECT 1 FROM observations WHERE sdk_session_id = s.id AND project = ?)' : ''}
+      LEFT JOIN observations o ON o.memory_session_id = s.memory_session_id ${project ? 'AND o.project = ?' : ''}
+      LEFT JOIN user_prompts p ON p.content_session_id = s.content_session_id
+      ${project ? 'WHERE EXISTS (SELECT 1 FROM observations WHERE memory_session_id = s.memory_session_id AND project = ?)' : ''}
       GROUP BY s.id
       ORDER BY s.started_at_epoch DESC
       LIMIT ? OFFSET ?
@@ -223,7 +223,7 @@ export class DataRoutes extends BaseRouteHandler {
     // Get total count
     const countQuery = project
       ? `SELECT COUNT(DISTINCT s.id) as total FROM sdk_sessions s
-         INNER JOIN observations o ON o.sdk_session_id = s.id WHERE o.project = ?`
+         INNER JOIN observations o ON o.memory_session_id = s.memory_session_id WHERE o.project = ?`
       : 'SELECT COUNT(*) as total FROM sdk_sessions';
     const countParams = project ? [project] : [];
     const { total } = db.prepare(countQuery).get(...countParams) as { total: number };
@@ -248,36 +248,36 @@ export class DataRoutes extends BaseRouteHandler {
     const db = this.dbManager.getSessionStore().db;
 
     // Get session info
-    const session = db.prepare('SELECT * FROM sdk_sessions WHERE id = ?').get(id);
+    const session = db.prepare('SELECT * FROM sdk_sessions WHERE id = ?').get(id) as { memory_session_id: string; content_session_id: string } | undefined;
     if (!session) {
       this.notFound(res, `Session #${id} not found`);
       return;
     }
 
-    // Get observations for this session
+    // Get observations for this session (by memory_session_id)
     const observations = db.prepare(`
       SELECT id, type, title, narrative, text, created_at, created_at_epoch, files_read, files_modified, concepts
       FROM observations
-      WHERE sdk_session_id = ?
+      WHERE memory_session_id = ?
       ORDER BY created_at_epoch ASC
-    `).all(id);
+    `).all(session.memory_session_id);
 
-    // Get prompts for this session
+    // Get prompts for this session (by content_session_id)
     const prompts = db.prepare(`
       SELECT id, prompt_text, prompt_number, created_at, created_at_epoch
       FROM user_prompts
-      WHERE sdk_session_id = ?
+      WHERE content_session_id = ?
       ORDER BY created_at_epoch ASC
-    `).all(id);
+    `).all(session.content_session_id);
 
-    // Get summary for this session
+    // Get summary for this session (by memory_session_id)
     const summary = db.prepare(`
       SELECT request, investigated, learned, completed, next_steps, created_at
       FROM session_summaries
-      WHERE sdk_session_id = ?
+      WHERE memory_session_id = ?
       ORDER BY created_at DESC
       LIMIT 1
-    `).get(id);
+    `).get(session.memory_session_id);
 
     // Combine into timeline
     const timeline: any[] = [];
@@ -582,7 +582,7 @@ export class DataRoutes extends BaseRouteHandler {
         const sessionIds = db.prepare(`
           SELECT DISTINCT s.id
           FROM sdk_sessions s
-          INNER JOIN observations o ON o.sdk_session_id = s.id
+          INNER JOIN observations o ON o.memory_session_id = s.memory_session_id
           WHERE o.project = ?
         `).all(project) as Array<{ id: number }>;
 
@@ -604,8 +604,8 @@ export class DataRoutes extends BaseRouteHandler {
       if (project) {
         summaries = db.prepare(`
           SELECT ss.* FROM session_summaries ss
-          INNER JOIN sdk_sessions s ON ss.sdk_session_id = s.id
-          INNER JOIN observations o ON o.sdk_session_id = s.id
+          INNER JOIN sdk_sessions s ON ss.memory_session_id = s.memory_session_id
+          INNER JOIN observations o ON o.memory_session_id = s.memory_session_id
           WHERE o.project = ?
           GROUP BY ss.id
         `).all(project);
@@ -618,8 +618,8 @@ export class DataRoutes extends BaseRouteHandler {
       if (project) {
         prompts = db.prepare(`
           SELECT p.* FROM user_prompts p
-          INNER JOIN sdk_sessions s ON p.sdk_session_id = s.id
-          INNER JOIN observations o ON o.sdk_session_id = s.id
+          INNER JOIN sdk_sessions s ON p.content_session_id = s.content_session_id
+          INNER JOIN observations o ON o.memory_session_id = s.memory_session_id
           WHERE o.project = ?
           GROUP BY p.id
         `).all(project);

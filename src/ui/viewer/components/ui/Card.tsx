@@ -4,11 +4,15 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   compact?: boolean;
+  onClick?: (e: React.MouseEvent) => void;
 }
 
-export function Card({ children, className = '', compact = false }: CardProps) {
+export function Card({ children, className = '', compact = false, onClick }: CardProps) {
   return (
-    <div className={`card bg-base-100 shadow-sm border border-base-200 ${compact ? 'card-compact' : ''} ${className}`}>
+    <div
+      className={`card bg-base-100 shadow-sm border border-base-200 ${compact ? 'card-compact' : ''} ${className}`}
+      onClick={onClick}
+    >
       {children}
     </div>
   );

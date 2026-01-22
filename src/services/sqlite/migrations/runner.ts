@@ -31,6 +31,7 @@ export class MigrationRunner {
     this.renameSessionIdColumns();
     this.repairSessionIdColumnRename();
     this.addFailedAtEpochColumn();
+    this.createTagsTable();
   }
 
   /**
@@ -627,5 +628,52 @@ export class MigrationRunner {
     }
 
     this.db.prepare('INSERT OR IGNORE INTO schema_versions (version, applied_at) VALUES (?, ?)').run(20, new Date().toISOString());
+  }
+
+  /**
+   * Create tags table for observation tagging (migration 21)
+   * Allows users to add custom tags to observations for better organization
+   */
+  private createTagsTable(): void {
+    const applied = this.db.prepare('SELECT version FROM schema_versions WHERE version = ?').get(21) as SchemaVersion | undefined;
+    if (applied) return;
+
+    // Check if table already exists
+    const tables = this.db.query("SELECT name FROM sqlite_master WHERE type='table' AND name='tags'").all() as TableNameRow[];
+    if (tables.length > 0) {
+      this.db.prepare('INSERT OR IGNORE INTO schema_versions (version, applied_at) VALUES (?, ?)').run(21, new Date().toISOString());
+      return;
+    }
+
+    logger.debug('DB', 'Creating tags table');
+
+    // Add tags column to observations if it doesn't exist
+    const observationsInfo = this.db.query('PRAGMA table_info(observations)').all() as TableColumnInfo[];
+    const hasTagsColumn = observationsInfo.some(col => col.name === 'tags');
+    if (!hasTagsColumn) {
+      this.db.run('ALTER TABLE observations ADD COLUMN tags TEXT');
+      this.db.run('CREATE INDEX IF NOT EXISTS idx_observations_tags ON observations(tags)');
+      logger.debug('DB', 'Added tags column to observations table');
+    }
+
+    // Create tags management table
+    this.db.run(`
+      CREATE TABLE IF NOT EXISTS tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        color TEXT DEFAULT '#6b7280',
+        description TEXT,
+        created_at TEXT NOT NULL,
+        created_at_epoch INTEGER NOT NULL,
+        usage_count INTEGER DEFAULT 0
+      )
+    `);
+
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_tags_name ON tags(name)');
+    this.db.run('CREATE INDEX IF NOT EXISTS idx_tags_usage ON tags(usage_count DESC)');
+
+    this.db.prepare('INSERT OR IGNORE INTO schema_versions (version, applied_at) VALUES (?, ?)').run(21, new Date().toISOString());
+
+    logger.debug('DB', 'Tags table created successfully');
   }
 }
