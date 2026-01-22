@@ -77,6 +77,8 @@ export interface SettingsDefaults {
   CLAUDE_MEM_RETENTION_MAX_COUNT: string;        // Keep only last N observations per project (0 = unlimited)
   CLAUDE_MEM_RETENTION_EXCLUDE_TYPES: string;    // JSON array of observation types to exclude from cleanup
   CLAUDE_MEM_RETENTION_SOFT_DELETE: boolean;     // Use soft delete instead of hard delete (archive)
+  // Batch Processing Configuration
+  CLAUDE_MEM_BATCH_SIZE: string;                 // Number of tool events to process per API call (1 = sequential, >1 = batch)
 }
 
 export class SettingsDefaultsManager {
@@ -148,6 +150,8 @@ export class SettingsDefaultsManager {
     CLAUDE_MEM_RETENTION_MAX_COUNT: '0',             // 0 = unlimited
     CLAUDE_MEM_RETENTION_EXCLUDE_TYPES: '["summary"]',  // Keep summaries by default
     CLAUDE_MEM_RETENTION_SOFT_DELETE: true,          // Archive instead of delete by default
+    // Batch Processing Configuration
+    CLAUDE_MEM_BATCH_SIZE: '5',                      // Process 5 tool events per API call by default
   };
 
   /**

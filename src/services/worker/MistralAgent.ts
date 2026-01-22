@@ -16,7 +16,7 @@ import { Mistral } from '@mistralai/mistralai';
 import { DatabaseManager } from './DatabaseManager.js';
 import { SessionManager } from './SessionManager.js';
 import { logger } from '../../utils/logger.js';
-import { buildInitPrompt, buildObservationPrompt, buildSummaryPrompt, buildContinuationPrompt } from '../../sdk/prompts.js';
+import { buildInitPrompt, buildObservationPrompt, buildBatchObservationPrompt, buildSummaryPrompt, buildContinuationPrompt, type Observation } from '../../sdk/prompts.js';
 import { SettingsDefaultsManager } from '../../shared/SettingsDefaultsManager.js';
 import type { ActiveSession, ConversationMessage } from '../worker-types.js';
 import { ModeManager } from '../domain/ModeManager.js';
@@ -76,6 +76,8 @@ export class MistralAgent {
     if (!this.mistralClient || !apiKey) {
       this.mistralClient = new Mistral({
         apiKey,
+        // Request timeout - prevent hanging forever
+        timeoutMs: 120000, // 2 minutes per request
         // Built-in retry with exponential backoff for 429 rate limits
         retryConfig: {
           strategy: 'backoff',
@@ -152,71 +154,135 @@ export class MistralAgent {
         });
       }
 
-      // Process pending messages
+      // Process pending messages with batch processing support
       // Track cwd from messages for CLAUDE.md generation
       let lastCwd: string | undefined;
+
+      // Get batch size from settings (default: 5)
+      const settingsPath = path.join(homedir(), '.claude-mem', 'settings.json');
+      const settings = SettingsDefaultsManager.loadFromFile(settingsPath);
+      const batchSize = parseInt(settings.CLAUDE_MEM_BATCH_SIZE, 10) || 5;
+
+      // Buffer for batch processing
+      interface BatchItem {
+        observation: Observation;
+        originalTimestamp: number | null;
+        promptNumber: number | undefined;
+        cwd: string | undefined;
+      }
+      const observationBatch: BatchItem[] = [];
+
+      // Helper function to process a batch of observations
+      const processBatch = async (batch: BatchItem[]): Promise<void> => {
+        if (batch.length === 0) return;
+
+        // CRITICAL: Check memorySessionId BEFORE making expensive LLM call
+        if (!session.memorySessionId) {
+          throw new Error('Cannot process observations: memorySessionId not yet captured. This session may need to be reinitialized.');
+        }
+
+        // Use earliest timestamp from batch for accurate ordering
+        const earliestTimestamp = batch.reduce((min, item) =>
+          item.originalTimestamp && (!min || item.originalTimestamp < min) ? item.originalTimestamp : min,
+          batch[0].originalTimestamp
+        );
+
+        // Update last prompt number to highest in batch
+        const maxPromptNumber = batch.reduce((max, item) =>
+          item.promptNumber !== undefined && item.promptNumber > (max ?? 0) ? item.promptNumber : max,
+          session.lastPromptNumber
+        );
+        if (maxPromptNumber !== undefined) {
+          session.lastPromptNumber = maxPromptNumber;
+        }
+
+        // Build batch or single observation prompt
+        const observations = batch.map(item => item.observation);
+        const obsPrompt = batch.length === 1
+          ? buildObservationPrompt(observations[0])
+          : buildBatchObservationPrompt(observations);
+
+        logger.info('SDK', `Processing batch of ${batch.length} observations`, {
+          sessionId: session.sessionDbId,
+          batchSize: batch.length,
+          tools: observations.map(o => o.tool_name).join(', ')
+        });
+
+        // Add to conversation history and query Mistral
+        session.conversationHistory.push({ role: 'user', content: obsPrompt });
+
+        // Limit history to prevent exponential slowdown (keep first 2 + last 10 messages)
+        if (session.conversationHistory.length > 12) {
+          const first = session.conversationHistory.slice(0, 2);  // Init prompt + response
+          const last = session.conversationHistory.slice(-10);    // Last 10 messages
+          session.conversationHistory.length = 0;
+          session.conversationHistory.push(...first, ...last);
+        }
+
+        const obsResponse = await this.queryMistralMultiTurn(session.conversationHistory, model);
+
+        let tokensUsed = 0;
+        if (obsResponse.content) {
+          session.conversationHistory.push({ role: 'assistant', content: obsResponse.content });
+
+          const inputTokens = obsResponse.inputTokens || 0;
+          const outputTokens = obsResponse.outputTokens || 0;
+          tokensUsed = inputTokens + outputTokens;
+          session.cumulativeInputTokens += inputTokens;
+          session.cumulativeOutputTokens += outputTokens;
+        }
+
+        // Process response (ResponseProcessor handles multiple observations)
+        await processAgentResponse(
+          obsResponse.content || '',
+          session,
+          this.dbManager,
+          this.sessionManager,
+          worker,
+          tokensUsed,
+          earliestTimestamp,
+          'Mistral',
+          lastCwd
+        );
+      };
 
       for await (const message of this.sessionManager.getMessageIterator(session.sessionDbId)) {
         // Capture cwd from each message for worktree support
         if (message.cwd) {
           lastCwd = message.cwd;
         }
-        // Capture earliest timestamp BEFORE processing (will be cleared after)
-        // This ensures backlog messages get their original timestamps, not current time
+        // Capture earliest timestamp BEFORE processing
         const originalTimestamp = session.earliestPendingTimestamp;
 
         if (message.type === 'observation') {
-          // Update last prompt number
-          if (message.prompt_number !== undefined) {
-            session.lastPromptNumber = message.prompt_number;
-          }
-
-          // CRITICAL: Check memorySessionId BEFORE making expensive LLM call
-          // This prevents wasting tokens when we won't be able to store the result anyway
-          if (!session.memorySessionId) {
-            throw new Error('Cannot process observations: memorySessionId not yet captured. This session may need to be reinitialized.');
-          }
-
-          // Build observation prompt
-          const obsPrompt = buildObservationPrompt({
-            id: 0,
-            tool_name: message.tool_name!,
-            tool_input: JSON.stringify(message.tool_input),
-            tool_output: JSON.stringify(message.tool_response),
-            created_at_epoch: originalTimestamp ?? Date.now(),
+          // Add to batch
+          observationBatch.push({
+            observation: {
+              id: 0,
+              tool_name: message.tool_name!,
+              tool_input: JSON.stringify(message.tool_input),
+              tool_output: JSON.stringify(message.tool_response),
+              created_at_epoch: originalTimestamp ?? Date.now(),
+              cwd: message.cwd
+            },
+            originalTimestamp,
+            promptNumber: message.prompt_number,
             cwd: message.cwd
           });
 
-          // Add to conversation history and query Mistral with full context
-          session.conversationHistory.push({ role: 'user', content: obsPrompt });
-          const obsResponse = await this.queryMistralMultiTurn(session.conversationHistory, model);
-
-          let tokensUsed = 0;
-          if (obsResponse.content) {
-            // Add response to conversation history
-            session.conversationHistory.push({ role: 'assistant', content: obsResponse.content });
-
-            const inputTokens = obsResponse.inputTokens || 0;
-            const outputTokens = obsResponse.outputTokens || 0;
-            tokensUsed = inputTokens + outputTokens;
-            session.cumulativeInputTokens += inputTokens;
-            session.cumulativeOutputTokens += outputTokens;
+          // Process batch when full
+          if (observationBatch.length >= batchSize) {
+            await processBatch(observationBatch);
+            observationBatch.length = 0; // Clear batch
           }
 
-          // Process response using shared ResponseProcessor
-          await processAgentResponse(
-            obsResponse.content || '',
-            session,
-            this.dbManager,
-            this.sessionManager,
-            worker,
-            tokensUsed,
-            originalTimestamp,
-            'Mistral',
-            lastCwd
-          );
-
         } else if (message.type === 'summarize') {
+          // Process any pending observations before summary
+          if (observationBatch.length > 0) {
+            await processBatch(observationBatch);
+            observationBatch.length = 0;
+          }
+
           // CRITICAL: Check memorySessionId BEFORE making expensive LLM call
           if (!session.memorySessionId) {
             throw new Error('Cannot process summary: memorySessionId not yet captured. This session may need to be reinitialized.');
@@ -237,7 +303,6 @@ export class MistralAgent {
 
           let tokensUsed = 0;
           if (summaryResponse.content) {
-            // Add response to conversation history
             session.conversationHistory.push({ role: 'assistant', content: summaryResponse.content });
 
             const inputTokens = summaryResponse.inputTokens || 0;
@@ -260,6 +325,11 @@ export class MistralAgent {
             lastCwd
           );
         }
+      }
+
+      // Process any remaining observations in batch
+      if (observationBatch.length > 0) {
+        await processBatch(observationBatch);
       }
 
       // Mark session complete
