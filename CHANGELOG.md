@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.14.1] - 2026-01-23
+
+### Bug Fixes
+- Write SSE writer logs to file for debugging
+
+### Documentation
+- Add `sync-marketplace` command documentation
+- Document CLAUDE.md auto-generation feature
+
+
 ## [2.14.0] - 2026-01-23
 
 ### Features
