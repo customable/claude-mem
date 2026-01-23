@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.1] - 2026-01-23
+
+### Bug Fixes
+- Fixed build-plugin.js to .mjs for Node.js ES module compatibility
+
+
 ## [2.4.0] - 2026-01-23
 
 ### Features
