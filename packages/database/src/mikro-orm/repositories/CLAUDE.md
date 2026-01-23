@@ -11,9 +11,9 @@
 
 ## Key Insights
 
-- MikroORM is used for database operations, with raw SQL for FTS5 full-text search
-- Project uses modular architecture with distributed CLAUDE.md documentation
-- Task processing bottlenecks identified, requiring optimization
-- SSE Writer and WebSocket clients are key components for real-time communication
-- Recent migrations added session request types and documents table
+- **Task Queue Optimization**: Implemented `CLAUDEMD_TASK_TIMEOUT` and `CLAUDEMD_MAX_SUBDIRS` to address queue overload issues.
+- **Priority Adjustment**: Lowered `claude-md` task priority to improve overall system performance.
+- **MikroORM Discovery**: Identified raw SQL usage in `ObservationRepository` for FTS5 full-text search due to MikroORM limitations.
+- **Documentation Updates**: Committed updated `CLAUDE.md` files across packages with new configurable settings.
+- **Next Steps**: Monitor task queue performance and push pending commits to the remote repository.
 </claude-mem-context>
