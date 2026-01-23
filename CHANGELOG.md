@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.16.0] - 2026-01-23
+
+### Features
+- Added `targetDirectory` support for subdirectory `CLAUDE.md` files
+
+### Improvements
+- Updated auto-generated `CLAUDE.md` files in plugin
+- Added database query examples and hooks documentation
+
+
 ## [2.15.0] - 2026-01-23
 
 ### Features
