@@ -120,7 +120,14 @@ function spawnSseWriter(input: HookInput): void {
 
   // Find SSE writer script
   // In plugin mode, it's bundled alongside
-  const scriptDir = path.dirname(new URL(import.meta.url).pathname);
+  // Use try-catch because import.meta.url is undefined in CJS bundles
+  let scriptDir: string;
+  try {
+    scriptDir = path.dirname(new URL(import.meta.url).pathname);
+  } catch {
+    // CJS bundle - derive from process.argv[1] (the script path)
+    scriptDir = path.dirname(process.argv[1] || process.cwd());
+  }
   const possiblePaths = [
     path.join(scriptDir, 'sse-writer.cjs'),       // Plugin bundle
     path.join(scriptDir, '..', 'sse-writer.cjs'), // Alternative location
