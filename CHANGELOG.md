@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.2] - 2026-01-23
+
+### Bug Fixes
+- Fixed VERSION constant in constants.ts to ensure correct version during release
+
+
 ## [2.17.1] - 2026-01-23
 
 ### Bug Fixes
