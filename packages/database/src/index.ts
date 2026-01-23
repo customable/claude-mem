@@ -3,27 +3,15 @@
  *
  * Database layer for claude-mem.
  *
- * Provides two implementations:
- * 1. SQLite with raw bun:sqlite (default, legacy)
- * 2. MikroORM (multi-database support: SQLite, PostgreSQL, MySQL)
- *
- * The Repository pattern allows for easy extension to other databases.
+ * Uses MikroORM for multi-database support (SQLite, PostgreSQL, MySQL).
+ * The Repository pattern provides clean abstractions for data access.
  */
 
-// Database factory (recommended entry point)
-export {
-  createDatabase,
-  getDefaultDatabaseOptions,
-  type DatabaseBackend,
-  type DatabaseFactoryOptions,
-  type DatabaseConnection,
-} from './factory.js';
-
-// SQLite implementation (default, legacy)
-export * from './sqlite/index.js';
-
-// MikroORM implementation (multi-database support)
+// MikroORM implementation (primary entry point)
 export * as mikroOrm from './mikro-orm/index.js';
+
+// SQLite implementation (legacy, for migration compatibility)
+export * from './sqlite/index.js';
 
 // Migrations
 export { MigrationRunner, migrations } from './migrations/index.js';
