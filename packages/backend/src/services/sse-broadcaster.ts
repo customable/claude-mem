@@ -14,18 +14,19 @@ const logger = createLogger('sse');
  */
 export type SSEEventType =
   | 'connected'
-  | 'processing_status'
-  | 'new_prompt'
-  | 'session_started'
-  | 'session_completed'
-  | 'observation_created'
-  | 'observation_queued'
-  | 'summary_created'
-  | 'worker_connected'
-  | 'worker_disconnected'
-  | 'task_queued'
-  | 'task_completed'
-  | 'task_failed';
+  | 'processing:status'
+  | 'prompt:new'
+  | 'session:started'
+  | 'session:ended'
+  | 'observation:created'
+  | 'observation:queued'
+  | 'summary:created'
+  | 'worker:connected'
+  | 'worker:disconnected'
+  | 'task:queued'
+  | 'task:assigned'
+  | 'task:completed'
+  | 'task:failed';
 
 /**
  * SSE Event payload
@@ -106,12 +107,13 @@ export class SSEBroadcaster {
       timestamp: event.timestamp ?? Date.now(),
     };
 
-    const data = `data: ${JSON.stringify(eventWithTimestamp)}\n\n`;
+    // SSE format - send as generic message (no event: header) so onmessage receives it
+    const sseMessage = `data: ${JSON.stringify(eventWithTimestamp)}\n\n`;
 
     for (const [clientId, client] of this.clients) {
       try {
         if (!client.res.writableEnded) {
-          client.res.write(data);
+          client.res.write(sseMessage);
         } else {
           // Client connection closed
           this.clients.delete(clientId);
@@ -137,7 +139,8 @@ export class SSEBroadcaster {
 
     try {
       if (!client.res.writableEnded) {
-        client.res.write(`data: ${JSON.stringify(eventWithTimestamp)}\n\n`);
+        const sseMessage = `data: ${JSON.stringify(eventWithTimestamp)}\n\n`;
+        client.res.write(sseMessage);
         return true;
       }
     } catch {
@@ -170,7 +173,7 @@ export class SSEBroadcaster {
     connectedWorkers: number;
   }): void {
     this.broadcast({
-      type: 'processing_status',
+      type: 'processing:status',
       data: status,
     });
   }
@@ -180,7 +183,7 @@ export class SSEBroadcaster {
    */
   broadcastNewPrompt(sessionId: string, promptNumber: number): void {
     this.broadcast({
-      type: 'new_prompt',
+      type: 'prompt:new',
       data: { sessionId, promptNumber },
     });
   }
@@ -190,7 +193,7 @@ export class SSEBroadcaster {
    */
   broadcastSessionStarted(sessionId: string, project: string): void {
     this.broadcast({
-      type: 'session_started',
+      type: 'session:started',
       data: { sessionId, project },
     });
   }
@@ -200,7 +203,7 @@ export class SSEBroadcaster {
    */
   broadcastSessionCompleted(sessionId: string): void {
     this.broadcast({
-      type: 'session_completed',
+      type: 'session:ended',
       data: { sessionId },
     });
   }
@@ -210,7 +213,7 @@ export class SSEBroadcaster {
    */
   broadcastObservationCreated(observationId: number, sessionId: string): void {
     this.broadcast({
-      type: 'observation_created',
+      type: 'observation:created',
       data: { observationId, sessionId },
     });
   }
@@ -220,7 +223,7 @@ export class SSEBroadcaster {
    */
   broadcastWorkerConnected(workerId: string, capabilities: string[]): void {
     this.broadcast({
-      type: 'worker_connected',
+      type: 'worker:connected',
       data: { workerId, capabilities },
     });
   }
@@ -230,7 +233,7 @@ export class SSEBroadcaster {
    */
   broadcastWorkerDisconnected(workerId: string): void {
     this.broadcast({
-      type: 'worker_disconnected',
+      type: 'worker:disconnected',
       data: { workerId },
     });
   }
@@ -240,8 +243,18 @@ export class SSEBroadcaster {
    */
   broadcastTaskQueued(taskId: string, taskType: string): void {
     this.broadcast({
-      type: 'task_queued',
+      type: 'task:queued',
       data: { taskId, taskType },
+    });
+  }
+
+  /**
+   * Broadcast task assigned to worker
+   */
+  broadcastTaskAssigned(taskId: string, workerId: string, taskType: string): void {
+    this.broadcast({
+      type: 'task:assigned',
+      data: { taskId, workerId, taskType },
     });
   }
 
@@ -250,7 +263,7 @@ export class SSEBroadcaster {
    */
   broadcastTaskCompleted(taskId: string): void {
     this.broadcast({
-      type: 'task_completed',
+      type: 'task:completed',
       data: { taskId },
     });
   }

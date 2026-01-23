@@ -18,8 +18,9 @@ export class StreamRouter extends BaseRouter {
   }
 
   protected setupRoutes(): void {
-    // SSE stream endpoint
+    // SSE stream endpoint - supports both /api/stream and /api/stream/events
     this.router.get('/', this.stream.bind(this));
+    this.router.get('/events', this.stream.bind(this));
   }
 
   /**

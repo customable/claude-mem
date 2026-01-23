@@ -65,7 +65,7 @@ async function buildPlugin() {
   }
 
   // Step 1: Build TypeScript packages
-  console.log('\n[1/5] Building TypeScript packages...');
+  console.log('\n[1/6] Building TypeScript packages...');
   try {
     await runCommand('pnpm', ['build']);
     console.log('TypeScript build complete');
@@ -75,7 +75,7 @@ async function buildPlugin() {
   }
 
   // Step 2: Build UI with Vite
-  console.log('\n[2/5] Building UI...');
+  console.log('\n[2/6] Building UI...');
   try {
     await runCommand('pnpm', ['--filter', '@claude-mem/ui', 'build']);
 
@@ -103,7 +103,7 @@ async function buildPlugin() {
   }
 
   // Step 3: Bundle worker-service.cjs
-  console.log('\n[3/5] Bundling worker-service.cjs...');
+  console.log('\n[3/6] Bundling worker-service.cjs...');
   try {
     await build({
       entryPoints: [path.join(ROOT, 'packages/hooks/src/plugin-entry.ts')],
@@ -137,7 +137,7 @@ async function buildPlugin() {
   }
 
   // Step 4: Bundle mcp-server.cjs
-  console.log('\n[4/5] Bundling mcp-server.cjs...');
+  console.log('\n[4/6] Bundling mcp-server.cjs...');
   try {
     await build({
       entryPoints: [path.join(ROOT, 'packages/hooks/src/mcp-entry.ts')],
@@ -166,8 +166,21 @@ async function buildPlugin() {
     process.exit(1);
   }
 
-  // Step 5: Generate plugin/package.json
-  console.log('\n[5/5] Generating plugin/package.json...');
+  // Step 5: Copy smart-install.js
+  console.log('\n[5/6] Copying smart-install.js...');
+  try {
+    const smartInstallSrc = path.join(ROOT, 'packages/hooks/src/smart-install.js');
+    const smartInstallDest = path.join(scriptsDir, 'smart-install.js');
+    fs.copyFileSync(smartInstallSrc, smartInstallDest);
+    const stats = fs.statSync(smartInstallDest);
+    console.log(`smart-install.js copied (${(stats.size / 1024).toFixed(2)} KB)`);
+  } catch (err) {
+    console.error('smart-install.js copy failed:', err.message);
+    process.exit(1);
+  }
+
+  // Step 6: Generate plugin/package.json
+  console.log('\n[6/6] Generating plugin/package.json...');
   const pluginPackageJson = {
     name: 'claude-mem-plugin',
     version: version,
@@ -202,6 +215,7 @@ async function buildPlugin() {
   console.log(`Output: ${path.relative(ROOT, path.join(ROOT, 'plugin'))}/`);
   console.log('  - scripts/worker-service.cjs');
   console.log('  - scripts/mcp-server.cjs');
+  console.log('  - scripts/smart-install.js');
   console.log('  - ui/');
   console.log('  - package.json');
 }

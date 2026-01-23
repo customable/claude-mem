@@ -20,7 +20,7 @@ const SQLITE_CACHE_SIZE_PAGES = 10_000;
  */
 export class SQLiteConnection implements IDatabaseConnection {
   private db: Database | null = null;
-  private dbPath: string;
+  private readonly dbPath: string;
   private isInitialized = false;
 
   constructor(config?: DatabaseConfig) {

@@ -192,8 +192,8 @@ const defaultConfig: LoggerConfig = {
  * Logger class
  */
 export class Logger {
-  private context: string;
-  private config: LoggerConfig;
+  private readonly context: string;
+  private readonly config: LoggerConfig;
 
   constructor(context: string, config: Partial<LoggerConfig> = {}) {
     this.context = context;

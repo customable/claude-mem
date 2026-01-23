@@ -299,9 +299,12 @@ export class WorkerHub {
     worker.currentTaskId = taskId;
     this.send(worker.socket, {
       type: 'task:assign',
-      taskId,
-      taskType,
-      payload,
+      task: {
+        id: taskId,
+        type: taskType,
+        payload,
+      },
+      capability: taskType, // Use taskType as capability hint
     });
 
     logger.info(`Assigned task ${taskId} (${taskType}) to worker ${workerId}`);

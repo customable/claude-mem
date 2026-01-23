@@ -98,7 +98,7 @@ export class BackendClient {
     if (!response.ok) {
       throw new Error(`GET ${path} failed: ${response.status}`);
     }
-    return response.json() as Promise<T>;
+    return await response.json() as Promise<T>;
   }
 
   /**
@@ -114,7 +114,7 @@ export class BackendClient {
     if (!response.ok) {
       throw new Error(`POST ${path} failed: ${response.status}`);
     }
-    return response.json() as Promise<T>;
+    return await response.json() as Promise<T>;
   }
 
   /**

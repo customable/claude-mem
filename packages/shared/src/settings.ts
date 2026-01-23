@@ -188,7 +188,7 @@ const NUMBER_KEYS: SettingKey[] = [
  */
 export class SettingsManager {
   private settings: Settings;
-  private settingsPath: string;
+  private readonly settingsPath: string;
 
   constructor(settingsPath?: string) {
     this.settingsPath = settingsPath || join(DEFAULT_DATA_DIR, 'settings.json');
@@ -211,7 +211,8 @@ export class SettingsManager {
         if (parsed.env && typeof parsed.env === 'object') {
           fileSettings = this.migrateLegacySettings(parsed.env);
         } else {
-          fileSettings = parsed;
+          // Also migrate root-level legacy keys (CLAUDE_MEM_* prefix)
+          fileSettings = this.migrateLegacySettings(parsed);
         }
       }
     } catch (error) {
