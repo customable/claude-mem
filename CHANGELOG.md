@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.3] - 2026-01-23
+
+### Bug Fixes
+- Fixed Docker build to use Node.js and pnpm
+- Prevented CI from being canceled prematurely
+
+
 ## [1.20.2] - 2026-01-23
 
 ### Bug Fixes
