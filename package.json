@@ -11,7 +11,7 @@
     "build:worker": "pnpm --filter @claude-mem/worker build",
     "build:hooks": "pnpm --filter @claude-mem/hooks build",
     "build:ui": "pnpm --filter @claude-mem/ui build",
-    "build:plugin": "node scripts/build-plugin.js",
+    "build:plugin": "node scripts/build-plugin.mjs",
     "dev": "pnpm build:plugin && pnpm sync-marketplace",
     "dev:ui": "pnpm --filter @claude-mem/ui dev",
     "dev:web": "pnpm --filter @claude-mem/web dev",
