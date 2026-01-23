@@ -258,6 +258,9 @@ export class BackendService {
 
       // Start periodic cleanup
       this.startPeriodicCleanup();
+
+      // Auto-spawn workers if configured
+      await this.autoSpawnWorkers();
     } catch (error) {
       const err = error as Error;
       logger.error('Background initialization failed:', { message: err.message, stack: err.stack });
@@ -352,6 +355,41 @@ export class BackendService {
         logger.error('Periodic cleanup error:', { message: err.message });
       }
     }, 5 * 60 * 1000);
+  }
+
+  /**
+   * Auto-spawn workers on startup if configured
+   */
+  private async autoSpawnWorkers(): Promise<void> {
+    if (!this.settings.AUTO_SPAWN_WORKERS) {
+      return;
+    }
+
+    if (!this.workerProcessManager?.canSpawnWorkers()) {
+      logger.warn('Auto-spawn enabled but worker binary not found');
+      return;
+    }
+
+    const count = this.settings.AUTO_SPAWN_WORKER_COUNT || 2;
+    const providersStr = this.settings.AUTO_SPAWN_PROVIDERS || '';
+    const providers = providersStr.split(',').filter(Boolean);
+
+    logger.info(`Auto-spawning ${count} workers...`);
+
+    for (let i = 0; i < count; i++) {
+      try {
+        // Cycle through providers if specified, otherwise use default
+        const provider = providers.length > 0
+          ? providers[i % providers.length]
+          : undefined;
+
+        const result = await this.workerProcessManager!.spawn({ provider });
+        logger.info(`Auto-spawned worker ${result.id} (PID: ${result.pid}, provider: ${result.provider})`);
+      } catch (error) {
+        const err = error as Error;
+        logger.error(`Failed to auto-spawn worker ${i + 1}:`, { message: err.message });
+      }
+    }
   }
 
   /**

@@ -26,6 +26,7 @@ export interface WorkerHubOptions {
 export class WorkerHub {
   private wss: WebSocketServer | null = null;
   private workers: Map<string, ConnectedWorker> = new Map();
+  private authenticatedWorkers: Set<string> = new Set();
   private heartbeatInterval: Timer | null = null;
   private workerCounter = 0;
 
@@ -70,15 +71,26 @@ export class WorkerHub {
   /**
    * Handle new WebSocket connection
    */
-  private handleConnection(socket: WebSocket, request: { url?: string }): void {
+  private handleConnection(socket: WebSocket, request: { url?: string; socket?: { remoteAddress?: string } }): void {
     const workerId = `worker-${++this.workerCounter}-${Date.now()}`;
-    logger.info(`New connection from potential worker: ${workerId}`);
+
+    // Get remote address to determine if external
+    const remoteAddress = request.socket?.remoteAddress || '';
+    const isLocalhost = remoteAddress === '127.0.0.1' ||
+                        remoteAddress === '::1' ||
+                        remoteAddress === '::ffff:127.0.0.1' ||
+                        remoteAddress === '';
+
+    logger.info(`New connection from potential worker: ${workerId} (${remoteAddress}, local: ${isLocalhost})`);
+
+    // Store connection info for auth check
+    const connectionInfo = { isLocalhost, remoteAddress };
 
     // Set up message handler
     socket.on('message', (data) => {
       try {
         const message = JSON.parse(data.toString()) as WorkerToBackendMessage;
-        this.handleMessage(workerId, socket, message);
+        this.handleMessage(workerId, socket, message, connectionInfo);
       } catch (error) {
         const err = error as Error;
         logger.error(`Failed to parse message from ${workerId}:`, { message: err.message });
@@ -94,11 +106,14 @@ export class WorkerHub {
       logger.error(`Socket error for ${workerId}:`, { message: error.message, stack: error.stack });
     });
 
+    // External connections ALWAYS require auth, localhost only if token is set
+    const requiresAuth = !isLocalhost || !!this.authToken;
+
     // Send connection acknowledgment - worker must authenticate within timeout
     this.send(socket, {
       type: 'connection:pending',
       workerId,
-      requiresAuth: !!this.authToken,
+      requiresAuth,
     });
   }
 
@@ -108,15 +123,16 @@ export class WorkerHub {
   private handleMessage(
     workerId: string,
     socket: WebSocket,
-    message: WorkerToBackendMessage
+    message: WorkerToBackendMessage,
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string }
   ): void {
     switch (message.type) {
       case 'auth':
-        this.handleAuth(workerId, socket, message);
+        this.handleAuth(workerId, socket, message, connectionInfo);
         break;
 
       case 'register':
-        this.handleRegister(workerId, socket, message);
+        this.handleRegister(workerId, socket, message, connectionInfo);
         break;
 
       case 'heartbeat':
@@ -146,17 +162,35 @@ export class WorkerHub {
   private handleAuth(
     workerId: string,
     socket: WebSocket,
-    message: WorkerToBackendMessage & { type: 'auth' }
+    message: WorkerToBackendMessage & { type: 'auth' },
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string }
   ): void {
-    if (this.authToken && message.token !== this.authToken) {
+    // External connections ALWAYS require valid auth token
+    if (!connectionInfo.isLocalhost) {
+      if (!this.authToken) {
+        logger.warn(`External worker ${workerId} rejected - no auth token configured`);
+        this.send(socket, { type: 'auth:failed', reason: 'Server has no auth token configured for external connections' });
+        socket.close(4001, 'Unauthorized');
+        return;
+      }
+      if (message.token !== this.authToken) {
+        logger.warn(`External worker ${workerId} rejected - invalid token`);
+        this.send(socket, { type: 'auth:failed', reason: 'Invalid token' });
+        socket.close(4001, 'Unauthorized');
+        return;
+      }
+    } else if (this.authToken && message.token !== this.authToken) {
+      // Localhost with token configured - still validate
       logger.warn(`Authentication failed for ${workerId}`);
       this.send(socket, { type: 'auth:failed', reason: 'Invalid token' });
       socket.close(4001, 'Unauthorized');
       return;
     }
 
+    // Mark worker as authenticated
+    this.authenticatedWorkers.add(workerId);
     this.send(socket, { type: 'auth:success' });
-    logger.info(`Worker ${workerId} authenticated`);
+    logger.info(`Worker ${workerId} authenticated (localhost: ${connectionInfo.isLocalhost})`);
   }
 
   /**
@@ -165,16 +199,20 @@ export class WorkerHub {
   private handleRegister(
     workerId: string,
     socket: WebSocket,
-    message: WorkerToBackendMessage & { type: 'register' }
+    message: WorkerToBackendMessage & { type: 'register' },
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string }
   ): void {
-    // Check if authenticated when required
-    if (this.authToken) {
-      const existingWorker = this.workers.get(workerId);
-      if (!existingWorker) {
-        // Worker must authenticate first
-        this.send(socket, { type: 'error', message: 'Must authenticate before registering' });
-        return;
-      }
+    // External connections MUST be authenticated
+    if (!connectionInfo.isLocalhost && !this.authenticatedWorkers.has(workerId)) {
+      this.send(socket, { type: 'error', message: 'External workers must authenticate before registering' });
+      socket.close(4001, 'Unauthorized');
+      return;
+    }
+
+    // Localhost with auth token configured must also authenticate
+    if (connectionInfo.isLocalhost && this.authToken && !this.authenticatedWorkers.has(workerId)) {
+      this.send(socket, { type: 'error', message: 'Must authenticate before registering' });
+      return;
     }
 
     // Extract capabilities from the register message
@@ -259,8 +297,12 @@ export class WorkerHub {
     const worker = this.workers.get(workerId);
     if (worker) {
       this.workers.delete(workerId);
+      this.authenticatedWorkers.delete(workerId);
       logger.info(`Worker ${workerId} disconnected`);
       this.onWorkerDisconnected?.(workerId);
+    } else {
+      // Clean up auth state even if worker wasn't fully registered
+      this.authenticatedWorkers.delete(workerId);
     }
   }
 

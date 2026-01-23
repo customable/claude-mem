@@ -31,9 +31,12 @@ export interface Settings {
   EMBEDDED_WORKER: boolean;
   MAX_WORKERS: number;
   AUTO_SPAWN_WORKERS: boolean;
+  AUTO_SPAWN_WORKER_COUNT: number;
+  AUTO_SPAWN_PROVIDERS: string; // Comma-separated list of providers to cycle through
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic';
+  ENABLED_PROVIDERS: string; // Comma-separated list of enabled providers (e.g., "mistral,gemini")
   MISTRAL_API_KEY: string;
   MISTRAL_MODEL: string;
   GEMINI_API_KEY: string;
@@ -101,9 +104,12 @@ export const DEFAULTS: Settings = {
   EMBEDDED_WORKER: true,
   MAX_WORKERS: 4,
   AUTO_SPAWN_WORKERS: false,
+  AUTO_SPAWN_WORKER_COUNT: 2,
+  AUTO_SPAWN_PROVIDERS: '', // Empty = use AI_PROVIDER for all
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral',
+  ENABLED_PROVIDERS: '', // Empty = all configured providers are enabled
   MISTRAL_API_KEY: '',
   MISTRAL_MODEL: 'mistral-small-latest',
   GEMINI_API_KEY: '',
@@ -176,6 +182,7 @@ const NUMBER_KEYS: SettingKey[] = [
   'BACKEND_PORT',
   'BACKEND_WS_PORT',
   'MAX_WORKERS',
+  'AUTO_SPAWN_WORKER_COUNT',
   'CONTEXT_OBSERVATION_LIMIT',
   'BATCH_SIZE',
   'RETENTION_MAX_AGE_DAYS',
@@ -429,4 +436,30 @@ export function saveSettings(settings: Partial<Settings>): void {
     }
   }
   manager.save();
+}
+
+/**
+ * Generate a random auth token
+ */
+export function generateAuthToken(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
+}
+
+/**
+ * Ensure a worker auth token exists
+ * Generates and saves one if not present
+ */
+export function ensureWorkerAuthToken(): string {
+  const settings = loadSettings();
+  if (!settings.WORKER_AUTH_TOKEN) {
+    const token = generateAuthToken();
+    saveSettings({ WORKER_AUTH_TOKEN: token });
+    return token;
+  }
+  return settings.WORKER_AUTH_TOKEN;
 }

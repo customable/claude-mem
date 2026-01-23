@@ -105,6 +105,7 @@ export class WorkersRouter extends BaseRouter {
    */
   private async getSpawnStatus(_req: Request, res: Response): Promise<void> {
     const settings = loadSettings();
+    const enabledProviders = (settings.ENABLED_PROVIDERS || '').split(',').filter(Boolean);
 
     if (!this.deps.workerProcessManager) {
       this.success(res, {
@@ -113,6 +114,8 @@ export class WorkersRouter extends BaseRouter {
         spawnedCount: 0,
         maxWorkers: settings.MAX_WORKERS,
         canSpawnMore: false,
+        enabledProviders,
+        defaultProvider: settings.AI_PROVIDER,
       });
       return;
     }
@@ -125,6 +128,8 @@ export class WorkersRouter extends BaseRouter {
       spawnedCount,
       maxWorkers: settings.MAX_WORKERS,
       canSpawnMore: spawnedCount < settings.MAX_WORKERS,
+      enabledProviders,
+      defaultProvider: settings.AI_PROVIDER,
     });
   }
 
@@ -152,14 +157,17 @@ export class WorkersRouter extends BaseRouter {
 
   /**
    * POST /api/workers/spawn
+   * Body: { provider?: string }
    */
-  private async spawnWorker(_req: Request, res: Response): Promise<void> {
+  private async spawnWorker(req: Request, res: Response): Promise<void> {
     if (!this.deps.workerProcessManager) {
       this.badRequest('Worker process manager not available');
     }
 
+    const { provider } = req.body as { provider?: string };
+
     try {
-      const result = await this.deps.workerProcessManager!.spawn();
+      const result = await this.deps.workerProcessManager!.spawn({ provider });
       this.created(res, {
         message: 'Worker spawned',
         ...result,

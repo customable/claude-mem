@@ -22,6 +22,7 @@ export interface SpawnedWorker {
   status: 'starting' | 'running' | 'stopping' | 'stopped' | 'crashed';
   exitCode?: number;
   connectedWorkerId?: string;
+  provider?: string;
 }
 
 export interface SpawnedWorkerInfo {
@@ -30,6 +31,11 @@ export interface SpawnedWorkerInfo {
   status: string;
   spawnedAt: number;
   connectedWorkerId?: string;
+  provider?: string;
+}
+
+export interface SpawnOptions {
+  provider?: string; // Override AI_PROVIDER for this worker
 }
 
 export interface WorkerProcessManagerEvents {
@@ -119,13 +125,14 @@ export class WorkerProcessManager extends EventEmitter {
       status: w.status,
       spawnedAt: w.spawnedAt,
       connectedWorkerId: w.connectedWorkerId,
+      provider: w.provider,
     }));
   }
 
   /**
    * Spawn a new worker process
    */
-  async spawn(): Promise<{ id: string; pid: number }> {
+  async spawn(options: SpawnOptions = {}): Promise<{ id: string; pid: number; provider: string }> {
     const settings = loadSettings();
 
     // Check max workers limit
@@ -138,6 +145,7 @@ export class WorkerProcessManager extends EventEmitter {
     }
 
     const id = `spawned-${++this.workerCounter}-${Date.now()}`;
+    const provider = options.provider || settings.AI_PROVIDER;
 
     // Build WebSocket URL for the worker
     const wsUrl = `ws://${this.backendHost}:${this.backendPort}/ws`;
@@ -149,7 +157,7 @@ export class WorkerProcessManager extends EventEmitter {
       CLAUDE_MEM_BACKEND_HOST: this.backendHost,
       CLAUDE_MEM_BACKEND_PORT: String(this.backendPort),
       CLAUDE_MEM_LOG_LEVEL: settings.LOG_LEVEL,
-      CLAUDE_MEM_AI_PROVIDER: settings.AI_PROVIDER,
+      CLAUDE_MEM_AI_PROVIDER: provider,
       CLAUDE_MEM_SPAWNED_ID: id, // Pass spawned ID so worker includes it in metadata
     };
 
@@ -193,6 +201,7 @@ export class WorkerProcessManager extends EventEmitter {
       pid: child.pid,
       spawnedAt: Date.now(),
       status: 'starting',
+      provider,
     };
 
     this.spawnedWorkers.set(id, spawnedWorker);
@@ -233,7 +242,7 @@ export class WorkerProcessManager extends EventEmitter {
       }
     });
 
-    return { id, pid: child.pid };
+    return { id, pid: child.pid, provider };
   }
 
   /**

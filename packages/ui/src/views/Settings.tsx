@@ -15,6 +15,7 @@ interface Settings {
 
   // Provider
   AI_PROVIDER?: string;
+  ENABLED_PROVIDERS?: string; // Comma-separated list
   MISTRAL_API_KEY?: string;
   MISTRAL_MODEL?: string;
   GEMINI_API_KEY?: string;
@@ -34,6 +35,8 @@ interface Settings {
   // Workers
   MAX_WORKERS?: number;
   AUTO_SPAWN_WORKERS?: boolean;
+  AUTO_SPAWN_WORKER_COUNT?: number;
+  AUTO_SPAWN_PROVIDERS?: string; // Comma-separated list
   EMBEDDED_WORKER?: boolean;
   WORKER_AUTH_TOKEN?: string;
 
@@ -355,16 +358,43 @@ function GeneralSettings({ settings, onChange }: TabProps) {
   );
 }
 
+const ALL_PROVIDERS = [
+  { id: 'mistral', name: 'Mistral', keyField: 'MISTRAL_API_KEY' },
+  { id: 'gemini', name: 'Google Gemini', keyField: 'GEMINI_API_KEY' },
+  { id: 'openrouter', name: 'OpenRouter', keyField: 'OPENROUTER_API_KEY' },
+  { id: 'openai', name: 'OpenAI', keyField: 'OPENAI_API_KEY' },
+  { id: 'anthropic', name: 'Anthropic', keyField: 'ANTHROPIC_API_KEY' },
+] as const;
+
 function ProviderSettings({ settings, onChange }: TabProps) {
   const provider = settings.AI_PROVIDER || 'mistral';
+  const enabledProviders = (settings.ENABLED_PROVIDERS || '').split(',').filter(Boolean);
+
+  const toggleProvider = (providerId: string) => {
+    const current = new Set(enabledProviders);
+    if (current.has(providerId)) {
+      current.delete(providerId);
+    } else {
+      current.add(providerId);
+    }
+    onChange('ENABLED_PROVIDERS', Array.from(current).join(','));
+  };
+
+  // Check if a provider has an API key configured
+  const hasApiKey = (providerId: string) => {
+    const providerInfo = ALL_PROVIDERS.find(p => p.id === providerId);
+    if (!providerInfo) return false;
+    const key = settings[providerInfo.keyField as keyof Settings] as string | undefined;
+    return !!key && key.length > 0;
+  };
 
   return (
     <div className="space-y-6 max-w-lg">
       <h3 className="text-lg font-medium">AI Provider Settings</h3>
 
       <FormField
-        label="AI Provider"
-        hint="Which AI provider to use for observations and summaries"
+        label="Default AI Provider"
+        hint="Primary provider for observations and summaries"
       >
         <select
           className="select select-bordered w-full"
@@ -378,6 +408,41 @@ function ProviderSettings({ settings, onChange }: TabProps) {
           <option value="anthropic">Anthropic Claude</option>
         </select>
       </FormField>
+
+      <div className="divider">Enabled Providers</div>
+
+      <p className="text-sm text-base-content/60">
+        Select which providers are available for spawning workers. Only providers with API keys can be enabled.
+      </p>
+
+      <div className="space-y-2">
+        {ALL_PROVIDERS.map((p) => {
+          const configured = hasApiKey(p.id);
+          const enabled = enabledProviders.includes(p.id);
+          return (
+            <label
+              key={p.id}
+              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                enabled ? 'bg-primary/10 border-primary' : 'border-base-300 hover:border-base-content/30'
+              } ${!configured ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={enabled}
+                disabled={!configured}
+                onChange={() => toggleProvider(p.id)}
+              />
+              <span className="flex-1">{p.name}</span>
+              {configured ? (
+                <span className="badge badge-success badge-sm">Configured</span>
+              ) : (
+                <span className="badge badge-ghost badge-sm">No API Key</span>
+              )}
+            </label>
+          );
+        })}
+      </div>
 
       {/* Mistral */}
       {provider === 'mistral' && (
@@ -554,6 +619,34 @@ function ContextSettings({ settings, onChange }: TabProps) {
 }
 
 function WorkerSettings({ settings, onChange }: TabProps) {
+  const enabledProviders = (settings.ENABLED_PROVIDERS || '').split(',').filter(Boolean);
+  const autoSpawnProviders = (settings.AUTO_SPAWN_PROVIDERS || '').split(',').filter(Boolean);
+
+  const toggleAutoSpawnProvider = (providerId: string) => {
+    const current = new Set(autoSpawnProviders);
+    if (current.has(providerId)) {
+      current.delete(providerId);
+    } else {
+      current.add(providerId);
+    }
+    onChange('AUTO_SPAWN_PROVIDERS', Array.from(current).join(','));
+  };
+
+  const generateToken = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let token = '';
+    for (let i = 0; i < 32; i++) {
+      token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    onChange('WORKER_AUTH_TOKEN', token);
+  };
+
+  const copyToken = async () => {
+    if (settings.WORKER_AUTH_TOKEN) {
+      await navigator.clipboard.writeText(settings.WORKER_AUTH_TOKEN);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-lg">
       <h3 className="text-lg font-medium">Worker Settings</h3>
@@ -581,21 +674,6 @@ function WorkerSettings({ settings, onChange }: TabProps) {
           <input
             type="checkbox"
             className="checkbox"
-            checked={settings.AUTO_SPAWN_WORKERS ?? false}
-            onChange={(e) => onChange('AUTO_SPAWN_WORKERS', e.target.checked)}
-          />
-          <span className="fieldset-legend">Auto-Spawn Workers</span>
-        </label>
-        <p className="fieldset-label text-base-content/60">
-          Automatically spawn workers when the backend starts
-        </p>
-      </fieldset>
-
-      <fieldset className="fieldset">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            className="checkbox"
             checked={settings.EMBEDDED_WORKER ?? true}
             onChange={(e) => onChange('EMBEDDED_WORKER', e.target.checked)}
           />
@@ -606,18 +684,115 @@ function WorkerSettings({ settings, onChange }: TabProps) {
         </p>
       </fieldset>
 
+      <div className="divider">Auto-Spawn Workers</div>
+
+      <fieldset className="fieldset">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={settings.AUTO_SPAWN_WORKERS ?? false}
+            onChange={(e) => onChange('AUTO_SPAWN_WORKERS', e.target.checked)}
+          />
+          <span className="fieldset-legend">Auto-Spawn on Startup</span>
+        </label>
+        <p className="fieldset-label text-base-content/60">
+          Automatically spawn workers when the backend starts
+        </p>
+      </fieldset>
+
+      {settings.AUTO_SPAWN_WORKERS && (
+        <>
+          <FormField
+            label="Auto-Spawn Count"
+            hint="Number of workers to spawn automatically on startup"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="2"
+              min="1"
+              max={settings.MAX_WORKERS || 4}
+              value={settings.AUTO_SPAWN_WORKER_COUNT || ''}
+              onChange={(e) => onChange('AUTO_SPAWN_WORKER_COUNT', parseInt(e.target.value) || 2)}
+            />
+          </FormField>
+
+          <FormField
+            label="Providers for Auto-Spawn"
+            hint="Which providers to cycle through when spawning. If none selected, uses default provider."
+          >
+            {enabledProviders.length === 0 ? (
+              <div className="alert alert-warning">
+                <span className="iconify ph--warning size-4" />
+                <span>No providers enabled. Configure providers in the AI Provider tab first.</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {enabledProviders.map((providerId) => {
+                  const providerInfo = ALL_PROVIDERS.find(p => p.id === providerId);
+                  const selected = autoSpawnProviders.includes(providerId);
+                  return (
+                    <label
+                      key={providerId}
+                      className={`flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition-colors ${
+                        selected ? 'bg-primary/10 border-primary' : 'border-base-300 hover:border-base-content/30'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={selected}
+                        onChange={() => toggleAutoSpawnProvider(providerId)}
+                      />
+                      <span>{providerInfo?.name || providerId}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </FormField>
+        </>
+      )}
+
       <div className="divider">Authentication</div>
 
       <FormField
         label="Worker Auth Token"
-        hint="Shared secret for authenticating external workers (leave empty for no auth)"
+        hint="Required for external workers. Localhost workers only need token when one is set."
       >
-        <ApiKeyInput
-          value={settings.WORKER_AUTH_TOKEN || ''}
-          onChange={(v) => onChange('WORKER_AUTH_TOKEN', v)}
-          placeholder="Secret token..."
-        />
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <ApiKeyInput
+              value={settings.WORKER_AUTH_TOKEN || ''}
+              onChange={(v) => onChange('WORKER_AUTH_TOKEN', v)}
+              placeholder="Secret token..."
+            />
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-square"
+            onClick={copyToken}
+            disabled={!settings.WORKER_AUTH_TOKEN}
+            title="Copy token"
+          >
+            <span className="iconify ph--copy size-5" />
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-square"
+            onClick={generateToken}
+            title="Generate new token"
+          >
+            <span className="iconify ph--arrows-clockwise size-5" />
+          </button>
+        </div>
       </FormField>
+
+      <div className="alert alert-info">
+        <span className="iconify ph--info size-5" />
+        <span>External workers (non-localhost) always require authentication.</span>
+      </div>
     </div>
   );
 }
