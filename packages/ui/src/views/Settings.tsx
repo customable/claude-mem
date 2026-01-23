@@ -799,6 +799,10 @@ function WorkerSettings({ settings, onChange }: TabProps) {
 
 function AdvancedSettings({ settings, onChange }: TabProps) {
   const [isRestarting, setIsRestarting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState<string | null>(null);
 
   const handleRestart = async () => {
     if (!confirm('Are you sure you want to restart the backend? All connections will be temporarily interrupted.')) {
@@ -815,6 +819,66 @@ function AdvancedSettings({ settings, onChange }: TabProps) {
     } catch (err) {
       console.error('Restart failed:', err);
       setIsRestarting(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const response = await fetch('/api/export');
+      if (!response.ok) throw new Error('Export failed');
+      const data = await response.json();
+
+      // Create and download file
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `claude-mem-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
+      alert('Export failed: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsImporting(true);
+    setImportError(null);
+    setImportSuccess(null);
+
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+
+      const response = await fetch('/api/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Import failed');
+      }
+
+      const result = await response.json();
+      setImportSuccess(`Imported ${result.sessions || 0} sessions and ${result.observations || 0} observations`);
+    } catch (err) {
+      console.error('Import failed:', err);
+      setImportError(err instanceof Error ? err.message : 'Import failed');
+    } finally {
+      setIsImporting(false);
+      // Reset file input
+      event.target.value = '';
     }
   };
 
@@ -908,6 +972,96 @@ function AdvancedSettings({ settings, onChange }: TabProps) {
           onChange={(e) => onChange('BATCH_SIZE', parseInt(e.target.value) || 5)}
         />
       </FormField>
+
+      <div className="divider">Data Management</div>
+
+      {importError && (
+        <div className="alert alert-error">
+          <span className="iconify ph--warning-circle size-5" />
+          <span>{importError}</span>
+          <button
+            className="btn btn-ghost btn-xs btn-circle"
+            onClick={() => setImportError(null)}
+          >
+            <span className="iconify ph--x size-4" />
+          </button>
+        </div>
+      )}
+
+      {importSuccess && (
+        <div className="alert alert-success">
+          <span className="iconify ph--check-circle size-5" />
+          <span>{importSuccess}</span>
+          <button
+            className="btn btn-ghost btn-xs btn-circle"
+            onClick={() => setImportSuccess(null)}
+          >
+            <span className="iconify ph--x size-4" />
+          </button>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between p-4 rounded-lg border border-base-300">
+          <div>
+            <div className="font-medium">Export Data</div>
+            <div className="text-sm text-base-content/60">
+              Download all sessions and observations as JSON
+            </div>
+          </div>
+          <button
+            className="btn btn-outline"
+            onClick={handleExport}
+            disabled={isExporting}
+          >
+            {isExporting ? (
+              <>
+                <span className="loading loading-spinner loading-xs" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <span className="iconify ph--download size-5" />
+                Export
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between p-4 rounded-lg border border-base-300">
+          <div>
+            <div className="font-medium">Import Data</div>
+            <div className="text-sm text-base-content/60">
+              Restore sessions and observations from a backup
+            </div>
+          </div>
+          <label className={`btn btn-outline ${isImporting ? 'btn-disabled' : ''}`}>
+            {isImporting ? (
+              <>
+                <span className="loading loading-spinner loading-xs" />
+                Importing...
+              </>
+            ) : (
+              <>
+                <span className="iconify ph--upload size-5" />
+                Import
+              </>
+            )}
+            <input
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={handleImport}
+              disabled={isImporting}
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="alert alert-info">
+        <span className="iconify ph--info size-5" />
+        <span>Import merges data with existing records. Duplicate IDs are skipped.</span>
+      </div>
     </div>
   );
 }
