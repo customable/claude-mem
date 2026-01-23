@@ -10,11 +10,36 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Create Release
+  # Check if we should skip (e.g., release commits)
+  check:
     runs-on: [docker, light]
     container:
       image: catthehacker/ubuntu:act-latest
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Check commit message
+        id: check
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MSG" =~ ^chore\(release\): ]]; then
+            echo "Skipping release workflow for release commit"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+  release:
+    name: Create Release
+    needs: check
+    if: needs.check.outputs.skip != 'true'
+    runs-on: [docker, light]
+    container:
+      image: catthehacker/ubuntu:act-latest
+    outputs:
+      released: ${{ steps.released.outputs.released }}
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -391,12 +416,18 @@ jobs:
 
           echo "Marketplace updated to v${VERSION}"
 
-  # Build and push Docker image
+      - name: Set release output
+        id: released
+        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+        run: |
+          echo "released=true" >> $GITHUB_OUTPUT
+
+  # Build and push Docker image (only after successful release)
   docker:
     name: Build Docker Image
     runs-on: [docker, light]
     needs: release
-    if: needs.release.result == 'success'
+    if: needs.release.outputs.released == 'true'
     continue-on-error: true  # Don't fail release if Docker build fails
     container:
       image: catthehacker/ubuntu:act-latest
@@ -418,12 +449,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Get version from package.json
-        id: version
-        run: |
-          VERSION=$(jq -r '.version' package.json)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -431,7 +456,7 @@ jobs:
           push: true
           tags: |
             git.customable.host/customable/claude-mem:latest
-            git.customable.host/customable/claude-mem:${{ steps.version.outputs.version }}
+            git.customable.host/customable/claude-mem:${{ needs.release.outputs.version }}
           # Note: GHA cache not available on Forgejo, using registry cache instead
           cache-from: type=registry,ref=git.customable.host/customable/claude-mem:buildcache
           cache-to: type=registry,ref=git.customable.host/customable/claude-mem:buildcache,mode=max
