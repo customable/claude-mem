@@ -4,6 +4,8 @@
  * Business logic for session management.
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { createLogger, loadSettings } from '@claude-mem/shared';
 import type {
   ISessionRepository,
@@ -66,6 +68,7 @@ export class SessionService {
     contentSessionId: string;
     project: string;
     userPrompt?: string;
+    workingDirectory?: string;
   }): Promise<SdkSessionRecord> {
     // Check for existing session
     let session = await this.sessions.findByContentSessionId(params.contentSessionId);
@@ -124,6 +127,7 @@ export class SessionService {
       memorySessionId: params.contentSessionId,
       project: params.project,
       userPrompt: cleanedPrompt,
+      workingDirectory: params.workingDirectory,
     });
 
     // Only set prompt counter to 1 if there's a real prompt, otherwise 0
@@ -196,6 +200,7 @@ export class SessionService {
     toolOutput: string;
     promptNumber?: number;
     gitBranch?: string;
+    cwd?: string;
   }): Promise<string> {
     const session = await this.sessions.findByContentSessionId(params.contentSessionId);
     if (!session) {
@@ -210,6 +215,7 @@ export class SessionService {
       toolOutput: params.toolOutput,
       promptNumber: params.promptNumber,
       gitBranch: params.gitBranch,
+      cwd: params.cwd,
     });
 
     return task.id;
@@ -243,6 +249,7 @@ export class SessionService {
 
   /**
    * Queue CLAUDE.md generation periodically during session
+   * Generates for root directory and all subdirectories with existing CLAUDE.md
    */
   private async maybeQueueClaudeMd(session: SdkSessionRecord, promptNumber: number): Promise<void> {
     // Check if CLAUDEMD is enabled
@@ -254,14 +261,35 @@ export class SessionService {
 
     // Queue every N prompts (1, 6, 11, 16, ...)
     if (promptNumber === 1 || promptNumber % CLAUDEMD_INTERVAL === 1) {
+      const workingDirectory = (session as { working_directory?: string }).working_directory;
+
       try {
+        // Queue for root directory (all observations)
         await this.taskService.queueClaudeMd({
           contentSessionId: session.content_session_id,
           memorySessionId: session.memory_session_id,
           project: session.project,
-          workingDirectory: (session as { working_directory?: string }).working_directory,
+          workingDirectory,
         });
         logger.debug(`Queued CLAUDE.md generation at prompt ${promptNumber}`);
+
+        // Queue for subdirectories with existing CLAUDE.md
+        const subdirs = await this.getWorkingDirectories(session.content_session_id);
+        for (const subdir of subdirs) {
+          try {
+            await this.taskService.queueClaudeMd({
+              contentSessionId: session.content_session_id,
+              memorySessionId: session.memory_session_id,
+              project: session.project,
+              workingDirectory,
+              targetDirectory: subdir,
+            });
+            logger.debug(`Queued CLAUDE.md generation for subdirectory: ${subdir}`);
+          } catch (err) {
+            const error = err as Error;
+            logger.warn(`Failed to queue CLAUDE.md for ${subdir}: ${error.message}`);
+          }
+        }
       } catch (err) {
         const error = err as Error;
         logger.warn(`Failed to queue CLAUDE.md: ${error.message}`);
@@ -298,6 +326,53 @@ export class SessionService {
    */
   async getSessionSummaries(memorySessionId: string): Promise<SessionSummaryRecord[]> {
     return this.summaries.getBySessionId(memorySessionId);
+  }
+
+  /**
+   * Get unique working directories from session observations
+   * Returns directories that:
+   * 1. Are within the session's working directory (subdirectories only)
+   * 2. Have an existing CLAUDE.md file
+   */
+  async getWorkingDirectories(contentSessionId: string): Promise<string[]> {
+    const session = await this.sessions.findByContentSessionId(contentSessionId);
+    if (!session?.memory_session_id || !session.working_directory) {
+      return [];
+    }
+
+    // Get all observations for this session
+    const observations = await this.observations.getBySessionId(session.memory_session_id);
+
+    // Extract unique cwd values
+    const cwdSet = new Set<string>();
+    for (const obs of observations) {
+      if (obs.cwd) {
+        cwdSet.add(obs.cwd);
+      }
+    }
+
+    const sessionWorkingDir = session.working_directory;
+    const result: string[] = [];
+
+    for (const cwd of cwdSet) {
+      // Skip if not a subdirectory of session working directory
+      if (!cwd.startsWith(sessionWorkingDir)) continue;
+
+      // Skip the root working directory itself (handled separately)
+      if (cwd === sessionWorkingDir) continue;
+
+      // Check if CLAUDE.md exists in this directory
+      const claudeMdPath = path.join(cwd, 'CLAUDE.md');
+      try {
+        if (fs.existsSync(claudeMdPath)) {
+          result.push(cwd);
+        }
+      } catch {
+        // Ignore access errors
+      }
+    }
+
+    return result;
   }
 
   /**

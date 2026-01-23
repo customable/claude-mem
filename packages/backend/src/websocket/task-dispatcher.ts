@@ -5,6 +5,8 @@
  * Handles task lifecycle: pending → assigned → processing → completed/failed
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
 import { createLogger, getSettings } from '@claude-mem/shared';
 import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType } from '@claude-mem/types';
 import { createHash } from 'crypto';
@@ -231,6 +233,7 @@ export class TaskDispatcher {
             filesRead: observationResult.filesRead?.length ? JSON.stringify(observationResult.filesRead) : undefined,
             filesModified: observationResult.filesModified?.length ? JSON.stringify(observationResult.filesModified) : undefined,
             gitBranch: payload.gitBranch,
+            cwd: payload.cwd,
           });
 
           logger.info(`Observation ${observation.id} created for session ${payload.sessionId}`);
@@ -275,10 +278,10 @@ export class TaskDispatcher {
           // Queue CLAUDE.md generation if enabled
           const settings = getSettings();
           if (settings.get('CLAUDEMD_ENABLED') && this.taskService && session) {
+            const workingDirectory = (session as { working_directory?: string }).working_directory;
+
             try {
-              // Note: working_directory comes from session metadata or is empty
-              // The SSE writer uses this to validate the target directory
-              const workingDirectory = (session as { working_directory?: string }).working_directory;
+              // Queue for root directory (all observations)
               await this.taskService.queueClaudeMd({
                 contentSessionId: payload.sessionId,
                 memorySessionId,
@@ -286,6 +289,26 @@ export class TaskDispatcher {
                 workingDirectory: workingDirectory || undefined,
               });
               logger.debug(`Queued claude-md task for session ${payload.sessionId}`);
+
+              // Queue for subdirectories with existing CLAUDE.md
+              if (workingDirectory && this.observations) {
+                const subdirs = await this.getSubdirectoriesWithClaudeMd(memorySessionId, workingDirectory);
+                for (const subdir of subdirs) {
+                  try {
+                    await this.taskService.queueClaudeMd({
+                      contentSessionId: payload.sessionId,
+                      memorySessionId,
+                      project: payload.project,
+                      workingDirectory,
+                      targetDirectory: subdir,
+                    });
+                    logger.debug(`Queued claude-md task for subdirectory: ${subdir}`);
+                  } catch (err) {
+                    const e = err as Error;
+                    logger.warn(`Failed to queue claude-md task for ${subdir}: ${e.message}`);
+                  }
+                }
+              }
             } catch (err) {
               const e = err as Error;
               logger.warn(`Failed to queue claude-md task: ${e.message}`);
@@ -379,6 +402,50 @@ export class TaskDispatcher {
       const e = err as Error;
       logger.error(`Error handling task error for ${taskId}:`, { message: e.message });
     }
+  }
+
+  /**
+   * Get subdirectories within workingDirectory that have existing CLAUDE.md files
+   * Used for generating subdirectory-specific CLAUDE.md content
+   */
+  private async getSubdirectoriesWithClaudeMd(
+    memorySessionId: string,
+    workingDirectory: string
+  ): Promise<string[]> {
+    if (!this.observations) return [];
+
+    // Get all observations for this session
+    const observations = await this.observations.getBySessionId(memorySessionId);
+
+    // Extract unique cwd values
+    const cwdSet = new Set<string>();
+    for (const obs of observations) {
+      if (obs.cwd) {
+        cwdSet.add(obs.cwd);
+      }
+    }
+
+    const result: string[] = [];
+
+    for (const cwd of cwdSet) {
+      // Skip if not a subdirectory of working directory
+      if (!cwd.startsWith(workingDirectory)) continue;
+
+      // Skip the root working directory itself (handled separately)
+      if (cwd === workingDirectory) continue;
+
+      // Check if CLAUDE.md exists in this directory
+      const claudeMdPath = path.join(cwd, 'CLAUDE.md');
+      try {
+        if (fs.existsSync(claudeMdPath)) {
+          result.push(cwd);
+        }
+      } catch {
+        // Ignore access errors
+      }
+    }
+
+    return result;
   }
 
   /**

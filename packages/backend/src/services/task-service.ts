@@ -59,6 +59,7 @@ export class TaskService {
     toolOutput: string;
     promptNumber?: number;
     gitBranch?: string;
+    cwd?: string;
     preferredProvider?: string;
   }): Promise<ObservationTask> {
     const capability = this.resolveCapability('observation', params.preferredProvider);
@@ -78,6 +79,7 @@ export class TaskService {
         toolOutput: params.toolOutput,
         promptNumber: params.promptNumber,
         gitBranch: params.gitBranch,
+        cwd: params.cwd,
       },
     });
 
@@ -214,14 +216,17 @@ export class TaskService {
 
   /**
    * Queue a CLAUDE.md generation task
+   * @param params.targetDirectory If specified, filter observations to this subdirectory
    */
   async queueClaudeMd(params: {
     contentSessionId: string;
     memorySessionId: string;
     project: string;
     workingDirectory?: string;
+    targetDirectory?: string;
   }): Promise<ClaudeMdTask> {
     // Load recent observations for the project
+    // If targetDirectory is specified, filter to observations from that directory
     let observations: Array<{
       id: number;
       title: string;
@@ -232,8 +237,15 @@ export class TaskService {
     }> = [];
 
     if (this.observations) {
+      const filters: { project: string; cwdPrefix?: string } = { project: params.project };
+
+      // If targetDirectory specified, only include observations from that directory
+      if (params.targetDirectory) {
+        filters.cwdPrefix = params.targetDirectory;
+      }
+
       const recentObs = await this.observations.list(
-        { project: params.project },
+        filters,
         { limit: 30, orderBy: 'created_at_epoch', order: 'desc' }
       );
       observations = recentObs.map((o: ObservationRecord) => ({
@@ -271,6 +283,9 @@ export class TaskService {
       }));
     }
 
+    // Use targetDirectory for the output path, fallback to workingDirectory
+    const outputDirectory = params.targetDirectory || params.workingDirectory || '';
+
     const task = await this.taskQueue.create<ClaudeMdTask>({
       type: 'claude-md',
       requiredCapability: 'claudemd:generate',
@@ -280,7 +295,8 @@ export class TaskService {
         contentSessionId: params.contentSessionId,
         memorySessionId: params.memorySessionId,
         project: params.project,
-        workingDirectory: params.workingDirectory || '',
+        workingDirectory: outputDirectory,
+        targetDirectory: params.targetDirectory,
         // Include data for the worker
         observations,
         summaries,
@@ -288,7 +304,8 @@ export class TaskService {
     });
 
     this.sseBroadcaster.broadcastTaskQueued(task.id, 'claude-md');
-    logger.info(`Queued claude-md task ${task.id} for project ${params.project}`);
+    const targetInfo = params.targetDirectory ? ` (target: ${params.targetDirectory})` : '';
+    logger.info(`Queued claude-md task ${task.id} for project ${params.project}${targetInfo}`);
 
     return task;
   }

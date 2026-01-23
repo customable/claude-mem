@@ -362,6 +362,7 @@ export interface SdkSessionRecord {
   memory_session_id: string | null;
   project: string;
   user_prompt: string | null;
+  working_directory: string | null;
   started_at: string;
   started_at_epoch: number;
   completed_at: string | null;
@@ -392,6 +393,7 @@ export interface ObservationRecord {
   files_read?: string;
   files_modified?: string;
   git_branch?: string;
+  cwd?: string;
   prompt_number?: number;
   discovery_tokens?: number;
 }

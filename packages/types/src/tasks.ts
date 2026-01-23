@@ -60,6 +60,7 @@ export interface ObservationTaskPayload {
   toolOutput: string;
   promptNumber?: number;
   gitBranch?: string;
+  cwd?: string;
 }
 
 /**
@@ -216,6 +217,8 @@ export interface ClaudeMdTaskPayload {
   memorySessionId: string;
   contentSessionId: string;
   workingDirectory: string;
+  /** Target directory for CLAUDE.md generation (subdirectory of workingDirectory) */
+  targetDirectory?: string;
 }
 
 /**

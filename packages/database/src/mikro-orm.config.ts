@@ -20,6 +20,7 @@ import {
 } from './entities/index.js';
 import { Migration20240101000001_InitialSchema } from './mikro-orm/migrations/Migration20240101000001_InitialSchema.js';
 import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migration20240101000002_FTS5Indexes.js';
+import { Migration20260123000003_SessionWorkingDirectory } from './mikro-orm/migrations/Migration20260123000003_SessionWorkingDirectory.js';
 
 /**
  * Database configuration options
@@ -58,6 +59,7 @@ export const entities = [
 export const migrationsList = [
   Migration20240101000001_InitialSchema,
   Migration20240101000002_FTS5Indexes,
+  Migration20260123000003_SessionWorkingDirectory,
 ];
 
 /**

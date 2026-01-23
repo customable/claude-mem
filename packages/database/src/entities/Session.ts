@@ -28,6 +28,9 @@ export class Session {
   @Property({ nullable: true, type: 'text' })
   user_prompt?: string;
 
+  @Property({ nullable: true })
+  working_directory?: string;
+
   @Property()
   started_at!: string;
 

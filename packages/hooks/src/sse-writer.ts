@@ -135,6 +135,14 @@ function main(): void {
   // Track connection state
   let connected = false;
 
+  // Track collected CLAUDE.md content for multiple directories
+  // Key: directory path, Value: content to write
+  const pendingWrites = new Map<string, string>();
+
+  // Track if session has ended
+  let sessionEnded = false;
+  let sessionEndTimeout: NodeJS.Timeout | null = null;
+
   es.onopen = () => {
     connected = true;
     console.log('[sse-writer] Connected to SSE stream');
@@ -147,6 +155,26 @@ function main(): void {
     } else {
       console.warn('[sse-writer] SSE connection error, reconnecting...');
     }
+  };
+
+  /**
+   * Write all collected CLAUDE.md files and exit
+   */
+  const writeAllAndExit = () => {
+    if (pendingWrites.size === 0) {
+      console.log('[sse-writer] No CLAUDE.md content to write');
+    } else {
+      console.log(`[sse-writer] Writing ${pendingWrites.size} CLAUDE.md file(s)...`);
+      for (const [dir, content] of pendingWrites) {
+        console.log(`[sse-writer] Writing CLAUDE.md to ${dir}`);
+        writeClaudeMd(dir, content);
+        console.log(`[sse-writer] CLAUDE.md written to ${dir}`);
+      }
+    }
+
+    console.log('[sse-writer] All tasks complete, shutting down');
+    es.close();
+    process.exit(0);
   };
 
   // Handle all SSE messages
@@ -176,38 +204,43 @@ function main(): void {
           return;
         }
 
-        // Validate working directory
-        if (payload.workingDirectory !== args.dir) {
+        // Validate working directory is within our root directory
+        // Accept exact match OR subdirectories
+        if (payload.workingDirectory !== args.dir && !payload.workingDirectory.startsWith(args.dir + '/')) {
           console.warn(
-            `[sse-writer] Directory mismatch: expected ${args.dir}, got ${payload.workingDirectory}`
+            `[sse-writer] Directory mismatch: ${payload.workingDirectory} is not within ${args.dir}`
           );
           return;
         }
 
-        // Write CLAUDE.md
-        console.log(`[sse-writer] Writing CLAUDE.md to ${args.dir}`);
-        writeClaudeMd(args.dir, payload.content);
-        console.log('[sse-writer] CLAUDE.md written successfully');
+        // Store content for this directory
+        console.log(`[sse-writer] Received CLAUDE.md content for ${payload.workingDirectory}`);
+        pendingWrites.set(payload.workingDirectory, payload.content);
 
-        // Exit after writing - our job is done for this session
-        console.log('[sse-writer] Task complete, shutting down');
-        es.close();
-        process.exit(0);
+        // If session hasn't ended yet, write immediately for the root directory only
+        // (subdirectories will be written after session end)
+        if (!sessionEnded && payload.workingDirectory === args.dir) {
+          console.log(`[sse-writer] Writing CLAUDE.md to ${args.dir}`);
+          writeClaudeMd(args.dir, payload.content);
+          console.log('[sse-writer] CLAUDE.md written successfully');
+          pendingWrites.delete(args.dir);
+        }
       }
 
       // Handle session:ended event
-      // Don't exit immediately - wait for claudemd:ready which comes after session end
+      // Don't exit immediately - wait for claudemd:ready events which come after session end
       if (data.type === 'session:ended' && data.data) {
         const payload = data.data as { sessionId: string };
 
-        if (payload.sessionId === args.session) {
-          console.log('[sse-writer] Session ended, waiting for claudemd:ready...');
+        if (payload.sessionId === args.session && !sessionEnded) {
+          sessionEnded = true;
+          console.log('[sse-writer] Session ended, waiting for claudemd:ready events...');
+
           // Set a shorter timeout now that session has ended
-          // claudemd task should complete within 5 minutes (worker may be busy)
-          setTimeout(() => {
+          // Multiple claudemd tasks should complete within 5 minutes (worker may be busy)
+          sessionEndTimeout = setTimeout(() => {
             console.log('[sse-writer] Timeout waiting for claudemd:ready after session end');
-            es.close();
-            process.exit(0);
+            writeAllAndExit();
           }, 5 * 60 * 1000);
         }
       }
@@ -220,8 +253,10 @@ function main(): void {
   // Graceful shutdown handlers
   const shutdown = (signal: string) => {
     console.log(`[sse-writer] Received ${signal}, shutting down`);
-    es.close();
-    process.exit(0);
+    if (sessionEndTimeout) {
+      clearTimeout(sessionEndTimeout);
+    }
+    writeAllAndExit();
   };
 
   process.on('SIGTERM', () => shutdown('SIGTERM'));
@@ -232,8 +267,10 @@ function main(): void {
   const TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
   setTimeout(() => {
     console.log('[sse-writer] Timeout reached, shutting down');
-    es.close();
-    process.exit(0);
+    if (sessionEndTimeout) {
+      clearTimeout(sessionEndTimeout);
+    }
+    writeAllAndExit();
   }, TIMEOUT_MS);
 
   // Keep process running

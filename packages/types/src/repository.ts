@@ -55,6 +55,7 @@ export interface CreateSessionInput {
   memorySessionId?: string;
   project: string;
   userPrompt?: string;
+  workingDirectory?: string;
 }
 
 /**
@@ -153,6 +154,7 @@ export interface CreateObservationInput {
   promptNumber?: number;
   discoveryTokens?: number;
   gitBranch?: string;
+  cwd?: string;
 }
 
 /**
@@ -164,6 +166,7 @@ export interface ObservationQueryFilters {
   type?: ObservationType | ObservationType[];
   dateRange?: DateRangeFilter;
   search?: string;  // Full-text search
+  cwdPrefix?: string;  // Filter observations where cwd starts with this path
 }
 
 /**
