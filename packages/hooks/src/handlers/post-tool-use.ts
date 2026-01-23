@@ -14,13 +14,40 @@ import { success, skip } from '../types.js';
 const logger = createLogger('hook:post-tool-use');
 
 /**
- * Tools to ignore (not interesting for memory)
+ * Tools to ignore (meta-tools, not interesting for memory)
  */
 const IGNORED_TOOLS = new Set([
   'TodoRead',
   'TodoWrite',
   'AskFollowupQuestion', // Internal tool
+  'AskUserQuestion',     // User interaction, not code work
+  'ListMcpResourcesTool', // MCP introspection
+  'SlashCommand',        // Command routing
+  'Skill',               // Skill routing
 ]);
+
+/**
+ * Claude-mem's own MCP tool prefix (exclude to avoid circular observations)
+ */
+const CLAUDE_MEM_MCP_PREFIX = 'mcp__plugin_claude-mem_';
+
+/**
+ * Check if a tool should be captured
+ */
+function shouldCaptureToolUse(toolName: string): boolean {
+  // Skip meta-tools
+  if (IGNORED_TOOLS.has(toolName)) {
+    return false;
+  }
+
+  // Skip claude-mem's own MCP tools (avoid circular observations)
+  if (toolName.startsWith(CLAUDE_MEM_MCP_PREFIX)) {
+    return false;
+  }
+
+  // Capture everything else (native tools + external MCP tools)
+  return true;
+}
 
 /**
  * Observation response from backend
@@ -51,8 +78,8 @@ function getGitBranch(cwd: string): string | undefined {
  * Handle post tool use
  */
 export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
-  // Skip ignored tools
-  if (!input.toolName || IGNORED_TOOLS.has(input.toolName)) {
+  // Skip tools that shouldn't be captured
+  if (!input.toolName || !shouldCaptureToolUse(input.toolName)) {
     return skip();
   }
 
