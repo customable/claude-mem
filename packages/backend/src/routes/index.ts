@@ -13,3 +13,7 @@ export { StreamRouter } from './stream.js';
 export type { StreamRouterDeps } from './stream.js';
 export { WorkersRouter } from './workers.js';
 export type { WorkersRouterDeps } from './workers.js';
+export { LogsRouter } from './logs.js';
+export type { LogsRouterDeps } from './logs.js';
+export { SettingsRouter } from './settings.js';
+export type { SettingsRouterDeps } from './settings.js';

@@ -7,10 +7,12 @@
  */
 
 import { createLogger, loadSettings, VERSION } from '@claude-mem/shared';
-import type { WorkerCapability, TaskType } from '@claude-mem/types';
+import type { WorkerCapability, TaskType, QdrantSyncTaskPayload } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
 import { handleObservationTask } from './handlers/observation-handler.js';
+import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
+import { getQdrantService } from './services/qdrant-service.js';
 
 const logger = createLogger('worker-service');
 
@@ -90,7 +92,8 @@ export class WorkerService {
         capabilities.push('summarize:sdk');
     }
 
-    // TODO: Add embedding/chroma capabilities when implemented
+    // Add qdrant capability if available
+    capabilities.push('qdrant:sync');
 
     return capabilities;
   }
@@ -213,9 +216,8 @@ export class WorkerService {
         // TODO: Implement embedding task
         throw new Error('Embedding task not yet implemented');
 
-      case 'chroma-sync':
-        // TODO: Implement chroma sync
-        throw new Error('Chroma sync task not yet implemented');
+      case 'qdrant-sync':
+        return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload);
 
       case 'context-generate':
         // TODO: Implement context generation

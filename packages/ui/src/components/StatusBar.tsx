@@ -28,29 +28,20 @@ export function StatusBar() {
     );
   }
 
-  const statusColor =
-    data.status === 'healthy'
-      ? 'text-success'
-      : data.status === 'degraded'
-        ? 'text-warning'
-        : 'text-error';
-
-  const badgeColor =
-    data.status === 'healthy'
-      ? 'badge-success'
-      : data.status === 'degraded'
-        ? 'badge-warning'
-        : 'badge-error';
+  const isHealthy = data.status === 'ok';
+  const statusColor = isHealthy ? 'text-success' : data.status === 'degraded' ? 'text-warning' : 'text-error';
+  const badgeColor = isHealthy ? 'badge-success' : data.status === 'degraded' ? 'badge-warning' : 'badge-error';
+  const workerCount = data.workers.connected;
 
   return (
     <div className="flex items-center gap-3 text-sm">
       <div className={`flex items-center gap-1.5 ${statusColor}`}>
         <span className="iconify ph--circle-fill size-2" />
-        <span>{data.status === 'healthy' ? 'Connected' : data.status}</span>
+        <span>{isHealthy ? 'Connected' : data.status}</span>
       </div>
       <div className={`badge badge-sm ${badgeColor} badge-outline`}>
         <span className="iconify ph--cpu size-3 mr-1" />
-        {data.workers} worker{data.workers !== 1 ? 's' : ''}
+        {workerCount} worker{workerCount !== 1 ? 's' : ''}
       </div>
     </div>
   );

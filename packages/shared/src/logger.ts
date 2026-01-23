@@ -2,7 +2,7 @@
  * Logger for claude-mem
  *
  * Provides structured logging with different levels and contexts.
- * Extensible to support different transports (console, file, etc.)
+ * All loggers share a global buffer for API access.
  */
 
 /**
@@ -75,20 +75,81 @@ export class ConsoleTransport implements ILogTransport {
 }
 
 /**
- * Logger configuration
+ * Ring buffer transport - keeps last N logs in memory
  */
-export interface LoggerConfig {
-  minLevel: LogLevel;
-  transports: ILogTransport[];
-}
+export class LogBufferTransport implements ILogTransport {
+  private buffer: LogEntry[] = [];
+  private maxSize: number;
 
-/**
- * Default logger configuration
- */
-const defaultConfig: LoggerConfig = {
-  minLevel: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-  transports: [new ConsoleTransport()],
-};
+  constructor(maxSize = 1000) {
+    this.maxSize = maxSize;
+  }
+
+  log(entry: LogEntry): void {
+    this.buffer.push(entry);
+    if (this.buffer.length > this.maxSize) {
+      this.buffer.shift();
+    }
+  }
+
+  /**
+   * Get all buffered logs
+   */
+  getAll(): LogEntry[] {
+    return [...this.buffer];
+  }
+
+  /**
+   * Get logs filtered by level and/or context
+   */
+  query(options: {
+    level?: LogLevel;
+    minLevel?: LogLevel;
+    context?: string;
+    since?: Date;
+    limit?: number;
+  } = {}): LogEntry[] {
+    let entries = this.buffer;
+
+    if (options.level) {
+      entries = entries.filter((e: LogEntry) => e.level === options.level);
+    }
+
+    if (options.minLevel) {
+      const minPriority = levelPriority[options.minLevel];
+      entries = entries.filter((e: LogEntry) => levelPriority[e.level] <= minPriority);
+    }
+
+    if (options.context) {
+      const ctx = options.context.toLowerCase();
+      entries = entries.filter((e: LogEntry) => e.context.toLowerCase().includes(ctx));
+    }
+
+    if (options.since) {
+      entries = entries.filter((e: LogEntry) => e.timestamp >= options.since!);
+    }
+
+    if (options.limit) {
+      entries = entries.slice(-options.limit);
+    }
+
+    return entries;
+  }
+
+  /**
+   * Clear all logs
+   */
+  clear(): void {
+    this.buffer = [];
+  }
+
+  /**
+   * Get current buffer size
+   */
+  get size(): number {
+    return this.buffer.length;
+  }
+}
 
 /**
  * Log level priority (lower = more severe)
@@ -101,6 +162,33 @@ const levelPriority: Record<LogLevel, number> = {
 };
 
 /**
+ * Global log buffer instance - accessible for API endpoints
+ * Shared across all logger instances.
+ */
+export const logBuffer = new LogBufferTransport(2000);
+
+/**
+ * Global console transport instance
+ */
+const consoleTransport = new ConsoleTransport();
+
+/**
+ * Logger configuration
+ */
+export interface LoggerConfig {
+  minLevel: LogLevel;
+  transports: ILogTransport[];
+}
+
+/**
+ * Default logger configuration - includes buffer for API access
+ */
+const defaultConfig: LoggerConfig = {
+  minLevel: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  transports: [consoleTransport, logBuffer],
+};
+
+/**
  * Logger class
  */
 export class Logger {
@@ -109,7 +197,14 @@ export class Logger {
 
   constructor(context: string, config: Partial<LoggerConfig> = {}) {
     this.context = context;
-    this.config = { ...defaultConfig, ...config };
+    // Merge with default config, but always include the global buffer
+    const transports = config.transports || defaultConfig.transports;
+    // Ensure logBuffer is always included
+    const hasBuffer = transports.some(t => t === logBuffer);
+    this.config = {
+      minLevel: config.minLevel ?? defaultConfig.minLevel,
+      transports: hasBuffer ? transports : [...transports, logBuffer],
+    };
   }
 
   private shouldLog(level: LogLevel): boolean {

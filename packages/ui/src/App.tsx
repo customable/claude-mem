@@ -1,18 +1,22 @@
 /**
  * Main App Component
  *
- * Simple dashboard layout with DaisyUI 5+
+ * Dashboard layout with DaisyUI 5+
  */
 
 import { useState } from 'react';
 import { StatusBar } from './components/StatusBar';
 import { ObservationList } from './components/ObservationList';
 import { WorkerStatus } from './components/WorkerStatus';
+import { Console } from './components/Console';
+import { SearchView } from './views/Search';
+import { SettingsView } from './views/Settings';
 
-type View = 'observations' | 'workers';
+type View = 'observations' | 'workers' | 'search' | 'settings';
 
 export function App() {
   const [view, setView] = useState<View>('observations');
+  const [consoleOpen, setConsoleOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col" data-theme="dark">
@@ -41,22 +45,50 @@ export function App() {
               <span className="iconify ph--cpu size-4 mr-1.5" />
               Workers
             </button>
+            <button
+              role="tab"
+              className={`tab ${view === 'search' ? 'tab-active' : ''}`}
+              onClick={() => setView('search')}
+            >
+              <span className="iconify ph--magnifying-glass size-4 mr-1.5" />
+              Search
+            </button>
+            <button
+              role="tab"
+              className={`tab ${view === 'settings' ? 'tab-active' : ''}`}
+              onClick={() => setView('settings')}
+            >
+              <span className="iconify ph--gear size-4 mr-1.5" />
+              Settings
+            </button>
           </div>
         </div>
 
-        {/* Status Bar */}
-        <div className="flex-none ml-4">
+        {/* Right Side Actions */}
+        <div className="flex-none ml-4 flex items-center gap-2">
+          <button
+            className={`btn btn-ghost btn-sm btn-square ${consoleOpen ? 'text-primary' : ''}`}
+            onClick={() => setConsoleOpen(!consoleOpen)}
+            title="Toggle Console"
+          >
+            <span className="iconify ph--terminal size-5" />
+          </button>
           <StatusBar />
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 p-4 lg:p-6">
-        <div className="container max-w-6xl">
+      <main className={`flex-1 p-4 lg:p-6 ${consoleOpen ? 'pb-80' : ''}`}>
+        <div className="container max-w-6xl mx-auto">
           {view === 'observations' && <ObservationList />}
           {view === 'workers' && <WorkerStatus />}
+          {view === 'search' && <SearchView />}
+          {view === 'settings' && <SettingsView />}
         </div>
       </main>
+
+      {/* Console Drawer */}
+      <Console isOpen={consoleOpen} onClose={() => setConsoleOpen(false)} />
     </div>
   );
 }

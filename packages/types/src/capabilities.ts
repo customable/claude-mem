@@ -26,7 +26,6 @@ export type WorkerCapability =
   | 'embedding:openai'
   | 'embedding:voyage'
   // Vector DB Sync
-  | 'chroma:sync'
   | 'qdrant:sync'
   // Context Generation
   | 'context:generate';

@@ -49,7 +49,7 @@ export interface Settings {
   DATABASE_URL: string;   // For PostgreSQL
 
   // Vector Database Configuration
-  VECTOR_DB: 'none' | 'chroma' | 'qdrant';
+  VECTOR_DB: 'none' | 'qdrant';
   VECTOR_DB_PATH: string;
   EMBEDDING_MODEL: string;
 
@@ -408,4 +408,18 @@ export function createSettingsManager(settingsPath: string): SettingsManager {
  */
 export function loadSettings(): Settings {
   return getSettings().getAll();
+}
+
+/**
+ * Save settings to file
+ * Convenience function for updating and persisting settings
+ */
+export function saveSettings(settings: Partial<Settings>): void {
+  const manager = getSettings();
+  for (const [key, value] of Object.entries(settings)) {
+    if (key in DEFAULTS) {
+      manager.set(key as keyof Settings, value as Settings[keyof Settings]);
+    }
+  }
+  manager.save();
 }

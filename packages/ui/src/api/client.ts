@@ -64,13 +64,22 @@ export interface Session {
 
 export interface Observation {
   id: number;
-  sessionId: string;
+  memory_session_id: string;
   project: string;
   type: string;
   title: string;
-  text: string;
-  createdAt: string;
-  tokens?: number;
+  subtitle?: string;
+  text: string | null;
+  narrative?: string;
+  facts?: string; // JSON array string
+  concepts?: string; // JSON array string
+  files_read?: string; // JSON array string
+  files_modified?: string; // JSON array string
+  prompt_number?: number;
+  created_at: string;
+  created_at_epoch?: number;
+  discovery_tokens?: number;
+  git_branch?: string;
 }
 
 export interface Worker {
@@ -93,10 +102,12 @@ export interface Stats {
 }
 
 export interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
+  status: 'ok' | 'degraded' | 'error';
   coreReady: boolean;
-  fullyInitialized: boolean;
-  workers: number;
+  initialized: boolean;
+  workers: {
+    connected: number;
+  };
 }
 
 // ============================================

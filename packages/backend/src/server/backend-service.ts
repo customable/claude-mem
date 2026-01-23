@@ -23,6 +23,8 @@ import {
   DataRouter,
   StreamRouter,
   WorkersRouter,
+  LogsRouter,
+  SettingsRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -45,6 +47,7 @@ export class BackendService {
   private readonly settings: Settings;
 
   private server: http.Server | null = null;
+  private app: ReturnType<typeof createApp> | null = null;
   private dbConnection: SQLiteConnection | null = null;
   private unitOfWork: SQLiteUnitOfWork | null = null;
 
@@ -83,12 +86,12 @@ export class BackendService {
 
     try {
       // Create Express app
-      const app = createApp({
+      this.app = createApp({
         authToken: this.options.authToken,
       });
 
       // Create HTTP server
-      this.server = http.createServer(app);
+      this.server = http.createServer(this.app);
 
       // Initialize WebSocket hub
       this.workerHub = new WorkerHub({
@@ -106,7 +109,7 @@ export class BackendService {
       };
 
       // Start HTTP server immediately (health checks work before full init)
-      await this.startHttpServer(app);
+      await this.startHttpServer();
 
       // Background initialization
       this.initializeInBackground();
@@ -120,9 +123,11 @@ export class BackendService {
   /**
    * Start HTTP server
    */
-  private async startHttpServer(app: ReturnType<typeof createApp>): Promise<void> {
+  private async startHttpServer(): Promise<void> {
+    if (!this.app) return;
+
     // Register early routes (health checks)
-    app.use('/api', new HealthRouter({
+    this.app.use('/api', new HealthRouter({
       workerHub: this.workerHub!,
       taskQueue: { countByStatus: async () => ({
         pending: 0, assigned: 0, processing: 0, completed: 0, failed: 0, timeout: 0
@@ -134,14 +139,20 @@ export class BackendService {
     }).router);
 
     // Stream route (SSE)
-    app.use('/api/stream', new StreamRouter({
+    this.app.use('/api/stream', new StreamRouter({
       sseBroadcaster: this.sseBroadcaster!,
     }).router);
 
     // Workers route
-    app.use('/api/workers', new WorkersRouter({
+    this.app.use('/api/workers', new WorkersRouter({
       workerHub: this.workerHub!,
     }).router);
+
+    // Logs route
+    this.app.use('/api/logs', new LogsRouter().router);
+
+    // Settings route
+    this.app.use('/api/settings', new SettingsRouter().router);
 
     // Start listening
     await new Promise<void>((resolve, reject) => {
@@ -219,31 +230,23 @@ export class BackendService {
    * Register API routes after initialization
    */
   private registerRoutes(): void {
-    if (!this.server) return;
-
-    // Get Express app from server
-    // Note: In production, you'd want a cleaner way to access the app
-    const app = (this.server as any)._events?.request;
-    if (!app) {
-      logger.warn('Could not access Express app for route registration');
-      return;
-    }
+    if (!this.app) return;
 
     // Hooks routes
-    app.use('/api/hooks', new HooksRouter({
+    this.app.use('/api/hooks', new HooksRouter({
       sessionService: this.sessionService!,
       taskService: this.taskService!,
     }).router);
 
     // Data routes
-    app.use('/api/data', new DataRouter({
+    this.app.use('/api/data', new DataRouter({
       sessionService: this.sessionService!,
       taskService: this.taskService!,
       observations: this.unitOfWork!.observations,
     }).router);
 
     // Finalize app (error handlers)
-    finalizeApp(app);
+    finalizeApp(this.app);
   }
 
   /**

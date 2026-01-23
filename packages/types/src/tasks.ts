@@ -26,7 +26,7 @@ export type TaskType =
   | 'observation'
   | 'summarize'
   | 'embedding'
-  | 'chroma-sync'
+  | 'qdrant-sync'
   | 'context-generate';
 
 /**
@@ -150,12 +150,42 @@ export interface ContextGenerateTask extends BaseTask {
 }
 
 /**
+ * Qdrant sync task payload
+ */
+export interface QdrantSyncTaskPayload {
+  /** Sync mode: full resync or incremental */
+  mode: 'full' | 'incremental';
+  /** Project to sync (optional, syncs all if not specified) */
+  project?: string;
+  /** Observation IDs to sync (for incremental) */
+  observationIds?: number[];
+  /** Summary IDs to sync (for incremental) */
+  summaryIds?: number[];
+}
+
+/**
+ * Qdrant sync task
+ */
+export interface QdrantSyncTask extends BaseTask {
+  type: 'qdrant-sync';
+  payload: QdrantSyncTaskPayload;
+  result?: {
+    documentsProcessed: number;
+    documentsAdded: number;
+    documentsUpdated: number;
+    documentsDeleted: number;
+    durationMs: number;
+  };
+}
+
+/**
  * Union of all task types
  */
 export type Task =
   | ObservationTask
   | SummarizeTask
   | EmbeddingTask
+  | QdrantSyncTask
   | ContextGenerateTask;
 
 /**
