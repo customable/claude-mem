@@ -5,10 +5,12 @@
  * Handles task lifecycle: pending → assigned → processing → completed/failed
  */
 
-import { createLogger } from '@claude-mem/shared';
-import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask } from '@claude-mem/types';
+import { createLogger, getSettings } from '@claude-mem/shared';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask } from '@claude-mem/types';
 import type { WorkerHub } from './worker-hub.js';
 import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
+import type { TaskService } from '../services/task-service.js';
+import type { SQLiteClaudeMdRepository } from '@claude-mem/database';
 
 const logger = createLogger('task-dispatcher');
 
@@ -27,6 +29,10 @@ export interface TaskDispatcherOptions {
   sessions?: ISessionRepository;
   /** Summary repository for storing summaries */
   summaries?: ISummaryRepository;
+  /** Task service for queueing follow-up tasks */
+  taskService?: TaskService;
+  /** CLAUDE.md repository for storing generated content */
+  claudemd?: SQLiteClaudeMdRepository;
 }
 
 export class TaskDispatcher {
@@ -40,6 +46,8 @@ export class TaskDispatcher {
   private readonly observations?: IObservationRepository;
   private readonly sessions?: ISessionRepository;
   private readonly summaries?: ISummaryRepository;
+  private readonly taskService?: TaskService;
+  private readonly claudemd?: SQLiteClaudeMdRepository;
 
   constructor(
     private readonly hub: WorkerHub,
@@ -53,6 +61,8 @@ export class TaskDispatcher {
     this.observations = options.observations;
     this.sessions = options.sessions;
     this.summaries = options.summaries;
+    this.taskService = options.taskService;
+    this.claudemd = options.claudemd;
 
     // Wire up hub events
     this.hub.onTaskComplete = this.handleTaskComplete.bind(this);
@@ -246,8 +256,58 @@ export class TaskDispatcher {
           });
 
           logger.info(`Summary ${summary.id} created for session ${payload.sessionId}`);
+
+          // Queue CLAUDE.md generation if enabled
+          const settings = getSettings();
+          if (settings.get('CLAUDEMD_ENABLED') && this.taskService && session) {
+            try {
+              // Note: working_directory comes from session metadata or is empty
+              // The SSE writer uses this to validate the target directory
+              const workingDirectory = (session as { working_directory?: string }).working_directory;
+              await this.taskService.queueClaudeMd({
+                contentSessionId: payload.sessionId,
+                memorySessionId,
+                project: payload.project,
+                workingDirectory: workingDirectory || undefined,
+              });
+              logger.debug(`Queued claude-md task for session ${payload.sessionId}`);
+            } catch (err) {
+              const e = err as Error;
+              logger.warn(`Failed to queue claude-md task: ${e.message}`);
+            }
+          }
         } else {
           logger.debug(`No summary content for task ${taskId}`);
+        }
+      }
+
+      // Handle claude-md task: store result in database and emit SSE event
+      if (task?.type === 'claude-md' && this.claudemd) {
+        const claudeMdResult = result as ClaudeMdTask['result'];
+        const payload = task.payload as ClaudeMdTaskPayload;
+
+        if (claudeMdResult?.content) {
+          // Store in database
+          await this.claudemd.upsert({
+            project: payload.project,
+            content: claudeMdResult.content,
+            contentSessionId: payload.contentSessionId,
+            memorySessionId: payload.memorySessionId,
+            workingDirectory: payload.workingDirectory,
+            tokens: claudeMdResult.tokens || 0,
+          });
+
+          logger.info(`CLAUDE.md content stored for project ${payload.project}`);
+
+          // Emit SSE event for local SSE writer to pick up
+          this.sseBroadcaster?.broadcastClaudeMdReady({
+            project: payload.project,
+            contentSessionId: payload.contentSessionId,
+            workingDirectory: payload.workingDirectory || '',
+            content: claudeMdResult.content,
+          });
+        } else {
+          logger.debug(`No claude-md content for task ${taskId}`);
         }
       }
 

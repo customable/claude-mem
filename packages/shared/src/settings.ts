@@ -81,6 +81,9 @@ export interface Settings {
   RETENTION_ENABLED: boolean;
   RETENTION_MAX_AGE_DAYS: number;
   RETENTION_MAX_COUNT: number;
+
+  // CLAUDE.md Generation
+  CLAUDEMD_ENABLED: boolean;
 }
 
 // ============================================
@@ -154,6 +157,9 @@ export const DEFAULTS: Settings = {
   RETENTION_ENABLED: false,
   RETENTION_MAX_AGE_DAYS: 0,
   RETENTION_MAX_COUNT: 0,
+
+  // CLAUDE.md Generation
+  CLAUDEMD_ENABLED: false,
 };
 
 // ============================================
@@ -173,6 +179,7 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'CONTEXT_SHOW_WORK_TOKENS',
   'REMOTE_MODE',
   'RETENTION_ENABLED',
+  'CLAUDEMD_ENABLED',
 ];
 
 /**

@@ -207,3 +207,25 @@ export const PENDING_MESSAGES_INDEXES = `
   CREATE INDEX IF NOT EXISTS idx_pending_session ON pending_messages(session_id);
   CREATE INDEX IF NOT EXISTS idx_pending_created ON pending_messages(created_at_epoch ASC);
 `;
+
+/**
+ * Project CLAUDE.md table - stores generated CLAUDE.md content per project
+ */
+export const PROJECT_CLAUDEMD_TABLE = `
+  CREATE TABLE IF NOT EXISTS project_claudemd (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project TEXT NOT NULL,
+    content TEXT NOT NULL,
+    content_session_id TEXT NOT NULL,
+    memory_session_id TEXT,
+    working_directory TEXT,
+    generated_at INTEGER NOT NULL,
+    tokens INTEGER DEFAULT 0,
+    UNIQUE(project, content_session_id)
+  )
+`;
+
+export const PROJECT_CLAUDEMD_INDEXES = `
+  CREATE INDEX IF NOT EXISTS idx_claudemd_project ON project_claudemd(project);
+  CREATE INDEX IF NOT EXISTS idx_claudemd_generated ON project_claudemd(generated_at DESC);
+`;

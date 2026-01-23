@@ -80,6 +80,19 @@ export const migrations: Migration[] = [
       db.run('DROP TABLE IF EXISTS observations_fts');
     },
   },
+  {
+    version: 3,
+    name: 'project_claudemd',
+    up: (db: Database) => {
+      db.run(schema.PROJECT_CLAUDEMD_TABLE);
+      db.run(schema.PROJECT_CLAUDEMD_INDEXES);
+
+      logger.info('Created project_claudemd table');
+    },
+    down: (db: Database) => {
+      db.run('DROP TABLE IF EXISTS project_claudemd');
+    },
+  },
 ];
 
 /**

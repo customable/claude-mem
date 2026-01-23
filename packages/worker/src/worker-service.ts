@@ -7,7 +7,7 @@
  */
 
 import { createLogger, loadSettings, VERSION } from '@claude-mem/shared';
-import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload } from '@claude-mem/types';
+import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload, ClaudeMdTaskPayload } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
 import { handleObservationTask } from './handlers/observation-handler.js';
@@ -15,6 +15,7 @@ import { handleSummarizeTask } from './handlers/summarize-handler.js';
 import { handleEmbeddingTask } from './handlers/embedding-handler.js';
 import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
+import { handleClaudeMdTask } from './handlers/claudemd-handler.js';
 import { getQdrantService } from './services/qdrant-service.js';
 
 const logger = createLogger('worker-service');
@@ -108,6 +109,9 @@ export class WorkerService {
 
     // Context generation capability
     capabilities.push('context:generate');
+
+    // CLAUDE.md generation capability
+    capabilities.push('claudemd:generate');
 
     return capabilities;
   }
@@ -240,6 +244,33 @@ export class WorkerService {
           this.agent,
           contextPayload,
           contextPayload.observations || []
+        );
+      }
+
+      case 'claude-md': {
+        const claudeMdPayload = payload as ClaudeMdTaskPayload & {
+          observations?: Array<{
+            id: number;
+            title: string;
+            text: string;
+            type: string;
+            createdAt: number;
+            tokens?: number;
+          }>;
+          summaries?: Array<{
+            request?: string;
+            investigated?: string;
+            learned?: string;
+            completed?: string;
+            nextSteps?: string;
+            createdAt: number;
+          }>;
+        };
+        return handleClaudeMdTask(
+          this.agent,
+          claudeMdPayload,
+          claudeMdPayload.observations || [],
+          claudeMdPayload.summaries || []
         );
       }
 

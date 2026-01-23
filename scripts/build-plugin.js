@@ -3,14 +3,17 @@
  * Build Plugin Script
  *
  * Bundles monorepo packages for plugin distribution:
- * - worker-service.cjs - Hook CLI + backend daemon control
+ * - worker-service.cjs - Hook CLI entry point
  * - mcp-server.cjs - MCP search server
- * - UI assets (from packages/ui/dist)
+ * - sse-writer.cjs - CLAUDE.md file writer (SSE listener)
+ * - smart-install.js - Installation helper
  * - plugin/package.json with runtime dependencies
+ *
+ * Note: Backend and Worker run separately (Docker/systemd).
+ * This script only builds the plugin hooks.
  */
 
 import { build } from 'esbuild';
-import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -31,20 +34,6 @@ function getVersion() {
 }
 
 /**
- * Run a command and wait for completion
- */
-function runCommand(cmd, args, options = {}) {
-  return new Promise((resolve, reject) => {
-    const proc = spawn(cmd, args, { stdio: 'inherit', cwd: ROOT, ...options });
-    proc.on('exit', (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`Command failed with exit code ${code}`));
-    });
-    proc.on('error', reject);
-  });
-}
-
-/**
  * Build the plugin
  */
 async function buildPlugin() {
@@ -55,55 +44,13 @@ async function buildPlugin() {
 
   // Ensure output directories exist
   const scriptsDir = path.join(ROOT, 'plugin/scripts');
-  const uiDir = path.join(ROOT, 'plugin/ui');
 
   if (!fs.existsSync(scriptsDir)) {
     fs.mkdirSync(scriptsDir, { recursive: true });
   }
-  if (!fs.existsSync(uiDir)) {
-    fs.mkdirSync(uiDir, { recursive: true });
-  }
 
-  // Step 1: Build TypeScript packages
-  console.log('\n[1/6] Building TypeScript packages...');
-  try {
-    await runCommand('pnpm', ['build']);
-    console.log('TypeScript build complete');
-  } catch (err) {
-    console.error('TypeScript build failed:', err.message);
-    process.exit(1);
-  }
-
-  // Step 2: Build UI with Vite
-  console.log('\n[2/6] Building UI...');
-  try {
-    await runCommand('pnpm', ['--filter', '@claude-mem/ui', 'build']);
-
-    // Copy UI dist to plugin/ui
-    const uiDistSrc = path.join(ROOT, 'packages/ui/dist');
-    if (fs.existsSync(uiDistSrc)) {
-      // Copy all files from ui/dist to plugin/ui
-      const files = fs.readdirSync(uiDistSrc);
-      for (const file of files) {
-        const src = path.join(uiDistSrc, file);
-        const dest = path.join(uiDir, file);
-        if (fs.statSync(src).isDirectory()) {
-          fs.cpSync(src, dest, { recursive: true });
-        } else {
-          fs.copyFileSync(src, dest);
-        }
-      }
-      console.log('UI build complete');
-    } else {
-      console.log('UI dist not found, skipping');
-    }
-  } catch (err) {
-    console.error('UI build failed:', err.message);
-    // Continue - UI is optional
-  }
-
-  // Step 3: Bundle worker-service.cjs
-  console.log('\n[3/6] Bundling worker-service.cjs...');
+  // Step 1: Bundle worker-service.cjs
+  console.log('\n[1/5] Bundling worker-service.cjs...');
   try {
     await build({
       entryPoints: [path.join(ROOT, 'packages/hooks/src/plugin-entry.ts')],
@@ -136,8 +83,8 @@ async function buildPlugin() {
     process.exit(1);
   }
 
-  // Step 4: Bundle mcp-server.cjs
-  console.log('\n[4/6] Bundling mcp-server.cjs...');
+  // Step 2: Bundle mcp-server.cjs
+  console.log('\n[2/5] Bundling mcp-server.cjs...');
   try {
     await build({
       entryPoints: [path.join(ROOT, 'packages/hooks/src/mcp-entry.ts')],
@@ -166,8 +113,38 @@ async function buildPlugin() {
     process.exit(1);
   }
 
-  // Step 5: Copy smart-install.js
-  console.log('\n[5/6] Copying smart-install.js...');
+  // Step 3: Bundle sse-writer.cjs (for CLAUDE.md file writing)
+  console.log('\n[3/5] Bundling sse-writer.cjs...');
+  try {
+    await build({
+      entryPoints: [path.join(ROOT, 'packages/hooks/src/sse-writer.ts')],
+      bundle: true,
+      platform: 'node',
+      target: 'node18',
+      format: 'cjs',
+      outfile: path.join(scriptsDir, 'sse-writer.cjs'),
+      minify: true,
+      logLevel: 'error',
+      external: [
+        'eventsource', // Keep external - loaded from plugin/node_modules
+      ],
+      define: {
+        '__PLUGIN_VERSION__': JSON.stringify(version),
+      },
+      banner: {
+        js: '#!/usr/bin/env node',
+      },
+    });
+    fs.chmodSync(path.join(scriptsDir, 'sse-writer.cjs'), 0o755);
+    const stats = fs.statSync(path.join(scriptsDir, 'sse-writer.cjs'));
+    console.log(`sse-writer.cjs built (${(stats.size / 1024).toFixed(2)} KB)`);
+  } catch (err) {
+    console.error('sse-writer.cjs build failed:', err.message);
+    process.exit(1);
+  }
+
+  // Step 4: Copy smart-install.js
+  console.log('\n[4/5] Copying smart-install.js...');
   try {
     const smartInstallSrc = path.join(ROOT, 'packages/hooks/src/smart-install.js');
     const smartInstallDest = path.join(scriptsDir, 'smart-install.js');
@@ -179,8 +156,8 @@ async function buildPlugin() {
     process.exit(1);
   }
 
-  // Step 6: Generate plugin/package.json
-  console.log('\n[6/6] Generating plugin/package.json...');
+  // Step 5: Generate plugin/package.json
+  console.log('\n[5/5] Generating plugin/package.json...');
   const pluginPackageJson = {
     name: 'claude-mem-plugin',
     version: version,
@@ -190,6 +167,7 @@ async function buildPlugin() {
     dependencies: {
       '@xenova/transformers': '^2.17.0',
       '@qdrant/js-client-rest': '^1.12.0',
+      'eventsource': '^3.0.6',
     },
     engines: {
       node: '>=18.0.0',
@@ -213,10 +191,10 @@ async function buildPlugin() {
 
   console.log('\nPlugin build complete!');
   console.log(`Output: ${path.relative(ROOT, path.join(ROOT, 'plugin'))}/`);
-  console.log('  - scripts/worker-service.cjs');
-  console.log('  - scripts/mcp-server.cjs');
+  console.log('  - scripts/worker-service.cjs (hook CLI)');
+  console.log('  - scripts/mcp-server.cjs (MCP search server)');
+  console.log('  - scripts/sse-writer.cjs (CLAUDE.md file writer)');
   console.log('  - scripts/smart-install.js');
-  console.log('  - ui/');
   console.log('  - package.json');
 }
 

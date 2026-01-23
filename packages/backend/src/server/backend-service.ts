@@ -225,7 +225,8 @@ export class BackendService {
         this.unitOfWork.taskQueue,
         this.sseBroadcaster!,
         this.unitOfWork.observations,
-        this.unitOfWork.sessions
+        this.unitOfWork.sessions,
+        this.unitOfWork.summaries
       );
 
       this.sessionService = new SessionService(
@@ -246,6 +247,8 @@ export class BackendService {
           observations: this.unitOfWork.observations,
           sessions: this.unitOfWork.sessions,
           summaries: this.unitOfWork.summaries,
+          taskService: this.taskService,
+          claudemd: this.unitOfWork.claudemd,
         }
       );
       this.taskDispatcher.start();

@@ -28,7 +28,8 @@ export type SSEEventType =
   | 'task:queued'
   | 'task:assigned'
   | 'task:completed'
-  | 'task:failed';
+  | 'task:failed'
+  | 'claudemd:ready';
 
 /**
  * SSE Event payload
@@ -267,6 +268,21 @@ export class SSEBroadcaster {
     this.broadcast({
       type: 'task:completed',
       data: { taskId },
+    });
+  }
+
+  /**
+   * Broadcast CLAUDE.md ready for writing
+   */
+  broadcastClaudeMdReady(data: {
+    project: string;
+    contentSessionId: string;
+    workingDirectory: string;
+    content: string;
+  }): void {
+    this.broadcast({
+      type: 'claudemd:ready',
+      data,
     });
   }
 

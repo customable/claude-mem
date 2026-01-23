@@ -15,9 +15,11 @@
   "dependencies": {
     "@claude-mem/shared": "workspace:*",
     "@claude-mem/types": "workspace:*",
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "eventsource": "^3.0.6"
   },
   "devDependencies": {
+    "@types/eventsource": "^1.1.15",
     "@types/node": "^22.10.2",
     "typescript": "^5.7.2"
   }

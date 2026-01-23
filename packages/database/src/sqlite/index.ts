@@ -15,4 +15,5 @@ export {
   SQLiteSummaryRepository,
   SQLiteUserPromptRepository,
   SQLiteTaskQueueRepository,
+  SQLiteClaudeMdRepository,
 } from './repositories/index.js';

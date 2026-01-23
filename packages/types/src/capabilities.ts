@@ -28,7 +28,9 @@ export type WorkerCapability =
   // Vector DB Sync
   | 'qdrant:sync'
   // Context Generation
-  | 'context:generate';
+  | 'context:generate'
+  // CLAUDE.md Generation
+  | 'claudemd:generate';
 
 /**
  * Capability configuration with optional metadata

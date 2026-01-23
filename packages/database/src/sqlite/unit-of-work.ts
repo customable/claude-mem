@@ -11,6 +11,7 @@ import { SQLiteObservationRepository } from './repositories/observations.js';
 import { SQLiteSummaryRepository } from './repositories/summaries.js';
 import { SQLiteUserPromptRepository } from './repositories/user-prompts.js';
 import { SQLiteTaskQueueRepository } from './repositories/task-queue.js';
+import { SQLiteClaudeMdRepository } from './repositories/claudemd-repo.js';
 
 /**
  * SQLite implementation of IUnitOfWork
@@ -21,6 +22,7 @@ export class SQLiteUnitOfWork implements IUnitOfWork {
   public readonly summaries: SQLiteSummaryRepository;
   public readonly userPrompts: SQLiteUserPromptRepository;
   public readonly taskQueue: SQLiteTaskQueueRepository;
+  public readonly claudemd: SQLiteClaudeMdRepository;
 
   private inTransaction = false;
 
@@ -30,6 +32,7 @@ export class SQLiteUnitOfWork implements IUnitOfWork {
     this.summaries = new SQLiteSummaryRepository(db);
     this.userPrompts = new SQLiteUserPromptRepository(db);
     this.taskQueue = new SQLiteTaskQueueRepository(db);
+    this.claudemd = new SQLiteClaudeMdRepository(db);
   }
 
   async beginTransaction(): Promise<void> {

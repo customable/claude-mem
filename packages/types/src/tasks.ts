@@ -27,7 +27,8 @@ export type TaskType =
   | 'summarize'
   | 'embedding'
   | 'qdrant-sync'
-  | 'context-generate';
+  | 'context-generate'
+  | 'claude-md';
 
 /**
  * Base task interface
@@ -200,6 +201,28 @@ export interface QdrantSyncTask extends BaseTask {
 }
 
 /**
+ * CLAUDE.md generation task payload
+ */
+export interface ClaudeMdTaskPayload {
+  project: string;
+  memorySessionId: string;
+  contentSessionId: string;
+  workingDirectory: string;
+}
+
+/**
+ * CLAUDE.md generation task
+ */
+export interface ClaudeMdTask extends BaseTask {
+  type: 'claude-md';
+  payload: ClaudeMdTaskPayload;
+  result?: {
+    content: string;
+    tokens: number;
+  };
+}
+
+/**
  * Union of all task types
  */
 export type Task =
@@ -207,7 +230,8 @@ export type Task =
   | SummarizeTask
   | EmbeddingTask
   | QdrantSyncTask
-  | ContextGenerateTask;
+  | ContextGenerateTask
+  | ClaudeMdTask;
 
 /**
  * Task creation input (without system fields)

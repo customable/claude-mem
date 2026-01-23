@@ -10,6 +10,7 @@ import type {
   ITaskQueueRepository,
   IObservationRepository,
   ISessionRepository,
+  ISummaryRepository,
   Task,
   TaskType,
   TaskStatus,
@@ -17,8 +18,10 @@ import type {
   SummarizeTask,
   EmbeddingTask,
   ContextGenerateTask,
+  ClaudeMdTask,
   WorkerCapability,
   ObservationRecord,
+  SessionSummaryRecord,
 } from '@claude-mem/types';
 import type { SSEBroadcaster } from './sse-broadcaster.js';
 
@@ -38,6 +41,7 @@ export class TaskService {
     private readonly sseBroadcaster: SSEBroadcaster,
     private readonly observations?: IObservationRepository,
     private readonly sessions?: ISessionRepository,
+    private readonly summaries?: ISummaryRepository,
     options: TaskServiceOptions = {}
   ) {
     this.defaultMaxRetries = options.defaultMaxRetries ?? 3;
@@ -202,6 +206,87 @@ export class TaskService {
 
     this.sseBroadcaster.broadcastTaskQueued(task.id, 'context:generate');
     logger.info(`Queued context generate task ${task.id} for project ${params.project} with ${observations.length} observations`);
+
+    return task;
+  }
+
+  /**
+   * Queue a CLAUDE.md generation task
+   */
+  async queueClaudeMd(params: {
+    contentSessionId: string;
+    memorySessionId: string;
+    project: string;
+    workingDirectory?: string;
+  }): Promise<ClaudeMdTask> {
+    // Load recent observations for the project
+    let observations: Array<{
+      id: number;
+      title: string;
+      text: string;
+      type: string;
+      createdAt: number;
+      tokens?: number;
+    }> = [];
+
+    if (this.observations) {
+      const recentObs = await this.observations.list(
+        { project: params.project },
+        { limit: 30, orderBy: 'createdAt', order: 'desc' }
+      );
+      observations = recentObs.map((o: ObservationRecord) => ({
+        id: o.id,
+        title: o.title || 'Untitled',
+        text: o.text || '',
+        type: o.type as string,
+        createdAt: typeof o.created_at === 'string' ? new Date(o.created_at).getTime() : o.created_at,
+        tokens: o.discovery_tokens || undefined,
+      }));
+    }
+
+    // Load recent summaries for context
+    let summaries: Array<{
+      request?: string;
+      investigated?: string;
+      learned?: string;
+      completed?: string;
+      nextSteps?: string;
+      createdAt: number;
+    }> = [];
+
+    if (this.summaries) {
+      const recentSummaries = await this.summaries.list(
+        { project: params.project },
+        { limit: 5, orderBy: 'created_at_epoch', order: 'desc' }
+      );
+      summaries = recentSummaries.map((s: SessionSummaryRecord) => ({
+        request: s.request || undefined,
+        investigated: s.investigated || undefined,
+        learned: s.learned || undefined,
+        completed: s.completed || undefined,
+        nextSteps: s.next_steps || undefined,
+        createdAt: s.created_at_epoch,
+      }));
+    }
+
+    const task = await this.taskQueue.create<ClaudeMdTask>({
+      type: 'claude-md',
+      requiredCapability: 'claudemd:generate',
+      priority: this.defaultPriority - 20, // Lower priority than observations/summaries
+      maxRetries: this.defaultMaxRetries,
+      payload: {
+        contentSessionId: params.contentSessionId,
+        memorySessionId: params.memorySessionId,
+        project: params.project,
+        workingDirectory: params.workingDirectory || '',
+        // Include data for the worker
+        observations,
+        summaries,
+      } as ClaudeMdTask['payload'] & { observations: typeof observations; summaries: typeof summaries },
+    });
+
+    this.sseBroadcaster.broadcastTaskQueued(task.id, 'claude-md');
+    logger.info(`Queued claude-md task ${task.id} for project ${params.project}`);
 
     return task;
   }
