@@ -196,10 +196,34 @@ export function SearchView() {
   );
 }
 
+/** Parse JSON string safely */
+function parseJsonArray(str?: string): string[] {
+  if (!str) return [];
+  try {
+    const parsed = JSON.parse(str);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Shorten file path for display */
+function shortenPath(path: string): string {
+  const parts = path.split('/');
+  if (parts.length <= 4) return path;
+  return '.../' + parts.slice(-3).join('/');
+}
+
 function SearchResultCard({ observation }: { observation: Observation }) {
   const [expanded, setExpanded] = useState(false);
   const config = TYPE_CONFIG[observation.type] || { icon: 'ph--dot', color: 'text-base-content', label: observation.type };
   const date = new Date(observation.created_at).toLocaleString('de-DE');
+
+  // Parse JSON fields
+  const facts = parseJsonArray(observation.facts);
+  const concepts = parseJsonArray(observation.concepts);
+  const filesRead = parseJsonArray(observation.files_read);
+  const filesModified = parseJsonArray(observation.files_modified);
 
   return (
     <div className="card bg-base-100 card-border">
@@ -235,28 +259,130 @@ function SearchResultCard({ observation }: { observation: Observation }) {
         </div>
 
         {expanded && (
-          <div className="mt-3 pt-3 border-t border-base-300 space-y-2">
+          <div className="mt-3 pt-3 border-t border-base-300 space-y-4">
+            {/* Narrative */}
             {observation.narrative && (
-              <p className="text-sm text-base-content/80 leading-relaxed">
-                {observation.narrative}
-              </p>
+              <div>
+                <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <span className="iconify ph--text-align-left size-3" />
+                  Narrative
+                </div>
+                <p className="text-sm text-base-content/80 leading-relaxed">
+                  {observation.narrative}
+                </p>
+              </div>
             )}
+
+            {/* Facts */}
+            {facts.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <span className="iconify ph--list-bullets size-3" />
+                  Facts
+                </div>
+                <ul className="space-y-1">
+                  {facts.map((fact, i) => (
+                    <li key={i} className="text-sm text-base-content/80 flex items-start gap-2">
+                      <span className="iconify ph--check size-4 text-success shrink-0 mt-0.5" />
+                      {fact}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Concepts */}
+            {concepts.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <span className="iconify ph--tag size-3" />
+                  Concepts
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {concepts.map((concept, i) => (
+                    <span key={i} className="badge badge-secondary badge-sm badge-outline">
+                      {concept}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Files */}
+            {(filesRead.length > 0 || filesModified.length > 0) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {filesRead.length > 0 && (
+                  <div>
+                    <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                      <span className="iconify ph--file-text size-3" />
+                      Files Read ({filesRead.length})
+                    </div>
+                    <ul className="space-y-0.5">
+                      {filesRead.slice(0, 10).map((file, i) => (
+                        <li key={i} className="text-xs font-mono text-base-content/70 truncate" title={file}>
+                          {shortenPath(file)}
+                        </li>
+                      ))}
+                      {filesRead.length > 10 && (
+                        <li className="text-xs text-base-content/50">...and {filesRead.length - 10} more</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+                {filesModified.length > 0 && (
+                  <div>
+                    <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                      <span className="iconify ph--pencil-simple size-3" />
+                      Files Modified ({filesModified.length})
+                    </div>
+                    <ul className="space-y-0.5">
+                      {filesModified.slice(0, 10).map((file, i) => (
+                        <li key={i} className="text-xs font-mono text-warning truncate" title={file}>
+                          {shortenPath(file)}
+                        </li>
+                      ))}
+                      {filesModified.length > 10 && (
+                        <li className="text-xs text-base-content/50">...and {filesModified.length - 10} more</li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Raw text if available */}
             {observation.text && (
-              <p className="text-sm text-base-content/70 whitespace-pre-wrap">
-                {observation.text}
-              </p>
+              <div>
+                <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <span className="iconify ph--article size-3" />
+                  Text
+                </div>
+                <p className="text-sm text-base-content/70 whitespace-pre-wrap">
+                  {observation.text}
+                </p>
+              </div>
             )}
-            <div className="flex items-center gap-4 text-xs text-base-content/50 pt-2">
-              <span className="flex items-center gap-1">
-                <span className="iconify ph--identification-badge size-3" />
-                ID {observation.id}
-              </span>
-              {observation.prompt_number && (
+
+            {/* Footer Meta */}
+            <div className="flex items-center justify-between text-xs text-base-content/50 pt-2 border-t border-base-300">
+              <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1">
-                  <span className="iconify ph--hash size-3" />
-                  Prompt {observation.prompt_number}
+                  <span className="iconify ph--identification-badge size-3" />
+                  ID {observation.id}
                 </span>
-              )}
+                {observation.prompt_number && (
+                  <span className="flex items-center gap-1">
+                    <span className="iconify ph--hash size-3" />
+                    Prompt {observation.prompt_number}
+                  </span>
+                )}
+                {observation.git_branch && (
+                  <span className="flex items-center gap-1">
+                    <span className="iconify ph--git-branch size-3" />
+                    {observation.git_branch}
+                  </span>
+                )}
+              </div>
               {observation.discovery_tokens && (
                 <span className="flex items-center gap-1">
                   <span className="iconify ph--coins size-3" />
