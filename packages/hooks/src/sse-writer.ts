@@ -196,13 +196,19 @@ function main(): void {
       }
 
       // Handle session:ended event
+      // Don't exit immediately - wait for claudemd:ready which comes after session end
       if (data.type === 'session:ended' && data.data) {
         const payload = data.data as { sessionId: string };
 
         if (payload.sessionId === args.session) {
-          console.log('[sse-writer] Session ended, shutting down');
-          es.close();
-          process.exit(0);
+          console.log('[sse-writer] Session ended, waiting for claudemd:ready...');
+          // Set a shorter timeout now that session has ended
+          // claudemd task should complete within 5 minutes (worker may be busy)
+          setTimeout(() => {
+            console.log('[sse-writer] Timeout waiting for claudemd:ready after session end');
+            es.close();
+            process.exit(0);
+          }, 5 * 60 * 1000);
         }
       }
     } catch (error) {
