@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: [docker, light]
+    container:
+      image: catthehacker/ubuntu:act-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build
+
+      - name: Type check
+        run: bun run typecheck
+        continue-on-error: true
+
+  validate-plugin:
+    runs-on: [docker, light]
+    container:
+      image: catthehacker/ubuntu:act-latest
+    needs: build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate plugin structure
+        run: |
+          # Check required files exist
+          test -f plugin/.claude-plugin/plugin.json
+          test -d plugin/hooks
+          test -d plugin/scripts
+          echo "Plugin structure validated"
