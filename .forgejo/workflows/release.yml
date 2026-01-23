@@ -422,9 +422,9 @@ jobs:
         run: |
           echo "released=true" >> $GITHUB_OUTPUT
 
-  # Build and push Docker image (only after successful release)
+  # Build and push Docker images (only after successful release)
   docker:
-    name: Build Docker Image
+    name: Build Docker Images
     runs-on: [docker, light]
     needs: release
     if: needs.release.outputs.released == 'true'
@@ -449,14 +449,26 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push Backend image
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile.backend
           push: true
           tags: |
-            git.customable.host/customable/claude-mem:latest
-            git.customable.host/customable/claude-mem:${{ needs.release.outputs.version }}
-          # Note: GHA cache not available on Forgejo, using registry cache instead
-          cache-from: type=registry,ref=git.customable.host/customable/claude-mem:buildcache
-          cache-to: type=registry,ref=git.customable.host/customable/claude-mem:buildcache,mode=max
+            git.customable.host/customable/claude-mem/backend:latest
+            git.customable.host/customable/claude-mem/backend:${{ needs.release.outputs.version }}
+          cache-from: type=registry,ref=git.customable.host/customable/claude-mem/backend:buildcache
+          cache-to: type=registry,ref=git.customable.host/customable/claude-mem/backend:buildcache,mode=max
+
+      - name: Build and push Worker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.worker
+          push: true
+          tags: |
+            git.customable.host/customable/claude-mem/worker:latest
+            git.customable.host/customable/claude-mem/worker:${{ needs.release.outputs.version }}
+          cache-from: type=registry,ref=git.customable.host/customable/claude-mem/worker:buildcache
+          cache-to: type=registry,ref=git.customable.host/customable/claude-mem/worker:buildcache,mode=max
