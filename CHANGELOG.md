@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.5.1] - 2026-01-23
+
+### Bug Fixes
+- Removed unused `ObservationList` component from the UI
+
+### Improvements
+- Added workflow reminder to always commit changes in documentation
+
+
 ## [2.5.0] - 2026-01-23
 
 ### Features
