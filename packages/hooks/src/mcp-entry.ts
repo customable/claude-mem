@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * Claude-mem MCP Search Server
  *
