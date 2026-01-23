@@ -37,10 +37,8 @@ async function main(): Promise<void> {
 }
 
 async function startBackend(): Promise<void> {
-  const service = new BackendService({
-    port: parseInt(process.env.PORT || '37777'),
-    host: process.env.HOST || '127.0.0.1',
-  });
+  // Use empty options - BackendService will load from settings
+  const service = new BackendService();
 
   await service.start();
   logger.info('Backend service running');
