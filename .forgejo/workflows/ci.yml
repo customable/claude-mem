@@ -82,7 +82,7 @@ jobs:
         run: pnpm install
 
       - name: Build plugin
-        run: node scripts/build-plugin.js
+        run: node scripts/build-plugin.mjs
 
       - name: Validate plugin structure
         run: |
