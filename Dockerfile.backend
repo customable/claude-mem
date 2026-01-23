@@ -13,9 +13,8 @@ COPY packages/database/package.json packages/database/
 COPY packages/backend/package.json packages/backend/
 COPY packages/ui/package.json packages/ui/
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm
-RUN pnpm install --frozen-lockfile
+# Install dependencies using bun (reads pnpm-lock.yaml)
+RUN bun install --frozen-lockfile
 
 # Copy source files
 COPY tsconfig.base.json ./
@@ -26,11 +25,11 @@ COPY packages/backend packages/backend
 COPY packages/ui packages/ui
 
 # Build all packages
-RUN pnpm --filter @claude-mem/types build
-RUN pnpm --filter @claude-mem/shared build
-RUN pnpm --filter @claude-mem/database build
-RUN pnpm --filter @claude-mem/backend build
-RUN pnpm --filter @claude-mem/ui build
+RUN bun run --filter @claude-mem/types build
+RUN bun run --filter @claude-mem/shared build
+RUN bun run --filter @claude-mem/database build
+RUN bun run --filter @claude-mem/backend build
+RUN bun run --filter @claude-mem/ui build
 
 # Production image
 FROM oven/bun:1-slim
