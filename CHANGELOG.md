@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.0] - 2026-01-23
+
+### Features
+- Added type parameter and backend support to the `save_memory` MCP tool for enhanced functionality.
+
+
 ## [2.3.0] - 2026-01-23
 
 ### Features
