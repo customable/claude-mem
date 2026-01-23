@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.2] - 2026-01-23
+
+### Bug Fixes
+- Fixed an issue where hooks did not wait for the `claudemd:ready` event after session end.
+
+
 ## [2.14.1] - 2026-01-23
 
 ### Bug Fixes
