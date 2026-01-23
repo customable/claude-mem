@@ -7,41 +7,8 @@
 import { useState } from 'react';
 import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
-
-/**
- * Observation type configuration for UI rendering
- */
-const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
-  // Work Types
-  bugfix: { icon: 'ph--bug', color: 'text-error', label: 'Bug Fix' },
-  feature: { icon: 'ph--star', color: 'text-secondary', label: 'Feature' },
-  refactor: { icon: 'ph--arrows-clockwise', color: 'text-info', label: 'Refactor' },
-  change: { icon: 'ph--check-circle', color: 'text-success', label: 'Change' },
-  // Documentation & Config
-  docs: { icon: 'ph--file-text', color: 'text-base-content', label: 'Documentation' },
-  config: { icon: 'ph--gear', color: 'text-base-content/80', label: 'Config' },
-  // Quality & Testing
-  test: { icon: 'ph--test-tube', color: 'text-accent', label: 'Test' },
-  security: { icon: 'ph--shield-check', color: 'text-error', label: 'Security' },
-  performance: { icon: 'ph--lightning', color: 'text-warning', label: 'Performance' },
-  // Infrastructure
-  deploy: { icon: 'ph--rocket-launch', color: 'text-primary', label: 'Deployment' },
-  infra: { icon: 'ph--buildings', color: 'text-neutral', label: 'Infrastructure' },
-  migration: { icon: 'ph--database', color: 'text-info', label: 'Migration' },
-  // Knowledge Types
-  discovery: { icon: 'ph--magnifying-glass', color: 'text-primary', label: 'Discovery' },
-  decision: { icon: 'ph--scales', color: 'text-warning', label: 'Decision' },
-  research: { icon: 'ph--flask', color: 'text-primary', label: 'Research' },
-  // Integration
-  api: { icon: 'ph--plugs-connected', color: 'text-secondary', label: 'API' },
-  integration: { icon: 'ph--link', color: 'text-accent', label: 'Integration' },
-  dependency: { icon: 'ph--package', color: 'text-base-content/70', label: 'Dependency' },
-  // Planning & Tasks
-  task: { icon: 'ph--check-square', color: 'text-accent', label: 'Task' },
-  plan: { icon: 'ph--list-checks', color: 'text-info', label: 'Plan' },
-  // Session
-  'session-request': { icon: 'ph--chat-text', color: 'text-base-content/60', label: 'Request' },
-};
+import { getTypeConfig } from '../utils/observation';
+import { ObservationDetails } from './ObservationDetails';
 
 interface Props {
   project?: string;
@@ -135,34 +102,10 @@ export function ObservationList({ project }: Props) {
   );
 }
 
-/** Parse JSON string safely */
-function parseJsonArray(str?: string): string[] {
-  if (!str) return [];
-  try {
-    const parsed = JSON.parse(str);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-/** Shorten file path for display */
-function shortenPath(path: string): string {
-  const parts = path.split('/');
-  if (parts.length <= 4) return path;
-  return '.../' + parts.slice(-3).join('/');
-}
-
 function ObservationItem({ observation }: { observation: Observation }) {
   const [expanded, setExpanded] = useState(false);
-  const config = TYPE_CONFIG[observation.type] || { icon: 'ph--dot', color: 'text-base-content', label: observation.type };
+  const config = getTypeConfig(observation.type);
   const date = new Date(observation.created_at).toLocaleString();
-
-  // Parse JSON fields
-  const facts = parseJsonArray(observation.facts);
-  const concepts = parseJsonArray(observation.concepts);
-  const filesRead = parseJsonArray(observation.files_read);
-  const filesModified = parseJsonArray(observation.files_modified);
 
   return (
     <div className="card bg-base-100 card-border">
@@ -212,124 +155,9 @@ function ObservationItem({ observation }: { observation: Observation }) {
 
       {/* Expanded Content */}
       {expanded && (
-        <div className="px-4 pb-4 space-y-4">
-          <div className="border-t border-base-300 pt-4" />
-
-          {/* Narrative */}
-          {observation.narrative && (
-            <div>
-              <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                <span className="iconify ph--text-align-left size-3" />
-                Narrative
-              </div>
-              <p className="text-sm text-base-content/80 leading-relaxed">
-                {observation.narrative}
-              </p>
-            </div>
-          )}
-
-          {/* Facts */}
-          {facts.length > 0 && (
-            <div>
-              <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                <span className="iconify ph--list-bullets size-3" />
-                Facts
-              </div>
-              <ul className="space-y-1">
-                {facts.map((fact, i) => (
-                  <li key={i} className="text-sm text-base-content/80 flex items-start gap-2">
-                    <span className="iconify ph--check size-4 text-success shrink-0 mt-0.5" />
-                    {fact}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Concepts */}
-          {concepts.length > 0 && (
-            <div>
-              <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                <span className="iconify ph--tag size-3" />
-                Concepts
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {concepts.map((concept, i) => (
-                  <span key={i} className="badge badge-secondary badge-sm badge-outline">
-                    {concept}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Files */}
-          {(filesRead.length > 0 || filesModified.length > 0) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Files Read */}
-              {filesRead.length > 0 && (
-                <div>
-                  <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                    <span className="iconify ph--file-text size-3" />
-                    Files Read ({filesRead.length})
-                  </div>
-                  <ul className="space-y-0.5">
-                    {filesRead.map((file, i) => (
-                      <li
-                        key={i}
-                        className="text-xs font-mono text-base-content/70 truncate"
-                        title={file}
-                      >
-                        {shortenPath(file)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Files Modified */}
-              {filesModified.length > 0 && (
-                <div>
-                  <div className="text-xs font-medium text-base-content/60 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                    <span className="iconify ph--pencil-simple size-3" />
-                    Files Modified ({filesModified.length})
-                  </div>
-                  <ul className="space-y-0.5">
-                    {filesModified.map((file, i) => (
-                      <li
-                        key={i}
-                        className="text-xs font-mono text-warning truncate"
-                        title={file}
-                      >
-                        {shortenPath(file)}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Footer Meta */}
-          <div className="flex items-center justify-between text-xs text-base-content/50 pt-2 border-t border-base-300">
-            <div className="flex items-center gap-4">
-              {observation.prompt_number && (
-                <span className="flex items-center gap-1">
-                  <span className="iconify ph--hash size-3" />
-                  Prompt {observation.prompt_number}
-                </span>
-              )}
-              <span className="flex items-center gap-1">
-                <span className="iconify ph--identification-badge size-3" />
-                ID {observation.id}
-              </span>
-            </div>
-            {observation.discovery_tokens && (
-              <span className="flex items-center gap-1">
-                <span className="iconify ph--coins size-3" />
-                {observation.discovery_tokens.toLocaleString()} tokens
-              </span>
-            )}
+        <div className="px-4 pb-4">
+          <div className="border-t border-base-300 pt-4">
+            <ObservationDetails observation={observation} />
           </div>
         </div>
       )}

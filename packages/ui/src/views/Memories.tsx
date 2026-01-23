@@ -7,41 +7,8 @@
 import { useState, useMemo } from 'react';
 import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
-
-/**
- * Observation type configuration for UI rendering
- */
-const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string; emoji: string }> = {
-  // Work Types
-  bugfix: { icon: 'ph--bug', color: 'text-error', label: 'Bug Fix', emoji: '🔴' },
-  feature: { icon: 'ph--star', color: 'text-secondary', label: 'Feature', emoji: '🟣' },
-  refactor: { icon: 'ph--arrows-clockwise', color: 'text-info', label: 'Refactor', emoji: '🔄' },
-  change: { icon: 'ph--check-circle', color: 'text-success', label: 'Change', emoji: '✅' },
-  // Documentation & Config
-  docs: { icon: 'ph--file-text', color: 'text-base-content', label: 'Documentation', emoji: '📝' },
-  config: { icon: 'ph--gear', color: 'text-base-content/80', label: 'Config', emoji: '⚙️' },
-  // Quality & Testing
-  test: { icon: 'ph--test-tube', color: 'text-accent', label: 'Test', emoji: '🧪' },
-  security: { icon: 'ph--shield-check', color: 'text-error', label: 'Security', emoji: '🔒' },
-  performance: { icon: 'ph--lightning', color: 'text-warning', label: 'Performance', emoji: '⚡' },
-  // Infrastructure
-  deploy: { icon: 'ph--rocket-launch', color: 'text-primary', label: 'Deployment', emoji: '🚀' },
-  infra: { icon: 'ph--buildings', color: 'text-neutral', label: 'Infrastructure', emoji: '🏗️' },
-  migration: { icon: 'ph--database', color: 'text-info', label: 'Migration', emoji: '🔀' },
-  // Knowledge Types
-  discovery: { icon: 'ph--magnifying-glass', color: 'text-primary', label: 'Discovery', emoji: '🔵' },
-  decision: { icon: 'ph--scales', color: 'text-warning', label: 'Decision', emoji: '⚖️' },
-  research: { icon: 'ph--flask', color: 'text-primary', label: 'Research', emoji: '🔬' },
-  // Integration
-  api: { icon: 'ph--plugs-connected', color: 'text-secondary', label: 'API', emoji: '🔌' },
-  integration: { icon: 'ph--link', color: 'text-accent', label: 'Integration', emoji: '🔗' },
-  dependency: { icon: 'ph--package', color: 'text-base-content/70', label: 'Dependency', emoji: '📦' },
-  // Planning & Tasks
-  task: { icon: 'ph--check-square', color: 'text-accent', label: 'Task', emoji: '☑️' },
-  plan: { icon: 'ph--list-checks', color: 'text-info', label: 'Plan', emoji: '📋' },
-  // Session
-  'session-request': { icon: 'ph--chat-text', color: 'text-base-content/60', label: 'Request', emoji: '💬' },
-};
+import { TYPE_CONFIG, getTypeConfig } from '../utils/observation';
+import { ObservationDetails } from '../components/ObservationDetails';
 
 interface Filters {
   project: string;
@@ -124,26 +91,24 @@ export function MemoriesView() {
   return (
     <div className="space-y-4">
       {/* Header & Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Memories</h2>
           <span className="badge badge-neutral badge-sm">{observations.length} items</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           {/* Search */}
-          <div className="join">
-            <span className="join-item btn btn-sm btn-ghost pointer-events-none">
-              <span className="iconify ph--magnifying-glass size-4" />
-            </span>
+          <label className="input input-sm input-bordered flex items-center gap-2 w-40">
+            <span className="iconify ph--magnifying-glass size-4 text-base-content/40" />
             <input
               type="text"
               placeholder="Search..."
-              className="input input-sm input-bordered join-item w-40"
+              className="grow bg-transparent outline-none"
               value={filters.search}
               onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
             />
-          </div>
+          </label>
 
           {/* Project Filter */}
           <select
@@ -218,13 +183,13 @@ export function MemoriesView() {
 
 function MemoryCard({ observation }: { observation: Observation }) {
   const [expanded, setExpanded] = useState(false);
-  const config = TYPE_CONFIG[observation.type] || { icon: 'ph--dot', color: 'text-base-content', label: observation.type };
+  const config = getTypeConfig(observation.type);
   const time = new Date(observation.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="relative">
-      {/* Timeline Dot */}
-      <div className={`absolute -left-[1.6rem] w-3 h-3 rounded-full bg-base-100 border-2 ${config.color.replace('text-', 'border-')}`} />
+      {/* Timeline Dot - centered on the 2px border line */}
+      <div className={`absolute -left-[calc(1.5rem+7px)] top-4 w-3 h-3 rounded-full bg-base-100 border-2 ${config.color.replace('text-', 'border-')}`} />
 
       {/* Card */}
       <div
@@ -242,6 +207,12 @@ function MemoryCard({ observation }: { observation: Observation }) {
                 {observation.project && (
                   <span className="badge badge-primary badge-xs badge-outline">{observation.project}</span>
                 )}
+                {observation.git_branch && (
+                  <span className="badge badge-ghost badge-xs">
+                    <span className="iconify ph--git-branch size-3 mr-1" />
+                    {observation.git_branch}
+                  </span>
+                )}
               </div>
 
               {observation.subtitle && (
@@ -255,9 +226,9 @@ function MemoryCard({ observation }: { observation: Observation }) {
           </div>
 
           {/* Expanded Content */}
-          {expanded && observation.narrative && (
+          {expanded && (
             <div className="mt-3 pt-3 border-t border-base-300">
-              <p className="text-sm text-base-content/80 leading-relaxed">{observation.narrative}</p>
+              <ObservationDetails observation={observation} />
             </div>
           )}
         </div>
