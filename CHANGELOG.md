@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.12.0] - 2026-01-23
+
+### Features
+- Added styling for 'change' observation type in UI
+
+### Bug Fixes
+- Fixed incorrect column name in observation queries
+- Fixed handling of `import.meta.url` being undefined in CJS bundles
+- Fixed session reactivation for completed sessions on resume
+
+
 ## [2.11.3] - 2026-01-23
 
 ### Bug Fixes
