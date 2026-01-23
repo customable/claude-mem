@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.8.0] - 2026-01-23
+
+### Features
+- Added a narrative/facts view toggle to the ObservationDetails component.
+
+
 ## [2.7.1] - 2026-01-23
 
 ### Bug Fixes
