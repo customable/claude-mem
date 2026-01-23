@@ -227,6 +227,22 @@ function main(): void {
         }
       }
 
+      // Handle session:started event (reactivation after completion)
+      if (data.type === 'session:started' && data.data) {
+        const payload = data.data as { sessionId: string };
+
+        if (payload.sessionId === args.session && sessionEnded) {
+          sessionEnded = false;
+          console.log('[sse-writer] Session reactivated');
+
+          // Clear the session end timeout
+          if (sessionEndTimeout) {
+            clearTimeout(sessionEndTimeout);
+            sessionEndTimeout = null;
+          }
+        }
+      }
+
       // Handle session:ended event
       // Don't exit immediately - wait for claudemd:ready events which come after session end
       if (data.type === 'session:ended' && data.data) {
