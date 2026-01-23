@@ -53,6 +53,9 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup pnpm
+        run: npm install -g pnpm
+
       - name: Detect version from commits
         id: version
         run: |
@@ -266,10 +269,13 @@ jobs:
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
-          # Update version badge in README.md
-          sed -i "s/version-[0-9]*\.[0-9]*\.[0-9]*/version-${VERSION}/" README.md
-
-          echo "Updated README.md version badge"
+          # Update version badge in README.md (if exists)
+          if [ -f README.md ]; then
+            sed -i "s/version-[0-9]*\.[0-9]*\.[0-9]*/version-${VERSION}/" README.md
+            echo "Updated README.md version badge"
+          else
+            echo "README.md not found, skipping"
+          fi
 
       - name: Commit version updates
         if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
@@ -279,7 +285,8 @@ jobs:
           git config user.name "Release Bot"
           git config user.email "release@customable.de"
 
-          git add package.json plugin/.claude-plugin/plugin.json plugin/package.json CHANGELOG.md README.md
+          git add package.json plugin/.claude-plugin/plugin.json plugin/package.json CHANGELOG.md
+          git add README.md 2>/dev/null || true
           git commit -m "chore(release): bump version to ${VERSION}" || echo "No changes to commit"
           git push origin main
 
