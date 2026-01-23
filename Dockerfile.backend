@@ -1,9 +1,12 @@
 # Backend Dockerfile
 # Serves REST API, WebSocket Hub for workers, and static UI files
 
-FROM oven/bun:1 AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
 
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -13,8 +16,8 @@ COPY packages/database/package.json packages/database/
 COPY packages/backend/package.json packages/backend/
 COPY packages/ui/package.json packages/ui/
 
-# Install dependencies using bun (reads pnpm-lock.yaml)
-RUN bun install --frozen-lockfile
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
 # Copy source files
 COPY tsconfig.base.json ./
@@ -25,13 +28,13 @@ COPY packages/backend packages/backend
 COPY packages/ui packages/ui
 
 # Build all packages
-RUN bun run --filter @claude-mem/types build
-RUN bun run --filter @claude-mem/shared build
-RUN bun run --filter @claude-mem/database build
-RUN bun run --filter @claude-mem/backend build
-RUN bun run --filter @claude-mem/ui build
+RUN pnpm --filter @claude-mem/types build
+RUN pnpm --filter @claude-mem/shared build
+RUN pnpm --filter @claude-mem/database build
+RUN pnpm --filter @claude-mem/backend build
+RUN pnpm --filter @claude-mem/ui build
 
-# Production image
+# Production image - use bun for runtime (faster)
 FROM oven/bun:1-slim
 
 WORKDIR /app

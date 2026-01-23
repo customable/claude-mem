@@ -7,9 +7,10 @@ on:
     branches: [main]
 
 # Separate concurrency group from release workflow
+# Don't cancel - let CI finish even if new commits come in
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # Check if we should skip CI (e.g., release commits)
