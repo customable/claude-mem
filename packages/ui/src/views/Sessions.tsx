@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api, type Observation } from '../api/client';
+import { api, type Observation, type Summary } from '../api/client';
 import { ObservationDetails } from '../components/ObservationDetails';
 
 interface Session {
@@ -192,22 +192,46 @@ function SessionCard({
   );
 }
 
+// Timeline item type for unified observation/summary display
+type TimelineItem =
+  | { kind: 'observation'; data: Observation; epoch: number }
+  | { kind: 'summary'; data: Summary; epoch: number };
+
 function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
-  const [observations, setObservations] = useState<Observation[]>([]);
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchObservations() {
+    async function fetchTimelineData() {
       try {
-        const data = await api.getObservations({ sessionId: memorySessionId, limit: 50 });
-        setObservations(data.items || []);
+        const [obsData, sumData] = await Promise.all([
+          api.getObservations({ sessionId: memorySessionId, limit: 50 }),
+          api.getSessionSummaries(memorySessionId),
+        ]);
+
+        // Convert to unified timeline items
+        const obsItems: TimelineItem[] = (obsData.items || []).map((obs) => ({
+          kind: 'observation' as const,
+          data: obs,
+          epoch: obs.created_at_epoch || new Date(obs.created_at).getTime(),
+        }));
+
+        const sumItems: TimelineItem[] = (sumData.items || []).map((sum) => ({
+          kind: 'summary' as const,
+          data: sum,
+          epoch: sum.created_at_epoch,
+        }));
+
+        // Merge and sort by epoch (oldest first)
+        const merged = [...obsItems, ...sumItems].sort((a, b) => a.epoch - b.epoch);
+        setTimelineItems(merged);
       } catch (error) {
-        console.error('Failed to fetch session observations:', error);
+        console.error('Failed to fetch session timeline:', error);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchObservations();
+    fetchTimelineData();
   }, [memorySessionId]);
 
   if (isLoading) {
@@ -218,25 +242,49 @@ function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
     );
   }
 
-  if (observations.length === 0) {
+  if (timelineItems.length === 0) {
     return <p className="text-sm text-base-content/50 text-center py-4">No observations in this session</p>;
   }
 
   return (
     <div className="space-y-3">
-      {observations.map((obs, index) => (
-        <div key={obs.id} className="flex gap-3">
+      {timelineItems.map((item, index) => (
+        <div key={`${item.kind}-${item.kind === 'observation' ? item.data.id : item.data.id}`} className="flex gap-3">
           <div className="flex flex-col items-center">
-            <div className={`w-2 h-2 rounded-full ${getTypeColor(obs.type)}`} />
-            {index < observations.length - 1 && <div className="w-px flex-1 bg-base-300 mt-1" />}
+            <div className={`w-2 h-2 rounded-full ${
+              item.kind === 'summary' ? 'bg-accent' : getTypeColor(item.data.type)
+            }`} />
+            {index < timelineItems.length - 1 && <div className="w-px flex-1 bg-base-300 mt-1" />}
           </div>
           <div className="flex-1 pb-3">
-            <div className="flex items-center gap-2">
-              <span className={`badge badge-xs ${getTypeBadge(obs.type)}`}>{obs.type}</span>
-              <span className="text-xs text-base-content/50">{formatTime(obs.created_at)}</span>
-            </div>
-            <p className="text-sm font-medium mt-1">{obs.title}</p>
-            {obs.subtitle && <p className="text-xs text-base-content/60 mt-0.5">{obs.subtitle}</p>}
+            {item.kind === 'observation' ? (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className={`badge badge-xs ${getTypeBadge(item.data.type)}`}>{item.data.type}</span>
+                  <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                </div>
+                <p className="text-sm font-medium mt-1">{item.data.title}</p>
+                {item.data.subtitle && <p className="text-xs text-base-content/60 mt-0.5">{item.data.subtitle}</p>}
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="badge badge-xs badge-accent">Summary</span>
+                  <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                </div>
+                <div className="mt-1 text-sm space-y-1">
+                  {item.data.request && (
+                    <p><span className="text-base-content/60">Request:</span> {item.data.request}</p>
+                  )}
+                  {item.data.completed && (
+                    <p><span className="text-base-content/60">Completed:</span> {item.data.completed}</p>
+                  )}
+                  {item.data.learned && (
+                    <p className="text-xs text-base-content/70"><span className="text-base-content/50">Learned:</span> {item.data.learned}</p>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       ))}
@@ -303,22 +351,40 @@ function SessionDetailModal({
   session: Session;
   onClose: () => void;
 }) {
-  const [observations, setObservations] = useState<Observation[]>([]);
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
   const [selectedObs, setSelectedObs] = useState<Observation | null>(null);
+  const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchObservations() {
+    async function fetchTimelineData() {
       try {
-        const data = await api.getObservations({ sessionId: session.memory_session_id, limit: 200 });
-        setObservations(data.items || []);
+        const [obsData, sumData] = await Promise.all([
+          api.getObservations({ sessionId: session.memory_session_id, limit: 200 }),
+          api.getSessionSummaries(session.memory_session_id),
+        ]);
+
+        const obsItems: TimelineItem[] = (obsData.items || []).map((obs) => ({
+          kind: 'observation' as const,
+          data: obs,
+          epoch: obs.created_at_epoch || new Date(obs.created_at).getTime(),
+        }));
+
+        const sumItems: TimelineItem[] = (sumData.items || []).map((sum) => ({
+          kind: 'summary' as const,
+          data: sum,
+          epoch: sum.created_at_epoch,
+        }));
+
+        const merged = [...obsItems, ...sumItems].sort((a, b) => a.epoch - b.epoch);
+        setTimelineItems(merged);
       } catch (error) {
-        console.error('Failed to fetch observations:', error);
+        console.error('Failed to fetch timeline:', error);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchObservations();
+    fetchTimelineData();
   }, [session.memory_session_id]);
 
   // Close on escape key
@@ -327,6 +393,8 @@ function SessionDetailModal({
       if (e.key === 'Escape') {
         if (selectedObs) {
           setSelectedObs(null);
+        } else if (selectedSummary) {
+          setSelectedSummary(null);
         } else {
           onClose();
         }
@@ -334,7 +402,11 @@ function SessionDetailModal({
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose, selectedObs]);
+  }, [onClose, selectedObs, selectedSummary]);
+
+  // Count observations and summaries
+  const observationCount = timelineItems.filter(i => i.kind === 'observation').length;
+  const summaryCount = timelineItems.filter(i => i.kind === 'summary').length;
 
   return (
     <div className="modal modal-open">
@@ -363,10 +435,14 @@ function SessionDetailModal({
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="grid grid-cols-5 gap-3 mb-4">
           <div className="bg-base-200 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold">{session.observation_count ?? 0}</p>
+            <p className="text-2xl font-bold">{observationCount}</p>
             <p className="text-xs text-base-content/60">Observations</p>
+          </div>
+          <div className="bg-base-200 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{summaryCount}</p>
+            <p className="text-xs text-base-content/60">Summaries</p>
           </div>
           <div className="bg-base-200 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold">{session.prompt_count ?? 0}</p>
@@ -384,41 +460,67 @@ function SessionDetailModal({
           </div>
         </div>
 
-        {/* Observations List */}
+        {/* Timeline List */}
         <div className="flex-1 overflow-y-auto">
-          <h4 className="font-semibold mb-3">Observations</h4>
+          <h4 className="font-semibold mb-3">Timeline</h4>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <span className="loading loading-spinner loading-md" />
             </div>
-          ) : observations.length === 0 ? (
-            <p className="text-center text-base-content/50 py-8">No observations</p>
+          ) : timelineItems.length === 0 ? (
+            <p className="text-center text-base-content/50 py-8">No activity</p>
           ) : (
             <div className="space-y-2">
-              {observations.map((obs) => (
-                <div
-                  key={obs.id}
-                  className="bg-base-200 rounded-lg p-3 cursor-pointer hover:bg-base-300 transition-colors"
-                  onClick={() => setSelectedObs(obs)}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className={`iconify ${getTypeIcon(obs.type)} size-5 mt-0.5`} />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={`badge badge-xs ${getTypeBadge(obs.type)}`}>{obs.type}</span>
-                        <span className="text-xs text-base-content/50">{formatTime(obs.created_at)}</span>
-                        {obs.prompt_number && (
-                          <span className="text-xs text-base-content/50">Prompt #{obs.prompt_number}</span>
+              {timelineItems.map((item) => (
+                item.kind === 'observation' ? (
+                  <div
+                    key={`obs-${item.data.id}`}
+                    className="bg-base-200 rounded-lg p-3 cursor-pointer hover:bg-base-300 transition-colors"
+                    onClick={() => setSelectedObs(item.data)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`iconify ${getTypeIcon(item.data.type)} size-5 mt-0.5`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className={`badge badge-xs ${getTypeBadge(item.data.type)}`}>{item.data.type}</span>
+                          <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                          {item.data.prompt_number && (
+                            <span className="text-xs text-base-content/50">Prompt #{item.data.prompt_number}</span>
+                          )}
+                        </div>
+                        <p className="font-medium mt-1 truncate">{item.data.title}</p>
+                        {item.data.subtitle && (
+                          <p className="text-sm text-base-content/60 truncate">{item.data.subtitle}</p>
                         )}
                       </div>
-                      <p className="font-medium mt-1 truncate">{obs.title}</p>
-                      {obs.subtitle && (
-                        <p className="text-sm text-base-content/60 truncate">{obs.subtitle}</p>
-                      )}
+                      <span className="iconify ph--caret-right size-4 text-base-content/30" />
                     </div>
-                    <span className="iconify ph--caret-right size-4 text-base-content/30" />
                   </div>
-                </div>
+                ) : (
+                  <div
+                    key={`sum-${item.data.id}`}
+                    className="bg-accent/10 border border-accent/30 rounded-lg p-3 cursor-pointer hover:bg-accent/20 transition-colors"
+                    onClick={() => setSelectedSummary(item.data)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="iconify ph--note-pencil text-accent size-5 mt-0.5" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="badge badge-xs badge-accent">Summary</span>
+                          <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                          {item.data.prompt_number && (
+                            <span className="text-xs text-base-content/50">Prompt #{item.data.prompt_number}</span>
+                          )}
+                        </div>
+                        <p className="font-medium mt-1 truncate">{item.data.request || 'Session Summary'}</p>
+                        {item.data.completed && (
+                          <p className="text-sm text-base-content/60 truncate">{item.data.completed}</p>
+                        )}
+                      </div>
+                      <span className="iconify ph--caret-right size-4 text-base-content/30" />
+                    </div>
+                  </div>
+                )
               ))}
             </div>
           )}
@@ -444,6 +546,25 @@ function SessionDetailModal({
           <div className="modal-backdrop bg-black/30" onClick={() => setSelectedObs(null)} />
         </div>
       )}
+
+      {/* Summary Detail Sub-Modal */}
+      {selectedSummary && (
+        <div className="modal modal-open" style={{ zIndex: 60 }}>
+          <div className="modal-box max-w-3xl max-h-[85vh] overflow-y-auto">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="iconify ph--note-pencil text-accent size-6" />
+                <span className="badge badge-accent">Summary</span>
+              </div>
+              <button className="btn btn-ghost btn-sm btn-square" onClick={() => setSelectedSummary(null)}>
+                <span className="iconify ph--x size-5" />
+              </button>
+            </div>
+            <SummaryDetails summary={selectedSummary} />
+          </div>
+          <div className="modal-backdrop bg-black/30" onClick={() => setSelectedSummary(null)} />
+        </div>
+      )}
     </div>
   );
 }
@@ -467,4 +588,87 @@ function getTypeIcon(type: string): string {
     default:
       return 'ph--circle text-base-content/50';
   }
+}
+
+function SummaryDetails({ summary }: { summary: Summary }) {
+  const date = new Date(summary.created_at).toLocaleString('de-DE');
+
+  return (
+    <div className="space-y-4">
+      {/* Metadata */}
+      <div className="flex flex-wrap gap-2 text-sm">
+        <span className="flex items-center gap-1 text-base-content/60">
+          <span className="iconify ph--clock size-4" />
+          {date}
+        </span>
+        {summary.prompt_number && (
+          <span className="flex items-center gap-1 text-base-content/60">
+            <span className="iconify ph--chat-text size-4" />
+            Prompt #{summary.prompt_number}
+          </span>
+        )}
+        {summary.discovery_tokens && (
+          <span className="flex items-center gap-1 text-base-content/60">
+            <span className="iconify ph--coins size-4" />
+            {summary.discovery_tokens} tokens
+          </span>
+        )}
+      </div>
+
+      {/* Request */}
+      {summary.request && (
+        <div className="bg-base-200 rounded-lg p-4">
+          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <span className="iconify ph--question size-4 text-primary" />
+            Request
+          </h4>
+          <p className="text-sm whitespace-pre-wrap">{summary.request}</p>
+        </div>
+      )}
+
+      {/* Investigated */}
+      {summary.investigated && (
+        <div className="bg-base-200 rounded-lg p-4">
+          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <span className="iconify ph--magnifying-glass size-4 text-info" />
+            Investigated
+          </h4>
+          <p className="text-sm whitespace-pre-wrap">{summary.investigated}</p>
+        </div>
+      )}
+
+      {/* Learned */}
+      {summary.learned && (
+        <div className="bg-base-200 rounded-lg p-4">
+          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <span className="iconify ph--lightbulb size-4 text-warning" />
+            Learned
+          </h4>
+          <p className="text-sm whitespace-pre-wrap">{summary.learned}</p>
+        </div>
+      )}
+
+      {/* Completed */}
+      {summary.completed && (
+        <div className="bg-base-200 rounded-lg p-4">
+          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <span className="iconify ph--check-circle size-4 text-success" />
+            Completed
+          </h4>
+          <p className="text-sm whitespace-pre-wrap">{summary.completed}</p>
+        </div>
+      )}
+
+      {/* Next Steps */}
+      {summary.next_steps && (
+        <div className="bg-base-200 rounded-lg p-4">
+          <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <span className="iconify ph--arrow-right size-4 text-secondary" />
+            Next Steps
+          </h4>
+          <p className="text-sm whitespace-pre-wrap">{summary.next_steps}</p>
+        </div>
+      )}
+    </div>
+  );
 }

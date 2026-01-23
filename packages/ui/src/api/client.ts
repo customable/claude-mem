@@ -87,6 +87,21 @@ export interface Observation {
   git_branch?: string;
 }
 
+export interface Summary {
+  id: number;
+  memory_session_id: string;
+  project: string;
+  request: string | null;
+  investigated: string | null;
+  learned: string | null;
+  completed: string | null;
+  next_steps: string | null;
+  created_at: string;
+  created_at_epoch: number;
+  prompt_number?: number;
+  discovery_tokens?: number;
+}
+
 export interface Worker {
   id: string;
   capabilities: string[];
@@ -188,6 +203,12 @@ export const api = {
     }));
   },
   getObservation: (id: number) => get<Observation>(`/data/observations/${id}`),
+
+  // Summaries
+  getSessionSummaries: (sessionId: string) =>
+    get<{ data: Summary[] }>(`/data/sessions/${sessionId}/summaries`).then(res => ({
+      items: res.data || [],
+    })),
 
   // Search
   search: (params: { query: string; project?: string; type?: string; limit?: number }) => {

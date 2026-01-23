@@ -53,6 +53,9 @@ export class DataRouter extends BaseRouter {
     this.router.get('/observations/:id', this.asyncHandler(this.getObservation.bind(this)));
     this.router.get('/sessions/:sessionId/observations', this.asyncHandler(this.getSessionObservations.bind(this)));
 
+    // Summaries
+    this.router.get('/sessions/:sessionId/summaries', this.asyncHandler(this.getSessionSummaries.bind(this)));
+
     // Tasks
     this.router.get('/tasks', this.asyncHandler(this.listTasks.bind(this)));
     this.router.get('/tasks/:id', this.asyncHandler(this.getTask.bind(this)));
@@ -272,6 +275,17 @@ export class DataRouter extends BaseRouter {
     });
 
     this.success(res, { data: observations });
+  }
+
+  /**
+   * GET /api/data/sessions/:sessionId/summaries
+   */
+  private async getSessionSummaries(req: Request, res: Response): Promise<void> {
+    const sessionId = getRequiredString(req.params.sessionId);
+
+    const summaries = await this.deps.summaries.getBySessionId(sessionId);
+
+    this.success(res, { data: summaries });
   }
 
   /**
