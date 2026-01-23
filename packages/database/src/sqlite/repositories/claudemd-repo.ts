@@ -5,39 +5,21 @@
  */
 
 import type { Database, SQLQueryBindings } from 'bun:sqlite';
+import type {
+  IClaudeMdRepository,
+  ClaudeMdRecord,
+  UpsertClaudeMdInput,
+} from '@claude-mem/types';
 
 type BindingValue = SQLQueryBindings;
 
-/**
- * CLAUDE.md record from database
- */
-export interface ClaudeMdRecord {
-  id: number;
-  project: string;
-  content: string;
-  content_session_id: string;
-  memory_session_id: string | null;
-  working_directory: string | null;
-  generated_at: number;
-  tokens: number;
-}
-
-/**
- * Input for creating/updating CLAUDE.md records
- */
-export interface UpsertClaudeMdInput {
-  project: string;
-  content: string;
-  contentSessionId: string;
-  memorySessionId?: string;
-  workingDirectory?: string;
-  tokens?: number;
-}
+// Re-export types for backward compatibility
+export type { ClaudeMdRecord, UpsertClaudeMdInput } from '@claude-mem/types';
 
 /**
  * SQLite implementation of CLAUDE.md Repository
  */
-export class SQLiteClaudeMdRepository {
+export class SQLiteClaudeMdRepository implements IClaudeMdRepository {
   constructor(private db: Database) {}
 
   /**

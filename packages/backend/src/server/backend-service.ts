@@ -11,12 +11,8 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import { createLogger, loadSettings, type Settings } from '@claude-mem/shared';
-import {
-  SQLiteConnection,
-  SQLiteUnitOfWork,
-  MigrationRunner,
-  migrations,
-} from '@claude-mem/database';
+import { mikroOrm } from '@claude-mem/database';
+import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
@@ -41,22 +37,34 @@ export interface BackendServiceOptions {
   port?: number;
   /** Bind address */
   host?: string;
-  /** Path to database file */
+  /** Path to database file (SQLite) */
   dbPath?: string;
   /** Auth token for remote access */
   authToken?: string;
   /** Worker auth token */
   workerAuthToken?: string;
+  /** Database type: sqlite, postgresql, mysql */
+  databaseType?: 'sqlite' | 'postgresql' | 'mysql';
+  /** PostgreSQL/MySQL host */
+  databaseHost?: string;
+  /** PostgreSQL/MySQL port */
+  databasePort?: number;
+  /** PostgreSQL/MySQL username */
+  databaseUser?: string;
+  /** PostgreSQL/MySQL password */
+  databasePassword?: string;
+  /** PostgreSQL/MySQL database name */
+  databaseName?: string;
 }
 
 export class BackendService {
-  private readonly options: Required<BackendServiceOptions>;
+  private readonly options: Required<Omit<BackendServiceOptions, 'databaseType' | 'databaseHost' | 'databasePort' | 'databaseUser' | 'databasePassword' | 'databaseName'>> & Partial<Pick<BackendServiceOptions, 'databaseType' | 'databaseHost' | 'databasePort' | 'databaseUser' | 'databasePassword' | 'databaseName'>>;
   private readonly settings: Settings;
 
   private server: http.Server | null = null;
   private app: ReturnType<typeof createApp> | null = null;
-  private dbConnection: SQLiteConnection | null = null;
-  private unitOfWork: SQLiteUnitOfWork | null = null;
+  private database: mikroOrm.MikroOrmDatabase | null = null;
+  private unitOfWork: IUnitOfWork | null = null;
 
   // Services
   private workerHub: WorkerHub | null = null;
@@ -80,6 +88,13 @@ export class BackendService {
       dbPath: options.dbPath ?? this.settings.DATABASE_PATH,
       authToken: options.authToken ?? this.settings.REMOTE_TOKEN,
       workerAuthToken: options.workerAuthToken ?? this.settings.WORKER_AUTH_TOKEN,
+      // MikroORM database settings
+      databaseType: options.databaseType ?? (this.settings.DATABASE_TYPE === 'postgres' ? 'postgresql' : 'sqlite'),
+      databaseHost: options.databaseHost ?? this.settings.DATABASE_HOST,
+      databasePort: options.databasePort ?? this.settings.DATABASE_PORT,
+      databaseUser: options.databaseUser ?? this.settings.DATABASE_USER,
+      databasePassword: options.databasePassword ?? this.settings.DATABASE_PASSWORD,
+      databaseName: options.databaseName ?? this.settings.DATABASE_NAME,
     };
 
     // Setup signal handlers
@@ -209,20 +224,22 @@ export class BackendService {
    */
   private async initializeInBackground(): Promise<void> {
     try {
-      // Initialize database
-      logger.info('Initializing database...');
-      this.dbConnection = new SQLiteConnection({
-        type: 'sqlite',
-        path: this.options.dbPath,
+      // Initialize MikroORM database
+      const dbType = this.options.databaseType || 'sqlite';
+      logger.info(`Initializing MikroORM database (type: ${dbType})...`);
+
+      this.database = await mikroOrm.createMikroOrmDatabase({
+        type: dbType,
+        dbPath: dbType === 'sqlite' ? this.options.dbPath : undefined,
+        host: this.options.databaseHost,
+        port: this.options.databasePort,
+        user: this.options.databaseUser,
+        password: this.options.databasePassword,
+        dbName: this.options.databaseName,
       });
-      await this.dbConnection.initialize();
 
-      // Run migrations
-      const migrationRunner = new MigrationRunner(this.dbConnection.getRawConnection());
-      migrationRunner.runAllMigrations();
-
-      // Create unit of work
-      this.unitOfWork = new SQLiteUnitOfWork(this.dbConnection.getRawConnection());
+      // Get unit of work
+      this.unitOfWork = this.database.unitOfWork;
 
       // Core is ready - hooks can now proceed
       this.coreReady = true;
@@ -472,8 +489,8 @@ export class BackendService {
     }
 
     // Close database
-    if (this.dbConnection) {
-      await this.dbConnection.close();
+    if (this.database) {
+      await this.database.close();
     }
 
     logger.info('Backend service stopped');

@@ -6,12 +6,11 @@
  */
 
 import { createLogger, getSettings } from '@claude-mem/shared';
-import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType } from '@claude-mem/types';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType } from '@claude-mem/types';
 import { createHash } from 'crypto';
 import type { WorkerHub } from './worker-hub.js';
 import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
 import type { TaskService } from '../services/task-service.js';
-import type { SQLiteClaudeMdRepository } from '@claude-mem/database';
 
 const logger = createLogger('task-dispatcher');
 
@@ -35,7 +34,7 @@ export interface TaskDispatcherOptions {
   /** Task service for queueing follow-up tasks */
   taskService?: TaskService;
   /** CLAUDE.md repository for storing generated content */
-  claudemd?: SQLiteClaudeMdRepository;
+  claudemd?: IClaudeMdRepository;
 }
 
 export class TaskDispatcher {
@@ -51,7 +50,7 @@ export class TaskDispatcher {
   private readonly summaries?: ISummaryRepository;
   private readonly documents?: IDocumentRepository;
   private readonly taskService?: TaskService;
-  private readonly claudemd?: SQLiteClaudeMdRepository;
+  private readonly claudemd?: IClaudeMdRepository;
 
   constructor(
     private readonly hub: WorkerHub,

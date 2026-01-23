@@ -52,6 +52,12 @@ export interface Settings {
   DATABASE_TYPE: 'sqlite' | 'postgres';
   DATABASE_PATH: string;  // For SQLite
   DATABASE_URL: string;   // For PostgreSQL
+  DATABASE_BACKEND: 'sqlite' | 'mikro-orm';  // ORM backend
+  DATABASE_HOST: string;   // For PostgreSQL/MySQL
+  DATABASE_PORT: number;   // For PostgreSQL/MySQL
+  DATABASE_USER: string;   // For PostgreSQL/MySQL
+  DATABASE_PASSWORD: string; // For PostgreSQL/MySQL
+  DATABASE_NAME: string;   // For PostgreSQL/MySQL
 
   // Vector Database Configuration
   VECTOR_DB: 'none' | 'qdrant';
@@ -128,6 +134,12 @@ export const DEFAULTS: Settings = {
   DATABASE_TYPE: 'sqlite',
   DATABASE_PATH: join(DEFAULT_DATA_DIR, 'claude-mem.db'),
   DATABASE_URL: '',
+  DATABASE_BACKEND: 'sqlite',
+  DATABASE_HOST: 'localhost',
+  DATABASE_PORT: 5432,
+  DATABASE_USER: '',
+  DATABASE_PASSWORD: '',
+  DATABASE_NAME: 'claude_mem',
 
   // Vector Database Configuration
   VECTOR_DB: 'none',
@@ -194,6 +206,7 @@ const NUMBER_KEYS: SettingKey[] = [
   'BATCH_SIZE',
   'RETENTION_MAX_AGE_DAYS',
   'RETENTION_MAX_COUNT',
+  'DATABASE_PORT',
 ];
 
 // ============================================

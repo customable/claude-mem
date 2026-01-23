@@ -553,6 +553,76 @@ export interface IDatabaseConnection {
 }
 
 // ============================================
+// CLAUDE.md Repository
+// ============================================
+
+/**
+ * CLAUDE.md record from database
+ */
+export interface ClaudeMdRecord {
+  id: number;
+  project: string;
+  content: string;
+  content_session_id: string;
+  memory_session_id: string | null;
+  working_directory: string | null;
+  generated_at: number;
+  tokens: number;
+}
+
+/**
+ * Input for creating/updating CLAUDE.md records
+ */
+export interface UpsertClaudeMdInput {
+  project: string;
+  content: string;
+  contentSessionId: string;
+  memorySessionId?: string;
+  workingDirectory?: string;
+  tokens?: number;
+}
+
+/**
+ * CLAUDE.md Repository Interface
+ */
+export interface IClaudeMdRepository {
+  /**
+   * Insert or update CLAUDE.md content for a project/session
+   */
+  upsert(input: UpsertClaudeMdInput): Promise<ClaudeMdRecord>;
+
+  /**
+   * Get latest CLAUDE.md content for a project
+   */
+  getByProject(project: string): Promise<ClaudeMdRecord | null>;
+
+  /**
+   * Get CLAUDE.md content by project and session
+   */
+  getByProjectAndSession(project: string, contentSessionId: string): Promise<ClaudeMdRecord | null>;
+
+  /**
+   * List all CLAUDE.md records for a project
+   */
+  listByProject(project: string, limit?: number): Promise<ClaudeMdRecord[]>;
+
+  /**
+   * Delete CLAUDE.md record by ID
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Delete all CLAUDE.md records for a project
+   */
+  deleteByProject(project: string): Promise<number>;
+
+  /**
+   * Get all distinct projects with CLAUDE.md content
+   */
+  getDistinctProjects(): Promise<string[]>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -567,6 +637,7 @@ export interface IUnitOfWork {
   documents: IDocumentRepository;
   userPrompts: IUserPromptRepository;
   taskQueue: ITaskQueueRepository;
+  claudemd: IClaudeMdRepository;
 
   /**
    * Start a transaction

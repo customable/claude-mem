@@ -5,33 +5,15 @@
  */
 
 import type { SqlEntityManager } from '@mikro-orm/knex';
+import type {
+  IClaudeMdRepository,
+  ClaudeMdRecord,
+  UpsertClaudeMdInput,
+} from '@claude-mem/types';
 import { ClaudeMd } from '../../entities/ClaudeMd.js';
 
-/**
- * CLAUDE.md record from database
- */
-export interface ClaudeMdRecord {
-  id: number;
-  project: string;
-  content: string;
-  content_session_id: string;
-  memory_session_id: string | null;
-  working_directory: string | null;
-  generated_at: number;
-  tokens: number;
-}
-
-/**
- * Input for creating/updating CLAUDE.md records
- */
-export interface UpsertClaudeMdInput {
-  project: string;
-  content: string;
-  contentSessionId: string;
-  memorySessionId?: string;
-  workingDirectory?: string;
-  tokens?: number;
-}
+// Re-export types for backward compatibility
+export type { ClaudeMdRecord, UpsertClaudeMdInput } from '@claude-mem/types';
 
 /**
  * Convert ClaudeMd entity to ClaudeMdRecord
@@ -49,7 +31,7 @@ function toRecord(entity: ClaudeMd): ClaudeMdRecord {
   };
 }
 
-export class MikroOrmClaudeMdRepository {
+export class MikroOrmClaudeMdRepository implements IClaudeMdRepository {
   constructor(private readonly em: SqlEntityManager) {}
 
   /**

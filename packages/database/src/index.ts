@@ -10,6 +10,15 @@
  * The Repository pattern allows for easy extension to other databases.
  */
 
+// Database factory (recommended entry point)
+export {
+  createDatabase,
+  getDefaultDatabaseOptions,
+  type DatabaseBackend,
+  type DatabaseFactoryOptions,
+  type DatabaseConnection,
+} from './factory.js';
+
 // SQLite implementation (default, legacy)
 export * from './sqlite/index.js';
 
