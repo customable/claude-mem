@@ -52,6 +52,9 @@ interface Settings {
   RETENTION_MAX_AGE_DAYS?: number;
   RETENTION_MAX_COUNT?: number;
 
+  // Features
+  CLAUDEMD_ENABLED?: boolean;
+
   [key: string]: unknown;
 }
 
@@ -354,6 +357,23 @@ function GeneralSettings({ settings, onChange }: TabProps) {
           </FormField>
         </>
       )}
+
+      <div className="divider">Features</div>
+
+      <fieldset className="fieldset">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={settings.CLAUDEMD_ENABLED ?? false}
+            onChange={(e) => onChange('CLAUDEMD_ENABLED', e.target.checked)}
+          />
+          <span className="fieldset-legend">CLAUDE.md Generation</span>
+        </label>
+        <p className="fieldset-label text-base-content/60">
+          Automatically generate and update CLAUDE.md files in project folders with session context
+        </p>
+      </fieldset>
     </div>
   );
 }
