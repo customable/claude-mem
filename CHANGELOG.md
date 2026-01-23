@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.10.0] - 2026-01-23
+
+### Features
+- Added MikroORM setup and entity definitions for database integration.
+
+
 ## [2.9.0] - 2026-01-23
 
 ### Features
