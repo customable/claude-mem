@@ -15,6 +15,7 @@
     "dev": "pnpm build:plugin && pnpm sync-marketplace",
     "dev:ui": "pnpm --filter @claude-mem/ui dev",
     "dev:web": "pnpm --filter @claude-mem/web dev",
+    "dev:restart": "node scripts/dev-restart.js",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean && rm -rf node_modules",

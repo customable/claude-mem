@@ -124,16 +124,13 @@ function main(): void {
     process.exit(1);
   }
 
-  // Build SSE URL
-  const sseUrl = `${args.backend}/api/stream`;
-  console.log(`[sse-writer] Connecting to ${sseUrl}`);
+  // Build SSE URL with auth token as query parameter
+  // (EventSource doesn't support custom headers in browser API)
+  const sseUrl = `${args.backend}/api/stream?token=${encodeURIComponent(args.token)}`;
+  console.log(`[sse-writer] Connecting to ${args.backend}/api/stream`);
 
-  // Create EventSource with auth header
-  const es = new EventSource(sseUrl, {
-    headers: {
-      Authorization: `Bearer ${args.token}`,
-    },
-  });
+  // Create EventSource
+  const es = new EventSource(sseUrl);
 
   // Track connection state
   let connected = false;
