@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.3] - 2026-01-23
+
+### Bug Fixes
+- Reduced session-start blocking by implementing a quick health check timeout.
+
+
 ## [2.4.2] - 2026-01-23
 
 ### Bug Fixes
