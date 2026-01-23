@@ -6,6 +6,8 @@
 #   docker-compose logs -f            # View logs
 #   docker-compose down               # Stop all services
 #
+# For local development, use: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+#
 # Environment Variables (create .env file):
 #   CLAUDE_MEM_WORKER_AUTH_TOKEN=your-secret-token
 #   CLAUDE_MEM_MISTRAL_API_KEY=your-mistral-key
@@ -17,9 +19,7 @@ services:
   # ===========================================
   # REST API, WebSocket Hub, Database, UI Serving
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
+    image: git.customable.host/customable/claude-mem/backend:${CLAUDE_MEM_VERSION:-latest}
     container_name: claude-mem-backend
     ports:
       - "37777:37777"
@@ -55,9 +55,7 @@ services:
   # ===========================================
   # AI processing worker (can scale horizontally)
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker
+    image: git.customable.host/customable/claude-mem/worker:${CLAUDE_MEM_VERSION:-latest}
     depends_on:
       backend:
         condition: service_healthy

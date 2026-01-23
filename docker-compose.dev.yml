@@ -1,0 +1,16 @@
+# Development override - build images locally instead of pulling from registry
+#
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: claude-mem-backend:dev
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    image: claude-mem-worker:dev

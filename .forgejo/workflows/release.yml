@@ -416,6 +416,44 @@ jobs:
 
           echo "Marketplace updated to v${VERSION}"
 
+      - name: Sync plugin to separate repo
+        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+
+          # Clone plugin repo (or create if doesn't exist)
+          git clone "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-mem-plugin.git" /tmp/claude-mem-plugin || {
+            mkdir -p /tmp/claude-mem-plugin
+            cd /tmp/claude-mem-plugin
+            git init
+            git remote add origin "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-mem-plugin.git"
+          }
+
+          cd /tmp/claude-mem-plugin
+
+          # Remove old files (except .git)
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+
+          # Copy plugin directory contents
+          cp -r ${GITHUB_WORKSPACE}/plugin/* .
+          cp -r ${GITHUB_WORKSPACE}/plugin/.* . 2>/dev/null || true
+
+          # Commit and push
+          git config user.name "Release Bot"
+          git config user.email "release@customable.de"
+          git add -A
+          git commit -m "chore(release): sync plugin v${VERSION}" || echo "No changes"
+          git push origin main
+
+          # Create tag
+          git tag -a "$TAG" -m "Release $VERSION" || true
+          git push origin "$TAG" || true
+
+          echo "Plugin repo synced to v${VERSION}"
+
       - name: Set release output
         id: released
         if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
