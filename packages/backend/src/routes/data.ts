@@ -62,6 +62,13 @@ export class DataRouter extends BaseRouter {
 
     // Projects
     this.router.get('/projects', this.asyncHandler(this.listProjects.bind(this)));
+    this.router.get('/projects/:project/stats', this.asyncHandler(this.getProjectStats.bind(this)));
+    this.router.get('/projects/:project/files', this.asyncHandler(this.getProjectFiles.bind(this)));
+
+    // Analytics
+    this.router.get('/analytics/timeline', this.asyncHandler(this.getAnalyticsTimeline.bind(this)));
+    this.router.get('/analytics/types', this.asyncHandler(this.getAnalyticsTypes.bind(this)));
+    this.router.get('/analytics/projects', this.asyncHandler(this.getAnalyticsProjects.bind(this)));
   }
 
   /**
@@ -77,6 +84,20 @@ export class DataRouter extends BaseRouter {
       offset: this.parseOptionalIntParam(getString(offset)),
     });
 
+    // Enrich sessions with observation counts
+    const enrichedSessions = await Promise.all(
+      sessions.map(async (session) => {
+        const observationCount = session.memory_session_id
+          ? await this.deps.observations.count({ sessionId: session.memory_session_id })
+          : 0;
+        return {
+          ...session,
+          observation_count: observationCount,
+          prompt_count: session.prompt_counter ?? 0,
+        };
+      })
+    );
+
     const total = await this.deps.sessionService.getSessionCount({
       project: getString(project),
       status: getString(status),
@@ -86,7 +107,7 @@ export class DataRouter extends BaseRouter {
     const parsedOffset = this.parseOptionalIntParam(getString(offset)) ?? 0;
 
     this.success(res, {
-      data: sessions,
+      data: enrichedSessions,
       total,
       limit: parsedLimit,
       offset: parsedOffset,
@@ -104,7 +125,16 @@ export class DataRouter extends BaseRouter {
       this.notFound(`Session not found: ${id}`);
     }
 
-    this.success(res, session);
+    // Enrich with observation count
+    const observationCount = session.memory_session_id
+      ? await this.deps.observations.count({ sessionId: session.memory_session_id })
+      : 0;
+
+    this.success(res, {
+      ...session,
+      observation_count: observationCount,
+      prompt_count: session.prompt_counter ?? 0,
+    });
   }
 
   /**
@@ -253,5 +283,183 @@ export class DataRouter extends BaseRouter {
   private async listProjects(_req: Request, res: Response): Promise<void> {
     const projects = await this.deps.sessions.getDistinctProjects();
     this.success(res, { projects });
+  }
+
+  /**
+   * GET /api/data/projects/:project/stats
+   */
+  private async getProjectStats(req: Request, res: Response): Promise<void> {
+    const project = decodeURIComponent(getRequiredString(req.params.project));
+
+    const [sessions, observations, summaries] = await Promise.all([
+      this.deps.sessions.list({ project }, { limit: 1000 }),
+      this.deps.observations.list({ project }, { limit: 10000 }),
+      this.deps.summaries.list({ project }, { limit: 1000 }),
+    ]);
+
+    const totalTokens = observations.reduce((sum, o) => sum + (o.discovery_tokens || 0), 0)
+      + summaries.reduce((sum, s) => sum + (s.discovery_tokens || 0), 0);
+
+    const epochs = [
+      ...observations.map(o => o.created_at_epoch),
+      ...sessions.map(s => s.started_at_epoch),
+    ].filter(Boolean);
+
+    this.success(res, {
+      sessions: sessions.length,
+      observations: observations.length,
+      summaries: summaries.length,
+      tokens: totalTokens,
+      firstActivity: epochs.length > 0 ? Math.min(...epochs) : null,
+      lastActivity: epochs.length > 0 ? Math.max(...epochs) : null,
+    });
+  }
+
+  /**
+   * GET /api/data/projects/:project/files
+   */
+  private async getProjectFiles(req: Request, res: Response): Promise<void> {
+    const project = decodeURIComponent(getRequiredString(req.params.project));
+
+    const observations = await this.deps.observations.list({ project }, { limit: 10000 });
+
+    const filesRead: Record<string, number> = {};
+    const filesModified: Record<string, number> = {};
+
+    for (const obs of observations) {
+      if (obs.files_read) {
+        try {
+          const files = JSON.parse(obs.files_read) as string[];
+          for (const f of files) {
+            filesRead[f] = (filesRead[f] || 0) + 1;
+          }
+        } catch { /* ignore parse errors */ }
+      }
+      if (obs.files_modified) {
+        try {
+          const files = JSON.parse(obs.files_modified) as string[];
+          for (const f of files) {
+            filesModified[f] = (filesModified[f] || 0) + 1;
+          }
+        } catch { /* ignore parse errors */ }
+      }
+    }
+
+    const sortByCount = (obj: Record<string, number>) =>
+      Object.entries(obj)
+        .map(([path, count]) => ({ path, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 50);
+
+    this.success(res, {
+      filesRead: sortByCount(filesRead),
+      filesModified: sortByCount(filesModified),
+    });
+  }
+
+  /**
+   * GET /api/data/analytics/timeline
+   * Returns observations/sessions/tokens grouped by day/week/month
+   */
+  private async getAnalyticsTimeline(req: Request, res: Response): Promise<void> {
+    const period = getString(req.query.period) || 'day';
+    const project = getString(req.query.project);
+    const days = this.parseOptionalIntParam(getString(req.query.days)) || 30;
+
+    const now = Date.now();
+    const startEpoch = now - days * 24 * 60 * 60 * 1000;
+
+    const [observations, sessions] = await Promise.all([
+      this.deps.observations.list(
+        { project, dateRange: { start: startEpoch } },
+        { limit: 10000 }
+      ),
+      this.deps.sessions.list(
+        { project, dateRange: { start: startEpoch } },
+        { limit: 10000 }
+      ),
+    ]);
+
+    // Group by period
+    const getKey = (epoch: number): string => {
+      const date = new Date(epoch);
+      if (period === 'week') {
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        return weekStart.toISOString().slice(0, 10);
+      } else if (period === 'month') {
+        return date.toISOString().slice(0, 7);
+      }
+      return date.toISOString().slice(0, 10); // day
+    };
+
+    const timeline: Record<string, { observations: number; sessions: number; tokens: number }> = {};
+
+    for (const obs of observations) {
+      const key = getKey(obs.created_at_epoch);
+      if (!timeline[key]) timeline[key] = { observations: 0, sessions: 0, tokens: 0 };
+      timeline[key].observations++;
+      timeline[key].tokens += obs.discovery_tokens || 0;
+    }
+
+    for (const sess of sessions) {
+      const key = getKey(sess.started_at_epoch);
+      if (!timeline[key]) timeline[key] = { observations: 0, sessions: 0, tokens: 0 };
+      timeline[key].sessions++;
+    }
+
+    const data = Object.entries(timeline)
+      .map(([date, stats]) => ({ date, ...stats }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    this.success(res, { data, period, days });
+  }
+
+  /**
+   * GET /api/data/analytics/types
+   * Returns observation count by type
+   */
+  private async getAnalyticsTypes(req: Request, res: Response): Promise<void> {
+    const project = getString(req.query.project);
+
+    const observations = await this.deps.observations.list({ project }, { limit: 100000 });
+
+    const types: Record<string, number> = {};
+    for (const obs of observations) {
+      types[obs.type] = (types[obs.type] || 0) + 1;
+    }
+
+    const data = Object.entries(types)
+      .map(([type, count]) => ({ type, count }))
+      .sort((a, b) => b.count - a.count);
+
+    this.success(res, { data });
+  }
+
+  /**
+   * GET /api/data/analytics/projects
+   * Returns stats per project
+   */
+  private async getAnalyticsProjects(_req: Request, res: Response): Promise<void> {
+    const projects = await this.deps.sessions.getDistinctProjects();
+
+    const data = await Promise.all(
+      projects.map(async (project) => {
+        const [observationCount, sessionCount] = await Promise.all([
+          this.deps.observations.count({ project }),
+          this.deps.sessions.count({ project }),
+        ]);
+
+        // Get token sum for a sample of observations
+        const observations = await this.deps.observations.list({ project }, { limit: 1000 });
+        const tokens = observations.reduce((sum, o) => sum + (o.discovery_tokens || 0), 0);
+
+        return { project, observations: observationCount, sessions: sessionCount, tokens };
+      })
+    );
+
+    this.success(res, {
+      data: data.sort((a, b) => b.observations - a.observations),
+    });
   }
 }

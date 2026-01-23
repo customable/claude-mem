@@ -218,6 +218,48 @@ export const api = {
   getSettings: () => get<Record<string, unknown>>('/settings'),
   saveSettings: (settings: Record<string, unknown>) => post<{ success: boolean }>('/settings', settings),
 
+  // Analytics
+  getAnalyticsTimeline: (params?: { period?: string; project?: string; days?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.period) query.set('period', params.period);
+    if (params?.project) query.set('project', params.project);
+    if (params?.days) query.set('days', String(params.days));
+    const queryStr = query.toString();
+    return get<{
+      data: Array<{ date: string; observations: number; sessions: number; tokens: number }>;
+      period: string;
+      days: number;
+    }>(`/data/analytics/timeline${queryStr ? '?' + queryStr : ''}`);
+  },
+  getAnalyticsTypes: (params?: { project?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.project) query.set('project', params.project);
+    const queryStr = query.toString();
+    return get<{ data: Array<{ type: string; count: number }> }>(
+      `/data/analytics/types${queryStr ? '?' + queryStr : ''}`
+    );
+  },
+  getAnalyticsProjects: () =>
+    get<{ data: Array<{ project: string; observations: number; sessions: number; tokens: number }> }>(
+      '/data/analytics/projects'
+    ),
+
+  // Project Details
+  getProjectStats: (project: string) =>
+    get<{
+      sessions: number;
+      observations: number;
+      summaries: number;
+      tokens: number;
+      firstActivity: number | null;
+      lastActivity: number | null;
+    }>(`/data/projects/${encodeURIComponent(project)}/stats`),
+  getProjectFiles: (project: string) =>
+    get<{
+      filesRead: Array<{ path: string; count: number }>;
+      filesModified: Array<{ path: string; count: number }>;
+    }>(`/data/projects/${encodeURIComponent(project)}/files`),
+
   // Logs
   getLogs: (params?: { level?: string; context?: string; limit?: number }) => {
     const query = new URLSearchParams();

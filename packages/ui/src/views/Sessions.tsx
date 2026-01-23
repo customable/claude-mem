@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../api/client';
+import { api, type Observation } from '../api/client';
+import { ObservationDetails } from '../components/ObservationDetails';
 
 interface Session {
   id: number;
@@ -18,6 +19,7 @@ export function SessionsView() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSessionId, setExpandedSessionId] = useState<number | null>(null);
+  const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [projects, setProjects] = useState<string[]>([]);
   const [projectFilter, setProjectFilter] = useState<string>('');
 
@@ -99,9 +101,18 @@ export function SessionsView() {
               session={session}
               isExpanded={expandedSessionId === session.id}
               onToggle={() => handleToggleSession(session.id)}
+              onOpen={() => setSelectedSession(session)}
             />
           ))}
         </div>
+      )}
+
+      {/* Session Detail Modal */}
+      {selectedSession && (
+        <SessionDetailModal
+          session={selectedSession}
+          onClose={() => setSelectedSession(null)}
+        />
       )}
     </div>
   );
@@ -111,19 +122,21 @@ function SessionCard({
   session,
   isExpanded,
   onToggle,
+  onOpen,
 }: {
   session: Session;
   isExpanded: boolean;
   onToggle: () => void;
+  onOpen: () => void;
 }) {
   return (
     <div className="card bg-base-200">
-      <div
-        className="card-body p-4 cursor-pointer hover:bg-base-300/50 transition-colors"
-        onClick={onToggle}
-      >
+      <div className="card-body p-4">
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
+          <div
+            className="flex-1 min-w-0 cursor-pointer hover:opacity-80"
+            onClick={onOpen}
+          >
             <div className="flex items-center gap-2 mb-1">
               <span
                 className={`badge badge-sm ${
@@ -148,21 +161,30 @@ function SessionCard({
               </span>
               <span className="flex items-center gap-1">
                 <span className="iconify ph--brain size-3" />
-                {session.observation_count} observations
+                {session.observation_count ?? 0} observations
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="iconify ph--chat-text size-3" />
+                {session.prompt_count ?? 0} prompts
               </span>
               <span>{formatDate(session.started_at)}</span>
             </div>
           </div>
-          <span
-            className={`iconify ph--caret-down size-5 text-base-content/50 transition-transform ${
-              isExpanded ? 'rotate-180' : ''
-            }`}
-          />
+          <button
+            className="btn btn-ghost btn-sm btn-square"
+            onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          >
+            <span
+              className={`iconify ph--caret-down size-5 transition-transform ${
+                isExpanded ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
         </div>
 
         {isExpanded && (
           <div className="mt-4 pt-4 border-t border-base-300">
-            <SessionTimeline sessionId={session.id} />
+            <SessionTimeline memorySessionId={session.memory_session_id} />
           </div>
         )}
       </div>
@@ -170,14 +192,14 @@ function SessionCard({
   );
 }
 
-function SessionTimeline({ sessionId }: { sessionId: number }) {
-  const [observations, setObservations] = useState<any[]>([]);
+function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
+  const [observations, setObservations] = useState<Observation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchObservations() {
       try {
-        const data = await api.getObservations({ session_id: sessionId, limit: 50 });
+        const data = await api.getObservations({ sessionId: memorySessionId, limit: 50 });
         setObservations(data.items || []);
       } catch (error) {
         console.error('Failed to fetch session observations:', error);
@@ -186,7 +208,7 @@ function SessionTimeline({ sessionId }: { sessionId: number }) {
       }
     }
     fetchObservations();
-  }, [sessionId]);
+  }, [memorySessionId]);
 
   if (isLoading) {
     return (
@@ -272,4 +294,177 @@ function formatTime(timestamp: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function SessionDetailModal({
+  session,
+  onClose,
+}: {
+  session: Session;
+  onClose: () => void;
+}) {
+  const [observations, setObservations] = useState<Observation[]>([]);
+  const [selectedObs, setSelectedObs] = useState<Observation | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchObservations() {
+      try {
+        const data = await api.getObservations({ sessionId: session.memory_session_id, limit: 200 });
+        setObservations(data.items || []);
+      } catch (error) {
+        console.error('Failed to fetch observations:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchObservations();
+  }, [session.memory_session_id]);
+
+  // Close on escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (selectedObs) {
+          setSelectedObs(null);
+        } else {
+          onClose();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [onClose, selectedObs]);
+
+  return (
+    <div className="modal modal-open">
+      <div className="modal-box max-w-4xl max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span
+                className={`badge ${
+                  session.status === 'completed' ? 'badge-success' : 'badge-info'
+                }`}
+              >
+                {session.status}
+              </span>
+              <span className="text-sm text-base-content/50 font-mono">
+                {session.content_session_id}
+              </span>
+            </div>
+            <h3 className="font-bold text-lg">{session.project}</h3>
+            <p className="text-base-content/70 mt-1">{session.user_prompt || 'No prompt recorded'}</p>
+          </div>
+          <button className="btn btn-ghost btn-sm btn-square" onClick={onClose}>
+            <span className="iconify ph--x size-5" />
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-4 gap-3 mb-4">
+          <div className="bg-base-200 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{session.observation_count ?? 0}</p>
+            <p className="text-xs text-base-content/60">Observations</p>
+          </div>
+          <div className="bg-base-200 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold">{session.prompt_count ?? 0}</p>
+            <p className="text-xs text-base-content/60">Prompts</p>
+          </div>
+          <div className="bg-base-200 rounded-lg p-3 text-center">
+            <p className="text-sm font-medium">{formatDate(session.started_at)}</p>
+            <p className="text-xs text-base-content/60">Started</p>
+          </div>
+          <div className="bg-base-200 rounded-lg p-3 text-center">
+            <p className="text-sm font-medium">
+              {session.completed_at ? formatDate(session.completed_at) : '-'}
+            </p>
+            <p className="text-xs text-base-content/60">Completed</p>
+          </div>
+        </div>
+
+        {/* Observations List */}
+        <div className="flex-1 overflow-y-auto">
+          <h4 className="font-semibold mb-3">Observations</h4>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <span className="loading loading-spinner loading-md" />
+            </div>
+          ) : observations.length === 0 ? (
+            <p className="text-center text-base-content/50 py-8">No observations</p>
+          ) : (
+            <div className="space-y-2">
+              {observations.map((obs) => (
+                <div
+                  key={obs.id}
+                  className="bg-base-200 rounded-lg p-3 cursor-pointer hover:bg-base-300 transition-colors"
+                  onClick={() => setSelectedObs(obs)}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`iconify ${getTypeIcon(obs.type)} size-5 mt-0.5`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`badge badge-xs ${getTypeBadge(obs.type)}`}>{obs.type}</span>
+                        <span className="text-xs text-base-content/50">{formatTime(obs.created_at)}</span>
+                        {obs.prompt_number && (
+                          <span className="text-xs text-base-content/50">Prompt #{obs.prompt_number}</span>
+                        )}
+                      </div>
+                      <p className="font-medium mt-1 truncate">{obs.title}</p>
+                      {obs.subtitle && (
+                        <p className="text-sm text-base-content/60 truncate">{obs.subtitle}</p>
+                      )}
+                    </div>
+                    <span className="iconify ph--caret-right size-4 text-base-content/30" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="modal-backdrop bg-black/50" onClick={onClose} />
+
+      {/* Observation Detail Sub-Modal */}
+      {selectedObs && (
+        <div className="modal modal-open" style={{ zIndex: 60 }}>
+          <div className="modal-box max-w-3xl max-h-[85vh] overflow-y-auto">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className={`iconify ${getTypeIcon(selectedObs.type)} size-6`} />
+                <span className={`badge ${getTypeBadge(selectedObs.type)}`}>{selectedObs.type}</span>
+              </div>
+              <button className="btn btn-ghost btn-sm btn-square" onClick={() => setSelectedObs(null)}>
+                <span className="iconify ph--x size-5" />
+              </button>
+            </div>
+            <ObservationDetails observation={selectedObs} />
+          </div>
+          <div className="modal-backdrop bg-black/30" onClick={() => setSelectedObs(null)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getTypeIcon(type: string): string {
+  switch (type) {
+    case 'bugfix':
+      return 'ph--bug text-error';
+    case 'feature':
+      return 'ph--star text-secondary';
+    case 'refactor':
+      return 'ph--arrows-clockwise text-info';
+    case 'discovery':
+      return 'ph--magnifying-glass text-primary';
+    case 'decision':
+      return 'ph--scales text-warning';
+    case 'docs':
+      return 'ph--file-text text-base-content';
+    case 'test':
+      return 'ph--test-tube text-accent';
+    default:
+      return 'ph--circle text-base-content/50';
+  }
 }

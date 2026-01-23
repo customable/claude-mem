@@ -371,8 +371,15 @@ export interface ObservationRecord {
   created_at: string;
   created_at_epoch: number;
   title?: string;
+  subtitle?: string;
+  narrative?: string;
   concept?: string;
+  concepts?: string;
+  facts?: string;
   source_files?: string;
+  files_read?: string;
+  files_modified?: string;
+  git_branch?: string;
   prompt_number?: number;
   discovery_tokens?: number;
 }
