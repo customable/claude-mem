@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.13.1] - 2026-01-23
+
+### Bug Fixes
+- Made token optional for SSE writer in hooks
+
+
 ## [2.13.0] - 2026-01-23
 
 ### Features
