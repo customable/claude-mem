@@ -7,11 +7,12 @@
  */
 
 import { createLogger, loadSettings, VERSION } from '@claude-mem/shared';
-import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload } from '@claude-mem/types';
+import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
 import { handleObservationTask } from './handlers/observation-handler.js';
 import { handleSummarizeTask } from './handlers/summarize-handler.js';
+import { handleEmbeddingTask } from './handlers/embedding-handler.js';
 import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
 import { getQdrantService } from './services/qdrant-service.js';
@@ -220,8 +221,7 @@ export class WorkerService {
       }
 
       case 'embedding':
-        // TODO: Implement embedding task
-        throw new Error('Embedding task not yet implemented');
+        return handleEmbeddingTask(payload as EmbeddingTaskPayload);
 
       case 'qdrant-sync':
         return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload);
