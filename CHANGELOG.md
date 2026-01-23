@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.11.0] - 2026-01-23
+
+### Features
+- Integrated MikroORM as the primary database backend
+- Added MikroORM migration system
+- Implemented MikroORM repositories and UnitOfWork
+
+
 ## [2.10.0] - 2026-01-23
 
 ### Features
