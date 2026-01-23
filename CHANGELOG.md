@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.6.0] - 2026-01-23
+
+### Features
+- Added `/recall` skill for memory retrieval
+
+
 ## [2.5.1] - 2026-01-23
 
 ### Bug Fixes
