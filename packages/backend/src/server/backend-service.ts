@@ -6,6 +6,10 @@
  */
 
 import http from 'http';
+import { existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import express from 'express';
 import { createLogger, loadSettings, type Settings } from '@claude-mem/shared';
 import {
   SQLiteConnection,
@@ -155,6 +159,9 @@ export class BackendService {
     // Settings route
     this.app.use('/api/settings', new SettingsRouter().router);
 
+    // Serve static UI files (if available)
+    this.serveStaticUI();
+
     // Start listening
     await new Promise<void>((resolve, reject) => {
       this.server!.listen(this.options.port, this.options.host, () => {
@@ -255,6 +262,45 @@ export class BackendService {
 
     // Finalize app (error handlers)
     finalizeApp(this.app);
+  }
+
+  /**
+   * Serve static UI files if available
+   */
+  private serveStaticUI(): void {
+    if (!this.app) return;
+
+    // Try multiple possible UI locations
+    const possiblePaths = [
+      // Docker: UI built into backend image
+      join(dirname(fileURLToPath(import.meta.url)), '../../ui/dist'),
+      // Development: sibling package
+      join(dirname(fileURLToPath(import.meta.url)), '../../../ui/dist'),
+      // Plugin: bundled UI
+      join(dirname(fileURLToPath(import.meta.url)), '../../../../ui/dist'),
+    ];
+
+    for (const uiPath of possiblePaths) {
+      if (existsSync(uiPath)) {
+        logger.info(`Serving UI from: ${uiPath}`);
+
+        // Serve static files
+        this.app.use(express.static(uiPath));
+
+        // SPA fallback - serve index.html for all non-API routes
+        this.app.get('*', (req, res, next) => {
+          // Skip API routes
+          if (req.path.startsWith('/api') || req.path.startsWith('/ws')) {
+            return next();
+          }
+          res.sendFile(join(uiPath, 'index.html'));
+        });
+
+        return;
+      }
+    }
+
+    logger.debug('No UI dist folder found, skipping static file serving');
   }
 
   /**

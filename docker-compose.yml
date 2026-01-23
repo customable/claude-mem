@@ -1,0 +1,118 @@
+# Claude-Mem Docker Compose
+#
+# Usage:
+#   docker-compose up -d              # Start all services
+#   docker-compose up -d --scale worker=3  # Start with 3 workers
+#   docker-compose logs -f            # View logs
+#   docker-compose down               # Stop all services
+#
+# Environment Variables (create .env file):
+#   CLAUDE_MEM_WORKER_AUTH_TOKEN=your-secret-token
+#   CLAUDE_MEM_MISTRAL_API_KEY=your-mistral-key
+#   CLAUDE_MEM_REMOTE_TOKEN=your-remote-access-token
+
+services:
+  # ===========================================
+  # Backend Service
+  # ===========================================
+  # REST API, WebSocket Hub, Database, UI Serving
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: claude-mem-backend
+    ports:
+      - "37777:37777"
+    volumes:
+      # Persistent data (database, settings)
+      - claude-mem-data:/data
+      # Optional: Mount local settings.json
+      # - ./settings.json:/data/settings.json:ro
+    environment:
+      # Backend configuration
+      - CLAUDE_MEM_DATA_DIR=/data
+      - CLAUDE_MEM_DATABASE_PATH=/data/claude-mem.db
+      - CLAUDE_MEM_BACKEND_PORT=37777
+      - CLAUDE_MEM_BACKEND_BIND=0.0.0.0
+      # Worker authentication (shared with workers)
+      - CLAUDE_MEM_WORKER_AUTH_TOKEN=${CLAUDE_MEM_WORKER_AUTH_TOKEN:-}
+      # Remote access token (for external hooks/API access)
+      - CLAUDE_MEM_REMOTE_TOKEN=${CLAUDE_MEM_REMOTE_TOKEN:-}
+      # Logging
+      - CLAUDE_MEM_LOG_LEVEL=${CLAUDE_MEM_LOG_LEVEL:-info}
+    healthcheck:
+      test: ["CMD", "bun", "-e", "fetch('http://localhost:37777/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - claude-mem-net
+
+  # ===========================================
+  # Worker Service
+  # ===========================================
+  # AI processing worker (can scale horizontally)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      # Backend connection (WebSocket is at /ws on same port as HTTP)
+      - CLAUDE_MEM_BACKEND_HOST=backend
+      - CLAUDE_MEM_BACKEND_PORT=37777
+      # Worker authentication
+      - CLAUDE_MEM_WORKER_AUTH_TOKEN=${CLAUDE_MEM_WORKER_AUTH_TOKEN:-}
+      # AI Provider (mistral, gemini, openrouter, openai, anthropic)
+      - CLAUDE_MEM_AI_PROVIDER=${CLAUDE_MEM_AI_PROVIDER:-mistral}
+      # API Keys (set the one matching your provider)
+      - CLAUDE_MEM_MISTRAL_API_KEY=${CLAUDE_MEM_MISTRAL_API_KEY:-}
+      - CLAUDE_MEM_GEMINI_API_KEY=${CLAUDE_MEM_GEMINI_API_KEY:-}
+      - CLAUDE_MEM_OPENROUTER_API_KEY=${CLAUDE_MEM_OPENROUTER_API_KEY:-}
+      - CLAUDE_MEM_OPENAI_API_KEY=${CLAUDE_MEM_OPENAI_API_KEY:-}
+      - CLAUDE_MEM_ANTHROPIC_API_KEY=${CLAUDE_MEM_ANTHROPIC_API_KEY:-}
+      # Logging
+      - CLAUDE_MEM_LOG_LEVEL=${CLAUDE_MEM_LOG_LEVEL:-info}
+    restart: unless-stopped
+    networks:
+      - claude-mem-net
+    deploy:
+      # Default: 1 worker, scale with: docker-compose up -d --scale worker=N
+      replicas: 1
+
+  # ===========================================
+  # UI Service (Optional - standalone)
+  # ===========================================
+  # Standalone UI served via nginx
+  # Uncomment if you want UI on a separate port
+  # By default, UI is served from backend at /
+  # ui:
+  #   image: nginx:alpine
+  #   container_name: claude-mem-ui
+  #   ports:
+  #     - "3000:80"
+  #   volumes:
+  #     - ./packages/ui/dist:/usr/share/nginx/html:ro
+  #     - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - claude-mem-net
+
+# ===========================================
+# Networks
+# ===========================================
+networks:
+  claude-mem-net:
+    driver: bridge
+
+# ===========================================
+# Volumes
+# ===========================================
+volumes:
+  claude-mem-data:
+    driver: local

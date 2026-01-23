@@ -1,0 +1,64 @@
+# Worker Dockerfile
+# AI processing worker that connects to backend via WebSocket
+
+FROM node:22-slim AS builder
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/types/package.json packages/types/
+COPY packages/shared/package.json packages/shared/
+COPY packages/worker/package.json packages/worker/
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source files
+COPY tsconfig.base.json ./
+COPY packages/types packages/types
+COPY packages/shared packages/shared
+COPY packages/worker packages/worker
+
+# Build packages
+RUN pnpm --filter @claude-mem/types build
+RUN pnpm --filter @claude-mem/shared build
+RUN pnpm --filter @claude-mem/worker build
+
+# Production image
+FROM node:22-slim
+
+WORKDIR /app
+
+# Copy built packages
+COPY --from=builder /app/packages/types/dist packages/types/dist
+COPY --from=builder /app/packages/types/package.json packages/types/
+COPY --from=builder /app/packages/shared/dist packages/shared/dist
+COPY --from=builder /app/packages/shared/package.json packages/shared/
+COPY --from=builder /app/packages/worker/dist packages/worker/dist
+COPY --from=builder /app/packages/worker/package.json packages/worker/
+
+# Copy root package files for workspace resolution
+COPY --from=builder /app/package.json /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules node_modules
+COPY --from=builder /app/packages/types/node_modules packages/types/node_modules
+COPY --from=builder /app/packages/shared/node_modules packages/shared/node_modules
+COPY --from=builder /app/packages/worker/node_modules packages/worker/node_modules
+
+# Create config directory for settings
+RUN mkdir -p /root/.claude-mem
+
+# Environment defaults
+# Worker connects to backend via WebSocket at /ws path
+ENV CLAUDE_MEM_BACKEND_HOST=backend
+ENV CLAUDE_MEM_BACKEND_PORT=37777
+ENV CLAUDE_MEM_WORKER_AUTH_TOKEN=
+ENV CLAUDE_MEM_AI_PROVIDER=mistral
+ENV CLAUDE_MEM_MISTRAL_API_KEY=
+ENV CLAUDE_MEM_LOG_LEVEL=info
+
+# Run worker
+CMD ["node", "packages/worker/dist/worker-service.js"]
