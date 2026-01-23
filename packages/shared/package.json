@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/shared",
-  "version": "1.20.2",
+  "version": "1.20.4",
   "description": "Shared utilities for claude-mem",
   "type": "module",
   "main": "./dist/index.js",

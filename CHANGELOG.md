@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.20.4] - 2026-01-23
+
+### Bug Fixes
+- Fixed release process to update all workspace package versions
+
+
 ## [1.20.3] - 2026-01-23
 
 ### Bug Fixes
