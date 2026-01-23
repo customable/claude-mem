@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.7.0] - 2026-01-23
+
+### Features
+- Added tracking for all MCP tool usage except for `claude-mem`'s own tools.
+
+
 ## [2.6.0] - 2026-01-23
 
 ### Features
