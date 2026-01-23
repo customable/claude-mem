@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.20.1] - 2026-01-23
+
+### Bug Fixes
+- Fixed CI concurrency group separation from release
+
+### Improvements
+- Improved CI workflow organization
+
+
 ## [1.20.0] - 2026-01-23
 
 ### Features
