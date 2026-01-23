@@ -1,5 +1,9 @@
 # Claude-Mem Development Instructions
 
+## Workflow
+
+**IMMER Änderungen committen und pushen** nach Abschluss einer Aufgabe!
+
 ## Wichtige Befehle
 
 ### Dev Server Restart
