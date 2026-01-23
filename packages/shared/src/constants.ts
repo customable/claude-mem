@@ -3,6 +3,11 @@
  */
 
 /**
+ * Version of claude-mem
+ */
+export const VERSION = '0.1.0';
+
+/**
  * Hook timeouts in milliseconds
  */
 export const HOOK_TIMEOUTS = {

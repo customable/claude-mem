@@ -401,3 +401,11 @@ export function resetSettings(): void {
 export function createSettingsManager(settingsPath: string): SettingsManager {
   return new SettingsManager(settingsPath);
 }
+
+/**
+ * Load settings and return the settings object
+ * Convenience function for quick access to all settings
+ */
+export function loadSettings(): Settings {
+  return getSettings().getAll();
+}

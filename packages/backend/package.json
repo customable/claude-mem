@@ -1,0 +1,36 @@
+{
+  "name": "@claude-mem/backend",
+  "version": "0.1.0",
+  "description": "Backend server for claude-mem - REST API, WebSocket Hub, Task Queue",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "bun run dist/backend-service.js",
+    "dev": "bun --watch src/backend-service.ts"
+  },
+  "dependencies": {
+    "@claude-mem/types": "workspace:*",
+    "@claude-mem/shared": "workspace:*",
+    "@claude-mem/database": "workspace:*",
+    "express": "^4.21.0",
+    "ws": "^8.18.0",
+    "cors": "^2.8.5",
+    "cookie-parser": "^1.4.7"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.6",
+    "@types/express": "^5.0.0",
+    "@types/ws": "^8.5.13",
+    "@types/cors": "^2.8.17",
+    "@types/cookie-parser": "^1.4.7",
+    "typescript": "^5.7.2"
+  }
+}

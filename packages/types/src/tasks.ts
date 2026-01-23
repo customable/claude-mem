@@ -105,9 +105,12 @@ export interface SummarizeTask extends BaseTask {
  * Embedding task payload
  */
 export interface EmbeddingTaskPayload {
-  texts: string[];
-  ids: string[];
+  // Direct text embedding
+  texts?: string[];
+  ids?: string[];
   metadata?: Record<string, unknown>[];
+  // Or embed observations by ID
+  observationIds?: number[];
 }
 
 /**
@@ -128,6 +131,7 @@ export interface EmbeddingTask extends BaseTask {
  */
 export interface ContextGenerateTaskPayload {
   project: string;
+  query?: string;
   limit?: number;
   includeTypes?: string[];
 }

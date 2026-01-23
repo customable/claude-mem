@@ -18,7 +18,15 @@ import type { Task } from './tasks.js';
 export interface AuthMessage {
   type: 'auth';
   token: string;
-  registration: WorkerRegistration;
+}
+
+/**
+ * Registration message (after successful auth)
+ */
+export interface RegisterMessage {
+  type: 'register';
+  capabilities: WorkerCapability[];
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -78,6 +86,7 @@ export interface WorkerShutdownMessage {
  */
 export type WorkerToBackendMessage =
   | AuthMessage
+  | RegisterMessage
   | HeartbeatMessage
   | TaskCompleteMessage
   | TaskErrorMessage
@@ -197,6 +206,7 @@ export function isWorkerToBackendMessage(
   const type = (msg as { type?: string }).type;
   return [
     'auth',
+    'register',
     'heartbeat',
     'task:complete',
     'task:error',
