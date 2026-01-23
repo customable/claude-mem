@@ -14,6 +14,7 @@ export interface HealthRouterDeps {
   workerHub: WorkerHub;
   taskQueue: ITaskQueueRepository;
   getInitializationStatus: () => { coreReady: boolean; fullyInitialized: boolean };
+  onRestart?: () => Promise<void>;
 }
 
 export class HealthRouter extends BaseRouter {
@@ -36,6 +37,9 @@ export class HealthRouter extends BaseRouter {
 
     // Detailed status
     this.router.get('/status', this.asyncHandler(this.status.bind(this)));
+
+    // Admin: Restart backend
+    this.router.post('/admin/restart', this.asyncHandler(this.restart.bind(this)));
   }
 
   /**
@@ -117,5 +121,22 @@ export class HealthRouter extends BaseRouter {
       tasks: taskCounts,
       memory: process.memoryUsage(),
     });
+  }
+
+  /**
+   * POST /api/admin/restart
+   * Restart the backend service
+   */
+  private async restart(_req: Request, res: Response): Promise<void> {
+    if (!this.deps.onRestart) {
+      this.badRequest('Restart not supported');
+    }
+
+    this.success(res, { message: 'Restart initiated' });
+
+    // Delay restart to allow response to be sent
+    setTimeout(async () => {
+      await this.deps.onRestart!();
+    }, 100);
   }
 }

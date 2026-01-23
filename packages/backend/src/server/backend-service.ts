@@ -163,6 +163,7 @@ export class BackendService {
         coreReady: this.coreReady,
         fullyInitialized: this.fullyInitialized,
       }),
+      onRestart: () => this.restart(),
     }).router);
 
     // Stream route (SSE)
@@ -458,5 +459,17 @@ export class BackendService {
       coreReady: this.coreReady,
       fullyInitialized: this.fullyInitialized,
     };
+  }
+
+  /**
+   * Restart the backend service
+   * Stops cleanly and exits with code 0 for process manager to restart
+   */
+  async restart(): Promise<void> {
+    logger.info('Restart requested, shutting down for restart...');
+    await this.stop();
+    // Exit with code 0 - process managers like systemd or pm2 will restart
+    // For development, the process will just stop
+    process.exit(0);
   }
 }

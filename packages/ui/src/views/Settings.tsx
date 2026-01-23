@@ -798,13 +798,52 @@ function WorkerSettings({ settings, onChange }: TabProps) {
 }
 
 function AdvancedSettings({ settings, onChange }: TabProps) {
+  const [isRestarting, setIsRestarting] = useState(false);
+
+  const handleRestart = async () => {
+    if (!confirm('Are you sure you want to restart the backend? All connections will be temporarily interrupted.')) {
+      return;
+    }
+
+    setIsRestarting(true);
+    try {
+      await fetch('/api/admin/restart', { method: 'POST' });
+      // Wait a bit then reload the page
+      setTimeout(() => {
+        window.location.reload();
+      }, 3000);
+    } catch (err) {
+      console.error('Restart failed:', err);
+      setIsRestarting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-lg">
       <h3 className="text-lg font-medium">Advanced Settings</h3>
 
       <div className="alert alert-warning">
         <span className="iconify ph--warning size-5" />
-        <span>Changes to these settings require a restart</span>
+        <div className="flex-1">
+          <span>Changes to these settings require a restart</span>
+        </div>
+        <button
+          className="btn btn-sm btn-warning"
+          onClick={handleRestart}
+          disabled={isRestarting}
+        >
+          {isRestarting ? (
+            <>
+              <span className="loading loading-spinner loading-xs" />
+              Restarting...
+            </>
+          ) : (
+            <>
+              <span className="iconify ph--arrow-clockwise size-4" />
+              Restart Backend
+            </>
+          )}
+        </button>
       </div>
 
       <div className="divider">Network</div>
