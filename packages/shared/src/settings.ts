@@ -1,0 +1,403 @@
+/**
+ * Settings Management for claude-mem
+ *
+ * Provides a type-safe, extensible configuration system.
+ * Settings can come from:
+ * 1. Default values
+ * 2. Settings file (settings.json)
+ * 3. Environment variables (highest priority)
+ */
+
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { dirname, join } from 'path';
+import { homedir } from 'os';
+
+// ============================================
+// Settings Schema
+// ============================================
+
+/**
+ * All available settings with their types
+ */
+export interface Settings {
+  // Backend Configuration
+  BACKEND_PORT: number;
+  BACKEND_WS_PORT: number;
+  BACKEND_HOST: string;
+  BACKEND_BIND: string;
+
+  // Worker Configuration
+  WORKER_AUTH_TOKEN: string;
+  EMBEDDED_WORKER: boolean;
+
+  // AI Provider Configuration
+  AI_PROVIDER: 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic';
+  MISTRAL_API_KEY: string;
+  MISTRAL_MODEL: string;
+  GEMINI_API_KEY: string;
+  GEMINI_MODEL: string;
+  OPENROUTER_API_KEY: string;
+  OPENROUTER_MODEL: string;
+  OPENAI_API_KEY: string;
+  OPENAI_MODEL: string;
+  OPENAI_BASE_URL: string;
+  ANTHROPIC_API_KEY: string;
+
+  // Database Configuration
+  DATABASE_TYPE: 'sqlite' | 'postgres';
+  DATABASE_PATH: string;  // For SQLite
+  DATABASE_URL: string;   // For PostgreSQL
+
+  // Vector Database Configuration
+  VECTOR_DB: 'none' | 'chroma' | 'qdrant';
+  VECTOR_DB_PATH: string;
+  EMBEDDING_MODEL: string;
+
+  // Context Configuration
+  CONTEXT_OBSERVATION_LIMIT: number;
+  CONTEXT_SHOW_READ_TOKENS: boolean;
+  CONTEXT_SHOW_WORK_TOKENS: boolean;
+
+  // Logging
+  LOG_LEVEL: 'debug' | 'info' | 'warn' | 'error';
+
+  // Data Directory
+  DATA_DIR: string;
+
+  // Batch Processing
+  BATCH_SIZE: number;
+
+  // Remote Mode (for hooks connecting to remote backend)
+  REMOTE_MODE: boolean;
+  REMOTE_URL: string;
+  REMOTE_TOKEN: string;
+
+  // Retention Policy
+  RETENTION_ENABLED: boolean;
+  RETENTION_MAX_AGE_DAYS: number;
+  RETENTION_MAX_COUNT: number;
+}
+
+// ============================================
+// Default Values
+// ============================================
+
+const DEFAULT_DATA_DIR = join(homedir(), '.claude-mem');
+
+/**
+ * Default settings values
+ */
+export const DEFAULTS: Settings = {
+  // Backend Configuration
+  BACKEND_PORT: 37777,
+  BACKEND_WS_PORT: 37778,
+  BACKEND_HOST: '127.0.0.1',
+  BACKEND_BIND: '127.0.0.1',
+
+  // Worker Configuration
+  WORKER_AUTH_TOKEN: '',
+  EMBEDDED_WORKER: true,
+
+  // AI Provider Configuration
+  AI_PROVIDER: 'mistral',
+  MISTRAL_API_KEY: '',
+  MISTRAL_MODEL: 'mistral-small-latest',
+  GEMINI_API_KEY: '',
+  GEMINI_MODEL: 'gemini-2.5-flash-lite',
+  OPENROUTER_API_KEY: '',
+  OPENROUTER_MODEL: 'xiaomi/mimo-v2-flash:free',
+  OPENAI_API_KEY: '',
+  OPENAI_MODEL: 'gpt-4o-mini',
+  OPENAI_BASE_URL: '',
+  ANTHROPIC_API_KEY: '',
+
+  // Database Configuration
+  DATABASE_TYPE: 'sqlite',
+  DATABASE_PATH: join(DEFAULT_DATA_DIR, 'claude-mem.db'),
+  DATABASE_URL: '',
+
+  // Vector Database Configuration
+  VECTOR_DB: 'none',
+  VECTOR_DB_PATH: join(DEFAULT_DATA_DIR, 'vector-db'),
+  EMBEDDING_MODEL: 'Xenova/all-MiniLM-L6-v2',
+
+  // Context Configuration
+  CONTEXT_OBSERVATION_LIMIT: 50,
+  CONTEXT_SHOW_READ_TOKENS: true,
+  CONTEXT_SHOW_WORK_TOKENS: true,
+
+  // Logging
+  LOG_LEVEL: 'info',
+
+  // Data Directory
+  DATA_DIR: DEFAULT_DATA_DIR,
+
+  // Batch Processing
+  BATCH_SIZE: 5,
+
+  // Remote Mode
+  REMOTE_MODE: false,
+  REMOTE_URL: '',
+  REMOTE_TOKEN: '',
+
+  // Retention Policy
+  RETENTION_ENABLED: false,
+  RETENTION_MAX_AGE_DAYS: 0,
+  RETENTION_MAX_COUNT: 0,
+};
+
+// ============================================
+// Type Helpers
+// ============================================
+
+type SettingKey = keyof Settings;
+type SettingValue<K extends SettingKey> = Settings[K];
+
+/**
+ * Keys that are boolean type
+ */
+const BOOLEAN_KEYS: SettingKey[] = [
+  'EMBEDDED_WORKER',
+  'CONTEXT_SHOW_READ_TOKENS',
+  'CONTEXT_SHOW_WORK_TOKENS',
+  'REMOTE_MODE',
+  'RETENTION_ENABLED',
+];
+
+/**
+ * Keys that are number type
+ */
+const NUMBER_KEYS: SettingKey[] = [
+  'BACKEND_PORT',
+  'BACKEND_WS_PORT',
+  'CONTEXT_OBSERVATION_LIMIT',
+  'BATCH_SIZE',
+  'RETENTION_MAX_AGE_DAYS',
+  'RETENTION_MAX_COUNT',
+];
+
+// ============================================
+// Settings Manager
+// ============================================
+
+/**
+ * Settings Manager class
+ *
+ * Loads settings from file and environment variables.
+ * Environment variables have highest priority.
+ */
+export class SettingsManager {
+  private settings: Settings;
+  private settingsPath: string;
+
+  constructor(settingsPath?: string) {
+    this.settingsPath = settingsPath || join(DEFAULT_DATA_DIR, 'settings.json');
+    this.settings = this.loadSettings();
+  }
+
+  /**
+   * Load settings from file, merging with defaults and env vars
+   */
+  private loadSettings(): Settings {
+    let fileSettings: Partial<Settings> = {};
+
+    // Try to load from file
+    try {
+      if (existsSync(this.settingsPath)) {
+        const data = readFileSync(this.settingsPath, 'utf-8');
+        const parsed = JSON.parse(data);
+
+        // Handle legacy nested schema { env: {...} }
+        if (parsed.env && typeof parsed.env === 'object') {
+          fileSettings = this.migrateLegacySettings(parsed.env);
+        } else {
+          fileSettings = parsed;
+        }
+      }
+    } catch (error) {
+      console.warn('[Settings] Failed to load settings file:', error);
+    }
+
+    // Merge: defaults < file < env
+    const merged = { ...DEFAULTS };
+
+    // Apply file settings
+    for (const key of Object.keys(fileSettings) as SettingKey[]) {
+      if (key in DEFAULTS) {
+        (merged as Record<string, unknown>)[key] = this.parseValue(
+          key,
+          fileSettings[key]
+        );
+      }
+    }
+
+    // Apply environment variables (prefix: CLAUDE_MEM_)
+    for (const key of Object.keys(DEFAULTS) as SettingKey[]) {
+      const envKey = `CLAUDE_MEM_${key}`;
+      const envValue = process.env[envKey];
+      if (envValue !== undefined) {
+        (merged as Record<string, unknown>)[key] = this.parseValue(key, envValue);
+      }
+    }
+
+    return merged;
+  }
+
+  /**
+   * Parse a value to its correct type
+   */
+  private parseValue(key: SettingKey, value: unknown): unknown {
+    if (value === undefined || value === null) {
+      return DEFAULTS[key];
+    }
+
+    if (BOOLEAN_KEYS.includes(key)) {
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') return value.toLowerCase() === 'true';
+      return Boolean(value);
+    }
+
+    if (NUMBER_KEYS.includes(key)) {
+      if (typeof value === 'number') return value;
+      const num = parseInt(String(value), 10);
+      return isNaN(num) ? DEFAULTS[key] : num;
+    }
+
+    return value;
+  }
+
+  /**
+   * Migrate legacy setting keys to new format
+   */
+  private migrateLegacySettings(
+    legacy: Record<string, unknown>
+  ): Partial<Settings> {
+    const migrated: Partial<Settings> = {};
+
+    // Map old keys to new keys
+    const keyMap: Record<string, SettingKey> = {
+      CLAUDE_MEM_WORKER_PORT: 'BACKEND_PORT',
+      CLAUDE_MEM_WORKER_HOST: 'BACKEND_HOST',
+      CLAUDE_MEM_WORKER_BIND: 'BACKEND_BIND',
+      CLAUDE_MEM_PROVIDER: 'AI_PROVIDER',
+      CLAUDE_MEM_MISTRAL_API_KEY: 'MISTRAL_API_KEY',
+      CLAUDE_MEM_MISTRAL_MODEL: 'MISTRAL_MODEL',
+      CLAUDE_MEM_GEMINI_API_KEY: 'GEMINI_API_KEY',
+      CLAUDE_MEM_GEMINI_MODEL: 'GEMINI_MODEL',
+      CLAUDE_MEM_OPENROUTER_API_KEY: 'OPENROUTER_API_KEY',
+      CLAUDE_MEM_OPENROUTER_MODEL: 'OPENROUTER_MODEL',
+      CLAUDE_MEM_OPENAI_API_KEY: 'OPENAI_API_KEY',
+      CLAUDE_MEM_OPENAI_MODEL: 'OPENAI_MODEL',
+      CLAUDE_MEM_OPENAI_BASE_URL: 'OPENAI_BASE_URL',
+      CLAUDE_MEM_DATA_DIR: 'DATA_DIR',
+      CLAUDE_MEM_LOG_LEVEL: 'LOG_LEVEL',
+      CLAUDE_MEM_VECTOR_DB: 'VECTOR_DB',
+      CLAUDE_MEM_EMBEDDING_MODEL: 'EMBEDDING_MODEL',
+      CLAUDE_MEM_CONTEXT_OBSERVATIONS: 'CONTEXT_OBSERVATION_LIMIT',
+      CLAUDE_MEM_BATCH_SIZE: 'BATCH_SIZE',
+      CLAUDE_MEM_REMOTE_MODE: 'REMOTE_MODE',
+      CLAUDE_MEM_REMOTE_URL: 'REMOTE_URL',
+      CLAUDE_MEM_REMOTE_TOKEN: 'REMOTE_TOKEN',
+    };
+
+    for (const [oldKey, newKey] of Object.entries(keyMap)) {
+      if (legacy[oldKey] !== undefined) {
+        (migrated as Record<string, unknown>)[newKey] = legacy[oldKey];
+      }
+    }
+
+    // Also check for new-style keys
+    for (const key of Object.keys(legacy)) {
+      if (key in DEFAULTS) {
+        (migrated as Record<string, unknown>)[key] = legacy[key];
+      }
+    }
+
+    return migrated;
+  }
+
+  /**
+   * Get a setting value
+   */
+  get<K extends SettingKey>(key: K): SettingValue<K> {
+    return this.settings[key];
+  }
+
+  /**
+   * Get all settings
+   */
+  getAll(): Settings {
+    return { ...this.settings };
+  }
+
+  /**
+   * Get default value for a setting
+   */
+  getDefault<K extends SettingKey>(key: K): SettingValue<K> {
+    return DEFAULTS[key];
+  }
+
+  /**
+   * Update settings (in memory only)
+   */
+  set<K extends SettingKey>(key: K, value: SettingValue<K>): void {
+    this.settings[key] = value;
+  }
+
+  /**
+   * Save current settings to file
+   */
+  save(): void {
+    try {
+      const dir = dirname(this.settingsPath);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+      writeFileSync(
+        this.settingsPath,
+        JSON.stringify(this.settings, null, 2),
+        'utf-8'
+      );
+    } catch (error) {
+      console.error('[Settings] Failed to save settings:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Reload settings from file
+   */
+  reload(): void {
+    this.settings = this.loadSettings();
+  }
+}
+
+// ============================================
+// Singleton Instance
+// ============================================
+
+let _instance: SettingsManager | null = null;
+
+/**
+ * Get the global settings manager instance
+ */
+export function getSettings(): SettingsManager {
+  if (!_instance) {
+    _instance = new SettingsManager();
+  }
+  return _instance;
+}
+
+/**
+ * Reset the global settings instance (for testing)
+ */
+export function resetSettings(): void {
+  _instance = null;
+}
+
+/**
+ * Create a new settings manager with custom path
+ */
+export function createSettingsManager(settingsPath: string): SettingsManager {
+  return new SettingsManager(settingsPath);
+}

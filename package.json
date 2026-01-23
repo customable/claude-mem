@@ -1,0 +1,36 @@
+{
+  "name": "claude-mem-monorepo",
+  "private": true,
+  "description": "Persistent memory system for Claude Code - Modular architecture",
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:types": "pnpm --filter @claude-mem/types build",
+    "build:shared": "pnpm --filter @claude-mem/shared build",
+    "build:database": "pnpm --filter @claude-mem/database build",
+    "build:backend": "pnpm --filter @claude-mem/backend build",
+    "build:worker": "pnpm --filter @claude-mem/worker build",
+    "build:hooks": "pnpm --filter @claude-mem/hooks build",
+    "build:ui": "pnpm --filter @claude-mem/ui build",
+    "build:plugin": "node scripts/build-plugin.js",
+    "dev": "pnpm build:plugin && pnpm sync-marketplace",
+    "dev:ui": "pnpm --filter @claude-mem/ui dev",
+    "dev:web": "pnpm --filter @claude-mem/web dev",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "sync-marketplace": "node scripts/sync-marketplace.cjs",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "esbuild": "^0.27.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
