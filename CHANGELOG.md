@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.2.0] - 2026-01-23
+
+### Features
+- Added subtitle, narrative, and gitBranch fields to observations
+- Added `/api/import` endpoint for data import
+- Added `/api/export` endpoint for data export
+
+### Bug Fixes
+- Fixed observation fields (facts, concepts, files) population
+- Fixed recording of user prompts
+
+### Improvements
+- Increment prompt_counter on each user prompt
+- Updated pnpm-lock.yaml
+
+
 ## [2.1.0] - 2026-01-23
 
 ### Features
