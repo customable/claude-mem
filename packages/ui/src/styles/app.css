@@ -1,0 +1,34 @@
+/** Claude-Mem UI Styles **/
+
+/* Tailwind CSS 4+ and DaisyUI 5+ */
+@import "./tailwind.css";
+@import "./daisyui.css";
+
+/* Iconify (Phosphor icons) */
+@plugin "@iconify/tailwind4" {
+  prefixes: ph;
+}
+
+/* Root Background */
+body {
+  background: var(--root-bg);
+}
+
+/* Custom scrollbar for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-base-200);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neutral);
+}

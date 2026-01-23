@@ -1,0 +1,116 @@
+/** DaisyUI 5+ Plugin Configuration **/
+@plugin "daisyui" {
+  exclude: rootscrollgutter;
+}
+
+/** Dark Theme - Default for claude-mem **/
+@plugin "daisyui/theme" {
+  name: "dark";
+  color-scheme: dark;
+  default: true;
+  prefersdark: true;
+
+  /* Layout Colors */
+  --root-bg: #0d1117;
+  --layout-sidebar-background: #161b22;
+  --layout-topbar-background: #161b22;
+
+  /* Base Colors */
+  --color-base-100: #161b22;
+  --color-base-200: #21262d;
+  --color-base-300: #30363d;
+  --color-base-content: #c9d1d9;
+
+  /* Primary - Blue accent */
+  --color-primary: #58a6ff;
+  --color-primary-content: #ffffff;
+
+  /* Secondary - Purple */
+  --color-secondary: #a371f7;
+  --color-secondary-content: #ffffff;
+
+  /* Accent - Cyan */
+  --color-accent: #39d353;
+  --color-accent-content: #0d1117;
+
+  /* Neutral */
+  --color-neutral: #8b949e;
+  --color-neutral-content: #0d1117;
+
+  /* Status Colors */
+  --color-info: #58a6ff;
+  --color-info-content: #ffffff;
+  --color-success: #3fb950;
+  --color-success-content: #ffffff;
+  --color-warning: #d29922;
+  --color-warning-content: #0d1117;
+  --color-error: #f85149;
+  --color-error-content: #ffffff;
+
+  /* Sizes */
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --rounded-box: 0.5rem;
+  --radius-selector: 0.375rem;
+  --border: 1px;
+  --card-p: 1rem;
+
+  /* Other */
+  --depth: 0;
+  --noise: 0;
+}
+
+/** Light Theme **/
+@plugin "daisyui/theme" {
+  name: "light";
+  color-scheme: light;
+
+  /* Layout Colors */
+  --root-bg: #f6f8fa;
+  --layout-sidebar-background: #ffffff;
+  --layout-topbar-background: #ffffff;
+
+  /* Base Colors */
+  --color-base-100: #ffffff;
+  --color-base-200: #f6f8fa;
+  --color-base-300: #d0d7de;
+  --color-base-content: #1f2328;
+
+  /* Primary - Blue accent */
+  --color-primary: #0969da;
+  --color-primary-content: #ffffff;
+
+  /* Secondary - Purple */
+  --color-secondary: #8250df;
+  --color-secondary-content: #ffffff;
+
+  /* Accent - Green */
+  --color-accent: #1a7f37;
+  --color-accent-content: #ffffff;
+
+  /* Neutral */
+  --color-neutral: #57606a;
+  --color-neutral-content: #ffffff;
+
+  /* Status Colors */
+  --color-info: #0969da;
+  --color-info-content: #ffffff;
+  --color-success: #1a7f37;
+  --color-success-content: #ffffff;
+  --color-warning: #9a6700;
+  --color-warning-content: #ffffff;
+  --color-error: #cf222e;
+  --color-error-content: #ffffff;
+
+  /* Sizes */
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --rounded-box: 0.5rem;
+  --radius-selector: 0.375rem;
+  --border: 1px;
+  --card-p: 1rem;
+
+  /* Other */
+  --depth: 0;
+  --noise: 0;
+}
