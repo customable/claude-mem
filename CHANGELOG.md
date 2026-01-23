@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0] - 2026-01-23
+
+### Features
+- Added automatic runtime installation for plugins
+
+
 ## [1.20.4] - 2026-01-23
 
 ### Bug Fixes
