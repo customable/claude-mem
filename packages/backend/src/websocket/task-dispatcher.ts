@@ -219,6 +219,11 @@ export class TaskDispatcher {
             text: observationResult.text,
             discoveryTokens: observationResult.tokens || 0,
             promptNumber: payload.promptNumber,
+            // Optional extracted fields
+            facts: observationResult.facts?.join('\n'),
+            concepts: observationResult.concepts?.join('\n'),
+            filesRead: observationResult.filesRead?.join('\n'),
+            filesModified: observationResult.filesModified?.join('\n'),
           });
 
           logger.info(`Observation ${observation.id} created for session ${payload.sessionId}`);

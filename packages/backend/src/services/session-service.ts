@@ -48,6 +48,15 @@ export class SessionService {
       });
       session = { ...session, prompt_counter: newCounter };
 
+      // Record the prompt if provided
+      if (params.userPrompt) {
+        await this.userPrompts.create({
+          contentSessionId: params.contentSessionId,
+          promptNumber: newCounter,
+          promptText: params.userPrompt,
+        });
+      }
+
       this.sseBroadcaster.broadcastNewPrompt(
         params.contentSessionId,
         newCounter
@@ -68,6 +77,15 @@ export class SessionService {
     // Set initial prompt counter to 1 (this is the first prompt)
     await this.sessions.update(session.id, { promptCounter: 1 });
     session = { ...session, prompt_counter: 1 };
+
+    // Record the initial prompt if provided
+    if (params.userPrompt) {
+      await this.userPrompts.create({
+        contentSessionId: params.contentSessionId,
+        promptNumber: 1,
+        promptText: params.userPrompt,
+      });
+    }
 
     this.sseBroadcaster.broadcastSessionStarted(
       params.contentSessionId,

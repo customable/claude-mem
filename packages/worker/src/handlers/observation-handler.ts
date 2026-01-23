@@ -67,6 +67,11 @@ export async function handleObservationTask(
     text: observation.text,
     type: observation.type,
     tokens: response.inputTokens + response.outputTokens,
+    // Pass through extracted optional fields
+    facts: observation.facts?.length ? observation.facts : undefined,
+    concepts: observation.concepts?.length ? observation.concepts : undefined,
+    filesRead: observation.filesRead?.length ? observation.filesRead : undefined,
+    filesModified: observation.filesModified?.length ? observation.filesModified : undefined,
   };
 }
 

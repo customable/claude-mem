@@ -30,6 +30,8 @@ Output your analysis in this XML format:
   <type>one of: bugfix, feature, refactor, change, discovery, decision</type>
   <title>Short, descriptive title (max 100 chars)</title>
   <text>Detailed explanation of the observation. Include context, rationale, and implications. 2-4 sentences.</text>
+  <facts>Key facts discovered (one per line, if any)</facts>
+  <concepts>Important concepts, patterns, or technologies (one per line, if any)</concepts>
   <files_read>file1.ts, file2.ts</files_read>
   <files_modified>file3.ts</files_modified>
 </observation>
@@ -38,6 +40,8 @@ Guidelines:
 - Focus on the "what" and "why", not the "how"
 - Be concise but informative
 - Extract file paths from the input/output
+- Extract key facts (e.g., "API uses JWT authentication", "Database is SQLite")
+- Extract concepts (e.g., "Repository Pattern", "Event-driven architecture", "React hooks")
 - If the tool usage is trivial (e.g., listing files, simple reads), respond with an empty observation
 - Prioritize observations that would help understand the codebase or debug issues later`;
 

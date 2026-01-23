@@ -73,6 +73,13 @@ export interface ObservationTask extends BaseTask {
     text: string;
     type: ObservationType;
     tokens: number;
+    // Optional extracted fields
+    subtitle?: string;
+    facts?: string[];
+    concepts?: string[];
+    narrative?: string;
+    filesRead?: string[];
+    filesModified?: string[];
   };
 }
 
