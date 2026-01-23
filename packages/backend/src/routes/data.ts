@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, ObservationType, TaskStatus } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, ObservationType, DocumentType, TaskStatus } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -34,6 +34,7 @@ export interface DataRouterDeps {
   observations: IObservationRepository;
   summaries: ISummaryRepository;
   sessions: ISessionRepository;
+  documents: IDocumentRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -73,6 +74,12 @@ export class DataRouter extends BaseRouter {
     this.router.get('/analytics/timeline', this.asyncHandler(this.getAnalyticsTimeline.bind(this)));
     this.router.get('/analytics/types', this.asyncHandler(this.getAnalyticsTypes.bind(this)));
     this.router.get('/analytics/projects', this.asyncHandler(this.getAnalyticsProjects.bind(this)));
+
+    // Documents (MCP documentation cache)
+    this.router.get('/documents', this.asyncHandler(this.listDocuments.bind(this)));
+    this.router.get('/documents/:id', this.asyncHandler(this.getDocument.bind(this)));
+    this.router.get('/documents/search', this.asyncHandler(this.searchDocuments.bind(this)));
+    this.router.delete('/documents/:id', this.asyncHandler(this.deleteDocument.bind(this)));
   }
 
   /**
@@ -534,5 +541,106 @@ export class DataRouter extends BaseRouter {
     this.success(res, {
       data: data.sort((a, b) => b.observations - a.observations),
     });
+  }
+
+  // ============================================
+  // Documents (MCP Documentation Cache)
+  // ============================================
+
+  /**
+   * GET /api/data/documents
+   * List documents with optional filters
+   */
+  private async listDocuments(req: Request, res: Response): Promise<void> {
+    const { project, source, sourceTool, type, limit, offset } = req.query;
+
+    const documents = await this.deps.documents.list(
+      {
+        project: getString(project),
+        source: getString(source),
+        sourceTool: getString(sourceTool),
+        type: getString(type) as DocumentType | undefined,
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+        offset: this.parseOptionalIntParam(getString(offset)),
+      }
+    );
+
+    const total = await this.deps.documents.count({
+      project: getString(project),
+      source: getString(source),
+      sourceTool: getString(sourceTool),
+      type: getString(type) as DocumentType | undefined,
+    });
+
+    const parsedLimit = this.parseOptionalIntParam(getString(limit)) ?? 50;
+    const parsedOffset = this.parseOptionalIntParam(getString(offset)) ?? 0;
+
+    this.success(res, {
+      data: documents,
+      total,
+      limit: parsedLimit,
+      offset: parsedOffset,
+    });
+  }
+
+  /**
+   * GET /api/data/documents/:id
+   */
+  private async getDocument(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const document = await this.deps.documents.findById(id);
+    if (!document) {
+      this.notFound(`Document not found: ${id}`);
+    }
+
+    // Record access for cache statistics
+    await this.deps.documents.recordAccess(id);
+
+    this.success(res, document);
+  }
+
+  /**
+   * GET /api/data/documents/search
+   * Full-text search across documents
+   */
+  private async searchDocuments(req: Request, res: Response): Promise<void> {
+    const query = getString(req.query.q);
+    if (!query) {
+      this.badRequest('Missing required query parameter: q');
+    }
+
+    const { project, type, limit, offset } = req.query;
+
+    const documents = await this.deps.documents.search(
+      query,
+      {
+        project: getString(project),
+        type: getString(type) as DocumentType | undefined,
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 20,
+        offset: this.parseOptionalIntParam(getString(offset)),
+        orderBy: 'relevance',
+      }
+    );
+
+    this.success(res, { data: documents, query });
+  }
+
+  /**
+   * DELETE /api/data/documents/:id
+   */
+  private async deleteDocument(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const deleted = await this.deps.documents.delete(id);
+    if (!deleted) {
+      this.notFound(`Document not found: ${id}`);
+    }
+
+    this.noContent(res);
   }
 }

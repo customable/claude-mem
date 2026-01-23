@@ -229,3 +229,70 @@ export const PROJECT_CLAUDEMD_INDEXES = `
   CREATE INDEX IF NOT EXISTS idx_claudemd_project ON project_claudemd(project);
   CREATE INDEX IF NOT EXISTS idx_claudemd_generated ON project_claudemd(generated_at DESC);
 `;
+
+/**
+ * Documents table - stores documentation lookups from MCP tools (Context7, etc.)
+ * Creates a personal documentation cache that grows over time.
+ */
+export const DOCUMENTS_TABLE = `
+  CREATE TABLE IF NOT EXISTS documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project TEXT NOT NULL,
+    source TEXT NOT NULL,
+    source_tool TEXT NOT NULL,
+    title TEXT,
+    content TEXT NOT NULL,
+    content_hash TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'library-docs',
+    metadata TEXT,
+    memory_session_id TEXT,
+    observation_id INTEGER,
+    access_count INTEGER NOT NULL DEFAULT 1,
+    last_accessed_epoch INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    created_at_epoch INTEGER NOT NULL,
+    UNIQUE(content_hash)
+  )
+`;
+
+export const DOCUMENTS_INDEXES = `
+  CREATE INDEX IF NOT EXISTS idx_documents_project ON documents(project);
+  CREATE INDEX IF NOT EXISTS idx_documents_source ON documents(source);
+  CREATE INDEX IF NOT EXISTS idx_documents_source_tool ON documents(source_tool);
+  CREATE INDEX IF NOT EXISTS idx_documents_type ON documents(type);
+  CREATE INDEX IF NOT EXISTS idx_documents_hash ON documents(content_hash);
+  CREATE INDEX IF NOT EXISTS idx_documents_created ON documents(created_at_epoch DESC);
+  CREATE INDEX IF NOT EXISTS idx_documents_accessed ON documents(last_accessed_epoch DESC);
+`;
+
+/**
+ * Full-text search for documents
+ */
+export const DOCUMENTS_FTS = `
+  CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(
+    title,
+    content,
+    source,
+    content='documents',
+    content_rowid='id'
+  )
+`;
+
+export const DOCUMENTS_FTS_TRIGGERS = `
+  CREATE TRIGGER IF NOT EXISTS documents_ai AFTER INSERT ON documents BEGIN
+    INSERT INTO documents_fts(rowid, title, content, source)
+    VALUES (new.id, new.title, new.content, new.source);
+  END;
+
+  CREATE TRIGGER IF NOT EXISTS documents_ad AFTER DELETE ON documents BEGIN
+    INSERT INTO documents_fts(documents_fts, rowid, title, content, source)
+    VALUES ('delete', old.id, old.title, old.content, old.source);
+  END;
+
+  CREATE TRIGGER IF NOT EXISTS documents_au AFTER UPDATE ON documents BEGIN
+    INSERT INTO documents_fts(documents_fts, rowid, title, content, source)
+    VALUES ('delete', old.id, old.title, old.content, old.source);
+    INSERT INTO documents_fts(rowid, title, content, source)
+    VALUES (new.id, new.title, new.content, new.source);
+  END;
+`;

@@ -9,6 +9,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { SQLiteSessionRepository } from './repositories/sessions.js';
 import { SQLiteObservationRepository } from './repositories/observations.js';
 import { SQLiteSummaryRepository } from './repositories/summaries.js';
+import { SQLiteDocumentRepository } from './repositories/documents.js';
 import { SQLiteUserPromptRepository } from './repositories/user-prompts.js';
 import { SQLiteTaskQueueRepository } from './repositories/task-queue.js';
 import { SQLiteClaudeMdRepository } from './repositories/claudemd-repo.js';
@@ -20,6 +21,7 @@ export class SQLiteUnitOfWork implements IUnitOfWork {
   public readonly sessions: SQLiteSessionRepository;
   public readonly observations: SQLiteObservationRepository;
   public readonly summaries: SQLiteSummaryRepository;
+  public readonly documents: SQLiteDocumentRepository;
   public readonly userPrompts: SQLiteUserPromptRepository;
   public readonly taskQueue: SQLiteTaskQueueRepository;
   public readonly claudemd: SQLiteClaudeMdRepository;
@@ -30,6 +32,7 @@ export class SQLiteUnitOfWork implements IUnitOfWork {
     this.sessions = new SQLiteSessionRepository(db);
     this.observations = new SQLiteObservationRepository(db);
     this.summaries = new SQLiteSummaryRepository(db);
+    this.documents = new SQLiteDocumentRepository(db);
     this.userPrompts = new SQLiteUserPromptRepository(db);
     this.taskQueue = new SQLiteTaskQueueRepository(db);
     this.claudemd = new SQLiteClaudeMdRepository(db);

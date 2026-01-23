@@ -10,7 +10,9 @@ import type {
   ObservationRecord,
   SessionSummaryRecord,
   UserPromptRecord,
+  DocumentRecord,
   ObservationType,
+  DocumentType,
   SessionStatus,
 } from './database.js';
 
@@ -293,6 +295,108 @@ export interface ISummaryRepository {
 }
 
 // ============================================
+// Document Repository
+// ============================================
+
+/**
+ * Document creation input
+ */
+export interface CreateDocumentInput {
+  project: string;
+  source: string;
+  sourceTool: string;
+  title?: string;
+  content: string;
+  contentHash: string;
+  type?: DocumentType;
+  metadata?: Record<string, unknown>;
+  memorySessionId?: string;
+  observationId?: number;
+}
+
+/**
+ * Document query filters
+ */
+export interface DocumentQueryFilters {
+  project?: string;
+  source?: string;
+  sourceTool?: string;
+  type?: DocumentType | DocumentType[];
+  dateRange?: DateRangeFilter;
+  search?: string;
+}
+
+/**
+ * Document Repository Interface
+ */
+export interface IDocumentRepository {
+  /**
+   * Create a new document
+   */
+  create(input: CreateDocumentInput): Promise<DocumentRecord>;
+
+  /**
+   * Find document by ID
+   */
+  findById(id: number): Promise<DocumentRecord | null>;
+
+  /**
+   * Find document by content hash (for deduplication)
+   */
+  findByHash(contentHash: string): Promise<DocumentRecord | null>;
+
+  /**
+   * Update a document
+   */
+  update(id: number, input: Partial<CreateDocumentInput>): Promise<DocumentRecord | null>;
+
+  /**
+   * Update access count and timestamp (when document is reused)
+   */
+  recordAccess(id: number): Promise<DocumentRecord | null>;
+
+  /**
+   * List documents with optional filters
+   */
+  list(filters?: DocumentQueryFilters, options?: QueryOptions): Promise<DocumentRecord[]>;
+
+  /**
+   * Count documents matching filters
+   */
+  count(filters?: DocumentQueryFilters): Promise<number>;
+
+  /**
+   * Full-text search documents
+   */
+  search(query: string, filters?: DocumentQueryFilters, options?: QueryOptions): Promise<DocumentRecord[]>;
+
+  /**
+   * Get documents for a project
+   */
+  getByProject(project: string, options?: QueryOptions): Promise<DocumentRecord[]>;
+
+  /**
+   * Get documents by source tool (e.g., all Context7 lookups)
+   */
+  getBySourceTool(sourceTool: string, options?: QueryOptions): Promise<DocumentRecord[]>;
+
+  /**
+   * Get frequently accessed documents
+   */
+  getFrequentlyAccessed(limit: number): Promise<DocumentRecord[]>;
+
+  /**
+   * Delete a document
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Delete old, rarely accessed documents (cleanup)
+   */
+  cleanupOld(olderThanDays: number, minAccessCount: number): Promise<number>;
+}
+
+// ============================================
 // User Prompt Repository
 // ============================================
 
@@ -460,6 +564,7 @@ export interface IUnitOfWork {
   sessions: ISessionRepository;
   observations: IObservationRepository;
   summaries: ISummaryRepository;
+  documents: IDocumentRepository;
   userPrompts: IUserPromptRepository;
   taskQueue: ITaskQueueRepository;
 

@@ -93,6 +93,25 @@ export const migrations: Migration[] = [
       db.run('DROP TABLE IF EXISTS project_claudemd');
     },
   },
+  {
+    version: 4,
+    name: 'documents',
+    up: (db: Database) => {
+      db.run(schema.DOCUMENTS_TABLE);
+      db.run(schema.DOCUMENTS_INDEXES);
+      db.run(schema.DOCUMENTS_FTS);
+      db.run(schema.DOCUMENTS_FTS_TRIGGERS);
+
+      logger.info('Created documents table with FTS');
+    },
+    down: (db: Database) => {
+      db.run('DROP TRIGGER IF EXISTS documents_au');
+      db.run('DROP TRIGGER IF EXISTS documents_ad');
+      db.run('DROP TRIGGER IF EXISTS documents_ai');
+      db.run('DROP TABLE IF EXISTS documents_fts');
+      db.run('DROP TABLE IF EXISTS documents');
+    },
+  },
 ];
 
 /**

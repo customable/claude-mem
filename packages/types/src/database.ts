@@ -428,6 +428,38 @@ export interface UserPromptRecord {
 }
 
 /**
+ * Document types - categorization of stored documentation
+ */
+export type DocumentType =
+  | 'library-docs'   // API/library documentation (Context7)
+  | 'web-content'    // Captured web pages
+  | 'api-reference'  // API reference documentation
+  | 'code-example'   // Code snippets and examples
+  | 'tutorial'       // Tutorial content
+  | 'custom';        // User-uploaded or custom content
+
+/**
+ * Document database record - stores MCP documentation lookups
+ */
+export interface DocumentRecord {
+  id: number;
+  project: string;
+  source: string;               // Library ID, URL, or identifier
+  source_tool: string;          // MCP tool that captured this (e.g., mcp__context7__query-docs)
+  title: string | null;
+  content: string;              // Full documentation text
+  content_hash: string;         // SHA256 hash for deduplication
+  type: DocumentType;
+  metadata: string | null;      // JSON: { language, framework, version, query, etc. }
+  memory_session_id: string | null;
+  observation_id: number | null;
+  access_count: number;
+  last_accessed_epoch: number;
+  created_at: string;
+  created_at_epoch: number;
+}
+
+/**
  * Latest user prompt with session join
  */
 export interface LatestPromptResult {

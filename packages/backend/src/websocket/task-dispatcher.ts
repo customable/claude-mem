@@ -6,7 +6,8 @@
  */
 
 import { createLogger, getSettings } from '@claude-mem/shared';
-import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask } from '@claude-mem/types';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType } from '@claude-mem/types';
+import { createHash } from 'crypto';
 import type { WorkerHub } from './worker-hub.js';
 import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
 import type { TaskService } from '../services/task-service.js';
@@ -29,6 +30,8 @@ export interface TaskDispatcherOptions {
   sessions?: ISessionRepository;
   /** Summary repository for storing summaries */
   summaries?: ISummaryRepository;
+  /** Document repository for storing MCP documentation lookups */
+  documents?: IDocumentRepository;
   /** Task service for queueing follow-up tasks */
   taskService?: TaskService;
   /** CLAUDE.md repository for storing generated content */
@@ -46,6 +49,7 @@ export class TaskDispatcher {
   private readonly observations?: IObservationRepository;
   private readonly sessions?: ISessionRepository;
   private readonly summaries?: ISummaryRepository;
+  private readonly documents?: IDocumentRepository;
   private readonly taskService?: TaskService;
   private readonly claudemd?: SQLiteClaudeMdRepository;
 
@@ -61,6 +65,7 @@ export class TaskDispatcher {
     this.observations = options.observations;
     this.sessions = options.sessions;
     this.summaries = options.summaries;
+    this.documents = options.documents;
     this.taskService = options.taskService;
     this.claudemd = options.claudemd;
 
@@ -236,6 +241,9 @@ export class TaskDispatcher {
             observation.id,
             payload.sessionId
           );
+
+          // Store documentation if this is a documentation tool
+          await this.storeDocumentIfApplicable(payload, observation.id, memorySessionId);
         } else {
           logger.debug(`No observation content for task ${taskId}`);
         }
@@ -410,6 +418,149 @@ export class TaskDispatcher {
     } catch (error) {
       const err = error as Error;
       logger.error(`Error handling worker disconnect for ${workerId}:`, { message: err.message });
+    }
+  }
+
+  // ============================================
+  // Document Storage for MCP Documentation Tools
+  // ============================================
+
+  /**
+   * Documentation tools that should be stored as searchable documents
+   */
+  private static readonly DOCUMENTATION_TOOLS: Record<string, { type: DocumentType; extractSource: (input: string) => string }> = {
+    'mcp__context7__query-docs': {
+      type: 'library-docs',
+      extractSource: (input: string) => {
+        try {
+          const parsed = JSON.parse(input);
+          return parsed.libraryId || parsed.library_id || 'unknown';
+        } catch {
+          return 'context7';
+        }
+      },
+    },
+    'mcp__context7__resolve-library-id': {
+      type: 'library-docs',
+      extractSource: (input: string) => {
+        try {
+          const parsed = JSON.parse(input);
+          return parsed.libraryName || parsed.query || 'unknown';
+        } catch {
+          return 'context7-resolve';
+        }
+      },
+    },
+    'WebFetch': {
+      type: 'web-content',
+      extractSource: (input: string) => {
+        try {
+          const parsed = JSON.parse(input);
+          return parsed.url || 'unknown-url';
+        } catch {
+          // Try to extract URL from string
+          const urlMatch = input.match(/https?:\/\/[^\s"]+/);
+          return urlMatch ? urlMatch[0] : 'web-fetch';
+        }
+      },
+    },
+  };
+
+  /**
+   * Store documentation if the tool is a documentation tool
+   */
+  private async storeDocumentIfApplicable(
+    payload: ObservationTaskPayload,
+    observationId: number,
+    memorySessionId: string
+  ): Promise<void> {
+    if (!this.documents) return;
+
+    const toolConfig = TaskDispatcher.DOCUMENTATION_TOOLS[payload.toolName];
+    if (!toolConfig) return;
+
+    const content = payload.toolOutput;
+    if (!content || content.length < 100) {
+      logger.debug(`Tool output too short to store as document: ${payload.toolName}`);
+      return;
+    }
+
+    try {
+      // Generate content hash for deduplication
+      const contentHash = createHash('sha256').update(content).digest('hex');
+
+      // Check if document with same hash already exists
+      const existing = await this.documents.findByHash(contentHash);
+      if (existing) {
+        // Just record access and update the observation reference
+        await this.documents.recordAccess(existing.id);
+        logger.debug(`Document already exists (hash: ${contentHash.slice(0, 8)}), recorded access`);
+        return;
+      }
+
+      // Extract source identifier from tool input
+      const source = toolConfig.extractSource(payload.toolInput);
+
+      // Extract title from the content (first line or first heading)
+      const title = this.extractDocumentTitle(content, source);
+
+      // Build metadata
+      const metadata: Record<string, unknown> = {
+        query: this.extractQuery(payload.toolInput),
+        toolInput: payload.toolInput.slice(0, 500), // Store truncated input for reference
+      };
+
+      // Create the document
+      const document = await this.documents.create({
+        project: payload.project,
+        source,
+        sourceTool: payload.toolName,
+        title,
+        content,
+        contentHash,
+        type: toolConfig.type,
+        metadata,
+        memorySessionId,
+        observationId,
+      });
+
+      logger.info(`Document ${document.id} created for tool ${payload.toolName} (source: ${source})`);
+    } catch (error) {
+      const err = error as Error;
+      logger.warn(`Failed to store document for ${payload.toolName}:`, { message: err.message });
+      // Don't throw - document storage failure shouldn't fail the observation
+    }
+  }
+
+  /**
+   * Extract a title from document content
+   */
+  private extractDocumentTitle(content: string, fallback: string): string {
+    // Try to find a markdown heading
+    const headingMatch = content.match(/^#\s+(.+)$/m);
+    if (headingMatch) {
+      return headingMatch[1].trim().slice(0, 200);
+    }
+
+    // Try first non-empty line
+    const firstLine = content.split('\n').find(line => line.trim().length > 0);
+    if (firstLine && firstLine.length <= 200) {
+      return firstLine.trim();
+    }
+
+    // Fallback to source
+    return fallback;
+  }
+
+  /**
+   * Extract query from tool input
+   */
+  private extractQuery(toolInput: string): string | undefined {
+    try {
+      const parsed = JSON.parse(toolInput);
+      return parsed.query || parsed.prompt || parsed.search;
+    } catch {
+      return undefined;
     }
   }
 

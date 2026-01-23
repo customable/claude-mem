@@ -255,6 +255,7 @@ export class BackendService {
           observations: this.unitOfWork.observations,
           sessions: this.unitOfWork.sessions,
           summaries: this.unitOfWork.summaries,
+          documents: this.unitOfWork.documents,
           taskService: this.taskService,
           claudemd: this.unitOfWork.claudemd,
         }
@@ -299,6 +300,7 @@ export class BackendService {
       observations: this.unitOfWork!.observations,
       summaries: this.unitOfWork!.summaries,
       sessions: this.unitOfWork!.sessions,
+      documents: this.unitOfWork!.documents,
     }).router);
 
     // Search routes
