@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.17.0] - 2026-01-23
+
+### Features
+- Added observation-based trigger for CLAUDE.md generation
+- Automatically create CLAUDE.md files for all subdirectories with observations
+
+### Bug Fixes
+- Reduced task timeouts and queue overload for claude-md tasks
+
+### Improvements
+- Updated CLAUDE.md documentation files
+- Updated auto-generated CLAUDE.md files
+- Added SSE writer updates to CLAUDE.md documentation
+
+
 ## [2.16.0] - 2026-01-23
 
 ### Features
