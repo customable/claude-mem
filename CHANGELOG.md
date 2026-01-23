@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.9.0] - 2026-01-23
+
+### Features
+- Added MCP documentation storage for Context7 and WebFetch
+
+
 ## [2.8.0] - 2026-01-23
 
 ### Features
