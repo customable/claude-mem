@@ -4,7 +4,7 @@
  * Full-text and semantic search with filters.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 import { TYPE_CONFIG, getTypeConfig } from '../utils/observation';
@@ -27,16 +27,17 @@ export function SearchView() {
   const { data: projectsData } = useQuery(() => api.getProjects(), []);
   const projects = projectsData?.projects?.filter(Boolean) || [];
 
-  const handleSearch = async () => {
-    if (!query.trim()) return;
+  // Memoized search function
+  const doSearch = useCallback(async (searchQuery: string, projectFilter: string) => {
+    if (!searchQuery.trim()) return;
 
     setIsSearching(true);
     setHasSearched(true);
 
     try {
       const response = await api.searchSemantic({
-        query,
-        project: filters.project || undefined,
+        query: searchQuery,
+        project: projectFilter || undefined,
         limit: 30,
       });
 
@@ -49,6 +50,17 @@ export function SearchView() {
     } finally {
       setIsSearching(false);
     }
+  }, []);
+
+  // Auto-search when project filter changes (only if already searched)
+  useEffect(() => {
+    if (hasSearched && query.trim()) {
+      doSearch(query, filters.project);
+    }
+  }, [filters.project]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSearch = () => {
+    doSearch(query, filters.project);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
