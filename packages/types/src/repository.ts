@@ -122,6 +122,11 @@ export interface ISessionRepository {
    * Delete a session and related data
    */
   delete(id: number): Promise<boolean>;
+
+  /**
+   * Get all distinct project names
+   */
+  getDistinctProjects(): Promise<string[]>;
 }
 
 // ============================================
@@ -260,6 +265,11 @@ export interface ISummaryRepository {
    * List summaries with optional filters
    */
   list(filters?: SummaryQueryFilters, options?: QueryOptions): Promise<SessionSummaryRecord[]>;
+
+  /**
+   * Count summaries matching filters
+   */
+  count(filters?: SummaryQueryFilters): Promise<number>;
 
   /**
    * Get summaries for a session

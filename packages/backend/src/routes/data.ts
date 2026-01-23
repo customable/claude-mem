@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ObservationType, TaskStatus } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, ObservationType, TaskStatus } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -32,6 +32,8 @@ export interface DataRouterDeps {
   sessionService: SessionService;
   taskService: TaskService;
   observations: IObservationRepository;
+  summaries: ISummaryRepository;
+  sessions: ISessionRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -57,6 +59,9 @@ export class DataRouter extends BaseRouter {
 
     // Stats
     this.router.get('/stats', this.asyncHandler(this.getStats.bind(this)));
+
+    // Projects
+    this.router.get('/projects', this.asyncHandler(this.listProjects.bind(this)));
   }
 
   /**
@@ -223,21 +228,30 @@ export class DataRouter extends BaseRouter {
    */
   private async getStats(req: Request, res: Response): Promise<void> {
     const { project } = req.query;
+    const projectFilter = getString(project);
 
-    const sessionCount = await this.deps.sessionService.getSessionCount({
-      project: getString(project),
-    });
-
-    const observationCount = await this.deps.observations.count({
-      project: getString(project),
-    });
-
-    const taskCounts = await this.deps.taskService.getQueueStatus();
+    const [sessionCount, observationCount, summaryCount, taskCounts, distinctProjects] = await Promise.all([
+      this.deps.sessionService.getSessionCount({ project: projectFilter }),
+      this.deps.observations.count({ project: projectFilter }),
+      this.deps.summaries.count({ project: projectFilter }),
+      this.deps.taskService.getQueueStatus(),
+      this.deps.sessions.getDistinctProjects(),
+    ]);
 
     this.success(res, {
       sessions: sessionCount,
       observations: observationCount,
+      summaries: summaryCount,
+      projects: distinctProjects.length,
       tasks: taskCounts,
     });
+  }
+
+  /**
+   * GET /api/data/projects
+   */
+  private async listProjects(_req: Request, res: Response): Promise<void> {
+    const projects = await this.deps.sessions.getDistinctProjects();
+    this.success(res, { projects });
   }
 }

@@ -25,7 +25,7 @@ export class SQLiteSummaryRepository implements ISummaryRepository {
 
     const result = this.db
       .query<{ id: number }, BindingValue[]>(`
-        INSERT INTO summaries (
+        INSERT INTO session_summaries (
           memory_session_id, project, request, investigated, learned,
           completed, next_steps, prompt_number, discovery_tokens,
           created_at, created_at_epoch
@@ -52,7 +52,7 @@ export class SQLiteSummaryRepository implements ISummaryRepository {
 
   async findById(id: number): Promise<SessionSummaryRecord | null> {
     return this.db
-      .query<SessionSummaryRecord, [number]>('SELECT * FROM summaries WHERE id = ?')
+      .query<SessionSummaryRecord, [number]>('SELECT * FROM session_summaries WHERE id = ?')
       .get(id) || null;
   }
 
@@ -80,13 +80,13 @@ export class SQLiteSummaryRepository implements ISummaryRepository {
     }
 
     values.push(id);
-    this.db.query(`UPDATE summaries SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+    this.db.query(`UPDATE session_summaries SET ${updates.join(', ')} WHERE id = ?`).run(...values);
 
     return this.findById(id);
   }
 
   async list(filters?: SummaryQueryFilters, options?: QueryOptions): Promise<SessionSummaryRecord[]> {
-    let sql = 'SELECT * FROM summaries WHERE 1=1';
+    let sql = 'SELECT * FROM session_summaries WHERE 1=1';
     const params: BindingValue[] = [];
 
     if (filters?.project) {
@@ -129,7 +129,7 @@ export class SQLiteSummaryRepository implements ISummaryRepository {
   async getBySessionId(memorySessionId: string): Promise<SessionSummaryRecord[]> {
     return this.db
       .query<SessionSummaryRecord, [string]>(`
-        SELECT * FROM summaries
+        SELECT * FROM session_summaries
         WHERE memory_session_id = ?
         ORDER BY created_at_epoch DESC
       `)
@@ -139,7 +139,7 @@ export class SQLiteSummaryRepository implements ISummaryRepository {
   async getLatestForProject(project: string): Promise<SessionSummaryRecord | null> {
     return this.db
       .query<SessionSummaryRecord, [string]>(`
-        SELECT * FROM summaries
+        SELECT * FROM session_summaries
         WHERE project = ?
         ORDER BY created_at_epoch DESC
         LIMIT 1
@@ -148,7 +148,24 @@ export class SQLiteSummaryRepository implements ISummaryRepository {
   }
 
   async delete(id: number): Promise<boolean> {
-    const result = this.db.query('DELETE FROM summaries WHERE id = ?').run(id);
+    const result = this.db.query('DELETE FROM session_summaries WHERE id = ?').run(id);
     return result.changes > 0;
+  }
+
+  async count(filters?: SummaryQueryFilters): Promise<number> {
+    let sql = 'SELECT COUNT(*) as count FROM session_summaries WHERE 1=1';
+    const params: BindingValue[] = [];
+
+    if (filters?.project) {
+      sql += ' AND project = ?';
+      params.push(filters.project);
+    }
+    if (filters?.sessionId) {
+      sql += ' AND memory_session_id = ?';
+      params.push(filters.sessionId);
+    }
+
+    const result = this.db.query<{ count: number }, BindingValue[]>(sql).get(...params);
+    return result?.count ?? 0;
   }
 }

@@ -55,11 +55,16 @@ export function del<T>(path: string): Promise<T> {
 // ============================================
 
 export interface Session {
-  id: string;
+  id: number;
+  content_session_id: string;
+  memory_session_id: string;
   project: string;
+  user_prompt: string;
+  started_at: string;
+  completed_at: string | null;
   status: string;
-  createdAt: string;
-  observationCount: number;
+  observation_count: number;
+  prompt_count: number;
 }
 
 export interface Observation {
@@ -93,6 +98,8 @@ export interface Worker {
 export interface Stats {
   sessions: number;
   observations: number;
+  summaries: number;
+  projects: number;
   tasks: {
     pending: number;
     processing: number;
@@ -116,31 +123,79 @@ export interface HealthStatus {
 
 export const api = {
   // Health
-  getHealth: () => get<HealthStatus>('/health'),
+  getHealth: () => get<HealthStatus & { version?: string }>('/health'),
 
   // Stats
-  getStats: () => get<{ data: Stats }>('/data/stats'),
+  getStats: () => get<Stats>('/data/stats'),
+
+  // Projects
+  getProjects: () => get<{ projects: string[] }>('/data/projects').catch(() => ({ projects: [] })),
 
   // Sessions
-  getSessions: (params?: { limit?: number; offset?: number }) => {
-    const query = params ? `?limit=${params.limit || 50}&offset=${params.offset || 0}` : '';
-    return get<{ data: Session[]; total: number }>(`/data/sessions${query}`);
+  getSessions: (params?: Record<string, string | number>) => {
+    const query = new URLSearchParams();
+    if (params) {
+      for (const [key, val] of Object.entries(params)) {
+        query.set(key, String(val));
+      }
+    }
+    const queryStr = query.toString();
+    return get<{ data: Session[]; total: number; items?: Session[] }>(`/data/sessions${queryStr ? '?' + queryStr : ''}`).then(res => ({
+      items: res.data || res.items || [],
+      total: res.total,
+    }));
   },
   getSession: (id: string) => get<Session>(`/data/sessions/${id}`),
   deleteSession: (id: string) => del<void>(`/data/sessions/${id}`),
 
   // Observations
-  getObservations: (params?: { limit?: number; offset?: number; project?: string }) => {
+  getObservations: (params?: Record<string, string | number>) => {
     const query = new URLSearchParams();
-    if (params?.limit) query.set('limit', String(params.limit));
-    if (params?.offset) query.set('offset', String(params.offset));
-    if (params?.project) query.set('project', params.project);
+    if (params) {
+      for (const [key, val] of Object.entries(params)) {
+        query.set(key, String(val));
+      }
+    }
     const queryStr = query.toString();
-    return get<{ data: Observation[]; total: number }>(`/data/observations${queryStr ? '?' + queryStr : ''}`);
+    return get<{ data: Observation[]; total: number; items?: Observation[] }>(`/data/observations${queryStr ? '?' + queryStr : ''}`).then(res => ({
+      items: res.data || res.items || [],
+      total: res.total,
+    }));
   },
   getObservation: (id: number) => get<Observation>(`/data/observations/${id}`),
+
+  // Search
+  search: (params: { query: string; project?: string; type?: string; limit?: number }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.set('query', params.query);
+    if (params.project) queryParams.set('project', params.project);
+    if (params.type) queryParams.set('type', params.type);
+    if (params.limit) queryParams.set('limit', String(params.limit));
+    return get<{ items: Observation[]; total: number; query: string }>(`/search?${queryParams}`);
+  },
+  searchSemantic: (params: { query: string; project?: string; limit?: number }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.set('query', params.query);
+    if (params.project) queryParams.set('project', params.project);
+    if (params.limit) queryParams.set('limit', String(params.limit));
+    return get<{ items: Observation[]; total: number; query: string; mode: string }>(`/search/semantic?${queryParams}`);
+  },
 
   // Workers
   getWorkers: () => get<{ data: Worker[]; total: number }>('/workers'),
   getWorkerStats: () => get<{ totalConnected: number }>('/workers/stats'),
+
+  // Settings
+  getSettings: () => get<Record<string, unknown>>('/settings'),
+  saveSettings: (settings: Record<string, unknown>) => post<{ success: boolean }>('/settings', settings),
+
+  // Logs
+  getLogs: (params?: { level?: string; context?: string; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.level) query.set('level', params.level);
+    if (params?.context) query.set('context', params.context);
+    if (params?.limit) query.set('limit', String(params.limit));
+    const queryStr = query.toString();
+    return get<{ entries: Array<{ timestamp: number; level: string; context: string; message: string; data?: unknown }> }>(`/logs${queryStr ? '?' + queryStr : ''}`);
+  },
 };

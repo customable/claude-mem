@@ -37,7 +37,7 @@ export function ObservationList({ project }: Props) {
   const [offset, setOffset] = useState(0);
 
   const { data, loading, error, refetch } = useQuery(
-    () => api.getObservations({ limit, offset, project }),
+    () => api.getObservations({ limit, offset, project: project || '' }),
     [limit, offset, project]
   );
 
@@ -59,7 +59,7 @@ export function ObservationList({ project }: Props) {
     );
   }
 
-  const observations = data?.data || [];
+  const observations: Observation[] = data?.items || [];
   const total = data?.total || 0;
 
   return (

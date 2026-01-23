@@ -17,3 +17,5 @@ export { LogsRouter } from './logs.js';
 export type { LogsRouterDeps } from './logs.js';
 export { SettingsRouter } from './settings.js';
 export type { SettingsRouterDeps } from './settings.js';
+export { SearchRouter } from './search.js';
+export type { SearchRouterDeps } from './search.js';

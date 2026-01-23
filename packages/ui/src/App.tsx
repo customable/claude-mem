@@ -4,19 +4,59 @@
  * Dashboard layout with DaisyUI 5+
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from './components/StatusBar';
 import { ObservationList } from './components/ObservationList';
 import { WorkerStatus } from './components/WorkerStatus';
 import { Console } from './components/Console';
+import { DashboardView } from './views/Dashboard';
+import { SessionsView } from './views/Sessions';
 import { SearchView } from './views/Search';
 import { SettingsView } from './views/Settings';
 
-type View = 'observations' | 'workers' | 'search' | 'settings';
+type View = 'dashboard' | 'observations' | 'sessions' | 'workers' | 'search' | 'settings';
+
+const VALID_VIEWS: View[] = ['dashboard', 'observations', 'sessions', 'workers', 'search', 'settings'];
+
+function getViewFromHash(): View {
+  const hash = window.location.hash.slice(1).split('?')[0]; // Remove # and query params
+  if (VALID_VIEWS.includes(hash as View)) {
+    return hash as View;
+  }
+  return 'dashboard';
+}
+
+function setViewInHash(view: View): void {
+  window.history.pushState(null, '', `#${view}`);
+}
 
 export function App() {
-  const [view, setView] = useState<View>('observations');
+  const [view, setView] = useState<View>(getViewFromHash);
   const [consoleOpen, setConsoleOpen] = useState(false);
+
+  // Handle browser back/forward
+  useEffect(() => {
+    const handleHashChange = () => {
+      setView(getViewFromHash());
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Navigate to view (updates both state and hash)
+  const navigateTo = (newView: View) => {
+    setView(newView);
+    setViewInHash(newView);
+  };
+
+  const tabs: { id: View; label: string; icon: string }[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: 'ph--house' },
+    { id: 'observations', label: 'Observations', icon: 'ph--brain' },
+    { id: 'sessions', label: 'Sessions', icon: 'ph--clock-counter-clockwise' },
+    { id: 'search', label: 'Search', icon: 'ph--magnifying-glass' },
+    { id: 'workers', label: 'Workers', icon: 'ph--cpu' },
+    { id: 'settings', label: 'Settings', icon: 'ph--gear' },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col" data-theme="dark">
@@ -29,38 +69,17 @@ export function App() {
         {/* Navigation Tabs */}
         <div className="flex-none">
           <div role="tablist" className="tabs tabs-box">
-            <button
-              role="tab"
-              className={`tab ${view === 'observations' ? 'tab-active' : ''}`}
-              onClick={() => setView('observations')}
-            >
-              <span className="iconify ph--note size-4 mr-1.5" />
-              Observations
-            </button>
-            <button
-              role="tab"
-              className={`tab ${view === 'workers' ? 'tab-active' : ''}`}
-              onClick={() => setView('workers')}
-            >
-              <span className="iconify ph--cpu size-4 mr-1.5" />
-              Workers
-            </button>
-            <button
-              role="tab"
-              className={`tab ${view === 'search' ? 'tab-active' : ''}`}
-              onClick={() => setView('search')}
-            >
-              <span className="iconify ph--magnifying-glass size-4 mr-1.5" />
-              Search
-            </button>
-            <button
-              role="tab"
-              className={`tab ${view === 'settings' ? 'tab-active' : ''}`}
-              onClick={() => setView('settings')}
-            >
-              <span className="iconify ph--gear size-4 mr-1.5" />
-              Settings
-            </button>
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                role="tab"
+                className={`tab ${view === tab.id ? 'tab-active' : ''}`}
+                onClick={() => navigateTo(tab.id)}
+              >
+                <span className={`iconify ${tab.icon} size-4 mr-1.5`} />
+                <span className="hidden sm:inline">{tab.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -80,9 +99,11 @@ export function App() {
       {/* Main Content */}
       <main className={`flex-1 p-4 lg:p-6 ${consoleOpen ? 'pb-80' : ''}`}>
         <div className="container max-w-6xl mx-auto">
+          {view === 'dashboard' && <DashboardView />}
           {view === 'observations' && <ObservationList />}
-          {view === 'workers' && <WorkerStatus />}
+          {view === 'sessions' && <SessionsView />}
           {view === 'search' && <SearchView />}
+          {view === 'workers' && <WorkerStatus />}
           {view === 'settings' && <SettingsView />}
         </div>
       </main>

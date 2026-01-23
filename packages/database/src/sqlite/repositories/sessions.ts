@@ -175,4 +175,11 @@ export class SQLiteSessionRepository implements ISessionRepository {
     const result = this.db.query('DELETE FROM sdk_sessions WHERE id = ?').run(id);
     return result.changes > 0;
   }
+
+  async getDistinctProjects(): Promise<string[]> {
+    const results = this.db
+      .query<{ project: string }, []>('SELECT DISTINCT project FROM sdk_sessions ORDER BY project')
+      .all();
+    return results.map(r => r.project);
+  }
 }

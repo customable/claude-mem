@@ -25,6 +25,7 @@ import {
   WorkersRouter,
   LogsRouter,
   SettingsRouter,
+  SearchRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -242,6 +243,13 @@ export class BackendService {
     this.app.use('/api/data', new DataRouter({
       sessionService: this.sessionService!,
       taskService: this.taskService!,
+      observations: this.unitOfWork!.observations,
+      summaries: this.unitOfWork!.summaries,
+      sessions: this.unitOfWork!.sessions,
+    }).router);
+
+    // Search routes
+    this.app.use('/api/search', new SearchRouter({
       observations: this.unitOfWork!.observations,
     }).router);
 

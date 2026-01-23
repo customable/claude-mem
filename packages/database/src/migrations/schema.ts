@@ -107,7 +107,7 @@ export const OBSERVATIONS_FTS_TRIGGERS = `
  * Summaries table - session summaries
  */
 export const SUMMARIES_TABLE = `
-  CREATE TABLE IF NOT EXISTS summaries (
+  CREATE TABLE IF NOT EXISTS session_summaries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     memory_session_id TEXT NOT NULL,
     project TEXT NOT NULL,
@@ -124,9 +124,9 @@ export const SUMMARIES_TABLE = `
 `;
 
 export const SUMMARIES_INDEXES = `
-  CREATE INDEX IF NOT EXISTS idx_summaries_session ON summaries(memory_session_id);
-  CREATE INDEX IF NOT EXISTS idx_summaries_project ON summaries(project);
-  CREATE INDEX IF NOT EXISTS idx_summaries_created ON summaries(created_at_epoch DESC);
+  CREATE INDEX IF NOT EXISTS idx_summaries_session ON session_summaries(memory_session_id);
+  CREATE INDEX IF NOT EXISTS idx_summaries_project ON session_summaries(project);
+  CREATE INDEX IF NOT EXISTS idx_summaries_created ON session_summaries(created_at_epoch DESC);
 `;
 
 /**
