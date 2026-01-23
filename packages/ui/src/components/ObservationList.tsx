@@ -8,24 +8,39 @@ import { useState } from 'react';
 import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 
-const TYPE_ICONS: Record<string, string> = {
-  bugfix: 'ph--bug',
-  feature: 'ph--star',
-  refactor: 'ph--arrows-clockwise',
-  change: 'ph--check-circle',
-  discovery: 'ph--magnifying-glass',
-  decision: 'ph--scales',
-  'session-request': 'ph--chat-text',
-};
-
-const TYPE_COLORS: Record<string, string> = {
-  bugfix: 'text-error',
-  feature: 'text-secondary',
-  refactor: 'text-info',
-  change: 'text-success',
-  discovery: 'text-primary',
-  decision: 'text-warning',
-  'session-request': 'text-base-content/60',
+/**
+ * Observation type configuration for UI rendering
+ */
+const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
+  // Work Types
+  bugfix: { icon: 'ph--bug', color: 'text-error', label: 'Bug Fix' },
+  feature: { icon: 'ph--star', color: 'text-secondary', label: 'Feature' },
+  refactor: { icon: 'ph--arrows-clockwise', color: 'text-info', label: 'Refactor' },
+  change: { icon: 'ph--check-circle', color: 'text-success', label: 'Change' },
+  // Documentation & Config
+  docs: { icon: 'ph--file-text', color: 'text-base-content', label: 'Documentation' },
+  config: { icon: 'ph--gear', color: 'text-base-content/80', label: 'Config' },
+  // Quality & Testing
+  test: { icon: 'ph--test-tube', color: 'text-accent', label: 'Test' },
+  security: { icon: 'ph--shield-check', color: 'text-error', label: 'Security' },
+  performance: { icon: 'ph--lightning', color: 'text-warning', label: 'Performance' },
+  // Infrastructure
+  deploy: { icon: 'ph--rocket-launch', color: 'text-primary', label: 'Deployment' },
+  infra: { icon: 'ph--buildings', color: 'text-neutral', label: 'Infrastructure' },
+  migration: { icon: 'ph--database', color: 'text-info', label: 'Migration' },
+  // Knowledge Types
+  discovery: { icon: 'ph--magnifying-glass', color: 'text-primary', label: 'Discovery' },
+  decision: { icon: 'ph--scales', color: 'text-warning', label: 'Decision' },
+  research: { icon: 'ph--flask', color: 'text-primary', label: 'Research' },
+  // Integration
+  api: { icon: 'ph--plugs-connected', color: 'text-secondary', label: 'API' },
+  integration: { icon: 'ph--link', color: 'text-accent', label: 'Integration' },
+  dependency: { icon: 'ph--package', color: 'text-base-content/70', label: 'Dependency' },
+  // Planning & Tasks
+  task: { icon: 'ph--check-square', color: 'text-accent', label: 'Task' },
+  plan: { icon: 'ph--list-checks', color: 'text-info', label: 'Plan' },
+  // Session
+  'session-request': { icon: 'ph--chat-text', color: 'text-base-content/60', label: 'Request' },
 };
 
 interface Props {
@@ -140,8 +155,7 @@ function shortenPath(path: string): string {
 
 function ObservationItem({ observation }: { observation: Observation }) {
   const [expanded, setExpanded] = useState(false);
-  const iconClass = TYPE_ICONS[observation.type] || 'ph--dot';
-  const colorClass = TYPE_COLORS[observation.type] || 'text-base-content';
+  const config = TYPE_CONFIG[observation.type] || { icon: 'ph--dot', color: 'text-base-content', label: observation.type };
   const date = new Date(observation.created_at).toLocaleString();
 
   // Parse JSON fields
@@ -159,7 +173,7 @@ function ObservationItem({ observation }: { observation: Observation }) {
       >
         <div className="flex items-center gap-3">
           {/* Type Icon */}
-          <span className={`iconify ${iconClass} size-5 ${colorClass} shrink-0`} />
+          <span className={`iconify ${config.icon} size-5 ${config.color} shrink-0`} />
 
           {/* Title & Subtitle */}
           <div className="flex-1 min-w-0">

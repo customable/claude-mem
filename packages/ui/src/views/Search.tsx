@@ -8,14 +8,40 @@ import { useState } from 'react';
 import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 
-const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
-  bugfix: { icon: 'ph--bug', color: 'text-error', label: 'Bug Fix' },
-  feature: { icon: 'ph--star', color: 'text-secondary', label: 'Feature' },
-  refactor: { icon: 'ph--arrows-clockwise', color: 'text-info', label: 'Refactor' },
-  change: { icon: 'ph--check-circle', color: 'text-success', label: 'Change' },
-  discovery: { icon: 'ph--magnifying-glass', color: 'text-primary', label: 'Discovery' },
-  decision: { icon: 'ph--scales', color: 'text-warning', label: 'Decision' },
-  'session-request': { icon: 'ph--chat-text', color: 'text-base-content/60', label: 'Request' },
+/**
+ * Observation type configuration for UI rendering
+ * Matches @claude-mem/types OBSERVATION_TYPES
+ */
+const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string; emoji: string }> = {
+  // Work Types
+  bugfix: { icon: 'ph--bug', color: 'text-error', label: 'Bug Fix', emoji: '🔴' },
+  feature: { icon: 'ph--star', color: 'text-secondary', label: 'Feature', emoji: '🟣' },
+  refactor: { icon: 'ph--arrows-clockwise', color: 'text-info', label: 'Refactor', emoji: '🔄' },
+  change: { icon: 'ph--check-circle', color: 'text-success', label: 'Change', emoji: '✅' },
+  // Documentation & Config
+  docs: { icon: 'ph--file-text', color: 'text-base-content', label: 'Documentation', emoji: '📝' },
+  config: { icon: 'ph--gear', color: 'text-base-content/80', label: 'Config', emoji: '⚙️' },
+  // Quality & Testing
+  test: { icon: 'ph--test-tube', color: 'text-accent', label: 'Test', emoji: '🧪' },
+  security: { icon: 'ph--shield-check', color: 'text-error', label: 'Security', emoji: '🔒' },
+  performance: { icon: 'ph--lightning', color: 'text-warning', label: 'Performance', emoji: '⚡' },
+  // Infrastructure
+  deploy: { icon: 'ph--rocket-launch', color: 'text-primary', label: 'Deployment', emoji: '🚀' },
+  infra: { icon: 'ph--buildings', color: 'text-neutral', label: 'Infrastructure', emoji: '🏗️' },
+  migration: { icon: 'ph--database', color: 'text-info', label: 'Migration', emoji: '🔀' },
+  // Knowledge Types
+  discovery: { icon: 'ph--magnifying-glass', color: 'text-primary', label: 'Discovery', emoji: '🔵' },
+  decision: { icon: 'ph--scales', color: 'text-warning', label: 'Decision', emoji: '⚖️' },
+  research: { icon: 'ph--flask', color: 'text-primary', label: 'Research', emoji: '🔬' },
+  // Integration
+  api: { icon: 'ph--plugs-connected', color: 'text-secondary', label: 'API', emoji: '🔌' },
+  integration: { icon: 'ph--link', color: 'text-accent', label: 'Integration', emoji: '🔗' },
+  dependency: { icon: 'ph--package', color: 'text-base-content/70', label: 'Dependency', emoji: '📦' },
+  // Planning & Tasks
+  task: { icon: 'ph--check-square', color: 'text-accent', label: 'Task', emoji: '☑️' },
+  plan: { icon: 'ph--list-checks', color: 'text-info', label: 'Plan', emoji: '📋' },
+  // Session
+  'session-request': { icon: 'ph--chat-text', color: 'text-base-content/60', label: 'Request', emoji: '💬' },
 };
 
 interface SearchFilters {
