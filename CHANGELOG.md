@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.13.2] - 2026-01-23
+
+### Bug Fixes
+- Fixed missing path for `sse-writer.js` in handlers directory
+
+
 ## [2.13.1] - 2026-01-23
 
 ### Bug Fixes
