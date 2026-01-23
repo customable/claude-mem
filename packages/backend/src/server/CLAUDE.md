@@ -11,9 +11,9 @@
 
 ## Key Insights
 
-- Project uses modular architecture with distributed CLAUDE.md files across packages
-- Key components identified: MikroORM repositories, WebSocket clients, SSE Writer, and API client
-- Performance bottlenecks exist in task processing that need investigation
-- Documentation generation is now triggered by observations
-- Some expected server files are missing, indicating non-standard naming conventions
+- **Task Queue Optimization**: Implemented configurable timeouts and subdirectory limits for CLAUDE.md tasks to address queue overload issues.
+- **Performance Bottlenecks**: Identified task processing bottlenecks and distributed documentation across packages, requiring further optimization.
+- **Modular Architecture**: Discovered key components like MikroORM repositories, WebSocket clients, and SSE Writer, indicating a structured but non-standard naming approach.
+- **Next Steps**: Monitor task queue performance, investigate root causes of timeouts, and clarify missing file locations for deeper system understanding.
+- **Documentation**: Distributed CLAUDE.md files across packages; consolidation may be needed for better maintainability.
 </claude-mem-context>

@@ -7,15 +7,18 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #11873 | 10:38 PM | 🔵 | Database model types for claude-mem | ~5210 |
-| #11861 | 10:36 PM | 🔵 | Task system architecture | ~2514 |
-| #11776 | 10:20 PM | 🔵 | Task system structure | ~1164 |
+| #12034 | 11:08 PM | 🔵 | Task system architecture overview | ~2546 |
+| #12027 | 11:08 PM | 🔵 | Observation type definitions found | ~1857 |
+| #12015 | 11:07 PM | 🔵 | Task system architecture overview | ~2515 |
+| #11873 | 10:38 PM | 🔵 | Database model types examined | ~5210 |
+| #11861 | 10:36 PM | 🔵 | Backend-Worker task system | ~2514 |
+| #11776 | 10:20 PM | 🔵 | Task management system structure | ~1164 |
 
 ## Key Insights
 
-- **Database & Task Architecture**: Core systems include observation categorization, task assignment (pending/processing/completed), and worker capability matching.
-- **Modular Documentation**: Uses distributed `CLAUDE.md` files for context tracking across components.
-- **SSE Integration**: Real-time updates via Server-Sent Events (SSE) are critical but have directory mismatch errors in `SSE-Writer`.
-- **Priority Handling**: Task queue system supports priority-based processing (e.g., high-priority observations).
-- **Next Steps**: Fix `SSE-Writer` directory errors and ensure consistent `CLAUDE.md` generation across modules.
+- **Task System Architecture**: The backend creates tasks (observation, summarization, etc.) and assigns them to workers based on capabilities. Task statuses include pending, assigned, processing, completed, and failed.
+- **Database Model**: The `database.ts` file defines 18 observation types (bugfix, feature, refactor, etc.) and is central to categorizing work.
+- **Endless Mode Bottleneck**: Current synchronous processing causes ~110-second delays; asynchronous processing is needed.
+- **Proposed MCP Tool**: A new tool for cached document search is required to improve efficiency.
+- **Modular Monorepo**: The project uses separate packages for backend, database, hooks, and workers, with WebSocket-based task dispatching.
 </claude-mem-context>

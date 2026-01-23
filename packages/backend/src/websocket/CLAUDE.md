@@ -7,29 +7,33 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #12013 | 11:07 PM | 🔵 | Task Dispatcher Architecture Overview | ~2359 |
+| #11984 | 11:03 PM | 🟠 | Add task-type-specific timeout config | ~5140 |
+| #11983 | 11:02 PM | 🟠 | Added subdirectory limit for CLAUDE.md | ~4969 |
+| #11982 | 11:02 PM | 🟣 | Limit subdirectory processing | ~5139 |
 | #11975 | 11:01 PM | 🔵 | Examining Task Dispatcher Implementation | ~4710 |
 | #11908 | 10:47 PM | 🔵 | Worker Hub WebSocket Management | ~5235 |
 | #11901 | 10:43 PM | 🟠 | Added CLAUDE.md auto-generation | ~5927 |
 | #11892 | 10:42 PM | 🟠 | CLAUDE.md generation trigger | ~4826 |
-| #11891 | 10:42 PM | 🟠 | Session observation count tracking | ~4891 |
+| #11891 | 10:42 PM | 🟠 | Add session observation count tracking | ~4891 |
 | #11885 | 10:41 PM | 🔵 | Task Dispatcher Architecture Analysis | ~4736 |
 | #11844 | 10:31 PM | 🟣 | Update comment for clarity | ~4556 |
 | #11843 | 10:31 PM | 🔄 | Renamed method for observations | ~4732 |
-| #11842 | 10:31 PM | 🔵 | Task dispatcher queues subdirectory tasks | ~1023 |
-| #11841 | 10:30 PM | 🔄 | Renamed method and simplified logic | ~5370 |
-| #11839 | 10:30 PM | 🔵 | Subdirectory CLAUDE.md detection | ~1267 |
+| #11842 | 10:31 PM | 🔵 | Subdirectory CLAUDE.md detection | ~1023 |
+| #11841 | 10:31 PM | 🔄 | Renamed method and simplified logic | ~5370 |
+| #11839 | 10:30 PM | 🔵 | Subdirectory CLAUDE.md detection logic | ~1267 |
 | #11820 | 10:27 PM | 🔵 | Task dispatcher handles summarize tasks | ~1257 |
 | #11816 | 10:27 PM | 🔵 | Session handling in task-dispatcher.ts | ~871 |
 | #11812 | 10:26 PM | 🔵 | CLAUDE.md generation queued after summary | ~1159 |
 | #11810 | 10:26 PM | 🔵 | Claude-md task handling | ~1303 |
 | #11801 | 10:24 PM | 🔵 | CLAUDE.md generation task queueing logic | ~1421 |
-| #11799 | 10:24 PM | 🔵 | Task completion logic in WebSocket dispatcher | ~1184 |
+| #11799 | 10:24 PM | 🔵 | Task completion logic in WebSocket | ~1184 |
 
 ## Key Insights
 
-- **Task Dispatcher Enhancements**: Added observation count tracking and auto-generation of CLAUDE.md after a configurable number of observations, improving documentation automation.
-- **Architecture Clarity**: Refactored method names (e.g., `getSubdirectoriesWithClaudeMd` → `getSubdirectoriesWithObservations`) to better reflect functionality and simplify logic.
-- **WebSocket & SSE Integration**: The system uses WebSocket for worker communication and SSE for real-time updates, with tasks queued for both root and subdirectories.
-- **Performance Focus**: Identified bottlenecks in task processing and optimized documentation generation triggers.
-- **Modular Structure**: The project uses a distributed approach with MikroORM for data handling and modular components like ObservationRepository and API client.
+- **Task Queue Optimization**: Added configurable timeouts (`CLAUDEMD_TASK_TIMEOUT`) and subdirectory limits (`CLAUDEMD_MAX_SUBDIRS`) to prevent queue overload during CLAUDE.md generation.
+- **Auto-Generation Logic**: Implemented automatic CLAUDE.md generation triggers based on observation counts (`maybeQueueClaudeMdForObservation`), enhancing documentation workflow.
+- **Architecture Clarity**: Refactored method names (e.g., `getSubdirectoriesWithClaudeMd` → `getSubdirectoriesWithObservations`) for better code readability and maintainability.
+- **Task Prioritization**: Lowered priority for CLAUDE.md tasks to reduce bottlenecks, improving overall task queue performance.
+- **Session Tracking**: Added `sessionObservationCounts` to track observations per session, supporting dynamic CLAUDE.md generation.
 </claude-mem-context>

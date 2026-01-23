@@ -7,24 +7,27 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #12019 | 11:07 PM | 🔵 | Examining Task Service Implementation | ~2105 |
+| #12008 | 11:07 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~1744 |
+| #11985 | 11:03 PM | 🟣 | Lowered priority for claude-md tasks | ~4851 |
 | #11976 | 11:01 PM | 🔵 | Task Service Architecture Overview | ~4418 |
-| #11904 | 10:44 PM | 🔵 | CLAUDE.md generation mechanism | ~1535 |
-| #11900 | 10:43 PM | 🔄 | Remove unused import 'loadSettings' | ~3982 |
-| #11898 | 10:43 PM | 🔵 | Session-service dependencies | ~805 |
-| #11897 | 10:43 PM | 🔄 | Removed maybeQueueClaudeMd method | ~5471 |
-| #11896 | 10:43 PM | 🔄 | CLAUDE.md generation refactor | ~4865 |
-| #11895 | 10:43 PM | 🔵 | Session creation logic | ~1432 |
-| #11894 | 10:42 PM | 🔄 | Remove CLAUDEMD_INTERVAL constant | ~4559 |
-| #11865 | 10:37 PM | 🔵 | Task Service Architecture | ~4418 |
-| #11859 | 10:36 PM | 🔵 | Session Service Architecture | ~4510 |
-| #11811 | 10:26 PM | 🔵 | Task Service Creates Claude-MD Tasks | ~1495 |
-| #11794 | 10:24 PM | 🔵 | SSE Broadcaster Service Details | ~985 |
+| #11904 | 10:44 PM | 🔵 | CLAUDE.md generation mechanism in session service | ~1535 |
+| #11900 | 10:43 PM | 🔄 | Remove unused import 'loadSettings' from session-service | ~3982 |
+| #11898 | 10:43 PM | 🔵 | Identified session-service.ts dependencies and methods | ~805 |
+| #11897 | 10:43 PM | 🔄 | Removed maybeQueueClaudeMd method from SessionService | ~5471 |
+| #11896 | 10:43 PM | 🔄 | Remove CLAUDE.md generation from session-service | ~4865 |
+| #11895 | 10:43 PM | 🔵 | Session creation and management logic | ~1432 |
+| #11894 | 10:43 PM | 🔄 | Remove unused CLAUDEMD_INTERVAL constant | ~4559 |
+| #11865 | 10:37 PM | 🔵 | Task Service Architecture Overview | ~4418 |
+| #11859 | 10:36 PM | 🔵 | Session Service Architecture Analysis | ~4510 |
+| #11811 | 10:26 PM | 🔵 | Task Service Creates Claude-MD Tasks with Observations and Summaries | ~1495 |
+| #11794 | 10:24 PM | 🔵 | SSE Broadcaster Service Implementation Details | ~985 |
 
 ## Key Insights
 
-- **Architecture Refactoring**: CLAUDE.md generation moved from `session-service` to `task-dispatcher`, improving separation of concerns.
-- **Code Cleanup**: Removed unused imports (`loadSettings`), constants (`CLAUDEMD_INTERVAL`), and methods (`maybeQueueClaudeMd`).
-- **Task Management**: Task service handles 5 task types with priority-based execution (observations > summaries > CLAUDE.md).
-- **Session Logic**: Sessions manage lifecycle, prompt tracking, and now rely on task-dispatcher for CLAUDE.md generation.
-- **Real-time Updates**: SSE broadcaster notifies clients when CLAUDE.md is ready, enhancing user experience.
+- **Task Prioritization**: CLAUDE.md generation tasks were deprioritized (lowest priority) to prevent queue overload, reflecting a design decision to prioritize core tasks (observations, summaries) over documentation.
+- **Architecture Refinement**: CLAUDE.md generation logic was moved from `session-service` to `task-dispatcher`, improving separation of concerns and centralizing task management.
+- **Code Cleanup**: Unused imports, methods (`maybeQueueClaudeMd`), and constants (`CLAUDEMD_INTERVAL`) were removed, improving maintainability.
+- **Configurable Limits**: Added `CLAUDEMD_TASK_TIMEOUT` and `CLAUDEMD_MAX_SUBDIRS` settings to control task execution and scope, addressing performance bottlenecks.
+- **SSE Integration**: The SSE broadcaster service notifies clients when CLAUDE.md is ready, ensuring real-time updates for documentation generation.
 </claude-mem-context>
