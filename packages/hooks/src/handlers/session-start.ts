@@ -150,6 +150,10 @@ function spawnSseWriter(input: HookInput): void {
 
   try {
     // Spawn the SSE writer process
+    // Write logs to file so we can debug issues
+    const logPath = path.join(os.homedir(), '.claude-mem', `sse-writer-${input.sessionId}.log`);
+    const logFd = fs.openSync(logPath, 'a');
+
     const writer = spawn('node', [
       writerScript,
       '--backend', backendUrl,
@@ -159,8 +163,11 @@ function spawnSseWriter(input: HookInput): void {
       '--dir', input.cwd,
     ], {
       detached: true,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['ignore', logFd, logFd],
     });
+
+    // Close file descriptor in parent - child keeps it open
+    fs.closeSync(logFd);
 
     // Store PID for cleanup
     const pidPath = getSseWriterPidPath(input.sessionId);
