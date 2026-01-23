@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.0] - 2026-01-23
+
+### Features
+- Added `dev:restart` script for local development
+- Added CLAUDEMD_ENABLED toggle in settings
+- Added CLAUDE.md generation feature
+- Added data import/export functionality in settings
+- Enhanced worker overview with active capability and queued termination display
+
+### Bug Fixes
+- Fixed capability matching for active task display
+- Fixed backend entry point and settings loading in dev-restart
+
+### Improvements
+- Improved worker overview UI with additional status information
+
+
 ## [2.0.1] - 2026-01-23
 
 ### Bug Fixes
