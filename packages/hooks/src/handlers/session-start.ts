@@ -129,9 +129,10 @@ function spawnSseWriter(input: HookInput): void {
     scriptDir = path.dirname(process.argv[1] || process.cwd());
   }
   const possiblePaths = [
-    path.join(scriptDir, 'sse-writer.cjs'),       // Plugin bundle
-    path.join(scriptDir, '..', 'sse-writer.cjs'), // Alternative location
-    path.join(scriptDir, 'sse-writer.js'),        // Development
+    path.join(scriptDir, 'sse-writer.cjs'),       // Plugin bundle (same dir)
+    path.join(scriptDir, '..', 'sse-writer.cjs'), // Plugin bundle (parent dir)
+    path.join(scriptDir, 'sse-writer.js'),        // Development (same dir)
+    path.join(scriptDir, '..', 'sse-writer.js'),  // Development (parent dir - handlers/)
   ];
 
   let writerScript: string | null = null;
