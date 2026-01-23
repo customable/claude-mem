@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.1] - 2026-01-23
+
+### Bug Fixes
+- Fixed CI build process to ensure plugin is built before validation.
+
+
 ## [2.0.0] - 2026-01-23
 
 ### Features
