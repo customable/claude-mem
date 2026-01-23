@@ -15,11 +15,10 @@ import { success, skip } from '../types.js';
 const logger = createLogger('hook:stop');
 
 /**
- * Summarize response from backend
+ * Session end response from backend
  */
-interface SummarizeResponse {
-  queued: boolean;
-  taskId?: string;
+interface SessionEndResponse {
+  success: boolean;
 }
 
 /**
@@ -82,20 +81,16 @@ export async function handleStop(input: HookInput): Promise<HookResult> {
   }
 
   try {
-    // Request summarization
-    const response = await client.post<SummarizeResponse>('/api/hooks/summarize', {
+    // End session (marks as completed and queues summarization)
+    await client.post<SessionEndResponse>('/api/hooks/session/end', {
       sessionId: input.sessionId,
-      project: input.project,
     });
 
-    if (response.queued) {
-      logger.debug(`Summarization queued: ${response.taskId}`);
-    }
-
+    logger.debug(`Session ${input.sessionId} ended, summarization queued`);
     return success();
   } catch (err) {
     const error = err as Error;
-    logger.warn('Failed to request summarization:', { message: error.message });
+    logger.warn('Failed to end session:', { message: error.message });
     return skip();
   }
 }
