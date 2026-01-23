@@ -291,7 +291,7 @@ export class TaskService {
     const task = await this.taskQueue.create<ClaudeMdTask>({
       type: 'claude-md',
       requiredCapability: 'claudemd:generate',
-      priority: this.defaultPriority - 20, // Lower priority than observations/summaries
+      priority: this.defaultPriority - 30, // Lowest priority - documentation can wait
       maxRetries: this.defaultMaxRetries,
       payload: {
         contentSessionId: params.contentSessionId,

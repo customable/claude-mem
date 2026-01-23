@@ -298,9 +298,16 @@ export class TaskDispatcher {
               });
               logger.debug(`Queued claude-md task for session ${payload.sessionId}`);
 
-              // Queue for subdirectories that have observations
+              // Queue for subdirectories that have observations (limited to prevent queue overload)
               if (workingDirectory && this.observations) {
-                const subdirs = await this.getSubdirectoriesWithObservations(memorySessionId, workingDirectory);
+                const maxSubdirs = settings.get('CLAUDEMD_MAX_SUBDIRS') || 5;
+                const allSubdirs = await this.getSubdirectoriesWithObservations(memorySessionId, workingDirectory);
+                const subdirs = allSubdirs.slice(0, maxSubdirs);
+
+                if (allSubdirs.length > maxSubdirs) {
+                  logger.debug(`Limiting claude-md generation to ${maxSubdirs}/${allSubdirs.length} subdirectories`);
+                }
+
                 for (const subdir of subdirs) {
                   try {
                     await this.taskService.queueClaudeMd({
@@ -484,9 +491,16 @@ export class TaskDispatcher {
         workingDirectory: workingDirectory || undefined,
       });
 
-      // Queue for subdirectories that have observations
+      // Queue for subdirectories that have observations (limited to prevent queue overload)
       if (workingDirectory && this.observations) {
-        const subdirs = await this.getSubdirectoriesWithObservations(memorySessionId, workingDirectory);
+        const maxSubdirs = settings.get('CLAUDEMD_MAX_SUBDIRS') || 5;
+        const allSubdirs = await this.getSubdirectoriesWithObservations(memorySessionId, workingDirectory);
+        const subdirs = allSubdirs.slice(0, maxSubdirs);
+
+        if (allSubdirs.length > maxSubdirs) {
+          logger.debug(`Limiting claude-md generation to ${maxSubdirs}/${allSubdirs.length} subdirectories`);
+        }
+
         for (const subdir of subdirs) {
           try {
             await this.taskService.queueClaudeMd({
@@ -692,6 +706,18 @@ export class TaskDispatcher {
   }
 
   /**
+   * Get timeout for a specific task type
+   */
+  private getTaskTimeout(taskType: string): number {
+    // claude-md tasks get longer timeout (configurable)
+    if (taskType === 'claude-md') {
+      const settings = getSettings();
+      return settings.get('CLAUDEMD_TASK_TIMEOUT') || 600000; // 10 min default
+    }
+    return this.taskTimeoutMs; // Default 5 min
+  }
+
+  /**
    * Check for timed-out tasks
    */
   async checkTimeouts(): Promise<void> {
@@ -703,7 +729,8 @@ export class TaskDispatcher {
 
       const now = Date.now();
       for (const task of tasks) {
-        if (task.assignedAt && now - task.assignedAt > this.taskTimeoutMs) {
+        const timeout = this.getTaskTimeout(task.type);
+        if (task.assignedAt && now - task.assignedAt > timeout) {
           await this.taskQueue.updateStatus(task.id, 'timeout', {
             error: 'Task timed out',
           });
