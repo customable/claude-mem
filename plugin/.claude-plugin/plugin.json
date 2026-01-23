@@ -1,0 +1,18 @@
+{
+  "name": "claude-mem",
+  "version": "0.1.0",
+  "description": "Persistent memory for Claude Code - modular monorepo edition",
+  "author": {
+    "name": "Customable",
+    "email": "plugins@customable.de"
+  },
+  "repository": "https://git.customable.host/customable/claude-mem",
+  "license": "MIT",
+  "keywords": [
+    "memory",
+    "context",
+    "persistence",
+    "qdrant",
+    "vector-search"
+  ]
+}
