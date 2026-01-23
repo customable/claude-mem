@@ -14,16 +14,13 @@ import { success, skip } from '../types.js';
 const logger = createLogger('hook:post-tool-use');
 
 /**
- * Tools to ignore (meta-tools, not interesting for memory)
+ * Tools to ignore (pure routing/introspection, no actionable content)
  */
 const IGNORED_TOOLS = new Set([
-  'TodoRead',
-  'TodoWrite',
-  'AskFollowupQuestion', // Internal tool
-  'AskUserQuestion',     // User interaction, not code work
-  'ListMcpResourcesTool', // MCP introspection
-  'SlashCommand',        // Command routing
-  'Skill',               // Skill routing
+  'ListMcpResourcesTool', // MCP introspection only
+  'SlashCommand',         // Command routing only
+  'Skill',                // Skill routing only
+  'AskFollowupQuestion',  // Internal tool
 ]);
 
 /**
