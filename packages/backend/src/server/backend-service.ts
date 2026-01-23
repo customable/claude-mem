@@ -20,7 +20,7 @@ import {
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -62,6 +62,7 @@ export class BackendService {
   private sseBroadcaster: SSEBroadcaster | null = null;
   private taskService: TaskService | null = null;
   private sessionService: SessionService | null = null;
+  private workerProcessManager: WorkerProcessManager | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -113,6 +114,27 @@ export class BackendService {
         this.sseBroadcaster?.broadcastWorkerDisconnected(workerId);
       };
 
+      // Initialize worker process manager for spawning workers
+      this.workerProcessManager = new WorkerProcessManager(
+        this.options.host,
+        this.options.port,
+        this.options.workerAuthToken
+      );
+
+      // Wire up process manager events to SSE broadcaster
+      this.workerProcessManager.on('worker:spawned', ({ id, pid }) => {
+        this.sseBroadcaster?.broadcast({
+          type: 'worker:spawned',
+          data: { spawnedId: id, pid },
+        });
+      });
+      this.workerProcessManager.on('worker:exited', ({ id, pid, code }) => {
+        this.sseBroadcaster?.broadcast({
+          type: 'worker:exited',
+          data: { spawnedId: id, pid, code },
+        });
+      });
+
       // Start HTTP server immediately (health checks work before full init)
       await this.startHttpServer();
 
@@ -151,6 +173,7 @@ export class BackendService {
     // Workers route
     this.app.use('/api/workers', new WorkersRouter({
       workerHub: this.workerHub!,
+      workerProcessManager: this.workerProcessManager!,
     }).router);
 
     // Logs route
@@ -357,6 +380,11 @@ export class BackendService {
     // Stop task dispatcher
     if (this.taskDispatcher) {
       this.taskDispatcher.stop();
+    }
+
+    // Terminate all spawned workers
+    if (this.workerProcessManager) {
+      await this.workerProcessManager.terminateAll();
     }
 
     // Close SSE connections

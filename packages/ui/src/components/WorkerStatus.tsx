@@ -2,23 +2,31 @@
  * Worker Status
  *
  * Shows connected workers and their capabilities with real-time SSE updates.
+ * Supports spawning and terminating workers from the UI.
  */
 
 import { useEffect, useState } from 'react';
-import { api, type Worker } from '../api/client';
+import { api, type Worker, type SpawnStatus } from '../api/client';
 import { useSSE } from '../hooks/useSSE';
 
 export function WorkerStatus() {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [spawnStatus, setSpawnStatus] = useState<SpawnStatus | null>(null);
+  const [spawning, setSpawning] = useState(false);
+  const [terminatingId, setTerminatingId] = useState<string | null>(null);
   const { workerTasks, lastEvent } = useSSE();
 
   // Initial fetch
   useEffect(() => {
-    api.getWorkers()
-      .then((data) => {
-        setWorkers(data.data || []);
+    Promise.all([
+      api.getWorkers(),
+      api.getSpawnStatus().catch(() => null),
+    ])
+      .then(([workersData, spawnData]) => {
+        setWorkers(workersData.data || []);
+        if (spawnData) setSpawnStatus(spawnData);
         setLoading(false);
       })
       .catch((err) => {
@@ -27,12 +35,21 @@ export function WorkerStatus() {
       });
   }, []);
 
-  // Refetch on worker connect/disconnect events
+  // Refetch on worker events
   useEffect(() => {
-    if (lastEvent?.type === 'worker:connected' || lastEvent?.type === 'worker:disconnected') {
-      api.getWorkers()
-        .then((data) => {
-          setWorkers(data.data || []);
+    if (
+      lastEvent?.type === 'worker:connected' ||
+      lastEvent?.type === 'worker:disconnected' ||
+      lastEvent?.type === 'worker:spawned' ||
+      lastEvent?.type === 'worker:exited'
+    ) {
+      Promise.all([
+        api.getWorkers(),
+        api.getSpawnStatus().catch(() => null),
+      ])
+        .then(([workersData, spawnData]) => {
+          setWorkers(workersData.data || []);
+          if (spawnData) setSpawnStatus(spawnData);
         })
         .catch(() => {
           // Ignore errors on refetch
@@ -42,15 +59,45 @@ export function WorkerStatus() {
 
   const refetch = () => {
     setLoading(true);
-    api.getWorkers()
-      .then((data) => {
-        setWorkers(data.data || []);
+    Promise.all([
+      api.getWorkers(),
+      api.getSpawnStatus().catch(() => null),
+    ])
+      .then(([workersData, spawnData]) => {
+        setWorkers(workersData.data || []);
+        if (spawnData) setSpawnStatus(spawnData);
         setLoading(false);
       })
       .catch((err) => {
         setError(err.message);
         setLoading(false);
       });
+  };
+
+  const handleSpawn = async () => {
+    setSpawning(true);
+    setError(null);
+    try {
+      await api.spawnWorker();
+      // Workers list will update via SSE
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSpawning(false);
+    }
+  };
+
+  const handleTerminate = async (spawnedId: string) => {
+    setTerminatingId(spawnedId);
+    setError(null);
+    try {
+      await api.terminateWorker(spawnedId);
+      // Workers list will update via SSE
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setTerminatingId(null);
+    }
   };
 
   if (loading && workers.length === 0) {
@@ -78,8 +125,8 @@ export function WorkerStatus() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
           <h2 className="text-xl font-semibold">Workers</h2>
           <span className="badge badge-neutral badge-sm">{workers.length} connected</span>
           {busyCount > 0 && (
@@ -93,12 +140,59 @@ export function WorkerStatus() {
               {idleCount} idle
             </span>
           )}
+          {spawnStatus && (
+            <span className="badge badge-ghost badge-sm">
+              {spawnStatus.spawnedCount}/{spawnStatus.maxWorkers} spawned
+            </span>
+          )}
         </div>
-        <button onClick={refetch} className="btn btn-ghost btn-sm" disabled={loading}>
-          <span className={`iconify ph--arrows-clockwise size-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          {spawnStatus?.available && spawnStatus.canSpawnMore && (
+            <button
+              onClick={handleSpawn}
+              className="btn btn-primary btn-sm"
+              disabled={spawning}
+            >
+              {spawning ? (
+                <span className="loading loading-spinner loading-xs" />
+              ) : (
+                <span className="iconify ph--plus size-4" />
+              )}
+              Spawn Worker
+            </button>
+          )}
+          {spawnStatus && !spawnStatus.available && (
+            <div className="tooltip tooltip-left" data-tip={spawnStatus.reason || 'Spawning unavailable'}>
+              <button className="btn btn-ghost btn-sm opacity-50" disabled>
+                <span className="iconify ph--warning size-4" />
+                Cannot Spawn
+              </button>
+            </div>
+          )}
+          {spawnStatus?.available && !spawnStatus.canSpawnMore && (
+            <div className="tooltip tooltip-left" data-tip={`Max workers reached (${spawnStatus.maxWorkers})`}>
+              <button className="btn btn-ghost btn-sm opacity-50" disabled>
+                <span className="iconify ph--prohibit size-4" />
+                Limit Reached
+              </button>
+            </div>
+          )}
+          <button onClick={refetch} className="btn btn-ghost btn-sm" disabled={loading}>
+            <span className={`iconify ph--arrows-clockwise size-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
+
+      {/* Error Alert */}
+      {error && (
+        <div className="alert alert-error">
+          <span className="iconify ph--warning-circle size-5" />
+          <span>{error}</span>
+          <button className="btn btn-ghost btn-xs" onClick={() => setError(null)}>
+            <span className="iconify ph--x size-4" />
+          </button>
+        </div>
+      )}
 
       {/* Worker List */}
       {workers.length === 0 ? (
@@ -106,7 +200,25 @@ export function WorkerStatus() {
           <div className="card-body items-center justify-center py-12 text-base-content/60">
             <span className="iconify ph--plugs size-12 mb-2" />
             <span className="text-lg font-medium">No workers connected</span>
-            <p className="text-sm mt-1">Start a worker to process tasks</p>
+            <p className="text-sm mt-1">
+              {spawnStatus?.available
+                ? 'Click "Spawn Worker" to start a worker'
+                : 'Start a worker to process tasks'}
+            </p>
+            {spawnStatus?.available && spawnStatus.canSpawnMore && (
+              <button
+                onClick={handleSpawn}
+                className="btn btn-primary btn-sm mt-4"
+                disabled={spawning}
+              >
+                {spawning ? (
+                  <span className="loading loading-spinner loading-xs" />
+                ) : (
+                  <span className="iconify ph--plus size-4" />
+                )}
+                Spawn Worker
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -116,6 +228,8 @@ export function WorkerStatus() {
               key={worker.id}
               worker={worker}
               currentTaskId={workerTasks[worker.id] || null}
+              onTerminate={handleTerminate}
+              isTerminating={terminatingId === worker.metadata?.spawnedId}
             />
           ))}
         </div>
@@ -127,12 +241,19 @@ export function WorkerStatus() {
 function WorkerItem({
   worker,
   currentTaskId,
+  onTerminate,
+  isTerminating,
 }: {
   worker: Worker;
   currentTaskId: string | null;
+  onTerminate: (id: string) => void;
+  isTerminating: boolean;
 }) {
   const isIdle = !currentTaskId;
   const lastSeen = new Date(worker.lastHeartbeat).toLocaleTimeString();
+  // Check if this is a spawned worker (has spawnedId in metadata)
+  const spawnedId = worker.metadata?.spawnedId;
+  const isSpawned = !!spawnedId;
 
   return (
     <div className={`card bg-base-100 card-border transition-all ${!isIdle ? 'ring-2 ring-warning/50' : ''}`}>
@@ -142,16 +263,35 @@ function WorkerItem({
           <div className="flex items-center gap-2">
             <span className={`iconify ph--cpu size-5 ${isIdle ? 'text-primary' : 'text-warning'}`} />
             <span className="font-mono text-sm">{worker.id.slice(0, 20)}</span>
+            {isSpawned && (
+              <span className="badge badge-info badge-xs">spawned</span>
+            )}
           </div>
-          <div
-            className={`badge badge-sm ${isIdle ? 'badge-success' : 'badge-warning'}`}
-          >
-            <span
-              className={`iconify ${isIdle ? 'ph--check' : 'ph--spinner'} size-3 mr-1 ${
-                !isIdle ? 'animate-spin' : ''
-              }`}
-            />
-            {isIdle ? 'Idle' : 'Working'}
+          <div className="flex items-center gap-2">
+            <div
+              className={`badge badge-sm ${isIdle ? 'badge-success' : 'badge-warning'}`}
+            >
+              <span
+                className={`iconify ${isIdle ? 'ph--check' : 'ph--spinner'} size-3 mr-1 ${
+                  !isIdle ? 'animate-spin' : ''
+                }`}
+              />
+              {isIdle ? 'Idle' : 'Working'}
+            </div>
+            {isSpawned && spawnedId && (
+              <button
+                onClick={() => onTerminate(spawnedId)}
+                className="btn btn-error btn-xs"
+                disabled={isTerminating}
+                title="Stop this worker"
+              >
+                {isTerminating ? (
+                  <span className="loading loading-spinner loading-xs" />
+                ) : (
+                  <span className="iconify ph--stop size-3" />
+                )}
+              </button>
+            )}
           </div>
         </div>
 

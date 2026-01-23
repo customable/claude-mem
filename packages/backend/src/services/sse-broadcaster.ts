@@ -23,6 +23,8 @@ export type SSEEventType =
   | 'summary:created'
   | 'worker:connected'
   | 'worker:disconnected'
+  | 'worker:spawned'
+  | 'worker:exited'
   | 'task:queued'
   | 'task:assigned'
   | 'task:completed'

@@ -9,3 +9,6 @@ export { TaskService } from './task-service.js';
 export type { TaskServiceOptions } from './task-service.js';
 
 export { SessionService } from './session-service.js';
+
+export { WorkerProcessManager } from './worker-process-manager.js';
+export type { SpawnedWorker, SpawnedWorkerInfo } from './worker-process-manager.js';

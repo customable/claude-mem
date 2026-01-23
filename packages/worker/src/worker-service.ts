@@ -51,16 +51,24 @@ export class WorkerService {
     // Initialize agent
     this.agent = getDefaultAgent();
 
+    // Build metadata, including spawnedId if this worker was spawned by backend
+    const metadata: Record<string, unknown> = {
+      version: VERSION,
+      hostname: process.env.HOSTNAME || 'unknown',
+      agent: this.agent.name,
+    };
+
+    // Include spawnedId if this worker was spawned by the backend
+    if (process.env.CLAUDE_MEM_SPAWNED_ID) {
+      metadata.spawnedId = process.env.CLAUDE_MEM_SPAWNED_ID;
+    }
+
     // Initialize WebSocket client
     this.client = new WebSocketClient({
       backendUrl: config.backendUrl,
       authToken: config.authToken || settings.WORKER_AUTH_TOKEN,
       capabilities,
-      metadata: {
-        version: VERSION,
-        hostname: process.env.HOSTNAME || 'unknown',
-        agent: this.agent.name,
-      },
+      metadata,
     });
 
     // Setup event handlers

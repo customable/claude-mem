@@ -93,6 +93,28 @@ export interface Worker {
   connectedAt: number;
   lastHeartbeat: number;
   currentTaskId: string | null;
+  metadata?: {
+    spawnedId?: string;
+    version?: string;
+    hostname?: string;
+    agent?: string;
+  };
+}
+
+export interface SpawnedWorker {
+  id: string;
+  pid: number;
+  status: 'starting' | 'running' | 'stopping' | 'stopped' | 'crashed';
+  spawnedAt: number;
+  connectedWorkerId?: string;
+}
+
+export interface SpawnStatus {
+  available: boolean;
+  reason?: string | null;
+  spawnedCount: number;
+  maxWorkers: number;
+  canSpawnMore: boolean;
 }
 
 export interface Stats {
@@ -184,6 +206,10 @@ export const api = {
   // Workers
   getWorkers: () => get<{ data: Worker[]; total: number }>('/workers'),
   getWorkerStats: () => get<{ totalConnected: number }>('/workers/stats'),
+  getSpawnStatus: () => get<SpawnStatus>('/workers/spawn-status'),
+  getSpawnedWorkers: () => get<{ data: SpawnedWorker[]; canSpawn: boolean; maxWorkers: number }>('/workers/spawned'),
+  spawnWorker: () => post<{ id: string; pid: number; message: string }>('/workers/spawn', {}),
+  terminateWorker: (id: string) => del<{ message: string }>(`/workers/spawned/${id}`),
 
   // Settings
   getSettings: () => get<Record<string, unknown>>('/settings'),

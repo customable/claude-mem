@@ -29,6 +29,8 @@ export interface Settings {
   // Worker Configuration
   WORKER_AUTH_TOKEN: string;
   EMBEDDED_WORKER: boolean;
+  MAX_WORKERS: number;
+  AUTO_SPAWN_WORKERS: boolean;
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic';
@@ -97,6 +99,8 @@ export const DEFAULTS: Settings = {
   // Worker Configuration
   WORKER_AUTH_TOKEN: '',
   EMBEDDED_WORKER: true,
+  MAX_WORKERS: 4,
+  AUTO_SPAWN_WORKERS: false,
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral',
@@ -158,6 +162,7 @@ type SettingValue<K extends SettingKey> = Settings[K];
  */
 const BOOLEAN_KEYS: SettingKey[] = [
   'EMBEDDED_WORKER',
+  'AUTO_SPAWN_WORKERS',
   'CONTEXT_SHOW_READ_TOKENS',
   'CONTEXT_SHOW_WORK_TOKENS',
   'REMOTE_MODE',
@@ -170,6 +175,7 @@ const BOOLEAN_KEYS: SettingKey[] = [
 const NUMBER_KEYS: SettingKey[] = [
   'BACKEND_PORT',
   'BACKEND_WS_PORT',
+  'MAX_WORKERS',
   'CONTEXT_OBSERVATION_LIMIT',
   'BATCH_SIZE',
   'RETENTION_MAX_AGE_DAYS',
