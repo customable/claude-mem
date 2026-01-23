@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+# Separate concurrency group from release workflow
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Check if we should skip CI (e.g., release commits)
   check:
