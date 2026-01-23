@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.11.3] - 2026-01-23
+
+### Bug Fixes
+- Filter task-notifications from user prompts in session handling
+
+### Improvements
+- Update `pnpm-lock.yaml`
+
+
 ## [2.11.2] - 2026-01-23
 
 ### Bug Fixes
