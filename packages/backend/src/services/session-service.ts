@@ -75,10 +75,18 @@ export class SessionService {
       // Resume existing session - only increment counter if there's a real prompt
       if (hasRealPrompt) {
         const newCounter = (session.prompt_counter ?? 0) + 1;
+        const wasCompleted = session.status === 'completed';
+
         await this.sessions.update(session.id, {
           promptCounter: newCounter,
+          // Reactivate completed sessions
+          ...(wasCompleted && { status: 'active' }),
         });
-        session = { ...session, prompt_counter: newCounter };
+        session = {
+          ...session,
+          prompt_counter: newCounter,
+          ...(wasCompleted && { status: 'active' }),
+        };
 
         // Record the prompt (cleaned of system tags)
         await this.userPrompts.create({
@@ -92,7 +100,12 @@ export class SessionService {
           newCounter
         );
 
-        logger.info(`Resuming session ${session.id} for ${params.project} (prompt ${newCounter})`);
+        if (wasCompleted) {
+          this.sseBroadcaster.broadcastSessionStarted(params.contentSessionId, params.project);
+          logger.info(`Reactivated completed session ${session.id} for ${params.project} (prompt ${newCounter})`);
+        } else {
+          logger.info(`Resuming session ${session.id} for ${params.project} (prompt ${newCounter})`);
+        }
       } else {
         logger.debug(`Session ${session.id} touched without prompt`);
       }
