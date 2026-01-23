@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.17.1] - 2026-01-23
+
+### Bug Fixes
+- Fixed release trigger for README updates
+
+### Improvements
+- Added comprehensive README.md
+
+
 ## [2.17.0] - 2026-01-23
 
 ### Features
