@@ -2,8 +2,9 @@
  * MikroORM Database Layer Exports
  */
 
-export { createMikroOrmConfig, type DatabaseOptions } from '../mikro-orm.config.js';
+export { createMikroOrmConfig, type DatabaseOptions, entities, migrationsList } from '../mikro-orm.config.js';
 export { MikroOrmUnitOfWork } from './unit-of-work.js';
+export { MikroOrmDatabase, createMikroOrmDatabase } from './initializer.js';
 
 // Repository exports
 export {
@@ -17,6 +18,9 @@ export {
   type ClaudeMdRecord,
   type UpsertClaudeMdInput,
 } from './repositories/index.js';
+
+// Migration exports
+export * from './migrations/index.js';
 
 // Entity exports
 export * from '../entities/index.js';

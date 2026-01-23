@@ -17,6 +17,8 @@ import {
   ClaudeMd,
   PendingMessage,
 } from './entities/index.js';
+import { Migration20240101000001_InitialSchema } from './mikro-orm/migrations/Migration20240101000001_InitialSchema.js';
+import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migration20240101000002_FTS5Indexes.js';
 
 /**
  * Database configuration options
@@ -50,6 +52,14 @@ export const entities = [
 ];
 
 /**
+ * All migrations
+ */
+export const migrationsList = [
+  Migration20240101000001_InitialSchema,
+  Migration20240101000002_FTS5Indexes,
+];
+
+/**
  * Create MikroORM configuration based on database type
  */
 export function createMikroOrmConfig(options: DatabaseOptions) {
@@ -60,6 +70,10 @@ export function createMikroOrmConfig(options: DatabaseOptions) {
         dbName: options.dbPath || ':memory:',
         debug: options.debug ?? false,
         allowGlobalContext: true,
+        migrations: {
+          migrationsList,
+          disableForeignKeys: false,
+        },
       });
 
     case 'postgresql':
@@ -72,6 +86,9 @@ export function createMikroOrmConfig(options: DatabaseOptions) {
         dbName: options.dbName || 'claude_mem',
         debug: options.debug ?? false,
         allowGlobalContext: true,
+        migrations: {
+          migrationsList,
+        },
       });
 
     case 'mysql':
@@ -84,6 +101,9 @@ export function createMikroOrmConfig(options: DatabaseOptions) {
         dbName: options.dbName || 'claude_mem',
         debug: options.debug ?? false,
         allowGlobalContext: true,
+        migrations: {
+          migrationsList,
+        },
       });
 
     default:
@@ -98,4 +118,8 @@ export default defineSqliteConfig({
   entities,
   dbName: './claude-mem.db',
   debug: false,
+  migrations: {
+    migrationsList,
+    disableForeignKeys: false,
+  },
 });
