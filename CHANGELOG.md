@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.13.0] - 2026-01-23
+
+### Features
+- Enrich sessions with the first user prompt
+
+### Improvements
+- Remove dead legacy SQLite code
+
+
 ## [2.12.0] - 2026-01-23
 
 ### Features
