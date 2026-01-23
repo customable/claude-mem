@@ -184,7 +184,7 @@ export class TaskService {
       const limit = params.limit ?? 50;
       const recentObs = await this.observations.list(
         { project: params.project },
-        { limit, orderBy: 'createdAt', order: 'desc' }
+        { limit, orderBy: 'created_at_epoch', order: 'desc' }
       );
       observations = recentObs.map((o: ObservationRecord) => ({
         title: o.title || 'Untitled',
@@ -234,7 +234,7 @@ export class TaskService {
     if (this.observations) {
       const recentObs = await this.observations.list(
         { project: params.project },
-        { limit: 30, orderBy: 'createdAt', order: 'desc' }
+        { limit: 30, orderBy: 'created_at_epoch', order: 'desc' }
       );
       observations = recentObs.map((o: ObservationRecord) => ({
         id: o.id,
