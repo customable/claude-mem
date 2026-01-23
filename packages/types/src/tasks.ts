@@ -59,6 +59,7 @@ export interface ObservationTaskPayload {
   toolInput: string;
   toolOutput: string;
   promptNumber?: number;
+  gitBranch?: string;
 }
 
 /**
@@ -75,9 +76,9 @@ export interface ObservationTask extends BaseTask {
     tokens: number;
     // Optional extracted fields
     subtitle?: string;
+    narrative?: string;
     facts?: string[];
     concepts?: string[];
-    narrative?: string;
     filesRead?: string[];
     filesModified?: string[];
   };

@@ -5,6 +5,7 @@
  * Sends tool usage to backend for observation extraction.
  */
 
+import { execSync } from 'child_process';
 import { createLogger } from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
@@ -30,6 +31,23 @@ interface ObservationResponse {
 }
 
 /**
+ * Get current git branch for a directory
+ */
+function getGitBranch(cwd: string): string | undefined {
+  try {
+    const branch = execSync('git rev-parse --abbrev-ref HEAD', {
+      cwd,
+      encoding: 'utf-8',
+      timeout: 1000,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    return branch || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Handle post tool use
  */
 export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
@@ -48,6 +66,9 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
   }
 
   try {
+    // Get git branch for context
+    const gitBranch = getGitBranch(input.cwd);
+
     // Send observation
     const response = await client.post<ObservationResponse>('/api/hooks/observation', {
       sessionId: input.sessionId,
@@ -55,6 +76,7 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
       toolName: input.toolName,
       toolInput: input.toolInput || '',
       toolOutput: input.toolOutput || '',
+      gitBranch,
     });
 
     if (response.queued) {

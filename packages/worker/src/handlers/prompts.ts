@@ -29,7 +29,9 @@ Output your analysis in this XML format:
 <observation>
   <type>one of: bugfix, feature, refactor, change, discovery, decision</type>
   <title>Short, descriptive title (max 100 chars)</title>
+  <subtitle>Brief context or category (max 50 chars, optional)</subtitle>
   <text>Detailed explanation of the observation. Include context, rationale, and implications. 2-4 sentences.</text>
+  <narrative>Longer narrative description for historical context (optional, 1-2 paragraphs if significant)</narrative>
   <facts>Key facts discovered (one per line, if any)</facts>
   <concepts>Important concepts, patterns, or technologies (one per line, if any)</concepts>
   <files_read>file1.ts, file2.ts</files_read>

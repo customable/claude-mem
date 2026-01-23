@@ -71,6 +71,8 @@ export interface ParsedObservation {
   type: 'bugfix' | 'feature' | 'refactor' | 'change' | 'discovery' | 'decision' | 'session-request';
   title: string;
   text: string;
+  subtitle?: string;
+  narrative?: string;
   facts?: string[];
   concepts?: string[];
   filesRead?: string[];

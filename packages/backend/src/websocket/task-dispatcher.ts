@@ -219,11 +219,14 @@ export class TaskDispatcher {
             text: observationResult.text,
             discoveryTokens: observationResult.tokens || 0,
             promptNumber: payload.promptNumber,
-            // Optional extracted fields
-            facts: observationResult.facts?.join('\n'),
-            concepts: observationResult.concepts?.join('\n'),
-            filesRead: observationResult.filesRead?.join('\n'),
-            filesModified: observationResult.filesModified?.join('\n'),
+            // Optional extracted fields (stored as JSON arrays)
+            subtitle: observationResult.subtitle,
+            narrative: observationResult.narrative,
+            facts: observationResult.facts?.length ? JSON.stringify(observationResult.facts) : undefined,
+            concepts: observationResult.concepts?.length ? JSON.stringify(observationResult.concepts) : undefined,
+            filesRead: observationResult.filesRead?.length ? JSON.stringify(observationResult.filesRead) : undefined,
+            filesModified: observationResult.filesModified?.length ? JSON.stringify(observationResult.filesModified) : undefined,
+            gitBranch: payload.gitBranch,
           });
 
           logger.info(`Observation ${observation.id} created for session ${payload.sessionId}`);

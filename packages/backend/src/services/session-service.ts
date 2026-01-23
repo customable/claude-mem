@@ -135,6 +135,7 @@ export class SessionService {
     toolInput: string;
     toolOutput: string;
     promptNumber?: number;
+    gitBranch?: string;
   }): Promise<string> {
     const session = await this.sessions.findByContentSessionId(params.contentSessionId);
     if (!session) {
@@ -148,6 +149,7 @@ export class SessionService {
       toolInput: params.toolInput,
       toolOutput: params.toolOutput,
       promptNumber: params.promptNumber,
+      gitBranch: params.gitBranch,
     });
 
     return task.id;

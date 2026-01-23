@@ -58,6 +58,7 @@ export class TaskService {
     toolInput: string;
     toolOutput: string;
     promptNumber?: number;
+    gitBranch?: string;
     preferredProvider?: string;
   }): Promise<ObservationTask> {
     const capability = this.resolveCapability('observation', params.preferredProvider);
@@ -76,6 +77,7 @@ export class TaskService {
         toolInput: params.toolInput,
         toolOutput: params.toolOutput,
         promptNumber: params.promptNumber,
+        gitBranch: params.gitBranch,
       },
     });
 

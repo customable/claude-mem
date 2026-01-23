@@ -68,6 +68,8 @@ export async function handleObservationTask(
     type: observation.type,
     tokens: response.inputTokens + response.outputTokens,
     // Pass through extracted optional fields
+    subtitle: observation.subtitle,
+    narrative: observation.narrative,
     facts: observation.facts?.length ? observation.facts : undefined,
     concepts: observation.concepts?.length ? observation.concepts : undefined,
     filesRead: observation.filesRead?.length ? observation.filesRead : undefined,

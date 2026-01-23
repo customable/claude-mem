@@ -18,6 +18,33 @@ function getString(val: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Parse JSON string to array, return null if invalid
+ */
+function parseJsonArray(val: string | null | undefined): string[] | null {
+  if (!val) return null;
+  try {
+    const parsed = JSON.parse(val);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    // Fallback: treat as newline-separated (legacy format)
+    return val.split('\n').filter(s => s.trim());
+  }
+}
+
+/**
+ * Transform observation record for export (parse JSON fields to arrays)
+ */
+function transformObservation(obs: Record<string, unknown>): Record<string, unknown> {
+  return {
+    ...obs,
+    facts: parseJsonArray(obs.facts as string),
+    concepts: parseJsonArray(obs.concepts as string),
+    files_read: parseJsonArray(obs.files_read as string),
+    files_modified: parseJsonArray(obs.files_modified as string),
+  };
+}
+
 export interface ExportRouterDeps {
   sessionService: SessionService;
   observations: IObservationRepository;
@@ -54,11 +81,14 @@ export class ExportRouter extends BaseRouter {
     const formatType = getString(format) ?? 'json';
 
     // Fetch all data
-    const [sessions, observations, summaries] = await Promise.all([
+    const [sessions, rawObservations, summaries] = await Promise.all([
       this.deps.sessions.list({ project: projectFilter }, { limit: 10000 }),
       this.deps.observations.list({ project: projectFilter }, { limit: 100000 }),
       this.deps.summaries.list({ project: projectFilter }, { limit: 10000 }),
     ]);
+
+    // Transform observations to parse JSON arrays
+    const observations = rawObservations.map(obs => transformObservation(obs as unknown as Record<string, unknown>));
 
     const exportData = {
       exportedAt: new Date().toISOString(),
@@ -119,7 +149,7 @@ export class ExportRouter extends BaseRouter {
     const typeFilter = getString(type);
     const limitNum = this.parseOptionalIntParam(getString(limit)) ?? 10000;
 
-    const observations = await this.deps.observations.list(
+    const rawObservations = await this.deps.observations.list(
       {
         project: projectFilter,
         sessionId: sessionIdFilter,
@@ -127,6 +157,9 @@ export class ExportRouter extends BaseRouter {
       },
       { limit: limitNum }
     );
+
+    // Transform observations to parse JSON arrays
+    const observations = rawObservations.map(obs => transformObservation(obs as unknown as Record<string, unknown>));
 
     this.success(res, {
       exportedAt: new Date().toISOString(),
@@ -155,10 +188,13 @@ export class ExportRouter extends BaseRouter {
       this.notFound(`Session not found: ${sessionId}`);
     }
 
-    const [observations, summaries] = await Promise.all([
+    const [rawObservations, summaries] = await Promise.all([
       this.deps.observations.list({ sessionId: sessionId }, { limit: 100000 }),
       this.deps.summaries.list({ sessionId: sessionId }, { limit: 1000 }),
     ]);
+
+    // Transform observations to parse JSON arrays
+    const observations = rawObservations.map(obs => transformObservation(obs as unknown as Record<string, unknown>));
 
     this.success(res, {
       exportedAt: new Date().toISOString(),

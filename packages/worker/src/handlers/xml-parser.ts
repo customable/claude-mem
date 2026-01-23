@@ -75,6 +75,8 @@ function parseObservation(xml: string): ParsedObservation | null {
     type: normalizeType(type),
     title: title || 'Untitled observation',
     text: text || '',
+    subtitle: extractTag(xml, 'subtitle') || undefined,
+    narrative: extractTag(xml, 'narrative') || undefined,
     facts: parseList(extractTag(xml, 'facts')),
     concepts: parseList(extractTag(xml, 'concepts')),
     filesRead: parseList(extractTag(xml, 'files_read')),
