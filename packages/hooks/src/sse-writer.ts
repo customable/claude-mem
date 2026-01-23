@@ -50,14 +50,15 @@ function parseArgs(argv: string[]): Args {
     }
   }
 
-  // Validate required arguments
-  const required: (keyof Args)[] = ['backend', 'token', 'session', 'project', 'dir'];
+  // Validate required arguments (token not needed - SSE endpoint is open, filtered by session)
+  const required: (keyof Args)[] = ['backend', 'session', 'project', 'dir'];
   for (const key of required) {
     if (!args[key]) {
       console.error(`[sse-writer] Missing required argument: --${key}`);
       process.exit(1);
     }
   }
+  args.token = args.token || '';
 
   return args as Args;
 }
