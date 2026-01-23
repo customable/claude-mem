@@ -19,6 +19,33 @@ import type { TaskService } from './task-service.js';
 
 const logger = createLogger('session-service');
 
+/**
+ * Check if a prompt is a real user prompt (not system-generated)
+ */
+function isRealUserPrompt(prompt: string | undefined): boolean {
+  if (!prompt || prompt.trim().length === 0) return false;
+
+  const trimmed = prompt.trim();
+
+  // Filter out task-notifications (background task completions)
+  if (trimmed.startsWith('<task-notification>')) return false;
+
+  // Filter out prompts that are ONLY task-notifications
+  if (trimmed.includes('<task-notification>') && !trimmed.replace(/<task-notification>[\s\S]*?<\/task-notification>/g, '').trim()) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Extract real user content from prompt (strip system tags)
+ */
+function extractUserContent(prompt: string): string {
+  // Remove task-notification blocks
+  return prompt.replace(/<task-notification>[\s\S]*?<\/task-notification>\s*/g, '').trim();
+}
+
 export class SessionService {
   constructor(
     private readonly sessions: ISessionRepository,
@@ -40,29 +67,35 @@ export class SessionService {
     // Check for existing session
     let session = await this.sessions.findByContentSessionId(params.contentSessionId);
 
-    if (session) {
-      // Resume existing session - increment prompt counter
-      const newCounter = (session.prompt_counter ?? 0) + 1;
-      await this.sessions.update(session.id, {
-        promptCounter: newCounter,
-      });
-      session = { ...session, prompt_counter: newCounter };
+    // Only count as a real prompt if there's actual user content (not system messages)
+    const hasRealPrompt = isRealUserPrompt(params.userPrompt);
+    const cleanedPrompt = hasRealPrompt ? extractUserContent(params.userPrompt!) : undefined;
 
-      // Record the prompt if provided
-      if (params.userPrompt) {
+    if (session) {
+      // Resume existing session - only increment counter if there's a real prompt
+      if (hasRealPrompt) {
+        const newCounter = (session.prompt_counter ?? 0) + 1;
+        await this.sessions.update(session.id, {
+          promptCounter: newCounter,
+        });
+        session = { ...session, prompt_counter: newCounter };
+
+        // Record the prompt (cleaned of system tags)
         await this.userPrompts.create({
           contentSessionId: params.contentSessionId,
           promptNumber: newCounter,
-          promptText: params.userPrompt,
+          promptText: cleanedPrompt!,
         });
+
+        this.sseBroadcaster.broadcastNewPrompt(
+          params.contentSessionId,
+          newCounter
+        );
+
+        logger.info(`Resuming session ${session.id} for ${params.project} (prompt ${newCounter})`);
+      } else {
+        logger.debug(`Session ${session.id} touched without prompt`);
       }
-
-      this.sseBroadcaster.broadcastNewPrompt(
-        params.contentSessionId,
-        newCounter
-      );
-
-      logger.info(`Resuming session ${session.id} for ${params.project} (prompt ${newCounter})`);
       return session;
     }
 
@@ -71,19 +104,20 @@ export class SessionService {
       contentSessionId: params.contentSessionId,
       memorySessionId: params.contentSessionId,
       project: params.project,
-      userPrompt: params.userPrompt,
+      userPrompt: cleanedPrompt,
     });
 
-    // Set initial prompt counter to 1 (this is the first prompt)
-    await this.sessions.update(session.id, { promptCounter: 1 });
-    session = { ...session, prompt_counter: 1 };
+    // Only set prompt counter to 1 if there's a real prompt, otherwise 0
+    const initialCounter = hasRealPrompt ? 1 : 0;
+    await this.sessions.update(session.id, { promptCounter: initialCounter });
+    session = { ...session, prompt_counter: initialCounter };
 
-    // Record the initial prompt if provided
-    if (params.userPrompt) {
+    // Record the initial prompt if provided (cleaned of system tags)
+    if (hasRealPrompt) {
       await this.userPrompts.create({
         contentSessionId: params.contentSessionId,
         promptNumber: 1,
-        promptText: params.userPrompt,
+        promptText: cleanedPrompt!,
       });
     }
 
@@ -92,7 +126,7 @@ export class SessionService {
       params.project
     );
 
-    logger.info(`Created new session ${session.id} for ${params.project}`);
+    logger.info(`Created new session ${session.id} for ${params.project}${hasRealPrompt ? ' (prompt 1)' : ' (no prompt yet)'}`);
     return session;
   }
 
@@ -104,10 +138,17 @@ export class SessionService {
     promptNumber: number;
     promptText: string;
   }): Promise<void> {
+    // Skip system-generated prompts
+    if (!isRealUserPrompt(params.promptText)) {
+      logger.debug(`Skipping system prompt ${params.promptNumber} for session ${params.contentSessionId}`);
+      return;
+    }
+
+    const cleanedText = extractUserContent(params.promptText);
     await this.userPrompts.create({
       contentSessionId: params.contentSessionId,
       promptNumber: params.promptNumber,
-      promptText: params.promptText,
+      promptText: cleanedText,
     });
 
     // Update session prompt counter
