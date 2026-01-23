@@ -41,8 +41,19 @@ export class SessionService {
     let session = await this.sessions.findByContentSessionId(params.contentSessionId);
 
     if (session) {
-      // Resume existing session
-      logger.info(`Resuming session ${session.id} for ${params.project}`);
+      // Resume existing session - increment prompt counter
+      const newCounter = (session.prompt_counter ?? 0) + 1;
+      await this.sessions.update(session.id, {
+        promptCounter: newCounter,
+      });
+      session = { ...session, prompt_counter: newCounter };
+
+      this.sseBroadcaster.broadcastNewPrompt(
+        params.contentSessionId,
+        newCounter
+      );
+
+      logger.info(`Resuming session ${session.id} for ${params.project} (prompt ${newCounter})`);
       return session;
     }
 
@@ -53,6 +64,10 @@ export class SessionService {
       project: params.project,
       userPrompt: params.userPrompt,
     });
+
+    // Set initial prompt counter to 1 (this is the first prompt)
+    await this.sessions.update(session.id, { promptCounter: 1 });
+    session = { ...session, prompt_counter: 1 };
 
     this.sseBroadcaster.broadcastSessionStarted(
       params.contentSessionId,
