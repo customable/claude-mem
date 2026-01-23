@@ -61,6 +61,8 @@ export interface ObservationTaskPayload {
   promptNumber?: number;
   gitBranch?: string;
   cwd?: string;
+  /** Target directory from file path (for subdirectory CLAUDE.md) */
+  targetDirectory?: string;
 }
 
 /**

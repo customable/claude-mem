@@ -201,6 +201,7 @@ export class SessionService {
     promptNumber?: number;
     gitBranch?: string;
     cwd?: string;
+    targetDirectory?: string;
   }): Promise<string> {
     const session = await this.sessions.findByContentSessionId(params.contentSessionId);
     if (!session) {
@@ -216,6 +217,7 @@ export class SessionService {
       promptNumber: params.promptNumber,
       gitBranch: params.gitBranch,
       cwd: params.cwd,
+      targetDirectory: params.targetDirectory,
     });
 
     return task.id;

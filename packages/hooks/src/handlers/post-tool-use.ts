@@ -6,6 +6,7 @@
  */
 
 import { execSync } from 'child_process';
+import * as path from 'path';
 import { createLogger } from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
@@ -55,6 +56,35 @@ interface ObservationResponse {
 }
 
 /**
+ * Extract target directory from tool input based on tool type.
+ * Returns the directory where the tool operated (not the cwd).
+ */
+function extractTargetDirectory(toolName: string, toolInput: string): string | undefined {
+  try {
+    const input = JSON.parse(toolInput);
+
+    // File-based tools: Read, Write, Edit, NotebookEdit
+    if (input.file_path) {
+      return path.dirname(input.file_path);
+    }
+
+    // Path-based tools: Glob, Grep
+    if (input.path) {
+      return input.path;
+    }
+
+    // Notebook tools
+    if (input.notebook_path) {
+      return path.dirname(input.notebook_path);
+    }
+
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Get current git branch for a directory
  */
 function getGitBranch(cwd: string): string | undefined {
@@ -93,6 +123,9 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
     // Get git branch for context
     const gitBranch = getGitBranch(input.cwd);
 
+    // Extract target directory from tool input (for subdirectory CLAUDE.md)
+    const targetDirectory = extractTargetDirectory(input.toolName, input.toolInput || '');
+
     // Send observation
     const response = await client.post<ObservationResponse>('/api/hooks/observation', {
       sessionId: input.sessionId,
@@ -102,6 +135,7 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
       toolOutput: input.toolOutput || '',
       gitBranch,
       cwd: input.cwd,
+      targetDirectory,
     });
 
     if (response.queued) {

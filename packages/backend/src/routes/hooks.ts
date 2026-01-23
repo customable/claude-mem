@@ -114,7 +114,7 @@ export class HooksRouter extends BaseRouter {
       this.badRequest('Missing required fields: sessionId, toolName');
     }
 
-    const { toolName, toolInput, toolOutput, promptNumber, gitBranch, cwd } = req.body;
+    const { toolName, toolInput, toolOutput, promptNumber, gitBranch, cwd, targetDirectory } = req.body;
 
     const taskId = await this.deps.sessionService.queueObservation({
       contentSessionId,
@@ -124,6 +124,7 @@ export class HooksRouter extends BaseRouter {
       promptNumber,
       gitBranch,
       cwd,
+      targetDirectory,
     });
 
     this.success(res, {

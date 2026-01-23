@@ -217,6 +217,8 @@ export class TaskDispatcher {
           const memorySessionId = session?.memory_session_id || payload.sessionId;
 
           // Store observation in database
+          // Use targetDirectory (from file path) if available, otherwise fall back to cwd
+          const effectiveCwd = payload.targetDirectory || payload.cwd;
           const observation = await this.observations.create({
             memorySessionId,
             project: payload.project,
@@ -233,7 +235,7 @@ export class TaskDispatcher {
             filesRead: observationResult.filesRead?.length ? JSON.stringify(observationResult.filesRead) : undefined,
             filesModified: observationResult.filesModified?.length ? JSON.stringify(observationResult.filesModified) : undefined,
             gitBranch: payload.gitBranch,
-            cwd: payload.cwd,
+            cwd: effectiveCwd,
           });
 
           logger.info(`Observation ${observation.id} created for session ${payload.sessionId}`);

@@ -213,18 +213,11 @@ function main(): void {
           return;
         }
 
-        // Store content for this directory
+        // Write immediately to the target directory
         console.log(`[sse-writer] Received CLAUDE.md content for ${payload.workingDirectory}`);
-        pendingWrites.set(payload.workingDirectory, payload.content);
-
-        // If session hasn't ended yet, write immediately for the root directory only
-        // (subdirectories will be written after session end)
-        if (!sessionEnded && payload.workingDirectory === args.dir) {
-          console.log(`[sse-writer] Writing CLAUDE.md to ${args.dir}`);
-          writeClaudeMd(args.dir, payload.content);
-          console.log('[sse-writer] CLAUDE.md written successfully');
-          pendingWrites.delete(args.dir);
-        }
+        console.log(`[sse-writer] Writing CLAUDE.md to ${payload.workingDirectory}`);
+        writeClaudeMd(payload.workingDirectory, payload.content);
+        console.log('[sse-writer] CLAUDE.md written successfully');
       }
 
       // Handle session:started event (reactivation after completion)
