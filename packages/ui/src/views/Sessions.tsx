@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { api, type Observation, type Summary } from '../api/client';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { api, type Observation, type Summary, type UserPrompt } from '../api/client';
 import { ObservationDetails } from '../components/ObservationDetails';
+import { useSSE } from '../hooks/useSSE';
 
 interface Session {
   id: number;
@@ -192,10 +193,11 @@ function SessionCard({
   );
 }
 
-// Timeline item type for unified observation/summary display
+// Timeline item type for unified observation/summary/prompt display
 type TimelineItem =
   | { kind: 'observation'; data: Observation; epoch: number }
-  | { kind: 'summary'; data: Summary; epoch: number };
+  | { kind: 'summary'; data: Summary; epoch: number }
+  | { kind: 'prompt'; data: UserPrompt; epoch: number };
 
 function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
@@ -249,10 +251,10 @@ function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
   return (
     <div className="space-y-3">
       {timelineItems.map((item, index) => (
-        <div key={`${item.kind}-${item.kind === 'observation' ? item.data.id : item.data.id}`} className="flex gap-3">
+        <div key={`${item.kind}-${item.data.id}`} className="flex gap-3">
           <div className="flex flex-col items-center">
             <div className={`w-2 h-2 rounded-full ${
-              item.kind === 'summary' ? 'bg-accent' : getTypeColor(item.data.type)
+              item.kind === 'summary' ? 'bg-accent' : item.kind === 'prompt' ? 'bg-primary' : getTypeColor(item.data.type)
             }`} />
             {index < timelineItems.length - 1 && <div className="w-px flex-1 bg-base-300 mt-1" />}
           </div>
@@ -266,7 +268,7 @@ function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
                 <p className="text-sm font-medium mt-1">{item.data.title}</p>
                 {item.data.subtitle && <p className="text-xs text-base-content/60 mt-0.5">{item.data.subtitle}</p>}
               </>
-            ) : (
+            ) : item.kind === 'summary' ? (
               <>
                 <div className="flex items-center gap-2">
                   <span className="badge badge-xs badge-accent">Summary</span>
@@ -283,6 +285,14 @@ function SessionTimeline({ memorySessionId }: { memorySessionId: string }) {
                     <p className="text-xs text-base-content/70"><span className="text-base-content/50">Learned:</span> {item.data.learned}</p>
                   )}
                 </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  <span className="badge badge-xs badge-primary">Prompt #{item.data.prompt_number}</span>
+                  <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                </div>
+                <p className="text-sm mt-1">{item.data.prompt_text}</p>
               </>
             )}
           </div>
@@ -304,6 +314,8 @@ function getTypeColor(type: string): string {
       return 'bg-primary';
     case 'decision':
       return 'bg-warning';
+    case 'change':
+      return 'bg-secondary';
     default:
       return 'bg-base-content/30';
   }
@@ -321,6 +333,8 @@ function getTypeBadge(type: string): string {
       return 'badge-primary';
     case 'decision':
       return 'badge-warning';
+    case 'change':
+      return 'badge-secondary';
     default:
       return 'badge-ghost';
   }
@@ -355,37 +369,64 @@ function SessionDetailModal({
   const [selectedObs, setSelectedObs] = useState<Observation | null>(null);
   const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const timelineRef = useRef<HTMLDivElement>(null);
+
+  // Fetch timeline data
+  const fetchTimelineData = useCallback(async () => {
+    try {
+      const [obsData, sumData, promptData] = await Promise.all([
+        api.getObservations({ sessionId: session.memory_session_id, limit: 200 }),
+        api.getSessionSummaries(session.memory_session_id),
+        api.getSessionPrompts(session.content_session_id),
+      ]);
+
+      const obsItems: TimelineItem[] = (obsData.items || []).map((obs) => ({
+        kind: 'observation' as const,
+        data: obs,
+        epoch: obs.created_at_epoch || new Date(obs.created_at).getTime(),
+      }));
+
+      const sumItems: TimelineItem[] = (sumData.items || []).map((sum) => ({
+        kind: 'summary' as const,
+        data: sum,
+        epoch: sum.created_at_epoch,
+      }));
+
+      const promptItems: TimelineItem[] = (promptData.items || []).map((prompt) => ({
+        kind: 'prompt' as const,
+        data: prompt,
+        epoch: prompt.created_at_epoch,
+      }));
+
+      // Merge and sort by epoch (newest first)
+      const merged = [...obsItems, ...sumItems, ...promptItems].sort((a, b) => b.epoch - a.epoch);
+      setTimelineItems(merged);
+    } catch (error) {
+      console.error('Failed to fetch timeline:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [session.memory_session_id, session.content_session_id]);
 
   useEffect(() => {
-    async function fetchTimelineData() {
-      try {
-        const [obsData, sumData] = await Promise.all([
-          api.getObservations({ sessionId: session.memory_session_id, limit: 200 }),
-          api.getSessionSummaries(session.memory_session_id),
-        ]);
-
-        const obsItems: TimelineItem[] = (obsData.items || []).map((obs) => ({
-          kind: 'observation' as const,
-          data: obs,
-          epoch: obs.created_at_epoch || new Date(obs.created_at).getTime(),
-        }));
-
-        const sumItems: TimelineItem[] = (sumData.items || []).map((sum) => ({
-          kind: 'summary' as const,
-          data: sum,
-          epoch: sum.created_at_epoch,
-        }));
-
-        const merged = [...obsItems, ...sumItems].sort((a, b) => a.epoch - b.epoch);
-        setTimelineItems(merged);
-      } catch (error) {
-        console.error('Failed to fetch timeline:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
     fetchTimelineData();
-  }, [session.memory_session_id]);
+  }, [fetchTimelineData]);
+
+  // SSE for real-time updates
+  const { lastEvent } = useSSE();
+  useEffect(() => {
+    if (!lastEvent) return;
+    // Refresh on new observation, summary, or prompt for this session
+    const eventData = lastEvent.data as { sessionId?: string } | undefined;
+    if (
+      (lastEvent.type === 'observation:created' ||
+       lastEvent.type === 'summary:created' ||
+       lastEvent.type === 'prompt:new') &&
+      eventData?.sessionId === session.content_session_id
+    ) {
+      fetchTimelineData();
+    }
+  }, [lastEvent, session.content_session_id, fetchTimelineData]);
 
   // Close on escape key
   useEffect(() => {
@@ -404,9 +445,10 @@ function SessionDetailModal({
     return () => window.removeEventListener('keydown', handleEsc);
   }, [onClose, selectedObs, selectedSummary]);
 
-  // Count observations and summaries
+  // Count items by type
   const observationCount = timelineItems.filter(i => i.kind === 'observation').length;
   const summaryCount = timelineItems.filter(i => i.kind === 'summary').length;
+  const promptCount = timelineItems.filter(i => i.kind === 'prompt').length;
 
   return (
     <div className="modal modal-open">
@@ -427,7 +469,6 @@ function SessionDetailModal({
               </span>
             </div>
             <h3 className="font-bold text-lg">{session.project}</h3>
-            <p className="text-base-content/70 mt-1">{session.user_prompt || 'No prompt recorded'}</p>
           </div>
           <button className="btn btn-ghost btn-sm btn-square" onClick={onClose}>
             <span className="iconify ph--x size-5" />
@@ -445,7 +486,7 @@ function SessionDetailModal({
             <p className="text-xs text-base-content/60">Summaries</p>
           </div>
           <div className="bg-base-200 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold">{session.prompt_count ?? 0}</p>
+            <p className="text-2xl font-bold">{promptCount}</p>
             <p className="text-xs text-base-content/60">Prompts</p>
           </div>
           <div className="bg-base-200 rounded-lg p-3 text-center">
@@ -461,8 +502,8 @@ function SessionDetailModal({
         </div>
 
         {/* Timeline List */}
-        <div className="flex-1 overflow-y-auto">
-          <h4 className="font-semibold mb-3">Timeline</h4>
+        <div className="flex-1 overflow-y-auto" ref={timelineRef}>
+          <h4 className="font-semibold mb-3">Timeline (newest first)</h4>
           {isLoading ? (
             <div className="flex justify-center py-8">
               <span className="loading loading-spinner loading-md" />
@@ -471,32 +512,55 @@ function SessionDetailModal({
             <p className="text-center text-base-content/50 py-8">No activity</p>
           ) : (
             <div className="space-y-2">
-              {timelineItems.map((item) => (
-                item.kind === 'observation' ? (
-                  <div
-                    key={`obs-${item.data.id}`}
-                    className="bg-base-200 rounded-lg p-3 cursor-pointer hover:bg-base-300 transition-colors"
-                    onClick={() => setSelectedObs(item.data)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className={`iconify ${getTypeIcon(item.data.type)} size-5 mt-0.5`} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className={`badge badge-xs ${getTypeBadge(item.data.type)}`}>{item.data.type}</span>
-                          <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
-                          {item.data.prompt_number && (
-                            <span className="text-xs text-base-content/50">Prompt #{item.data.prompt_number}</span>
+              {timelineItems.map((item) => {
+                if (item.kind === 'prompt') {
+                  return (
+                    <div
+                      key={`prompt-${item.data.id}`}
+                      className="bg-primary/10 border border-primary/30 rounded-lg p-3"
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className="iconify ph--user text-primary size-5 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="badge badge-xs badge-primary">Prompt #{item.data.prompt_number}</span>
+                            <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                          </div>
+                          <p className="text-sm mt-1 whitespace-pre-wrap">{item.data.prompt_text}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+                if (item.kind === 'observation') {
+                  return (
+                    <div
+                      key={`obs-${item.data.id}`}
+                      className="bg-base-200 rounded-lg p-3 cursor-pointer hover:bg-base-300 transition-colors"
+                      onClick={() => setSelectedObs(item.data)}
+                    >
+                      <div className="flex items-start gap-3">
+                        <span className={`iconify ${getTypeIcon(item.data.type)} size-5 mt-0.5`} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`badge badge-xs ${getTypeBadge(item.data.type)}`}>{item.data.type}</span>
+                            <span className="text-xs text-base-content/50">{formatTime(item.data.created_at)}</span>
+                            {item.data.prompt_number && (
+                              <span className="text-xs text-base-content/50">Prompt #{item.data.prompt_number}</span>
+                            )}
+                          </div>
+                          <p className="font-medium mt-1 truncate">{item.data.title}</p>
+                          {item.data.subtitle && (
+                            <p className="text-sm text-base-content/60 truncate">{item.data.subtitle}</p>
                           )}
                         </div>
-                        <p className="font-medium mt-1 truncate">{item.data.title}</p>
-                        {item.data.subtitle && (
-                          <p className="text-sm text-base-content/60 truncate">{item.data.subtitle}</p>
-                        )}
+                        <span className="iconify ph--caret-right size-4 text-base-content/30" />
                       </div>
-                      <span className="iconify ph--caret-right size-4 text-base-content/30" />
                     </div>
-                  </div>
-                ) : (
+                  );
+                }
+                // summary
+                return (
                   <div
                     key={`sum-${item.data.id}`}
                     className="bg-accent/10 border border-accent/30 rounded-lg p-3 cursor-pointer hover:bg-accent/20 transition-colors"
@@ -520,8 +584,8 @@ function SessionDetailModal({
                       <span className="iconify ph--caret-right size-4 text-base-content/30" />
                     </div>
                   </div>
-                )
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -581,6 +645,8 @@ function getTypeIcon(type: string): string {
       return 'ph--magnifying-glass text-primary';
     case 'decision':
       return 'ph--scales text-warning';
+    case 'change':
+      return 'ph--pencil-simple text-secondary';
     case 'docs':
       return 'ph--file-text text-base-content';
     case 'test':
