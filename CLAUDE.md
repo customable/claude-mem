@@ -28,6 +28,12 @@ pnpm run build
 pnpm run build:plugin
 ```
 
+### Plugin Sync (nach Build!)
+```bash
+pnpm run sync-marketplace
+```
+Synchronisiert das Plugin in alle Claude-Installationen. **Claude Code muss danach neu gestartet werden!**
+
 ## Projekt-Struktur
 
 - `packages/types` - Shared TypeScript types
