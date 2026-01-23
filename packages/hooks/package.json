@@ -1,0 +1,23 @@
+{
+  "name": "@claude-mem/hooks",
+  "version": "0.1.0",
+  "description": "Claude Code hooks for claude-mem",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "claude-mem-hook": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@claude-mem/shared": "workspace:*",
+    "@claude-mem/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

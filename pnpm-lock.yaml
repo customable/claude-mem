@@ -80,6 +80,22 @@ importers:
         specifier: ^5.3.0
         version: 5.9.3
 
+  packages/hooks:
+    dependencies:
+      '@claude-mem/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@claude-mem/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.19.7
+      typescript:
+        specifier: ^5.7.2
+        version: 5.9.3
+
   packages/shared:
     dependencies:
       '@claude-mem/types':
@@ -840,7 +856,7 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   '@types/bun@1.3.6':
     dependencies:
@@ -848,7 +864,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   '@types/cookie-parser@1.4.10(@types/express@5.0.6)':
     dependencies:
@@ -860,7 +876,7 @@ snapshots:
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
       '@types/qs': 6.14.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -887,12 +903,12 @@ snapshots:
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   '@types/serve-static@2.2.0':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   '@types/ws@8.18.1':
     dependencies:
@@ -924,7 +940,7 @@ snapshots:
 
   bun-types@1.3.6:
     dependencies:
-      '@types/node': 20.19.30
+      '@types/node': 22.19.7
 
   bun@1.3.6:
     optionalDependencies:
