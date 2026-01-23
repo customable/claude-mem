@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.7.1] - 2026-01-23
+
+### Bug Fixes
+- Fixed hooks to properly capture `TodoRead`, `TodoWrite`, and `AskUserQuestion` events.
+
+
 ## [2.7.0] - 2026-01-23
 
 ### Features
