@@ -1,38 +1,39 @@
 /**
  * Search View
  *
- * Semantic search with filters.
+ * Full-text and semantic search with filters.
  */
 
 import { useState } from 'react';
+import { api, type Observation } from '../api/client';
+import { useQuery } from '../hooks/useApi';
 
-interface SearchResult {
-  id: number;
-  type: 'observation' | 'summary' | 'prompt';
-  title: string;
-  content: string;
-  project: string;
-  timestamp: string;
-  score: number;
-  obsType?: string;
-}
+const TYPE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
+  bugfix: { icon: 'ph--bug', color: 'text-error', label: 'Bug Fix' },
+  feature: { icon: 'ph--star', color: 'text-secondary', label: 'Feature' },
+  refactor: { icon: 'ph--arrows-clockwise', color: 'text-info', label: 'Refactor' },
+  change: { icon: 'ph--check-circle', color: 'text-success', label: 'Change' },
+  discovery: { icon: 'ph--magnifying-glass', color: 'text-primary', label: 'Discovery' },
+  decision: { icon: 'ph--scales', color: 'text-warning', label: 'Decision' },
+  'session-request': { icon: 'ph--chat-text', color: 'text-base-content/60', label: 'Request' },
+};
 
 interface SearchFilters {
-  type?: string;
-  project?: string;
-  dateRange?: string;
+  type: string;
+  project: string;
 }
 
 export function SearchView() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<Observation[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({});
-  const [searchMeta, setSearchMeta] = useState<{
-    usedSemantic: boolean;
-    vectorDbAvailable: boolean;
-  } | null>(null);
+  const [filters, setFilters] = useState<SearchFilters>({ type: '', project: '' });
+  const [searchMode, setSearchMode] = useState<string | null>(null);
+
+  // Fetch projects for filter dropdown
+  const { data: projectsData } = useQuery(() => api.getProjects(), []);
+  const projects = projectsData?.projects?.filter(Boolean) || [];
 
   const handleSearch = async () => {
     if (!query.trim()) return;
@@ -41,22 +42,18 @@ export function SearchView() {
     setHasSearched(true);
 
     try {
-      const params = new URLSearchParams({ query, limit: '30' });
-      if (filters.type) params.set('type', filters.type);
-      if (filters.project) params.set('project', filters.project);
-
-      const response = await fetch(`/api/search/semantic?${params}`);
-      const data = await response.json();
-
-      setResults(data.results || []);
-      setSearchMeta({
-        usedSemantic: data.usedSemantic ?? false,
-        vectorDbAvailable: data.vectorDbAvailable ?? false,
+      const response = await api.searchSemantic({
+        query,
+        project: filters.project || undefined,
+        limit: 30,
       });
+
+      setResults(response.items || []);
+      setSearchMode(response.mode || 'text-fallback');
     } catch (error) {
       console.error('Search failed:', error);
       setResults([]);
-      setSearchMeta(null);
+      setSearchMode(null);
     } finally {
       setIsSearching(false);
     }
@@ -68,13 +65,20 @@ export function SearchView() {
     }
   };
 
+  // Filter results client-side by type
+  const filteredResults = filters.type
+    ? results.filter((r) => r.type === filters.type)
+    : results;
+
+  const types = Object.keys(TYPE_CONFIG);
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
         <h2 className="text-xl font-semibold">Search</h2>
         <p className="text-sm text-base-content/60">
-          Find memories using semantic similarity
+          Search through memories and observations
         </p>
       </div>
 
@@ -111,49 +115,45 @@ export function SearchView() {
       <div className="flex flex-wrap gap-3">
         <select
           className="select select-bordered select-sm"
-          value={filters.type || ''}
-          onChange={(e) => setFilters({ ...filters, type: e.target.value || undefined })}
+          value={filters.type}
+          onChange={(e) => setFilters({ ...filters, type: e.target.value })}
         >
           <option value="">All Types</option>
-          <option value="observation">Observations</option>
-          <option value="summary">Summaries</option>
-          <option value="prompt">Prompts</option>
+          {types.map((t) => (
+            <option key={t} value={t}>{TYPE_CONFIG[t].label}</option>
+          ))}
         </select>
 
-        <input
-          type="text"
-          placeholder="Project filter..."
-          className="input input-bordered input-sm w-40"
-          value={filters.project || ''}
-          onChange={(e) => setFilters({ ...filters, project: e.target.value || undefined })}
-        />
+        <select
+          className="select select-bordered select-sm"
+          value={filters.project}
+          onChange={(e) => setFilters({ ...filters, project: e.target.value })}
+        >
+          <option value="">All Projects</option>
+          {projects.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
       </div>
 
       {/* Search Status */}
-      {searchMeta && (
+      {searchMode && hasSearched && (
         <div className="flex items-center gap-2 text-sm">
-          {searchMeta.vectorDbAvailable ? (
-            searchMeta.usedSemantic ? (
-              <span className="badge badge-success badge-sm badge-outline">
-                <span className="iconify ph--brain size-3 mr-1" />
-                Semantic Search Active
-              </span>
-            ) : (
-              <span className="badge badge-warning badge-sm badge-outline">
-                <span className="iconify ph--funnel size-3 mr-1" />
-                Filter-only Mode
-              </span>
-            )
+          {searchMode === 'semantic' ? (
+            <span className="badge badge-success badge-sm badge-outline">
+              <span className="iconify ph--brain size-3 mr-1" />
+              Semantic Search
+            </span>
           ) : (
-            <span className="badge badge-error badge-sm badge-outline">
-              <span className="iconify ph--warning size-3 mr-1" />
-              Vector DB Unavailable
+            <span className="badge badge-info badge-sm badge-outline">
+              <span className="iconify ph--text-aa size-3 mr-1" />
+              Full-Text Search
             </span>
           )}
           <span className="text-base-content/50">
-            {searchMeta.usedSemantic
+            {searchMode === 'semantic'
               ? 'Results ranked by semantic similarity'
-              : 'Install Chroma for semantic search'}
+              : 'Results matched by text content'}
           </span>
         </div>
       )}
@@ -166,15 +166,14 @@ export function SearchView() {
       ) : !hasSearched ? (
         <div className="card bg-base-100 card-border">
           <div className="card-body items-center justify-center py-16 text-base-content/60">
-            <span className="iconify ph--brain size-16 mb-4" />
-            <span className="text-lg font-medium">Semantic Search</span>
+            <span className="iconify ph--magnifying-glass size-16 mb-4" />
+            <span className="text-lg font-medium">Search Memories</span>
             <p className="text-sm text-center max-w-md">
-              Enter a natural language query to find related memories.
-              Results are ranked by AI-powered similarity matching.
+              Enter a query to search through observations, discoveries, and decisions.
             </p>
           </div>
         </div>
-      ) : results.length === 0 ? (
+      ) : filteredResults.length === 0 ? (
         <div className="card bg-base-100 card-border">
           <div className="card-body items-center justify-center py-16 text-base-content/60">
             <span className="iconify ph--magnifying-glass-minus size-16 mb-4" />
@@ -185,15 +184,11 @@ export function SearchView() {
       ) : (
         <div className="space-y-3">
           <div className="text-sm text-base-content/60">
-            {results.length} results
-            {searchMeta?.usedSemantic && results[0]?.score > 0 && (
-              <span className="ml-2">
-                (best match: {Math.round(results[0].score * 100)}% similarity)
-              </span>
-            )}
+            {filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''}
+            {filters.type && ` (filtered by ${TYPE_CONFIG[filters.type]?.label || filters.type})`}
           </div>
-          {results.map((result) => (
-            <SearchResultCard key={`${result.type}-${result.id}`} result={result} />
+          {filteredResults.map((result) => (
+            <SearchResultCard key={result.id} observation={result} />
           ))}
         </div>
       )}
@@ -201,23 +196,10 @@ export function SearchView() {
   );
 }
 
-function SearchResultCard({ result }: { result: SearchResult }) {
+function SearchResultCard({ observation }: { observation: Observation }) {
   const [expanded, setExpanded] = useState(false);
-  const date = new Date(result.timestamp).toLocaleString();
-
-  const typeIcon =
-    result.type === 'observation'
-      ? 'ph--note'
-      : result.type === 'summary'
-        ? 'ph--list-bullets'
-        : 'ph--chat-text';
-
-  const typeColor =
-    result.type === 'observation'
-      ? 'text-primary'
-      : result.type === 'summary'
-        ? 'text-secondary'
-        : 'text-accent';
+  const config = TYPE_CONFIG[observation.type] || { icon: 'ph--dot', color: 'text-base-content', label: observation.type };
+  const date = new Date(observation.created_at).toLocaleString('de-DE');
 
   return (
     <div className="card bg-base-100 card-border">
@@ -226,39 +208,62 @@ function SearchResultCard({ result }: { result: SearchResult }) {
         onClick={() => setExpanded(!expanded)}
       >
         <div className="flex items-center gap-3">
-          <span className={`iconify ${typeIcon} size-5 ${typeColor} shrink-0`} />
+          <span className={`iconify ${config.icon} size-5 ${config.color} shrink-0`} />
 
           <div className="flex-1 min-w-0">
-            <span className="font-medium block truncate">{result.title}</span>
-            {result.obsType && (
-              <span className="text-xs text-base-content/60">{result.obsType}</span>
+            <span className="font-medium block truncate">{observation.title || 'Untitled'}</span>
+            {observation.subtitle && (
+              <span className="text-xs text-base-content/60 block truncate">{observation.subtitle}</span>
             )}
           </div>
 
-          {result.score > 0 && (
-            <span className="badge badge-success badge-sm">
-              {Math.round(result.score * 100)}%
+          <span className="badge badge-ghost badge-xs">{config.label}</span>
+
+          {observation.project && (
+            <span className="badge badge-primary badge-sm badge-outline">
+              {observation.project}
             </span>
           )}
 
-          <span className="badge badge-primary badge-sm badge-outline">
-            {result.project}
-          </span>
-
-          <span className="text-xs text-base-content/50">{date}</span>
+          <span className="text-xs text-base-content/50 shrink-0">{date}</span>
 
           <span
-            className={`iconify ph--caret-down size-4 text-base-content/40 transition-transform ${
+            className={`iconify ph--caret-down size-4 text-base-content/40 transition-transform shrink-0 ${
               expanded ? 'rotate-180' : ''
             }`}
           />
         </div>
 
-        {expanded && result.content && (
-          <div className="mt-3 pt-3 border-t border-base-300">
-            <p className="text-sm text-base-content/80 whitespace-pre-wrap line-clamp-6">
-              {result.content}
-            </p>
+        {expanded && (
+          <div className="mt-3 pt-3 border-t border-base-300 space-y-2">
+            {observation.narrative && (
+              <p className="text-sm text-base-content/80 leading-relaxed">
+                {observation.narrative}
+              </p>
+            )}
+            {observation.text && (
+              <p className="text-sm text-base-content/70 whitespace-pre-wrap">
+                {observation.text}
+              </p>
+            )}
+            <div className="flex items-center gap-4 text-xs text-base-content/50 pt-2">
+              <span className="flex items-center gap-1">
+                <span className="iconify ph--identification-badge size-3" />
+                ID {observation.id}
+              </span>
+              {observation.prompt_number && (
+                <span className="flex items-center gap-1">
+                  <span className="iconify ph--hash size-3" />
+                  Prompt {observation.prompt_number}
+                </span>
+              )}
+              {observation.discovery_tokens && (
+                <span className="flex items-center gap-1">
+                  <span className="iconify ph--coins size-3" />
+                  {observation.discovery_tokens.toLocaleString()} tokens
+                </span>
+              )}
+            </div>
           </div>
         )}
       </div>

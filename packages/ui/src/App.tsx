@@ -6,17 +6,18 @@
 
 import { useState, useEffect } from 'react';
 import { StatusBar } from './components/StatusBar';
-import { ObservationList } from './components/ObservationList';
 import { WorkerStatus } from './components/WorkerStatus';
 import { Console } from './components/Console';
 import { DashboardView } from './views/Dashboard';
 import { SessionsView } from './views/Sessions';
 import { SearchView } from './views/Search';
 import { SettingsView } from './views/Settings';
+import { LiveView } from './views/Live';
+import { MemoriesView } from './views/Memories';
 
-type View = 'dashboard' | 'observations' | 'sessions' | 'workers' | 'search' | 'settings';
+type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'workers' | 'settings';
 
-const VALID_VIEWS: View[] = ['dashboard', 'observations', 'sessions', 'workers', 'search', 'settings'];
+const VALID_VIEWS: View[] = ['dashboard', 'memories', 'sessions', 'live', 'search', 'workers', 'settings'];
 
 function getViewFromHash(): View {
   const hash = window.location.hash.slice(1).split('?')[0]; // Remove # and query params
@@ -51,8 +52,9 @@ export function App() {
 
   const tabs: { id: View; label: string; icon: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: 'ph--house' },
-    { id: 'observations', label: 'Observations', icon: 'ph--brain' },
+    { id: 'memories', label: 'Memories', icon: 'ph--brain' },
     { id: 'sessions', label: 'Sessions', icon: 'ph--clock-counter-clockwise' },
+    { id: 'live', label: 'Live', icon: 'ph--broadcast' },
     { id: 'search', label: 'Search', icon: 'ph--magnifying-glass' },
     { id: 'workers', label: 'Workers', icon: 'ph--cpu' },
     { id: 'settings', label: 'Settings', icon: 'ph--gear' },
@@ -100,8 +102,9 @@ export function App() {
       <main className={`flex-1 p-4 lg:p-6 ${consoleOpen ? 'pb-80' : ''}`}>
         <div className="container max-w-6xl mx-auto">
           {view === 'dashboard' && <DashboardView />}
-          {view === 'observations' && <ObservationList />}
+          {view === 'memories' && <MemoriesView />}
           {view === 'sessions' && <SessionsView />}
+          {view === 'live' && <LiveView />}
           {view === 'search' && <SearchView />}
           {view === 'workers' && <WorkerStatus />}
           {view === 'settings' && <SettingsView />}
