@@ -7,22 +7,22 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #12036 | 11:08 PM | 🔵 | Observation Handler Implementation Review | ~1845 |
-| #12025 | 11:07 PM | 🔵 | Context Generation Handler Implementation | ~1342 |
-| #12017 | 11:07 PM | 🔵 | CLAUDE.md Handler Structure and Functionality | ~1672 |
-| #12010 | 11:07 PM | 🔵 | Summarize Handler Implementation Review | ~1514 |
-| #12006 | 11:07 PM | 🔵 | Observation Handler Architecture Review | ~1901 |
-| #11857 | 10:36 PM | 🔵 | CLAUDE.md handler documentation reviewed | ~1162 |
-| #11854 | 10:35 PM | 🔵 | Observation Handler Architecture Review | ~1860 |
-| #11853 | 10:35 PM | 🔵 | Summarize Handler Implementation Review | ~1547 |
-| #11849 | 10:34 PM | 🔵 | Discovered CLAUDE.md handler implementation | ~1668 |
-| #11789 | 10:23 PM | 🔵 | Observation Handler Implementation Review | ~1865 |
+| #12036 | 11:08 PM | 🔵 | Observation Handler Review | ~1845 |
+| #12025 | 11:07 PM | 🔵 | Context Generation Handler | ~1342 |
+| #12017 | 11:07 PM | 🔵 | CLAUDE.md Handler Structure | ~1672 |
+| #12010 | 11:07 PM | 🔵 | Summarize Handler Review | ~1514 |
+| #12006 | 11:07 PM | 🔵 | Observation Handler Architecture | ~1901 |
+| #11857 | 10:36 PM | 🔵 | CLAUDE.md Handler Docs | ~1162 |
+| #11854 | 10:35 PM | 🔵 | Observation Handler Review | ~1860 |
+| #11853 | 10:35 PM | 🔵 | Summarize Handler Review | ~1547 |
+| #11849 | 10:34 PM | 🔵 | CLAUDE.md Handler Discovery | ~1668 |
+| #11789 | 10:23 PM | 🔵 | Observation Handler Review | ~1865 |
 
 ## Key Insights
 
-- The project uses a modular monorepo architecture with packages for backend, database, hooks, and workers.
-- Key components include observation extraction, session management, and task dispatching via WebSocket.
-- The current Endless Mode (v7.1) has latency issues due to synchronous processing, causing ~110-second delays.
-- A new MCP tool for cached document search is proposed to address implementation gaps.
-- The system supports CLAUDE.md generation, context summarization, and observation handling using AI agents.
+- **Core Architecture**: The system uses AI agents for observation extraction, context generation, and summarization, with handlers like `observation-handler.ts` and `summarize-handler.ts` processing tool I/O and session data.
+- **Documentation Flow**: `claude-md-handler.ts` generates CLAUDE.md by querying AI agents with structured prompts, ensuring consistent formatting.
+- **Performance Gaps**: Synchronous processing in Endless Mode causes latency (~110s delays), and transcript storage/reading mechanisms are missing.
+- **Proposed Solutions**: Implement asynchronous processing for Endless Mode and develop an MCP tool for cached document search (Issue #115).
+- **Monorepo Structure**: Key packages include backend, hooks, workers, and database, with modular components for session management and task dispatching.
 </claude-mem-context>

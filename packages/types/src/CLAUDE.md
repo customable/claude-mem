@@ -16,9 +16,9 @@
 
 ## Key Insights
 
-- **Task System Architecture**: The backend creates tasks (observation, summarization, etc.) and assigns them to workers based on capabilities. Task statuses include pending, assigned, processing, completed, and failed.
-- **Database Model**: The `database.ts` file defines 18 observation types (bugfix, feature, refactor, etc.) and is central to categorizing work.
-- **Endless Mode Bottleneck**: Current synchronous processing causes ~110-second delays; asynchronous processing is needed.
-- **Proposed MCP Tool**: A new tool for cached document search is required to improve efficiency.
-- **Modular Monorepo**: The project uses separate packages for backend, database, hooks, and workers, with WebSocket-based task dispatching.
+- **Task System Architecture**: The backend creates tasks (observation, summarization, embedding) and assigns them to workers based on capabilities. Task statuses include pending, assigned, processing, completed, and failed.
+- **Database Model**: The `database.ts` file defines 18 observation types (bugfix, feature, refactor, etc.) and interfaces for documents, sessions, and observations.
+- **Endless Mode Limitation**: Current synchronous processing in Endless Mode causes latency issues, requiring optimization or asynchronous implementation.
+- **Proposed MCP Tool**: A new tool is needed to search cached documents (Issue #115) to improve efficiency.
+- **Monorepo Structure**: The project is modular with packages for backend, hooks, workers, and database, using PostToolUse hooks and task dispatchers.
 </claude-mem-context>

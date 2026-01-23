@@ -7,19 +7,19 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #12037 | 11:09 PM | 🔵 | Post-tool-use handler backend obs | ~2068 |
-| #12029 | 11:08 PM | 🔵 | Post-tool-use backend observation | ~2065 |
-| #12026 | 11:08 PM | 🔵 | User prompt handler session init | ~1236 |
-| #12018 | 11:07 PM | 🔵 | Stop hook session cleanup | ~1761 |
-| #12005 | 11:07 PM | 🔵 | Session start handler analysis | ~2861 |
-| #11909 | 10:47 PM | 🔵 | Post-tool-use backend obs | ~2078 |
-| #11877 | 10:38 PM | 🔵 | Session start handler analysis | ~2947 |
+| #12037 | 11:09 PM | 🔵 | Post-tool-use handler sends observations | ~2068 |
+| #12029 | 11:08 PM | 🔵 | Post-tool-use handler sends observations | ~2065 |
+| #12026 | 11:08 PM | 🔵 | User prompt submission handler initializes | ~1236 |
+| #12018 | 11:07 PM | 🔵 | Understanding the stop hook handler | ~1761 |
+| #12005 | 11:07 PM | 🔵 | Session Start Handler Implementation | ~2861 |
+| #11909 | 10:47 PM | 🔵 | Post-tool-use hook sends observations | ~2078 |
+| #11877 | 10:38 PM | 🔵 | Session Start Handler Implementation | ~2947 |
 
 ## Key Insights
 
-- **Hook System Architecture**: The project uses a robust hook system with handlers for session start, stop, user prompts, and post-tool-use events. These hooks manage backend communication, session cleanup, and observation extraction.
-- **Session Management**: Sessions are initialized via `/api/hooks/session-init` and cleaned up with PID file management. The system supports context injection from previous sessions.
-- **Backend Integration**: Post-tool-use handlers filter and send tool usage data to a backend service, excluding routing/introspection tools to avoid redundant processing.
-- **Endless Mode Bottleneck**: Current synchronous processing in Endless Mode causes ~110-second delays, requiring optimization for asynchronous handling.
-- **Next Steps**: Prioritize implementing an MCP tool for cached document search and addressing latency issues in Endless Mode by optimizing the compression pipeline.
+- **Hook System**: Post-tool-use and session-start handlers are critical for observation extraction and session management.
+- **Session Flow**: User prompt submission initializes backend sessions, while stop handlers clean up resources.
+- **Architecture**: The project uses a modular monorepo with packages for backend, hooks, and workers.
+- **Optimization Needed**: Endless Mode's synchronous processing causes latency issues.
+- **Next Steps**: Implement an MCP tool for cached document search and address Endless Mode latency.
 </claude-mem-context>

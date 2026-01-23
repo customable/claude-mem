@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #12037 | 11:09 PM | 🔵 | Post-tool-use handler sends observations | ~2068 |
+| #12037 | 11:09 PM | 🔵 | Post-tool-use handler backend integration | ~2068 |
 | #12036 | 11:08 PM | 🔵 | Observation Handler Implementation Review | ~1845 |
 | #12034 | 11:08 PM | 🔵 | Task system architecture overview | ~2546 |
-| #12033 | 11:08 PM | 🔵 | Hook system types and structure discovered | ~1379 |
-| #12032 | 11:08 PM | 🔵 | No compression-related code found | ~707 |
-| #12030 | 11:08 PM | 🔵 | Examining Observation Entity Structure | ~1414 |
-| #12029 | 11:08 PM | 🔵 | Post-tool-use handler sends observations | ~2065 |
-| #12028 | 11:08 PM | 🔵 | Found "transcript" references in hooks | ~771 |
-| #12027 | 11:08 PM | 🔵 | Discovered observation type definitions | ~1857 |
-| #12026 | 11:08 PM | 🔵 | User prompt submission handler initializes | ~1236 |
-| #12025 | 11:07 PM | 🔵 | Context Generation Handler Implementation | ~1342 |
-| #12024 | 11:07 PM | 🔵 | Exploring settings management structure | ~2402 |
+| #12033 | 11:08 PM | 🔵 | Hook system types and structure | ~1379 |
+| #12032 | 11:08 PM | 🔵 | No compression code found | ~707 |
+| #12030 | 11:08 PM | 🔵 | Observation Entity Structure | ~1414 |
+| #12029 | 11:08 PM | 🔵 | Post-tool-use backend integration | ~2065 |
+| #12028 | 11:08 PM | 🔵 | Transcript references in hooks | ~771 |
+| #12027 | 11:08 PM | 🔵 | Observation types in database.ts | ~1857 |
+| #12026 | 11:08 PM | 🔵 | User prompt handler initializes sessions | ~1236 |
+| #12025 | 11:07 PM | 🔵 | Context generation handler | ~1342 |
+| #12024 | 11:07 PM | 🔵 | Settings management structure | ~2402 |
 | #12023 | 11:07 PM | 🔵 | SSE Writer Component Analysis | ~1725 |
-| #12022 | 11:07 PM | 🔵 | Hook Runner Implementation Analysis | ~1596 |
-| #12021 | 11:07 PM | 🔵 | Examining Data Router Structure | ~1949 |
-| #12020 | 11:07 PM | 🔵 | Hook system types and structure discovered | ~1475 |
-| #12019 | 11:07 PM | 🔵 | Examining Task Service Implementation | ~2105 |
-| #12018 | 11:07 PM | 🔵 | Understanding the stop hook handler | ~1761 |
-| #12017 | 11:07 PM | 🔵 | CLAUDE.md Handler Structure and Functionality | ~1672 |
-| #12016 | 11:07 PM | 🔵 | Anthropic Agent Implementation Review | ~1623 |
-| #12015 | 11:07 PM | 🔵 | Task system architecture overview | ~2515 |
-| #12014 | 11:07 PM | 🔵 | Examining Session Entity Structure | ~1083 |
-| #12013 | 11:07 PM | 🔵 | Task Dispatcher Architecture Overview | ~2359 |
-| #12012 | 11:07 PM | 🔵 | Worker Service Architecture Overview | ~1825 |
-| #12011 | 11:07 PM | 🔵 | Examining Hooks Router Implementation | ~1761 |
-| #12010 | 11:07 PM | 🔵 | Summarize Handler Implementation Review | ~1514 |
-| #12008 | 11:07 PM | 🔵 | Session Service Structure and Prompt Handling | ~1744 |
-| #12006 | 11:07 PM | 🔵 | Observation Handler Architecture Review | ~1901 |
-| #12005 | 11:07 PM | 🔵 | Session Start Handler Implementation Analysis | ~2861 |
-| #11985 | 11:03 PM | 🟣 | Lowered priority for claude-md tasks | ~4851 |
+| #12022 | 11:07 PM | 🔵 | Hook Runner Implementation | ~1596 |
+| #12021 | 11:07 PM | 🔵 | Data Router Structure | ~1949 |
+| #12020 | 11:07 PM | 🔵 | Hook system types discovered | ~1475 |
+| #12019 | 11:07 PM | 🔵 | Task Service Implementation | ~2105 |
+| #12018 | 11:07 PM | 🔵 | Stop hook handler functionality | ~1761 |
+| #12017 | 11:07 PM | 🔵 | CLAUDE.md Handler Structure | ~1672 |
+| #12016 | 11:07 PM | 🔵 | Anthropic Agent Implementation | ~1623 |
+| #12015 | 11:07 PM | 🔵 | Task system architecture | ~2515 |
+| #12014 | 11:07 PM | 🔵 | Session Entity Structure | ~1083 |
+| #12013 | 11:07 PM | 🔵 | Task Dispatcher Architecture | ~2359 |
+| #12012 | 11:07 PM | 🔵 | Worker Service Architecture | ~1825 |
+| #12011 | 11:07 PM | 🔵 | Hooks Router Implementation | ~1761 |
+| #12010 | 11:07 PM | 🔵 | Summarize Handler Implementation | ~1514 |
+| #12008 | 11:07 PM | 🔵 | Session Service Prompt Handling | ~1744 |
+| #12006 | 11:07 PM | 🔵 | Observation Handler Architecture | ~1901 |
+| #12005 | 11:07 PM | 🔵 | Session Start Handler | ~2861 |
+| #11985 | 11:03 PM | 🟣 | Lowered claude-md task priority | ~4851 |
 
 ## Key Insights
 
-- **Architecture Understanding**: The project uses a modular monorepo structure with packages for backend, hooks, and workers. Key components include the task dispatcher, session management, and observation extraction workflow.
-- **Endless Mode Limitations**: The current Endless Mode (v7.1) has latency issues due to synchronous processing, causing significant delays (~110 seconds).
-- **Task Prioritization**: Documentation generation (claude-md tasks) has been deprioritized, reflecting a focus on core functionality.
-- **Transcript Handling**: References to "transcript" in the hooks package suggest context compression mechanisms, though no explicit compression code was found.
-- **Next Steps**: Address Endless Mode latency by implementing asynchronous processing, optimize transcript handling, and explore the proposed MCP tool for cached document search.
+- **Architecture Understanding**: The project uses a modular monorepo with packages for backend, hooks, workers, and database. Key components include the task dispatcher, observation handlers, and SSE writer for CLAUDE.md updates.
+- **Task System**: The task system handles observation extraction, summarization, and embedding tasks. Claude-md tasks were deprioritized (defaultPriority - 30), indicating documentation generation is less critical than core functionality.
+- **Hook System**: The hook system supports events like session-start, user-prompt-submit, and post-tool-use, with handlers for context injection, session initialization, and observation extraction.
+- **Gaps Identified**: Missing transcript storage/reading mechanisms and synchronous processing in Endless Mode causing latency issues (~110 seconds). No compression-related code found, suggesting a need for implementation.
+- **Next Steps**: Implement asynchronous processing for Endless Mode, add transcript storage, and develop an MCP tool for searching cached documents (Issue #115).
 </claude-mem-context>
