@@ -90,6 +90,7 @@ export interface Settings {
 
   // CLAUDE.md Generation
   CLAUDEMD_ENABLED: boolean;
+  CLAUDEMD_OBSERVATION_INTERVAL: number; // Generate CLAUDE.md after every N observations
 }
 
 // ============================================
@@ -172,6 +173,7 @@ export const DEFAULTS: Settings = {
 
   // CLAUDE.md Generation
   CLAUDEMD_ENABLED: false,
+  CLAUDEMD_OBSERVATION_INTERVAL: 10, // Generate CLAUDE.md after every 10 observations
 };
 
 // ============================================
@@ -207,6 +209,7 @@ const NUMBER_KEYS: SettingKey[] = [
   'RETENTION_MAX_AGE_DAYS',
   'RETENTION_MAX_COUNT',
   'DATABASE_PORT',
+  'CLAUDEMD_OBSERVATION_INTERVAL',
 ];
 
 // ============================================

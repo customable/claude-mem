@@ -57,6 +57,7 @@ SQLite-Datenbank unter `~/.claude-mem/claude-mem.db`
 | `session_summaries` | Session-Zusammenfassungen |
 | `project_claudemd` | Generierter CLAUDE.md Content |
 | `task_queue` | Worker Task Queue |
+| `documents` | Gecachte MCP-Dokumentation (Context7, WebFetch) |
 
 ### Abfrage-Beispiele
 
@@ -102,13 +103,14 @@ Das Plugin generiert automatisch Context-Sections in CLAUDE.md-Dateien.
 - `project_claudemd` Tabelle - Speichert generierten Content
 
 **Timing:**
-- Bei Prompt 1, 6, 11, 16... (alle 5 Prompts) wird ein `claude-md` Task gequeued
-- Nach Session-Ende wird ebenfalls generiert
+- Nach jeder X. Observation wird ein `claude-md` Task gequeued (Standard: 10)
+- Nach Session-Ende wird ebenfalls generiert (via summarize-Task)
 - SSE-Writer empfängt `claudemd:ready` Event und schreibt die Datei
+- Subdirectories mit Observations bekommen automatisch eigene CLAUDE.md Dateien
 
 **Konfiguration:**
 - `CLAUDEMD_ENABLED: true` in `~/.claude-mem/settings.json`
-- Interval ist hardcoded auf 5 Prompts (`CLAUDEMD_INTERVAL` in session-service.ts)
+- `CLAUDEMD_OBSERVATION_INTERVAL: 10` - Anzahl Observations bis zur nächsten Generierung
 
 **Debugging:**
 ```bash
@@ -126,6 +128,42 @@ console.log(db.query('SELECT id, project, content_session_id FROM project_claude
 "
 ```
 
+## Neue Migration erstellen
+
+1. **Migration-Datei erstellen:**
+   ```bash
+   # In packages/database/src/mikro-orm/migrations/
+   Migration20260123000005_CreateDocumentsTable.ts
+   ```
+
+2. **Migration in Index exportieren:**
+   ```typescript
+   // packages/database/src/mikro-orm/migrations/index.ts
+   export { Migration20260123000005_CreateDocumentsTable } from './Migration20260123000005_CreateDocumentsTable.js';
+
+   export const mikroOrmMigrations = [
+     // ... bestehende Migrations
+     'Migration20260123000005_CreateDocumentsTable',
+   ];
+   ```
+
+3. **Migration in Config registrieren:**
+   ```typescript
+   // packages/database/src/mikro-orm.config.ts
+   import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
+
+   export const migrationsList = [
+     // ... bestehende Migrations
+     Migration20260123000005_CreateDocumentsTable,
+   ];
+   ```
+
+4. **Dev-Server neustarten:**
+   ```bash
+   pnpm run dev:restart
+   ```
+   Die Migration wird automatisch beim Start ausgeführt.
+
 ## Forgejo Issues
 
 Repository: `thedotmack/claude-mem` auf der lokalen Forgejo-Instanz
@@ -139,42 +177,42 @@ Repository: `thedotmack/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #11823 | 10:27 PM | 🔵 | Database inspection reveals project_claudemd entries | ~1930 |
-| #11822 | 10:27 PM | 🔵 | Discovered hooks package documentation | ~756 |
-| #11821 | 10:27 PM | 🔵 | SSE-Writer logs show directory mismatch errors | ~1147 |
-| #11820 | 10:27 PM | 🔵 | Task dispatcher handles summarize task storage | ~1257 |
-| #11819 | 10:27 PM | 🔵 | Examining Session Entity Structure | ~1088 |
-| #11818 | 10:27 PM | 🟣 | Enhanced database documentation in CLAUDE.md | ~5066 |
-| #11817 | 10:27 PM | 🔵 | Located Session-related TypeScript files | ~768 |
-| #11816 | 10:27 PM | 🔵 | Session handling in task-dispatcher.ts | ~871 |
-| #11815 | 10:26 PM | 🟣 | Added MikroORM and bun:sqlite debugging note | ~3866 |
-| #11814 | 10:26 PM | 🔵 | Database layer uses MikroORM with Repository | ~1003 |
-| #11813 | 10:26 PM | 🔵 | Reviewed CLAUDE.md development documentation | ~3212 |
-| #11812 | 10:26 PM | 🔵 | CLAUDE.md generation queued after summary | ~1159 |
-| #11811 | 10:26 PM | 🔵 | Task Service Creates Claude-MD Tasks | ~1495 |
-| #11810 | 10:26 PM | 🔵 | Claude-md task handling in task dispatcher | ~1303 |
-| #11809 | 10:26 PM | 🔵 | Database schema reveals full-text search tables | ~1393 |
-| #11808 | 10:25 PM | 🔵 | Inspected project_claudemd table schema | ~1847 |
-| #11807 | 10:25 PM | 🟠 | Created documentation file for hooks package | ~736 |
-| #11806 | 10:25 PM | 🔵 | Verified working_directory values | ~1241 |
-| #11805 | 10:25 PM | 🔵 | Inspected sdk_sessions table schema | ~1643 |
-| #11804 | 10:25 PM | 🔵 | SSE-Writer logs reveal directory mismatch | ~1464 |
-| #11803 | 10:25 PM | 🔵 | Hook system types and structure discovered | ~1519 |
-| #11802 | 10:24 PM | 🔵 | Found getSubdirectoriesWithClaudeMd method | ~2814 |
-| #11801 | 10:24 PM | 🔵 | CLAUDE.md generation task queueing logic | ~1421 |
-| #11800 | 10:24 PM | 🔵 | Discovery of 'claudemd:ready' event usage | ~1246 |
-| #11799 | 10:24 PM | 🔵 | Task completion logic in WebSocket dispatcher | ~1184 |
-| #11798 | 10:24 PM | 🔵 | Claude-md task type usage in backend | ~1193 |
-| #11797 | 10:24 PM | 🔵 | No matches for workingDirectory pattern | ~753 |
-| #11796 | 10:24 PM | 🔵 | SSE-Writer log reveals session end events | ~1298 |
-| #11795 | 10:24 PM | 🔵 | Found usage of broadcastClaudeMdReady | ~866 |
-| #11794 | 10:24 PM | 🔵 | SSE Broadcaster Service Implementation | ~985 |
+| #11881 | 10:39 PM | 🔵 | Observation distribution across directories | ~1113 |
+| #11880 | 10:39 PM | 🔵 | Multiple CLAUDE.md files found across project | ~1074 |
+| #11879 | 10:38 PM | 🔵 | Located all CLAUDE.md files in repository | ~1176 |
+| #11878 | 10:38 PM | 🔵 | Dashboard component structure and functionality | ~2883 |
+| #11877 | 10:38 PM | 🔵 | Session Start Handler Implementation Analysis | ~2947 |
+| #11876 | 10:38 PM | 🔵 | Explored settings management system | ~5014 |
+| #11875 | 10:38 PM | 🔵 | Examining Summary Entity Structure | ~1059 |
+| #11874 | 10:38 PM | 🔵 | SSE Hook Implementation Analysis | ~2779 |
+| #11873 | 10:38 PM | 🔵 | Database model types for claude-mem | ~5210 |
+| #11872 | 10:38 PM | 🔵 | StatusBar component uses SSE for monitoring | ~1367 |
+| #11871 | 10:38 PM | 🔵 | Checking current session and pending tasks | ~1576 |
+| #11870 | 10:38 PM | 🔵 | Task queue status and CLAUDE.md files | ~1326 |
+| #11869 | 10:37 PM | 🔵 | Located all CLAUDE.md files in repository | ~917 |
+| #11868 | 10:37 PM | 🔵 | Inspecting recent claude-md task history | ~1184 |
+| #11867 | 10:37 PM | 🔵 | SSE-Writer logs reveal directory mismatch errors | ~1649 |
+| #11866 | 10:37 PM | 🔵 | Analysis of CLAUDE.md files and observations | ~1661 |
+| #11865 | 10:37 PM | 🔵 | Task Service Architecture Overview | ~4418 |
+| #11864 | 10:37 PM | 🔵 | Logger module structure and capabilities | ~2823 |
+| #11863 | 10:37 PM | 🔵 | App.tsx structure and navigation system | ~2313 |
+| #11862 | 10:37 PM | 🔵 | Exploring hooks package exports | ~991 |
+| #11861 | 10:36 PM | 🔵 | Task system architecture for Backend-Worker | ~2514 |
+| #11860 | 10:36 PM | 🔵 | Examining Session Entity Structure | ~1089 |
+| #11859 | 10:36 PM | 🔵 | Session Service Architecture Analysis | ~4510 |
+| #11858 | 10:36 PM | 🔵 | Observation Entity Structure Analysis | ~1397 |
+| #11857 | 10:36 PM | 🔵 | CLAUDE.md handler documentation reviewed | ~1162 |
+| #11856 | 10:36 PM | 🔵 | Reviewed CLAUDE.md for recent activity | ~1432 |
+| #11855 | 10:36 PM | 🔵 | CLAUDE.md files exist in worker package | ~1241 |
+| #11854 | 10:35 PM | 🔵 | Observation Handler Architecture Review | ~1860 |
+| #11853 | 10:35 PM | 🔵 | Summarize Handler Implementation Review | ~1547 |
+| #11852 | 10:35 PM | 🔵 | Reviewed existing CLAUDE.md files and worker | ~1404 |
 
 ## Key Insights
 
-- **SSE-Writer Issues**: Repeated "Directory mismatch" errors and session end events indicate potential problems with directory handling and session management in the SSE-Writer component.
-- **Database Structure**: The project uses MikroORM with a Repository pattern, and key tables include `project_claudemd`, `sdk_sessions`, and `session_summaries`.
-- **Task Management**: CLAUDE.md generation is queued after summary creation, with tasks prioritized and handled by the task dispatcher.
-- **Documentation Updates**: Enhanced CLAUDE.md with database tables, queries, and debugging notes, and created documentation for the hooks package.
-- **Event-Driven Architecture**: The system uses events like `claudemd:ready` for communication between components, particularly in the SSE broadcaster and task dispatcher.
+- **Distributed Documentation**: Multiple CLAUDE.md files exist across directories (worker, hooks, backend, etc.), indicating a modular documentation approach.
+- **SSE Integration**: The system heavily relies on Server-Sent Events (SSE) for real-time updates, used in components like StatusBar and Dashboard.
+- **Task System**: A priority-based task queue system manages observations, summarization, and documentation generation with retry logic.
+- **Directory Mismatch Issue**: SSE-Writer logs show repeated "Directory mismatch" errors, requiring attention for consistent CLAUDE.md file generation.
+- **AI-Driven Processing**: Handlers (observation, summarize, claude-md) use AI agents to process data and generate documentation automatically.
 </claude-mem-context>

@@ -21,6 +21,8 @@ import {
 import { Migration20240101000001_InitialSchema } from './mikro-orm/migrations/Migration20240101000001_InitialSchema.js';
 import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migration20240101000002_FTS5Indexes.js';
 import { Migration20260123000003_SessionWorkingDirectory } from './mikro-orm/migrations/Migration20260123000003_SessionWorkingDirectory.js';
+import { Migration20260123000004_AddSessionRequestType } from './mikro-orm/migrations/Migration20260123000004_AddSessionRequestType.js';
+import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
 
 /**
  * Database configuration options
@@ -60,6 +62,8 @@ export const migrationsList = [
   Migration20240101000001_InitialSchema,
   Migration20240101000002_FTS5Indexes,
   Migration20260123000003_SessionWorkingDirectory,
+  Migration20260123000004_AddSessionRequestType,
+  Migration20260123000005_CreateDocumentsTable,
 ];
 
 /**

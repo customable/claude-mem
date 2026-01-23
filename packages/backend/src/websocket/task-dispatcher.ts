@@ -54,6 +54,9 @@ export class TaskDispatcher {
   private readonly taskService?: TaskService;
   private readonly claudemd?: IClaudeMdRepository;
 
+  // Track observation counts per session for CLAUDE.md generation
+  private sessionObservationCounts: Map<string, number> = new Map();
+
   constructor(
     private readonly hub: WorkerHub,
     private readonly taskQueue: ITaskQueueRepository,
@@ -248,6 +251,9 @@ export class TaskDispatcher {
 
           // Store documentation if this is a documentation tool
           await this.storeDocumentIfApplicable(payload, observation.id, memorySessionId);
+
+          // Check if we should trigger CLAUDE.md generation based on observation count
+          await this.maybeQueueClaudeMdForObservation(payload.sessionId, memorySessionId, payload.project, session);
         } else {
           logger.debug(`No observation content for task ${taskId}`);
         }
@@ -440,6 +446,67 @@ export class TaskDispatcher {
     }
 
     return result;
+  }
+
+  /**
+   * Check if we should queue CLAUDE.md generation based on observation count
+   * Triggers after every N observations (configurable via CLAUDEMD_OBSERVATION_INTERVAL)
+   */
+  private async maybeQueueClaudeMdForObservation(
+    contentSessionId: string,
+    memorySessionId: string,
+    project: string,
+    session: { working_directory?: string | null } | null
+  ): Promise<void> {
+    const settings = getSettings();
+    if (!settings.get('CLAUDEMD_ENABLED') || !this.taskService) return;
+
+    const interval = settings.get('CLAUDEMD_OBSERVATION_INTERVAL') || 10;
+    const workingDirectory = session?.working_directory || undefined;
+
+    // Increment and get current count for this session
+    const currentCount = (this.sessionObservationCounts.get(contentSessionId) || 0) + 1;
+    this.sessionObservationCounts.set(contentSessionId, currentCount);
+
+    // Check if we should trigger CLAUDE.md generation
+    if (currentCount % interval !== 0) {
+      return; // Not yet time to generate
+    }
+
+    logger.debug(`Observation count ${currentCount} reached interval ${interval}, queueing CLAUDE.md generation`);
+
+    try {
+      // Queue for root directory (all observations)
+      await this.taskService.queueClaudeMd({
+        contentSessionId,
+        memorySessionId,
+        project,
+        workingDirectory: workingDirectory || undefined,
+      });
+
+      // Queue for subdirectories that have observations
+      if (workingDirectory && this.observations) {
+        const subdirs = await this.getSubdirectoriesWithObservations(memorySessionId, workingDirectory);
+        for (const subdir of subdirs) {
+          try {
+            await this.taskService.queueClaudeMd({
+              contentSessionId,
+              memorySessionId,
+              project,
+              workingDirectory,
+              targetDirectory: subdir,
+            });
+            logger.debug(`Queued claude-md task for subdirectory: ${subdir}`);
+          } catch (err) {
+            const e = err as Error;
+            logger.warn(`Failed to queue claude-md task for ${subdir}: ${e.message}`);
+          }
+        }
+      }
+    } catch (err) {
+      const e = err as Error;
+      logger.warn(`Failed to queue claude-md task: ${e.message}`);
+    }
   }
 
   /**

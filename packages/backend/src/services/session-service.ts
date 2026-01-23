@@ -6,7 +6,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { createLogger, loadSettings } from '@claude-mem/shared';
+import { createLogger } from '@claude-mem/shared';
 import type {
   ISessionRepository,
   IObservationRepository,
@@ -20,9 +20,6 @@ import type { SSEBroadcaster } from './sse-broadcaster.js';
 import type { TaskService } from './task-service.js';
 
 const logger = createLogger('session-service');
-
-// Generate CLAUDE.md every N prompts (configurable)
-const CLAUDEMD_INTERVAL = 5;
 
 /**
  * Check if a prompt is a real user prompt (not system-generated)
@@ -106,8 +103,7 @@ export class SessionService {
           newCounter
         );
 
-        // Periodically queue CLAUDE.md generation during session
-        await this.maybeQueueClaudeMd(session, newCounter);
+        // Note: CLAUDE.md generation is now triggered by observation count in task-dispatcher
 
         if (wasCompleted) {
           this.sseBroadcaster.broadcastSessionStarted(params.contentSessionId, params.project);
@@ -247,56 +243,6 @@ export class SessionService {
 
     this.sseBroadcaster.broadcastSessionCompleted(contentSessionId);
     logger.info(`Session ${session.id} completed, summarization queued`);
-  }
-
-  /**
-   * Queue CLAUDE.md generation periodically during session
-   * Generates for root directory and all subdirectories with existing CLAUDE.md
-   */
-  private async maybeQueueClaudeMd(session: SdkSessionRecord, promptNumber: number): Promise<void> {
-    // Check if CLAUDEMD is enabled
-    const settings = loadSettings();
-    if (!settings.CLAUDEMD_ENABLED) return;
-
-    // Need memory_session_id for observations
-    if (!session.memory_session_id) return;
-
-    // Queue every N prompts (1, 6, 11, 16, ...)
-    if (promptNumber === 1 || promptNumber % CLAUDEMD_INTERVAL === 1) {
-      const workingDirectory = (session as { working_directory?: string }).working_directory;
-
-      try {
-        // Queue for root directory (all observations)
-        await this.taskService.queueClaudeMd({
-          contentSessionId: session.content_session_id,
-          memorySessionId: session.memory_session_id,
-          project: session.project,
-          workingDirectory,
-        });
-        logger.debug(`Queued CLAUDE.md generation at prompt ${promptNumber}`);
-
-        // Queue for subdirectories with existing CLAUDE.md
-        const subdirs = await this.getWorkingDirectories(session.content_session_id);
-        for (const subdir of subdirs) {
-          try {
-            await this.taskService.queueClaudeMd({
-              contentSessionId: session.content_session_id,
-              memorySessionId: session.memory_session_id,
-              project: session.project,
-              workingDirectory,
-              targetDirectory: subdir,
-            });
-            logger.debug(`Queued CLAUDE.md generation for subdirectory: ${subdir}`);
-          } catch (err) {
-            const error = err as Error;
-            logger.warn(`Failed to queue CLAUDE.md for ${subdir}: ${error.message}`);
-          }
-        }
-      } catch (err) {
-        const error = err as Error;
-        logger.warn(`Failed to queue CLAUDE.md: ${error.message}`);
-      }
-    }
   }
 
   /**
