@@ -4,7 +4,7 @@
  * Business logic for session management.
  */
 
-import { createLogger } from '@claude-mem/shared';
+import { createLogger, loadSettings } from '@claude-mem/shared';
 import type {
   ISessionRepository,
   IObservationRepository,
@@ -18,6 +18,9 @@ import type { SSEBroadcaster } from './sse-broadcaster.js';
 import type { TaskService } from './task-service.js';
 
 const logger = createLogger('session-service');
+
+// Generate CLAUDE.md every N prompts (configurable)
+const CLAUDEMD_INTERVAL = 5;
 
 /**
  * Check if a prompt is a real user prompt (not system-generated)
@@ -99,6 +102,9 @@ export class SessionService {
           params.contentSessionId,
           newCounter
         );
+
+        // Periodically queue CLAUDE.md generation during session
+        await this.maybeQueueClaudeMd(session, newCounter);
 
         if (wasCompleted) {
           this.sseBroadcaster.broadcastSessionStarted(params.contentSessionId, params.project);
@@ -233,6 +239,34 @@ export class SessionService {
 
     this.sseBroadcaster.broadcastSessionCompleted(contentSessionId);
     logger.info(`Session ${session.id} completed, summarization queued`);
+  }
+
+  /**
+   * Queue CLAUDE.md generation periodically during session
+   */
+  private async maybeQueueClaudeMd(session: SdkSessionRecord, promptNumber: number): Promise<void> {
+    // Check if CLAUDEMD is enabled
+    const settings = loadSettings();
+    if (!settings.CLAUDEMD_ENABLED) return;
+
+    // Need memory_session_id for observations
+    if (!session.memory_session_id) return;
+
+    // Queue every N prompts (1, 6, 11, 16, ...)
+    if (promptNumber === 1 || promptNumber % CLAUDEMD_INTERVAL === 1) {
+      try {
+        await this.taskService.queueClaudeMd({
+          contentSessionId: session.content_session_id,
+          memorySessionId: session.memory_session_id,
+          project: session.project,
+          workingDirectory: (session as { working_directory?: string }).working_directory,
+        });
+        logger.debug(`Queued CLAUDE.md generation at prompt ${promptNumber}`);
+      } catch (err) {
+        const error = err as Error;
+        logger.warn(`Failed to queue CLAUDE.md: ${error.message}`);
+      }
+    }
   }
 
   /**
