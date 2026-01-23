@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.5] - 2026-01-23
+
+### Bug Fixes
+- Fixed auto-search not triggering when the project filter changes
+
+
 ## [2.4.4] - 2026-01-23
 
 ### Bug Fixes
