@@ -1,16 +1,59 @@
 /**
  * Worker Status
  *
- * Shows connected workers and their capabilities.
+ * Shows connected workers and their capabilities with real-time SSE updates.
  */
 
+import { useEffect, useState } from 'react';
 import { api, type Worker } from '../api/client';
-import { useQuery } from '../hooks/useApi';
+import { useSSE } from '../hooks/useSSE';
 
 export function WorkerStatus() {
-  const { data, loading, error, refetch } = useQuery(() => api.getWorkers(), []);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { workerTasks, lastEvent } = useSSE();
 
-  if (loading) {
+  // Initial fetch
+  useEffect(() => {
+    api.getWorkers()
+      .then((data) => {
+        setWorkers(data.data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
+
+  // Refetch on worker connect/disconnect events
+  useEffect(() => {
+    if (lastEvent?.type === 'worker:connected' || lastEvent?.type === 'worker:disconnected') {
+      api.getWorkers()
+        .then((data) => {
+          setWorkers(data.data || []);
+        })
+        .catch(() => {
+          // Ignore errors on refetch
+        });
+    }
+  }, [lastEvent]);
+
+  const refetch = () => {
+    setLoading(true);
+    api.getWorkers()
+      .then((data) => {
+        setWorkers(data.data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  };
+
+  if (loading && workers.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-base-content/60">
         <span className="loading loading-spinner loading-md mb-2" />
@@ -19,7 +62,7 @@ export function WorkerStatus() {
     );
   }
 
-  if (error) {
+  if (error && workers.length === 0) {
     return (
       <div className="alert alert-error">
         <span className="iconify ph--warning-circle size-5" />
@@ -28,7 +71,9 @@ export function WorkerStatus() {
     );
   }
 
-  const workers = data?.data || [];
+  // Count busy workers
+  const busyCount = workers.filter((w) => workerTasks[w.id]).length;
+  const idleCount = workers.length - busyCount;
 
   return (
     <div className="space-y-4">
@@ -37,9 +82,20 @@ export function WorkerStatus() {
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Workers</h2>
           <span className="badge badge-neutral badge-sm">{workers.length} connected</span>
+          {busyCount > 0 && (
+            <span className="badge badge-warning badge-sm">
+              <span className="iconify ph--spinner size-3 mr-1 animate-spin" />
+              {busyCount} working
+            </span>
+          )}
+          {idleCount > 0 && workers.length > 0 && (
+            <span className="badge badge-success badge-sm badge-outline">
+              {idleCount} idle
+            </span>
+          )}
         </div>
-        <button onClick={refetch} className="btn btn-ghost btn-sm">
-          <span className="iconify ph--arrows-clockwise size-4" />
+        <button onClick={refetch} className="btn btn-ghost btn-sm" disabled={loading}>
+          <span className={`iconify ph--arrows-clockwise size-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
       </div>
@@ -56,7 +112,11 @@ export function WorkerStatus() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {workers.map((worker) => (
-            <WorkerItem key={worker.id} worker={worker} />
+            <WorkerItem
+              key={worker.id}
+              worker={worker}
+              currentTaskId={workerTasks[worker.id] || null}
+            />
           ))}
         </div>
       )}
@@ -64,18 +124,24 @@ export function WorkerStatus() {
   );
 }
 
-function WorkerItem({ worker }: { worker: Worker }) {
-  const isIdle = !worker.currentTaskId;
+function WorkerItem({
+  worker,
+  currentTaskId,
+}: {
+  worker: Worker;
+  currentTaskId: string | null;
+}) {
+  const isIdle = !currentTaskId;
   const lastSeen = new Date(worker.lastHeartbeat).toLocaleTimeString();
 
   return (
-    <div className="card bg-base-100 card-border">
+    <div className={`card bg-base-100 card-border transition-all ${!isIdle ? 'ring-2 ring-warning/50' : ''}`}>
       <div className="card-body p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="iconify ph--cpu size-5 text-primary" />
-            <span className="font-mono text-sm">{worker.id.slice(0, 12)}</span>
+            <span className={`iconify ph--cpu size-5 ${isIdle ? 'text-primary' : 'text-warning'}`} />
+            <span className="font-mono text-sm">{worker.id.slice(0, 20)}</span>
           </div>
           <div
             className={`badge badge-sm ${isIdle ? 'badge-success' : 'badge-warning'}`}
@@ -88,6 +154,18 @@ function WorkerItem({ worker }: { worker: Worker }) {
             {isIdle ? 'Idle' : 'Working'}
           </div>
         </div>
+
+        {/* Current Task */}
+        {currentTaskId && (
+          <div className="mb-3 p-2 bg-warning/10 rounded-lg">
+            <div className="text-xs text-warning uppercase tracking-wide mb-1">
+              Current Task
+            </div>
+            <div className="font-mono text-xs text-base-content/80 truncate">
+              {currentTaskId}
+            </div>
+          </div>
+        )}
 
         {/* Capabilities */}
         <div className="mb-3">

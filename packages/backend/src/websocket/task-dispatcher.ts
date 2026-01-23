@@ -309,8 +309,10 @@ export class TaskDispatcher {
   /**
    * Handle worker connection - dispatch any pending tasks
    */
-  private handleWorkerConnected(): void {
+  private handleWorkerConnected(worker: { id: string; capabilities: string[] }): void {
     logger.debug('Worker connected, checking for pending tasks');
+    // Broadcast SSE event
+    this.sseBroadcaster?.broadcastWorkerConnected(worker.id, worker.capabilities);
     this.dispatchPendingTasks();
   }
 
@@ -318,6 +320,9 @@ export class TaskDispatcher {
    * Handle worker disconnect - reassign their tasks
    */
   private async handleWorkerDisconnected(workerId: string): Promise<void> {
+    // Broadcast SSE event
+    this.sseBroadcaster?.broadcastWorkerDisconnected(workerId);
+
     try {
       // Find tasks assigned to this worker
       const tasks = await this.taskQueue.getByWorkerId(workerId);
