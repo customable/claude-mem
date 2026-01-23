@@ -101,6 +101,7 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
       toolInput: input.toolInput || '',
       toolOutput: input.toolOutput || '',
       gitBranch,
+      cwd: input.cwd,
     });
 
     if (response.queued) {
