@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.5.0] - 2026-01-23
+
+### Features
+- Added chronological display of summaries in the session timeline.
+
+
 ## [2.4.5] - 2026-01-23
 
 ### Bug Fixes
