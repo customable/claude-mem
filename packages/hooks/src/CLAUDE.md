@@ -7,20 +7,22 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #11952 | 10:58 PM | 🔵 | Understanding SSE Writer Component | ~3487 |
+| #11909 | 10:47 PM | 🔵 | Post-tool-use hook sends observations | ~2078 |
 | #11877 | 10:38 PM | 🔵 | Session Start Handler Analysis | ~2947 |
-| #11862 | 10:37 PM | 🔵 | Hooks Package Exports Explored | ~991 |
-| #11803 | 10:25 PM | 🔵 | Hook System Types Discovered | ~1519 |
-| #11793 | 10:23 PM | 🔵 | Hook Runner Implementation Review | ~2117 |
-| #11792 | 10:23 PM | 🔵 | SSE Writer Component Analysis | ~3507 |
-| #11784 | 10:22 PM | 🟣 | Simplified CLAUDE.md Writing Logic | ~4436 |
-| #11781 | 10:20 PM | 🔵 | SSE Writer Security Validation | ~3609 |
-| #11774 | 10:20 PM | 🔵 | Hooks Package Structure Examined | ~880 |
+| #11862 | 10:37 PM | 🔵 | Exploring hooks package exports | ~991 |
+| #11803 | 10:25 PM | 🔵 | Hook system types and structure | ~1519 |
+| #11793 | 10:23 PM | 🔵 | Hook runner implementation review | ~2117 |
+| #11792 | 10:23 PM | 🔵 | Understanding SSE Writer Component | ~3507 |
+| #11784 | 10:22 PM | 🟣 | Simplified CLAUDE.md writing logic | ~4436 |
+| #11781 | 10:20 PM | 🔵 | Understanding SSE Writer Component | ~3609 |
+| #11774 | 10:20 PM | 🔵 | Exploring hooks package exports | ~880 |
 
 ## Key Insights
 
-- **Hook System Architecture**: The project uses a well-defined hook system with events (session-start, user-prompt-submit, etc.) and platform-agnostic handlers. The `hooks` package exports types, a `BackendClient`, and a runner for execution.
-- **SSE Writer Role**: The SSE Writer is a critical standalone process that listens to backend SSE events, validates security (session IDs, project names), and writes `CLAUDE.md` files to the filesystem.
-- **Recent Refactoring**: The `CLAUDE.md` writing logic was simplified to write files directly to target directories, removing intermediate storage in `pendingWrites`.
-- **Directory Mismatch Issue**: Recurring errors in SSE-Writer logs indicate directory mismatches, requiring attention to ensure consistent `CLAUDE.md` generation.
-- **Modular Documentation**: The project relies on distributed `CLAUDE.md` files for documentation, integrated with real-time updates via SSE and a task queue system.
+- **SSE Writer Component**: Critical for CLAUDE.md generation, handles security validation and real-time updates via SSE events.
+- **Hook System**: Well-structured with defined events (session-start, post-tool-use, etc.) and platform-agnostic handlers.
+- **Recent Optimization**: Simplified CLAUDE.md writing logic to reduce complexity and improve performance.
+- **Documentation Focus**: Multiple discoveries around hooks, SSE, and session handling indicate active documentation efforts.
+- **Next Steps**: Investigate task queue bottlenecks, verify database migrations, and consolidate distributed documentation.
 </claude-mem-context>

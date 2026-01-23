@@ -7,16 +7,24 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #11865 | 10:37 PM | 🔵 | Task Service Architecture Overview | ~4418 |
-| #11859 | 10:36 PM | 🔵 | Session Service Architecture Analysis | ~4510 |
+| #11976 | 11:01 PM | 🔵 | Task Service Architecture Overview | ~4418 |
+| #11904 | 10:44 PM | 🔵 | CLAUDE.md generation mechanism | ~1535 |
+| #11900 | 10:43 PM | 🔄 | Remove unused import 'loadSettings' | ~3982 |
+| #11898 | 10:43 PM | 🔵 | Session-service dependencies | ~805 |
+| #11897 | 10:43 PM | 🔄 | Removed maybeQueueClaudeMd method | ~5471 |
+| #11896 | 10:43 PM | 🔄 | CLAUDE.md generation refactor | ~4865 |
+| #11895 | 10:43 PM | 🔵 | Session creation logic | ~1432 |
+| #11894 | 10:42 PM | 🔄 | Remove CLAUDEMD_INTERVAL constant | ~4559 |
+| #11865 | 10:37 PM | 🔵 | Task Service Architecture | ~4418 |
+| #11859 | 10:36 PM | 🔵 | Session Service Architecture | ~4510 |
 | #11811 | 10:26 PM | 🔵 | Task Service Creates Claude-MD Tasks | ~1495 |
 | #11794 | 10:24 PM | 🔵 | SSE Broadcaster Service Details | ~985 |
 
 ## Key Insights
 
-- **Task Service** manages 5 task types (observation, summarize, embedding, context-generate, claude-md) with priority-based execution.
-- **Session Service** handles session lifecycle, prompt tracking, and observation management, forming the core business logic.
-- **Claude-MD tasks** are created with observations/summaries data and prioritized lower than core tasks.
-- **SSE Broadcaster** enables real-time updates, including CLAUDE.md readiness notifications.
-- **Directory mismatch errors** in SSE-Writer logs need resolution for consistent CLAUDE.md file generation.
+- **Architecture Refactoring**: CLAUDE.md generation moved from `session-service` to `task-dispatcher`, improving separation of concerns.
+- **Code Cleanup**: Removed unused imports (`loadSettings`), constants (`CLAUDEMD_INTERVAL`), and methods (`maybeQueueClaudeMd`).
+- **Task Management**: Task service handles 5 task types with priority-based execution (observations > summaries > CLAUDE.md).
+- **Session Logic**: Sessions manage lifecycle, prompt tracking, and now rely on task-dispatcher for CLAUDE.md generation.
+- **Real-time Updates**: SSE broadcaster notifies clients when CLAUDE.md is ready, enhancing user experience.
 </claude-mem-context>
