@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.15.0] - 2026-01-23
+
+### Features
+- Added support for session working directory and subdirectory `CLAUDE.md` files
+
+### Bug Fixes
+- Fixed `hooks` to send `cwd` in observation request
+- Fixed `sse-writer` to handle session reactivation after completion
+
+
 ## [2.14.2] - 2026-01-23
 
 ### Bug Fixes
