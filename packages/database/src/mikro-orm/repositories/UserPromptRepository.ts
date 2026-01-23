@@ -76,6 +76,33 @@ export class MikroOrmUserPromptRepository implements IUserPromptRepository {
     return entity ? toRecord(entity) : null;
   }
 
+  async getFirstForSession(contentSessionId: string): Promise<UserPromptRecord | null> {
+    const entity = await this.em.findOne(
+      UserPrompt,
+      { content_session_id: contentSessionId },
+      { orderBy: { prompt_number: 'ASC' } }
+    );
+    return entity ? toRecord(entity) : null;
+  }
+
+  async getFirstPromptsForSessions(contentSessionIds: string[]): Promise<Map<string, string>> {
+    if (contentSessionIds.length === 0) return new Map();
+
+    const entities = await this.em.find(
+      UserPrompt,
+      {
+        content_session_id: { $in: contentSessionIds },
+        prompt_number: 1,
+      }
+    );
+
+    const result = new Map<string, string>();
+    for (const entity of entities) {
+      result.set(entity.content_session_id, entity.prompt_text);
+    }
+    return result;
+  }
+
   async countForSession(contentSessionId: string): Promise<number> {
     return this.em.count(UserPrompt, { content_session_id: contentSessionId });
   }

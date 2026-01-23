@@ -102,6 +102,15 @@ export interface Summary {
   discovery_tokens?: number;
 }
 
+export interface UserPrompt {
+  id: number;
+  content_session_id: string;
+  prompt_number: number;
+  prompt_text: string;
+  created_at: string;
+  created_at_epoch: number;
+}
+
 export interface Worker {
   id: string;
   capabilities: string[];
@@ -207,6 +216,12 @@ export const api = {
   // Summaries
   getSessionSummaries: (sessionId: string) =>
     get<{ data: Summary[] }>(`/data/sessions/${sessionId}/summaries`).then(res => ({
+      items: res.data || [],
+    })),
+
+  // User Prompts
+  getSessionPrompts: (sessionId: string) =>
+    get<{ data: UserPrompt[] }>(`/data/sessions/${sessionId}/prompts`).then(res => ({
       items: res.data || [],
     })),
 

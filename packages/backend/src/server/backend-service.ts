@@ -318,6 +318,7 @@ export class BackendService {
       summaries: this.unitOfWork!.summaries,
       sessions: this.unitOfWork!.sessions,
       documents: this.unitOfWork!.documents,
+      userPrompts: this.unitOfWork!.userPrompts,
     }).router);
 
     // Search routes

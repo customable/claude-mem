@@ -81,36 +81,51 @@ export function parseInput(event: HookEvent, raw: unknown): HookInput {
 export async function readStdin(): Promise<unknown> {
   return new Promise((resolve) => {
     let data = '';
+    let resolved = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const safeResolve = (value: unknown) => {
+      if (resolved) return;
+      resolved = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      resolve(value);
+    };
 
     // Handle case where stdin is not available (session-start)
     if (process.stdin.isTTY) {
-      resolve({});
+      safeResolve({});
       return;
     }
 
     process.stdin.setEncoding('utf8');
     process.stdin.on('data', (chunk) => {
       data += chunk;
+      // Cancel timeout once we start receiving data
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
     });
     process.stdin.on('end', () => {
       if (!data.trim()) {
-        resolve({});
+        safeResolve({});
         return;
       }
       try {
-        resolve(JSON.parse(data));
+        safeResolve(JSON.parse(data));
       } catch {
         logger.warn('Failed to parse stdin as JSON');
-        resolve({});
+        safeResolve({});
       }
     });
     process.stdin.on('error', () => {
-      resolve({});
+      safeResolve({});
     });
 
     // Timeout for stdin (session-start may not provide any)
-    setTimeout(() => {
-      resolve({});
+    // This only fires if no data arrives within 100ms
+    timeoutId = setTimeout(() => {
+      safeResolve({});
     }, 100);
   });
 }

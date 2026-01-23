@@ -429,6 +429,16 @@ export interface IUserPromptRepository {
   getLatestForSession(contentSessionId: string): Promise<UserPromptRecord | null>;
 
   /**
+   * Get first prompt for a session
+   */
+  getFirstForSession(contentSessionId: string): Promise<UserPromptRecord | null>;
+
+  /**
+   * Get first prompts for multiple sessions (batch)
+   */
+  getFirstPromptsForSessions(contentSessionIds: string[]): Promise<Map<string, string>>;
+
+  /**
    * Count prompts for a session
    */
   countForSession(contentSessionId: string): Promise<number>;

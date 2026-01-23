@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, ObservationType, DocumentType, TaskStatus } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ObservationType, DocumentType, TaskStatus } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -35,6 +35,7 @@ export interface DataRouterDeps {
   summaries: ISummaryRepository;
   sessions: ISessionRepository;
   documents: IDocumentRepository;
+  userPrompts: IUserPromptRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -56,6 +57,9 @@ export class DataRouter extends BaseRouter {
 
     // Summaries
     this.router.get('/sessions/:sessionId/summaries', this.asyncHandler(this.getSessionSummaries.bind(this)));
+
+    // User Prompts
+    this.router.get('/sessions/:sessionId/prompts', this.asyncHandler(this.getSessionPrompts.bind(this)));
 
     // Tasks
     this.router.get('/tasks', this.asyncHandler(this.listTasks.bind(this)));
@@ -95,7 +99,11 @@ export class DataRouter extends BaseRouter {
       offset: this.parseOptionalIntParam(getString(offset)),
     });
 
-    // Enrich sessions with observation counts
+    // Get first prompts for all sessions in batch
+    const sessionIds = sessions.map(s => s.content_session_id);
+    const firstPrompts = await this.deps.userPrompts.getFirstPromptsForSessions(sessionIds);
+
+    // Enrich sessions with observation counts and first prompts
     const enrichedSessions = await Promise.all(
       sessions.map(async (session) => {
         const observationCount = session.memory_session_id
@@ -103,6 +111,7 @@ export class DataRouter extends BaseRouter {
           : 0;
         return {
           ...session,
+          user_prompt: firstPrompts.get(session.content_session_id) || null,
           observation_count: observationCount,
           prompt_count: session.prompt_counter ?? 0,
         };
@@ -136,6 +145,9 @@ export class DataRouter extends BaseRouter {
       this.notFound(`Session not found: ${id}`);
     }
 
+    // Get first prompt
+    const firstPrompt = await this.deps.userPrompts.getFirstForSession(session.content_session_id);
+
     // Enrich with observation count
     const observationCount = session.memory_session_id
       ? await this.deps.observations.count({ sessionId: session.memory_session_id })
@@ -143,6 +155,7 @@ export class DataRouter extends BaseRouter {
 
     this.success(res, {
       ...session,
+      user_prompt: firstPrompt?.prompt_text || null,
       observation_count: observationCount,
       prompt_count: session.prompt_counter ?? 0,
     });
@@ -293,6 +306,17 @@ export class DataRouter extends BaseRouter {
     const summaries = await this.deps.summaries.getBySessionId(sessionId);
 
     this.success(res, { data: summaries });
+  }
+
+  /**
+   * GET /api/data/sessions/:sessionId/prompts
+   */
+  private async getSessionPrompts(req: Request, res: Response): Promise<void> {
+    const sessionId = getRequiredString(req.params.sessionId);
+
+    const prompts = await this.deps.userPrompts.getBySessionId(sessionId);
+
+    this.success(res, { data: prompts });
   }
 
   /**
