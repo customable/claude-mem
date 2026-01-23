@@ -7,6 +7,7 @@
 import { defineConfig as defineSqliteConfig } from '@mikro-orm/better-sqlite';
 import { defineConfig as definePostgresConfig } from '@mikro-orm/postgresql';
 import { defineConfig as defineMySqlConfig } from '@mikro-orm/mysql';
+import { Migrator } from '@mikro-orm/migrations';
 import {
   Session,
   Observation,
@@ -70,6 +71,7 @@ export function createMikroOrmConfig(options: DatabaseOptions) {
         dbName: options.dbPath || ':memory:',
         debug: options.debug ?? false,
         allowGlobalContext: true,
+        extensions: [Migrator],
         migrations: {
           migrationsList,
           disableForeignKeys: false,
@@ -86,6 +88,7 @@ export function createMikroOrmConfig(options: DatabaseOptions) {
         dbName: options.dbName || 'claude_mem',
         debug: options.debug ?? false,
         allowGlobalContext: true,
+        extensions: [Migrator],
         migrations: {
           migrationsList,
         },
@@ -101,6 +104,7 @@ export function createMikroOrmConfig(options: DatabaseOptions) {
         dbName: options.dbName || 'claude_mem',
         debug: options.debug ?? false,
         allowGlobalContext: true,
+        extensions: [Migrator],
         migrations: {
           migrationsList,
         },
@@ -118,6 +122,7 @@ export default defineSqliteConfig({
   entities,
   dbName: './claude-mem.db',
   debug: false,
+  extensions: [Migrator],
   migrations: {
     migrationsList,
     disableForeignKeys: false,

@@ -10,13 +10,8 @@
 // MikroORM implementation (primary entry point)
 export * as mikroOrm from './mikro-orm/index.js';
 
-// SQLite implementation (legacy, for migration compatibility)
-export * from './sqlite/index.js';
-
-// Migrations
-export { MigrationRunner, migrations } from './migrations/index.js';
-export type { Migration } from './migrations/index.js';
-export * as schema from './migrations/schema.js';
+// NOTE: Legacy SQLite implementation (bun:sqlite) and MigrationRunner removed.
+// They are incompatible with Node.js. MikroORM handles migrations now.
 
 // Re-export types for convenience
 export type {

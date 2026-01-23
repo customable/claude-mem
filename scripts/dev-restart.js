@@ -96,14 +96,14 @@ async function main() {
   // Step 5: Start backend and worker
   console.log('\n\x1b[33m[5/5] Starting services...\x1b[0m');
 
-  // Start backend
-  startBackground('bun', ['packages/backend/dist/backend-service.js'], 'Backend');
+  // Start backend (use node, not bun - bun has issues with MikroORM)
+  startBackground('node', ['packages/backend/dist/backend-service.js'], 'Backend');
 
   // Wait a bit for backend to initialize
   await new Promise(r => setTimeout(r, 2000));
 
-  // Start worker
-  startBackground('bun', ['packages/worker/dist/worker-service.js'], 'Worker');
+  // Start worker (use node for consistency)
+  startBackground('node', ['packages/worker/dist/worker-service.js'], 'Worker');
 
   console.log('\n\x1b[1m\x1b[32m=== Dev environment restarted! ===\x1b[0m');
   console.log(`\nBackend: http://${backendHost}:${backendPort}`);

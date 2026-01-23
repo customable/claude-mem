@@ -123,28 +123,31 @@ export class Migration20240101000001_InitialSchema extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS idx_tasks_worker ON task_queue(assigned_worker_id)`);
     this.addSql(`CREATE INDEX IF NOT EXISTS idx_tasks_priority ON task_queue(priority DESC, created_at ASC)`);
 
-    // Pending messages table (legacy)
+    // Pending messages table (legacy) - keep existing schema if present
+    // The table might already exist with a different schema from legacy bun:sqlite implementation
     this.addSql(`
       CREATE TABLE IF NOT EXISTS pending_messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        session_id TEXT NOT NULL,
-        project TEXT NOT NULL,
+        session_db_id INTEGER,
+        content_session_id TEXT,
+        message_type TEXT,
+        tool_name TEXT,
+        tool_input TEXT,
+        tool_response TEXT,
+        cwd TEXT,
+        last_user_message TEXT,
+        last_assistant_message TEXT,
         prompt_number INTEGER,
-        tool_name TEXT NOT NULL,
-        tool_input TEXT NOT NULL,
-        tool_output TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'pending',
-        error TEXT,
         retry_count INTEGER NOT NULL DEFAULT 0,
-        created_at TEXT NOT NULL,
         created_at_epoch INTEGER NOT NULL,
-        processed_at TEXT,
-        processed_at_epoch INTEGER
+        started_processing_at_epoch INTEGER,
+        completed_at_epoch INTEGER,
+        failed_at_epoch INTEGER
       )
     `);
-    this.addSql(`CREATE INDEX IF NOT EXISTS idx_pending_status ON pending_messages(status)`);
-    this.addSql(`CREATE INDEX IF NOT EXISTS idx_pending_session ON pending_messages(session_id)`);
-    this.addSql(`CREATE INDEX IF NOT EXISTS idx_pending_created ON pending_messages(created_at_epoch ASC)`);
+    // Only create indexes that might not exist - use column names from legacy schema
+    this.addSql(`CREATE INDEX IF NOT EXISTS idx_pending_messages_status ON pending_messages(status)`);
 
     // Project CLAUDE.md table
     this.addSql(`
