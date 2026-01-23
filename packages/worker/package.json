@@ -1,0 +1,28 @@
+{
+  "name": "@claude-mem/worker",
+  "version": "0.1.0",
+  "description": "Distributed AI processing worker for claude-mem",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "claude-mem-worker": "./dist/worker-service.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/worker-service.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "@mistralai/mistralai": "^1.3.6",
+    "@claude-mem/shared": "workspace:*",
+    "@claude-mem/types": "workspace:*",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/ws": "^8.5.13",
+    "typescript": "^5.7.2"
+  }
+}

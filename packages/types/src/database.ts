@@ -12,7 +12,8 @@ export type ObservationType =
   | 'feature'
   | 'refactor'
   | 'discovery'
-  | 'change';
+  | 'change'
+  | 'session-request';
 
 /**
  * Session status
