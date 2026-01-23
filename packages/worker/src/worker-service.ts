@@ -7,10 +7,12 @@
  */
 
 import { createLogger, loadSettings, VERSION } from '@claude-mem/shared';
-import type { WorkerCapability, TaskType, QdrantSyncTaskPayload } from '@claude-mem/types';
+import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
 import { handleObservationTask } from './handlers/observation-handler.js';
+import { handleSummarizeTask } from './handlers/summarize-handler.js';
+import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
 import { getQdrantService } from './services/qdrant-service.js';
 
@@ -94,6 +96,9 @@ export class WorkerService {
 
     // Add qdrant capability if available
     capabilities.push('qdrant:sync');
+
+    // Context generation capability
+    capabilities.push('context:generate');
 
     return capabilities;
   }
@@ -208,9 +213,11 @@ export class WorkerService {
       case 'observation':
         return handleObservationTask(this.agent, payload as Parameters<typeof handleObservationTask>[1]);
 
-      case 'summarize':
-        // TODO: Implement when we have observation data access
-        throw new Error('Summarize task not yet implemented');
+      case 'summarize': {
+        const summarizePayload = payload as SummarizeTaskPayload;
+        const observations = summarizePayload.observations || [];
+        return handleSummarizeTask(this.agent, summarizePayload, observations);
+      }
 
       case 'embedding':
         // TODO: Implement embedding task
@@ -219,9 +226,14 @@ export class WorkerService {
       case 'qdrant-sync':
         return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload);
 
-      case 'context-generate':
-        // TODO: Implement context generation
-        throw new Error('Context generation task not yet implemented');
+      case 'context-generate': {
+        const contextPayload = payload as import('@claude-mem/types').ContextGenerateTaskPayload;
+        return handleContextTask(
+          this.agent,
+          contextPayload,
+          contextPayload.observations || []
+        );
+      }
 
       default:
         throw new Error(`Unknown task type: ${taskType}`);

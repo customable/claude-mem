@@ -8,6 +8,8 @@
 import { createLogger } from '@claude-mem/shared';
 import type {
   ITaskQueueRepository,
+  IObservationRepository,
+  ISessionRepository,
   Task,
   TaskType,
   TaskStatus,
@@ -16,6 +18,7 @@ import type {
   EmbeddingTask,
   ContextGenerateTask,
   WorkerCapability,
+  ObservationRecord,
 } from '@claude-mem/types';
 import type { SSEBroadcaster } from './sse-broadcaster.js';
 
@@ -33,6 +36,8 @@ export class TaskService {
   constructor(
     private readonly taskQueue: ITaskQueueRepository,
     private readonly sseBroadcaster: SSEBroadcaster,
+    private readonly observations?: IObservationRepository,
+    private readonly sessions?: ISessionRepository,
     options: TaskServiceOptions = {}
   ) {
     this.defaultMaxRetries = options.defaultMaxRetries ?? 3;
@@ -87,6 +92,25 @@ export class TaskService {
     const capability = this.resolveCapability('summarize', params.preferredProvider);
     const fallbacks = this.getFallbackCapabilities('summarize', capability);
 
+    // Get session info for user prompt
+    let userPrompt: string | undefined;
+    if (this.sessions) {
+      const session = await this.sessions.findByContentSessionId(params.sessionId);
+      userPrompt = session?.user_prompt || undefined;
+    }
+
+    // Get observations for this session
+    let observations: { id: number; type: string; title: string; text: string }[] = [];
+    if (this.observations) {
+      const sessionObs = await this.observations.getBySessionId(params.sessionId, { limit: 100 });
+      observations = sessionObs.map(o => ({
+        id: o.id,
+        type: o.type,
+        title: o.title || '',
+        text: o.text || '',
+      }));
+    }
+
     const task = await this.taskQueue.create<SummarizeTask>({
       type: 'summarize',
       requiredCapability: capability,
@@ -96,11 +120,13 @@ export class TaskService {
       payload: {
         sessionId: params.sessionId,
         project: params.project,
+        userPrompt,
+        observations,
       },
     });
 
     this.sseBroadcaster.broadcastTaskQueued(task.id, 'summarize');
-    logger.info(`Queued summarize task ${task.id} for session ${params.sessionId}`);
+    logger.info(`Queued summarize task ${task.id} for session ${params.sessionId} with ${observations.length} observations`);
 
     return task;
   }
@@ -138,7 +164,30 @@ export class TaskService {
   async queueContextGenerate(params: {
     project: string;
     query?: string;
+    limit?: number;
   }): Promise<ContextGenerateTask> {
+    // Load recent observations for the project
+    let observations: Array<{
+      title: string;
+      text: string;
+      type: string;
+      createdAt: number;
+    }> = [];
+
+    if (this.observations) {
+      const limit = params.limit ?? 50;
+      const recentObs = await this.observations.list(
+        { project: params.project },
+        { limit, orderBy: 'createdAt', order: 'desc' }
+      );
+      observations = recentObs.map((o: ObservationRecord) => ({
+        title: o.title || 'Untitled',
+        text: o.text || '',
+        type: o.type as string,
+        createdAt: typeof o.created_at === 'string' ? new Date(o.created_at).getTime() : o.created_at,
+      }));
+    }
+
     const task = await this.taskQueue.create<ContextGenerateTask>({
       type: 'context-generate',
       requiredCapability: 'context:generate',
@@ -147,11 +196,12 @@ export class TaskService {
       payload: {
         project: params.project,
         query: params.query,
+        observations,
       },
     });
 
     this.sseBroadcaster.broadcastTaskQueued(task.id, 'context:generate');
-    logger.info(`Queued context generate task ${task.id} for project ${params.project}`);
+    logger.info(`Queued context generate task ${task.id} for project ${params.project} with ${observations.length} observations`);
 
     return task;
   }

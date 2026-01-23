@@ -6,7 +6,7 @@
  */
 
 import { createLogger } from '@claude-mem/shared';
-import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask } from '@claude-mem/types';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask } from '@claude-mem/types';
 import type { WorkerHub } from './worker-hub.js';
 import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
 
@@ -25,6 +25,8 @@ export interface TaskDispatcherOptions {
   observations?: IObservationRepository;
   /** Session repository for looking up memory session IDs */
   sessions?: ISessionRepository;
+  /** Summary repository for storing summaries */
+  summaries?: ISummaryRepository;
 }
 
 export class TaskDispatcher {
@@ -37,6 +39,7 @@ export class TaskDispatcher {
   private readonly sseBroadcaster?: SSEBroadcaster;
   private readonly observations?: IObservationRepository;
   private readonly sessions?: ISessionRepository;
+  private readonly summaries?: ISummaryRepository;
 
   constructor(
     private readonly hub: WorkerHub,
@@ -49,6 +52,7 @@ export class TaskDispatcher {
     this.sseBroadcaster = options.sseBroadcaster;
     this.observations = options.observations;
     this.sessions = options.sessions;
+    this.summaries = options.summaries;
 
     // Wire up hub events
     this.hub.onTaskComplete = this.handleTaskComplete.bind(this);
@@ -216,6 +220,34 @@ export class TaskDispatcher {
           );
         } else {
           logger.debug(`No observation content for task ${taskId}`);
+        }
+      }
+
+      // Handle summarize task: store result in database
+      if (task?.type === 'summarize' && this.summaries && this.sessions) {
+        const summaryResult = result as SummarizeTask['result'];
+        const payload = task.payload as SummarizeTaskPayload;
+
+        if (summaryResult?.request) {
+          // Look up memory session ID from content session ID
+          const session = await this.sessions.findByContentSessionId(payload.sessionId);
+          const memorySessionId = session?.memory_session_id || payload.sessionId;
+
+          // Store summary in database
+          const summary = await this.summaries.create({
+            memorySessionId,
+            project: payload.project,
+            request: summaryResult.request,
+            investigated: summaryResult.investigated,
+            learned: summaryResult.learned,
+            completed: summaryResult.completed,
+            nextSteps: summaryResult.nextSteps,
+            discoveryTokens: summaryResult.tokens || 0,
+          });
+
+          logger.info(`Summary ${summary.id} created for session ${payload.sessionId}`);
+        } else {
+          logger.debug(`No summary content for task ${taskId}`);
         }
       }
 

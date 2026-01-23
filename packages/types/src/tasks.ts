@@ -76,12 +76,26 @@ export interface ObservationTask extends BaseTask {
 }
 
 /**
+ * Observation summary for task payloads
+ */
+export interface ObservationSummary {
+  id: number;
+  type: string;
+  title: string;
+  text: string;
+}
+
+/**
  * Summarize task payload
  */
 export interface SummarizeTaskPayload {
   sessionId: string;
   project: string;
   promptNumber?: number;
+  /** Observations from this session to summarize */
+  observations?: ObservationSummary[];
+  /** User prompt that started the session */
+  userPrompt?: string;
 }
 
 /**
@@ -134,6 +148,13 @@ export interface ContextGenerateTaskPayload {
   query?: string;
   limit?: number;
   includeTypes?: string[];
+  /** Pre-loaded observations for context generation */
+  observations?: Array<{
+    title: string;
+    text: string;
+    type: string;
+    createdAt: number;
+  }>;
 }
 
 /**
