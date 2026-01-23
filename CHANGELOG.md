@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.14.0] - 2026-01-23
+
+### Features
+- Added periodic generation of `CLAUDE.md` during session
+
+
 ## [2.13.2] - 2026-01-23
 
 ### Bug Fixes
