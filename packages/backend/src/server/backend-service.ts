@@ -31,6 +31,7 @@ import {
   SettingsRouter,
   SearchRouter,
   ExportRouter,
+  ImportRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -308,6 +309,13 @@ export class BackendService {
     // Export routes
     this.app.use('/api/export', new ExportRouter({
       sessionService: this.sessionService!,
+      observations: this.unitOfWork!.observations,
+      summaries: this.unitOfWork!.summaries,
+      sessions: this.unitOfWork!.sessions,
+    }).router);
+
+    // Import routes
+    this.app.use('/api/import', new ImportRouter({
       observations: this.unitOfWork!.observations,
       summaries: this.unitOfWork!.summaries,
       sessions: this.unitOfWork!.sessions,
