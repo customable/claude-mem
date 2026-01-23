@@ -15,7 +15,9 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "lib": ["ES2022"],
-    "types": ["node"]
+    "types": ["node"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "exclude": ["node_modules", "dist"]
 }

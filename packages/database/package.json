@@ -23,7 +23,12 @@
   },
   "dependencies": {
     "@claude-mem/shared": "workspace:*",
-    "@claude-mem/types": "workspace:*"
+    "@claude-mem/types": "workspace:*",
+    "@mikro-orm/core": "^6.4.0",
+    "@mikro-orm/better-sqlite": "^6.4.0",
+    "@mikro-orm/postgresql": "^6.4.0",
+    "@mikro-orm/mysql": "^6.4.0",
+    "@mikro-orm/migrations": "^6.4.0"
   },
   "devDependencies": {
     "@types/bun": "^1.3.6",
