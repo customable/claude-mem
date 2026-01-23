@@ -10,7 +10,7 @@ import { spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { createLogger, loadSettings } from '@claude-mem/shared';
+import { createLogger, loadSettings, HOOK_TIMEOUTS, getTimeout } from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
@@ -174,8 +174,9 @@ function spawnSseWriter(input: HookInput): void {
 export async function handleSessionStart(input: HookInput): Promise<HookResult> {
   const client = getBackendClient();
 
-  // Check if backend is available (non-blocking)
-  const ready = await client.isCoreReady();
+  // Quick check if backend is available - use short timeout to not block Claude
+  const quickTimeout = getTimeout(HOOK_TIMEOUTS.QUICK_CHECK);
+  const ready = await client.isCoreReady(quickTimeout);
   if (!ready) {
     logger.debug('Backend not ready, skipping context injection');
     return skip();

@@ -15,6 +15,8 @@ export const HOOK_TIMEOUTS = {
   DEFAULT: 300_000,
   /** Worker health check (30s for slow systems) */
   HEALTH_CHECK: 30_000,
+  /** Quick health check for session start (3s - don't block Claude) */
+  QUICK_CHECK: 3_000,
   /** Wait between worker startup retries */
   WORKER_STARTUP_WAIT: 1_000,
   /** Max retries for worker startup */

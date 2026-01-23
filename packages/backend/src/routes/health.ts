@@ -31,6 +31,7 @@ export class HealthRouter extends BaseRouter {
 
     // Full readiness check - for production
     this.router.get('/ready', this.asyncHandler(this.readiness.bind(this)));
+    this.router.get('/readiness', this.asyncHandler(this.readiness.bind(this))); // Alias
 
     // Version info
     this.router.get('/version', this.asyncHandler(this.version.bind(this)));
