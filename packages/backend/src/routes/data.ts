@@ -49,6 +49,7 @@ export class DataRouter extends BaseRouter {
 
     // Observations
     this.router.get('/observations', this.asyncHandler(this.listObservations.bind(this)));
+    this.router.post('/observations', this.asyncHandler(this.createObservation.bind(this)));
     this.router.get('/observations/:id', this.asyncHandler(this.getObservation.bind(this)));
     this.router.get('/sessions/:sessionId/observations', this.asyncHandler(this.getSessionObservations.bind(this)));
 
@@ -198,6 +199,64 @@ export class DataRouter extends BaseRouter {
     }
 
     this.success(res, observation);
+  }
+
+  /**
+   * POST /api/data/observations
+   * Create a manual memory observation (for save_memory MCP tool)
+   */
+  private async createObservation(req: Request, res: Response): Promise<void> {
+    const { text, title, project, type } = req.body;
+
+    if (!text) {
+      this.badRequest('Missing required field: text');
+    }
+
+    // Use provided project or default to 'manual-memories'
+    const observationProject = project || 'manual-memories';
+
+    // Get or create a manual-memories session for this project
+    const manualSessionId = `manual-${observationProject}`;
+    let session = await this.deps.sessions.findByContentSessionId(manualSessionId);
+
+    if (!session) {
+      // Create the manual memories session
+      session = await this.deps.sessions.create({
+        contentSessionId: manualSessionId,
+        memorySessionId: manualSessionId,
+        project: observationProject,
+      });
+    }
+
+    // Map type parameter to ObservationType (default: 'note')
+    const typeMapping: Record<string, ObservationType> = {
+      decision: 'decision',
+      discovery: 'discovery',
+      note: 'note',
+      bookmark: 'discovery', // bookmark maps to discovery
+    };
+    const observationType: ObservationType = typeMapping[type] || 'note';
+
+    // Create the observation
+    const observation = await this.deps.observations.create({
+      memorySessionId: manualSessionId,
+      project: observationProject,
+      text,
+      type: observationType,
+      title: title || text.slice(0, 100),
+    });
+
+    // Queue embedding for searchability
+    await this.deps.taskService.queueEmbedding({
+      observationIds: [observation.id],
+    });
+
+    this.success(res, {
+      id: observation.id,
+      message: 'Memory saved successfully',
+      type: observationType,
+      project: observationProject,
+    });
   }
 
   /**

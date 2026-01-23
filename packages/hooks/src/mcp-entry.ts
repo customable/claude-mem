@@ -124,13 +124,18 @@ const TOOLS = [
   },
   {
     name: 'save_memory',
-    description: 'Save a manual memory/observation for semantic search.',
+    description: 'Save important information to persistent memory for semantic search.',
     inputSchema: {
       type: 'object' as const,
       properties: {
         text: { type: 'string', description: 'Content to remember' },
         title: { type: 'string', description: 'Short title (optional)' },
         project: { type: 'string', description: 'Project name (optional)' },
+        type: {
+          type: 'string',
+          enum: ['decision', 'discovery', 'note', 'bookmark'],
+          description: 'Memory type: decision (architectural choice), discovery (learning), note (general), bookmark (important moment)',
+        },
       },
       required: ['text'],
     },

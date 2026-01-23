@@ -34,6 +34,8 @@ export type ObservationType =
   // Planning & Tasks
   | 'task'             // Todo item, planned work
   | 'plan'             // Implementation plan, roadmap
+  // Manual Memory
+  | 'note'             // Manual note or bookmark saved via MCP
   // Session
   | 'session-request'; // User prompt/request tracking
 
@@ -240,6 +242,16 @@ export const OBSERVATION_TYPES: Record<ObservationType, ObservationTypeConfig> =
     icon: 'ph--list-checks',
     color: 'text-info',
     workEmoji: '📋',
+  },
+  // Manual Memory
+  note: {
+    id: 'note',
+    label: 'Note',
+    description: 'Manual note or bookmark saved via MCP',
+    emoji: '📌',
+    icon: 'ph--note',
+    color: 'text-warning',
+    workEmoji: '📌',
   },
   // Session
   'session-request': {
