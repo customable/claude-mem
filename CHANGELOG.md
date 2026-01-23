@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.0] - 2026-01-23
+
+### Features
+- Added Analytics and Projects views with clickable sessions
+
+### Improvements
+- Added `bun.lock` for reproducible builds
+
+
 ## [2.2.0] - 2026-01-23
 
 ### Features
