@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/backend",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "Backend server for claude-mem - REST API, WebSocket Hub, Task Queue",
   "type": "module",
   "main": "./dist/index.js",

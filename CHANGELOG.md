@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.2] - 2026-01-23
+
+### Bug Fixes
+- Fixed CI build step order in validate-plugin job
+- Updated build-plugin path to .mjs
+
+
 ## [2.4.1] - 2026-01-23
 
 ### Bug Fixes
