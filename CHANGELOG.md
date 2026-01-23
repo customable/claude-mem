@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.4.4] - 2026-01-23
+
+### Bug Fixes
+- Fixed the "stop hook" to properly mark sessions as completed.
+
+
 ## [2.4.3] - 2026-01-23
 
 ### Bug Fixes
