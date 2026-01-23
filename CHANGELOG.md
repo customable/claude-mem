@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.20.2] - 2026-01-23
+
+### Bug Fixes
+- Fixed Dockerfile to use `bun` instead of `pnpm` for backend dependencies.
+
+
 ## [1.20.1] - 2026-01-23
 
 ### Bug Fixes
