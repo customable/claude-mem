@@ -91,7 +91,13 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.25.3(hono@4.11.5)(zod@4.3.6)
+      eventsource:
+        specifier: ^3.0.6
+        version: 3.0.7
     devDependencies:
+      '@types/eventsource':
+        specifier: ^1.1.15
+        version: 1.1.15
       '@types/node':
         specifier: ^22.10.2
         version: 22.19.7
@@ -846,6 +852,9 @@ packages:
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
+
+  '@types/eventsource@1.1.15':
+    resolution: {integrity: sha512-XQmGcbnxUNa06HR3VBVkc9+A2Vpi9ZyLJcdS5dwaQQ/4ZMWFO+5c90FnMUpbtMZwB/FChoYHwuVg8TvkECacTA==}
 
   '@types/express-serve-static-core@5.1.1':
     resolution: {integrity: sha512-v4zIMr/cX7/d2BpAEX3KNKL/JrT1s43s96lLvvdTmza1oEvDudCqK9aF/djc/SWgy8Yh0h30TZx5VpzqFCxk5A==}
@@ -2509,6 +2518,8 @@ snapshots:
       '@types/node': 20.19.30
 
   '@types/estree@1.0.8': {}
+
+  '@types/eventsource@1.1.15': {}
 
   '@types/express-serve-static-core@5.1.1':
     dependencies:
