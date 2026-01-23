@@ -3,6 +3,7 @@
  *
  * Shows connected workers and their capabilities with real-time SSE updates.
  * Supports spawning and terminating workers from the UI.
+ * Separates permanent (external) workers from spawned workers.
  */
 
 import { useEffect, useState } from 'react';
@@ -91,8 +92,13 @@ export function WorkerStatus() {
     setTerminatingId(spawnedId);
     setError(null);
     try {
-      await api.terminateWorker(spawnedId);
-      // Workers list will update via SSE
+      const result = await api.terminateWorker(spawnedId);
+      if (result.queued) {
+        // Show info that termination is queued
+        setError(`Termination queued: ${result.reason}`);
+      }
+      // Refetch to get updated pending termination status
+      refetch();
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -117,6 +123,10 @@ export function WorkerStatus() {
       </div>
     );
   }
+
+  // Separate workers into permanent and spawned
+  const permanentWorkers = workers.filter((w) => !w.metadata?.spawnedId);
+  const spawnedWorkers = workers.filter((w) => !!w.metadata?.spawnedId);
 
   // Count busy workers
   const busyCount = workers.filter((w) => workerTasks[w.id]).length;
@@ -183,10 +193,10 @@ export function WorkerStatus() {
         </div>
       </div>
 
-      {/* Error Alert */}
+      {/* Error/Info Alert */}
       {error && (
-        <div className="alert alert-error">
-          <span className="iconify ph--warning-circle size-5" />
+        <div className={`alert ${error.startsWith('Termination queued') ? 'alert-info' : 'alert-error'}`}>
+          <span className={`iconify ${error.startsWith('Termination queued') ? 'ph--info' : 'ph--warning-circle'} size-5`} />
           <span>{error}</span>
           <button className="btn btn-ghost btn-xs" onClick={() => setError(null)}>
             <span className="iconify ph--x size-4" />
@@ -194,7 +204,7 @@ export function WorkerStatus() {
         </div>
       )}
 
-      {/* Worker List */}
+      {/* No Workers State */}
       {workers.length === 0 ? (
         <div className="card bg-base-100 card-border">
           <div className="card-body items-center justify-center py-12 text-base-content/60">
@@ -222,16 +232,52 @@ export function WorkerStatus() {
           </div>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {workers.map((worker) => (
-            <WorkerItem
-              key={worker.id}
-              worker={worker}
-              currentTaskId={workerTasks[worker.id] || null}
-              onTerminate={handleTerminate}
-              isTerminating={terminatingId === worker.metadata?.spawnedId}
-            />
-          ))}
+        <div className="space-y-6">
+          {/* Permanent Workers Section */}
+          {permanentWorkers.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-base-content/70 mb-3 flex items-center gap-2">
+                <span className="iconify ph--desktop-tower size-4" />
+                Permanent Workers
+                <span className="badge badge-ghost badge-xs">{permanentWorkers.length}</span>
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                {permanentWorkers.map((worker) => (
+                  <WorkerItem
+                    key={worker.id}
+                    worker={worker}
+                    currentTaskId={workerTasks[worker.id] || worker.currentTaskId || null}
+                    currentTaskType={worker.currentTaskType}
+                    onTerminate={handleTerminate}
+                    isTerminating={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Spawned Workers Section */}
+          {spawnedWorkers.length > 0 && (
+            <div>
+              <h3 className="text-sm font-medium text-base-content/70 mb-3 flex items-center gap-2">
+                <span className="iconify ph--rocket-launch size-4" />
+                Spawned Workers
+                <span className="badge badge-ghost badge-xs">{spawnedWorkers.length}</span>
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                {spawnedWorkers.map((worker) => (
+                  <WorkerItem
+                    key={worker.id}
+                    worker={worker}
+                    currentTaskId={workerTasks[worker.id] || worker.currentTaskId || null}
+                    currentTaskType={worker.currentTaskType}
+                    onTerminate={handleTerminate}
+                    isTerminating={terminatingId === worker.metadata?.spawnedId}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -241,11 +287,13 @@ export function WorkerStatus() {
 function WorkerItem({
   worker,
   currentTaskId,
+  currentTaskType,
   onTerminate,
   isTerminating,
 }: {
   worker: Worker;
   currentTaskId: string | null;
+  currentTaskType: string | null;
   onTerminate: (id: string) => void;
   isTerminating: boolean;
 }) {
@@ -254,36 +302,49 @@ function WorkerItem({
   // Check if this is a spawned worker (has spawnedId in metadata)
   const spawnedId = worker.metadata?.spawnedId;
   const isSpawned = !!spawnedId;
+  const isPendingTermination = worker.pendingTermination;
 
   return (
-    <div className={`card bg-base-100 card-border transition-all ${!isIdle ? 'ring-2 ring-warning/50' : ''}`}>
+    <div className={`card bg-base-100 card-border transition-all ${
+      isPendingTermination
+        ? 'ring-2 ring-error/50 opacity-75'
+        : !isIdle
+          ? 'ring-2 ring-warning/50'
+          : ''
+    }`}>
       <div className="card-body p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className={`iconify ph--cpu size-5 ${isIdle ? 'text-primary' : 'text-warning'}`} />
+            <span className={`iconify ph--cpu size-5 ${
+              isPendingTermination ? 'text-error' : isIdle ? 'text-primary' : 'text-warning'
+            }`} />
             <span className="font-mono text-sm">{worker.id.slice(0, 20)}</span>
-            {isSpawned && (
-              <span className="badge badge-info badge-xs">spawned</span>
-            )}
           </div>
           <div className="flex items-center gap-2">
-            <div
-              className={`badge badge-sm ${isIdle ? 'badge-success' : 'badge-warning'}`}
-            >
-              <span
-                className={`iconify ${isIdle ? 'ph--check' : 'ph--spinner'} size-3 mr-1 ${
-                  !isIdle ? 'animate-spin' : ''
-                }`}
-              />
-              {isIdle ? 'Idle' : 'Working'}
-            </div>
-            {isSpawned && spawnedId && (
+            {isPendingTermination ? (
+              <div className="badge badge-error badge-sm">
+                <span className="iconify ph--clock size-3 mr-1" />
+                Stopping...
+              </div>
+            ) : (
+              <div
+                className={`badge badge-sm ${isIdle ? 'badge-success' : 'badge-warning'}`}
+              >
+                <span
+                  className={`iconify ${isIdle ? 'ph--check' : 'ph--spinner'} size-3 mr-1 ${
+                    !isIdle ? 'animate-spin' : ''
+                  }`}
+                />
+                {isIdle ? 'Idle' : 'Working'}
+              </div>
+            )}
+            {isSpawned && spawnedId && !isPendingTermination && (
               <button
                 onClick={() => onTerminate(spawnedId)}
                 className="btn btn-error btn-xs"
                 disabled={isTerminating}
-                title="Stop this worker"
+                title={isIdle ? 'Stop this worker' : 'Queue termination after task completes'}
               >
                 {isTerminating ? (
                   <span className="loading loading-spinner loading-xs" />
@@ -296,10 +357,22 @@ function WorkerItem({
         </div>
 
         {/* Current Task */}
-        {currentTaskId && (
+        {currentTaskId && !isPendingTermination && (
           <div className="mb-3 p-2 bg-warning/10 rounded-lg">
             <div className="text-xs text-warning uppercase tracking-wide mb-1">
               Current Task
+            </div>
+            <div className="font-mono text-xs text-base-content/80 truncate">
+              {currentTaskId}
+            </div>
+          </div>
+        )}
+
+        {/* Pending Termination Notice */}
+        {isPendingTermination && currentTaskId && (
+          <div className="mb-3 p-2 bg-error/10 rounded-lg">
+            <div className="text-xs text-error uppercase tracking-wide mb-1">
+              Finishing Task Before Shutdown
             </div>
             <div className="font-mono text-xs text-base-content/80 truncate">
               {currentTaskId}
@@ -313,11 +386,25 @@ function WorkerItem({
             Capabilities
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {worker.capabilities.map((cap) => (
-              <span key={cap} className="badge badge-outline badge-sm">
-                {cap}
-              </span>
-            ))}
+            {worker.capabilities.map((cap) => {
+              const isActive = currentTaskType === cap;
+              return (
+                <span
+                  key={cap}
+                  className={`badge badge-sm ${
+                    isActive
+                      ? 'badge-warning'
+                      : 'badge-outline'
+                  }`}
+                  title={isActive ? 'Currently executing' : undefined}
+                >
+                  {isActive && (
+                    <span className="iconify ph--play size-3 mr-0.5" />
+                  )}
+                  {cap}
+                </span>
+              );
+            })}
           </div>
         </div>
 

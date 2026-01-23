@@ -93,6 +93,8 @@ export interface Worker {
   connectedAt: number;
   lastHeartbeat: number;
   currentTaskId: string | null;
+  currentTaskType: string | null;
+  pendingTermination?: boolean;
   metadata?: {
     spawnedId?: string;
     version?: string;
@@ -107,6 +109,7 @@ export interface SpawnedWorker {
   status: 'starting' | 'running' | 'stopping' | 'stopped' | 'crashed';
   spawnedAt: number;
   connectedWorkerId?: string;
+  pendingTermination?: boolean;
 }
 
 export interface SpawnStatus {
@@ -209,7 +212,7 @@ export const api = {
   getSpawnStatus: () => get<SpawnStatus>('/workers/spawn-status'),
   getSpawnedWorkers: () => get<{ data: SpawnedWorker[]; canSpawn: boolean; maxWorkers: number }>('/workers/spawned'),
   spawnWorker: () => post<{ id: string; pid: number; message: string }>('/workers/spawn', {}),
-  terminateWorker: (id: string) => del<{ message: string }>(`/workers/spawned/${id}`),
+  terminateWorker: (id: string) => del<{ message: string; queued?: boolean; reason?: string }>(`/workers/spawned/${id}`),
 
   // Settings
   getSettings: () => get<Record<string, unknown>>('/settings'),

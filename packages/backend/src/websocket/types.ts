@@ -17,6 +17,8 @@ export interface ConnectedWorker {
   connectedAt: number;
   lastHeartbeat: number;
   currentTaskId: string | null;
+  currentTaskType: string | null; // The capability/task type being executed
+  pendingTermination?: boolean; // True if queued for termination after task completes
   metadata?: Record<string, unknown>;
 }
 

@@ -32,6 +32,7 @@ export interface SpawnedWorkerInfo {
   spawnedAt: number;
   connectedWorkerId?: string;
   provider?: string;
+  pendingTermination?: boolean;
 }
 
 export interface SpawnOptions {
@@ -47,6 +48,7 @@ export interface WorkerProcessManagerEvents {
 
 export class WorkerProcessManager extends EventEmitter {
   private spawnedWorkers: Map<string, SpawnedWorker> = new Map();
+  private pendingTerminations: Set<string> = new Set(); // Spawned IDs queued for termination
   private workerCounter = 0;
   private workerBinaryPath: string | null = null;
 
@@ -126,6 +128,7 @@ export class WorkerProcessManager extends EventEmitter {
       spawnedAt: w.spawnedAt,
       connectedWorkerId: w.connectedWorkerId,
       provider: w.provider,
+      pendingTermination: this.pendingTerminations.has(w.id),
     }));
   }
 
@@ -314,5 +317,52 @@ export class WorkerProcessManager extends EventEmitter {
       }
     }
     return undefined;
+  }
+
+  /**
+   * Find spawned worker by spawned ID
+   */
+  findBySpawnedId(spawnedId: string): SpawnedWorker | undefined {
+    return this.spawnedWorkers.get(spawnedId);
+  }
+
+  /**
+   * Queue a worker for termination (will be terminated when task completes)
+   */
+  queueTermination(spawnedId: string): void {
+    const worker = this.spawnedWorkers.get(spawnedId);
+    if (worker) {
+      this.pendingTerminations.add(spawnedId);
+      worker.status = 'stopping';
+      logger.info(`Worker ${spawnedId} queued for termination`);
+    }
+  }
+
+  /**
+   * Check if a worker is queued for termination
+   */
+  isQueuedForTermination(spawnedId: string): boolean {
+    return this.pendingTerminations.has(spawnedId);
+  }
+
+  /**
+   * Execute pending termination for a worker (called when task completes)
+   */
+  async executePendingTermination(hubWorkerId: string): Promise<boolean> {
+    const worker = this.findByHubWorkerId(hubWorkerId);
+    if (!worker || !this.pendingTerminations.has(worker.id)) {
+      return false;
+    }
+
+    logger.info(`Executing pending termination for worker ${worker.id}`);
+    this.pendingTerminations.delete(worker.id);
+
+    try {
+      await this.terminate(worker.id);
+      return true;
+    } catch (error) {
+      logger.error(`Failed to execute pending termination:`, { message: (error as Error).message });
+      return false;
+    }
   }
 }

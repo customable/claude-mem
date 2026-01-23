@@ -39,6 +39,7 @@ export class WorkerHub {
   public onWorkerDisconnected?: (workerId: string) => void;
   public onTaskComplete?: (workerId: string, taskId: string, result: unknown) => void;
   public onTaskError?: (workerId: string, taskId: string, error: string) => void;
+  public onWorkerReadyForTermination?: (workerId: string) => void;
 
   constructor(options: WorkerHubOptions = {}) {
     this.authToken = options.authToken;
@@ -225,6 +226,7 @@ export class WorkerHub {
       connectedAt: Date.now(),
       lastHeartbeat: Date.now(),
       currentTaskId: null,
+      currentTaskType: null,
       metadata: registerMsg.metadata,
     };
 
@@ -260,7 +262,14 @@ export class WorkerHub {
   ): void {
     const worker = this.workers.get(workerId);
     if (worker) {
+      const wasPendingTermination = worker.pendingTermination;
       worker.currentTaskId = null;
+      worker.currentTaskType = null;
+
+      // Notify about pending termination so process manager can act
+      if (wasPendingTermination) {
+        this.onWorkerReadyForTermination?.(workerId);
+      }
     }
     this.onTaskComplete?.(workerId, message.taskId, message.result);
   }
@@ -274,7 +283,14 @@ export class WorkerHub {
   ): void {
     const worker = this.workers.get(workerId);
     if (worker) {
+      const wasPendingTermination = worker.pendingTermination;
       worker.currentTaskId = null;
+      worker.currentTaskType = null;
+
+      // Notify about pending termination so process manager can act
+      if (wasPendingTermination) {
+        this.onWorkerReadyForTermination?.(workerId);
+      }
     }
     this.onTaskError?.(workerId, message.taskId, message.error);
   }
@@ -339,6 +355,7 @@ export class WorkerHub {
     }
 
     worker.currentTaskId = taskId;
+    worker.currentTaskType = taskType;
     this.send(worker.socket, {
       type: 'task:assign',
       task: {
@@ -351,6 +368,28 @@ export class WorkerHub {
 
     logger.info(`Assigned task ${taskId} (${taskType}) to worker ${workerId}`);
     return true;
+  }
+
+  /**
+   * Mark a worker for pending termination
+   * Worker will be terminated after current task completes
+   */
+  markForTermination(workerId: string): boolean {
+    const worker = this.workers.get(workerId);
+    if (!worker) {
+      return false;
+    }
+    worker.pendingTermination = true;
+    logger.info(`Worker ${workerId} marked for termination after task completes`);
+    return true;
+  }
+
+  /**
+   * Check if a worker is busy (has a current task)
+   */
+  isWorkerBusy(workerId: string): boolean {
+    const worker = this.workers.get(workerId);
+    return worker ? !!worker.currentTaskId : false;
   }
 
   /**

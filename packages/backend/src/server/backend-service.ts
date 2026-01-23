@@ -113,6 +113,12 @@ export class BackendService {
       this.workerHub.onWorkerDisconnected = (workerId) => {
         this.sseBroadcaster?.broadcastWorkerDisconnected(workerId);
       };
+      this.workerHub.onWorkerReadyForTermination = (workerId) => {
+        // Execute pending termination when worker finishes its task
+        this.workerProcessManager?.executePendingTermination(workerId).catch((err) => {
+          logger.error('Failed to execute pending termination:', { message: (err as Error).message });
+        });
+      };
 
       // Initialize worker process manager for spawning workers
       this.workerProcessManager = new WorkerProcessManager(

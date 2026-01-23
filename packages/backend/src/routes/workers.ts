@@ -62,6 +62,8 @@ export class WorkersRouter extends BaseRouter {
       connectedAt: w.connectedAt,
       lastHeartbeat: w.lastHeartbeat,
       currentTaskId: w.currentTaskId,
+      currentTaskType: w.currentTaskType,
+      pendingTermination: w.pendingTermination,
       metadata: w.metadata,
     }));
 
@@ -96,6 +98,8 @@ export class WorkersRouter extends BaseRouter {
       connectedAt: worker.connectedAt,
       lastHeartbeat: worker.lastHeartbeat,
       currentTaskId: worker.currentTaskId,
+      currentTaskType: worker.currentTaskType,
+      pendingTermination: worker.pendingTermination,
       metadata: worker.metadata,
     });
   }
@@ -180,6 +184,9 @@ export class WorkersRouter extends BaseRouter {
 
   /**
    * DELETE /api/workers/spawned/:id
+   *
+   * If the worker is busy (processing a task), the termination is queued
+   * and will happen after the current task completes.
    */
   private async terminateWorker(req: Request, res: Response): Promise<void> {
     const id = getRequiredString(req.params.id);
@@ -188,9 +195,30 @@ export class WorkersRouter extends BaseRouter {
       this.badRequest('Worker process manager not available');
     }
 
+    // Find the hub worker ID from the spawned ID
+    const spawnedWorker = this.deps.workerProcessManager!.findBySpawnedId(id);
+    if (!spawnedWorker) {
+      this.notFound(`Spawned worker not found: ${id}`);
+    }
+
+    const hubWorkerId = spawnedWorker!.connectedWorkerId;
+
+    // Check if worker is busy
+    if (hubWorkerId && this.deps.workerHub.isWorkerBusy(hubWorkerId)) {
+      // Mark for termination after task completes
+      this.deps.workerHub.markForTermination(hubWorkerId);
+      this.deps.workerProcessManager!.queueTermination(id);
+      this.success(res, {
+        message: 'Worker termination queued',
+        queued: true,
+        reason: 'Worker is currently processing a task',
+      });
+      return;
+    }
+
     try {
       await this.deps.workerProcessManager!.terminate(id);
-      this.success(res, { message: 'Worker terminated' });
+      this.success(res, { message: 'Worker terminated', queued: false });
     } catch (error) {
       const err = error as Error;
       this.notFound(err.message);
