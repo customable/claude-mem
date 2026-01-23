@@ -292,9 +292,9 @@ export class TaskDispatcher {
               });
               logger.debug(`Queued claude-md task for session ${payload.sessionId}`);
 
-              // Queue for subdirectories with existing CLAUDE.md
+              // Queue for subdirectories that have observations
               if (workingDirectory && this.observations) {
-                const subdirs = await this.getSubdirectoriesWithClaudeMd(memorySessionId, workingDirectory);
+                const subdirs = await this.getSubdirectoriesWithObservations(memorySessionId, workingDirectory);
                 for (const subdir of subdirs) {
                   try {
                     await this.taskService.queueClaudeMd({
@@ -407,10 +407,10 @@ export class TaskDispatcher {
   }
 
   /**
-   * Get subdirectories within workingDirectory that have existing CLAUDE.md files
+   * Get subdirectories within workingDirectory that have observations
    * Used for generating subdirectory-specific CLAUDE.md content
    */
-  private async getSubdirectoriesWithClaudeMd(
+  private async getSubdirectoriesWithObservations(
     memorySessionId: string,
     workingDirectory: string
   ): Promise<string[]> {
@@ -431,20 +431,12 @@ export class TaskDispatcher {
 
     for (const cwd of cwdSet) {
       // Skip if not a subdirectory of working directory
-      if (!cwd.startsWith(workingDirectory)) continue;
+      if (!cwd.startsWith(workingDirectory + '/')) continue;
 
       // Skip the root working directory itself (handled separately)
       if (cwd === workingDirectory) continue;
 
-      // Check if CLAUDE.md exists in this directory
-      const claudeMdPath = path.join(cwd, 'CLAUDE.md');
-      try {
-        if (fs.existsSync(claudeMdPath)) {
-          result.push(cwd);
-        }
-      } catch {
-        // Ignore access errors
-      }
+      result.push(cwd);
     }
 
     return result;
