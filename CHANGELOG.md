@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.11.2] - 2026-01-23
+
+### Bug Fixes
+- Resolved MikroORM initialization issues
+
+
 ## [2.11.1] - 2026-01-23
 
 ### Bug Fixes
