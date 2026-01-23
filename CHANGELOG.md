@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.11.1] - 2026-01-23
+
+### Bug Fixes
+- Removed unused `factory.ts` export from the database module
+
+
 ## [2.11.0] - 2026-01-23
 
 ### Features
