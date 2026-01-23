@@ -30,6 +30,7 @@ import {
   LogsRouter,
   SettingsRouter,
   SearchRouter,
+  ExportRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -302,6 +303,14 @@ export class BackendService {
     // Search routes
     this.app.use('/api/search', new SearchRouter({
       observations: this.unitOfWork!.observations,
+    }).router);
+
+    // Export routes
+    this.app.use('/api/export', new ExportRouter({
+      sessionService: this.sessionService!,
+      observations: this.unitOfWork!.observations,
+      summaries: this.unitOfWork!.summaries,
+      sessions: this.unitOfWork!.sessions,
     }).router);
 
     // Finalize app (error handlers)
