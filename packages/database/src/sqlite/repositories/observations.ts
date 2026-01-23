@@ -189,18 +189,41 @@ export class SQLiteObservationRepository implements IObservationRepository {
     return result?.count || 0;
   }
 
+  /**
+   * Sanitize a query string for FTS5 MATCH
+   * FTS5 has special syntax: - (NOT), + (AND), * (prefix), : (column), etc.
+   * We escape these by quoting terms that contain special characters.
+   */
+  private sanitizeFts5Query(query: string): string {
+    // Split into words and quote any that contain FTS5 special chars
+    const specialChars = /[-+*:()^"]/;
+    const words = query.split(/\s+/).filter(Boolean);
+
+    return words.map(word => {
+      // If word contains special chars, wrap in double quotes
+      // Also escape any existing double quotes within the word
+      if (specialChars.test(word)) {
+        const escaped = word.replace(/"/g, '""');
+        return `"${escaped}"`;
+      }
+      return word;
+    }).join(' ');
+  }
+
   async search(
     query: string,
     filters?: ObservationQueryFilters,
     options?: QueryOptions
   ): Promise<ObservationRecord[]> {
     // Use FTS5 for full-text search
+    const sanitizedQuery = this.sanitizeFts5Query(query);
+
     let sql = `
       SELECT o.* FROM observations o
       JOIN observations_fts fts ON o.id = fts.rowid
       WHERE observations_fts MATCH ?
     `;
-    const params: BindingValue[] = [query];
+    const params: BindingValue[] = [sanitizedQuery];
 
     if (filters?.project) {
       sql += ' AND o.project = ?';
