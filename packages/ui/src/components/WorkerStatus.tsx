@@ -10,6 +10,30 @@ import { useEffect, useState } from 'react';
 import { api, type Worker, type SpawnStatus } from '../api/client';
 import { useSSE } from '../hooks/useSSE';
 
+/**
+ * Match task type to capability
+ * Task types use dashes, capabilities use colons and different prefixes
+ */
+function matchTaskTypeToCapability(taskType: string, capability: string): boolean {
+  // Direct prefix match for observation:*, summarize:*, embedding:*
+  if (capability.startsWith(taskType + ':')) {
+    return true;
+  }
+
+  // Special mappings for tasks with different naming
+  const mappings: Record<string, string> = {
+    'qdrant-sync': 'qdrant:sync',
+    'context-generate': 'context:generate',
+    'claude-md': 'claudemd:generate',
+  };
+
+  if (mappings[taskType] === capability) {
+    return true;
+  }
+
+  return false;
+}
+
 export function WorkerStatus() {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
@@ -129,7 +153,7 @@ export function WorkerStatus() {
   const spawnedWorkers = workers.filter((w) => !!w.metadata?.spawnedId);
 
   // Count busy workers
-  const busyCount = workers.filter((w) => workerTasks[w.id]).length;
+  const busyCount = workers.filter((w) => workerTasks[w.id]?.taskId).length;
   const idleCount = workers.length - busyCount;
 
   return (
@@ -242,16 +266,19 @@ export function WorkerStatus() {
                 <span className="badge badge-ghost badge-xs">{permanentWorkers.length}</span>
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
-                {permanentWorkers.map((worker) => (
-                  <WorkerItem
-                    key={worker.id}
-                    worker={worker}
-                    currentTaskId={workerTasks[worker.id] || worker.currentTaskId || null}
-                    currentTaskType={worker.currentTaskType}
-                    onTerminate={handleTerminate}
-                    isTerminating={false}
-                  />
-                ))}
+                {permanentWorkers.map((worker) => {
+                  const taskInfo = workerTasks[worker.id];
+                  return (
+                    <WorkerItem
+                      key={worker.id}
+                      worker={worker}
+                      currentTaskId={taskInfo?.taskId || worker.currentTaskId || null}
+                      currentTaskType={taskInfo?.taskType || worker.currentTaskType || null}
+                      onTerminate={handleTerminate}
+                      isTerminating={false}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}
@@ -265,16 +292,19 @@ export function WorkerStatus() {
                 <span className="badge badge-ghost badge-xs">{spawnedWorkers.length}</span>
               </h3>
               <div className="grid gap-4 md:grid-cols-2">
-                {spawnedWorkers.map((worker) => (
-                  <WorkerItem
-                    key={worker.id}
-                    worker={worker}
-                    currentTaskId={workerTasks[worker.id] || worker.currentTaskId || null}
-                    currentTaskType={worker.currentTaskType}
-                    onTerminate={handleTerminate}
-                    isTerminating={terminatingId === worker.metadata?.spawnedId}
-                  />
-                ))}
+                {spawnedWorkers.map((worker) => {
+                  const taskInfo = workerTasks[worker.id];
+                  return (
+                    <WorkerItem
+                      key={worker.id}
+                      worker={worker}
+                      currentTaskId={taskInfo?.taskId || worker.currentTaskId || null}
+                      currentTaskType={taskInfo?.taskType || worker.currentTaskType || null}
+                      onTerminate={handleTerminate}
+                      isTerminating={terminatingId === worker.metadata?.spawnedId}
+                    />
+                  );
+                })}
               </div>
             </div>
           )}
@@ -387,7 +417,10 @@ function WorkerItem({
           </div>
           <div className="flex flex-wrap gap-1.5">
             {worker.capabilities.map((cap) => {
-              const isActive = currentTaskType === cap;
+              // Match task type to capability
+              // Task types: observation, summarize, embedding, qdrant-sync, context-generate, claude-md
+              // Capabilities: observation:*, summarize:*, embedding:*, qdrant:sync, context:generate, claudemd:generate
+              const isActive = currentTaskType ? matchTaskTypeToCapability(currentTaskType, cap) : false;
               return (
                 <span
                   key={cap}

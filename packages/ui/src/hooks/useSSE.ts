@@ -42,10 +42,18 @@ export interface SSEEvent {
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
 
 /**
+ * Worker task info
+ */
+export interface WorkerTaskInfo {
+  taskId: string;
+  taskType: string | null;
+}
+
+/**
  * Worker task state
  */
 export interface WorkerTaskState {
-  [workerId: string]: string | null; // taskId or null if idle
+  [workerId: string]: WorkerTaskInfo | null; // task info or null if idle
 }
 
 /**
@@ -105,7 +113,7 @@ function connectGlobal() {
           globalWorkerCount++;
           if (data.data && typeof data.data === 'object' && 'workerId' in data.data) {
             const workerId = (data.data as { workerId: string }).workerId;
-            globalWorkerTasks[workerId] = null;
+            globalWorkerTasks[workerId] = null; // No task initially
           }
           break;
         case 'worker:disconnected':
@@ -122,9 +130,9 @@ function connectGlobal() {
           break;
         case 'task:assigned':
           if (data.data && typeof data.data === 'object') {
-            const { workerId, taskId } = data.data as { workerId: string; taskId: string };
+            const { workerId, taskId, taskType } = data.data as { workerId: string; taskId: string; taskType?: string };
             if (workerId) {
-              globalWorkerTasks[workerId] = taskId;
+              globalWorkerTasks[workerId] = { taskId, taskType: taskType || null };
             }
           }
           break;
@@ -133,8 +141,8 @@ function connectGlobal() {
           if (data.data && typeof data.data === 'object' && 'taskId' in data.data) {
             const taskId = (data.data as { taskId: string }).taskId;
             // Find worker with this task and clear it
-            for (const [wId, tId] of Object.entries(globalWorkerTasks)) {
-              if (tId === taskId) {
+            for (const [wId, taskInfo] of Object.entries(globalWorkerTasks)) {
+              if (taskInfo?.taskId === taskId) {
                 globalWorkerTasks[wId] = null;
                 break;
               }
@@ -195,7 +203,9 @@ export function useSSE(): UseSSEReturn {
             globalWorkerCount = data.data.length;
             globalWorkerTasks = {};
             for (const worker of data.data) {
-              globalWorkerTasks[worker.id] = worker.currentTaskId || null;
+              globalWorkerTasks[worker.id] = worker.currentTaskId
+                ? { taskId: worker.currentTaskId, taskType: worker.currentTaskType || null }
+                : null;
             }
             setWorkerCount(globalWorkerCount);
             setWorkerTasks({ ...globalWorkerTasks });
