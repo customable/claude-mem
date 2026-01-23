@@ -26,10 +26,12 @@ export class SQLiteObservationRepository implements IObservationRepository {
     const result = this.db
       .query<{ id: number }, BindingValue[]>(`
         INSERT INTO observations (
-          memory_session_id, project, text, type, title, concept,
-          source_files, prompt_number, discovery_tokens, created_at, created_at_epoch
+          memory_session_id, project, text, type, title, concepts,
+          files_read, files_modified, prompt_number, discovery_tokens,
+          subtitle, facts, narrative, git_branch,
+          created_at, created_at_epoch
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING id
       `)
       .get(
@@ -38,10 +40,15 @@ export class SQLiteObservationRepository implements IObservationRepository {
         input.text,
         input.type,
         input.title || null,
-        input.concept || null,
-        input.sourceFiles || null,
+        input.concepts || null,
+        input.filesRead || null,
+        input.filesModified || null,
         input.promptNumber || null,
         input.discoveryTokens || null,
+        input.subtitle || null,
+        input.facts || null,
+        input.narrative || null,
+        input.gitBranch || null,
         now.toISOString(),
         epoch
       );
@@ -71,13 +78,29 @@ export class SQLiteObservationRepository implements IObservationRepository {
       updates.push('title = ?');
       values.push(input.title);
     }
-    if (input.concept !== undefined) {
-      updates.push('concept = ?');
-      values.push(input.concept);
+    if (input.subtitle !== undefined) {
+      updates.push('subtitle = ?');
+      values.push(input.subtitle);
     }
-    if (input.sourceFiles !== undefined) {
-      updates.push('source_files = ?');
-      values.push(input.sourceFiles);
+    if (input.concepts !== undefined) {
+      updates.push('concepts = ?');
+      values.push(input.concepts);
+    }
+    if (input.facts !== undefined) {
+      updates.push('facts = ?');
+      values.push(input.facts);
+    }
+    if (input.narrative !== undefined) {
+      updates.push('narrative = ?');
+      values.push(input.narrative);
+    }
+    if (input.filesRead !== undefined) {
+      updates.push('files_read = ?');
+      values.push(input.filesRead);
+    }
+    if (input.filesModified !== undefined) {
+      updates.push('files_modified = ?');
+      values.push(input.filesModified);
     }
 
     if (updates.length === 0) {

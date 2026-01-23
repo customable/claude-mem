@@ -22,6 +22,7 @@ export class HooksRouter extends BaseRouter {
   protected setupRoutes(): void {
     // Session lifecycle
     this.router.post('/session/start', this.asyncHandler(this.sessionStart.bind(this)));
+    this.router.post('/session-init', this.asyncHandler(this.sessionStart.bind(this))); // Alias for hooks client
     this.router.post('/session/end', this.asyncHandler(this.sessionEnd.bind(this)));
 
     // User prompt submission
@@ -42,14 +43,18 @@ export class HooksRouter extends BaseRouter {
    * Called at session start
    */
   private async sessionStart(req: Request, res: Response): Promise<void> {
-    this.validateRequired(req.body, ['contentSessionId', 'project']);
+    // Accept both sessionId (new) and contentSessionId (legacy)
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    if (!contentSessionId || !req.body.project) {
+      this.badRequest('Missing required fields: sessionId, project');
+    }
 
-    const { contentSessionId, project, userPrompt } = req.body;
+    const { project, userPrompt, prompt } = req.body;
 
     const session = await this.deps.sessionService.startSession({
       contentSessionId,
       project,
-      userPrompt,
+      userPrompt: userPrompt || prompt,
     });
 
     this.success(res, {
@@ -64,9 +69,11 @@ export class HooksRouter extends BaseRouter {
    * Called at session end
    */
   private async sessionEnd(req: Request, res: Response): Promise<void> {
-    this.validateRequired(req.body, ['contentSessionId']);
-
-    const { contentSessionId } = req.body;
+    // Accept both sessionId (new) and contentSessionId (legacy)
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
 
     await this.deps.sessionService.completeSession(contentSessionId);
 
@@ -78,9 +85,13 @@ export class HooksRouter extends BaseRouter {
    * Called on user prompt submission
    */
   private async promptSubmit(req: Request, res: Response): Promise<void> {
-    this.validateRequired(req.body, ['contentSessionId', 'promptNumber', 'promptText']);
+    // Accept both sessionId (new) and contentSessionId (legacy)
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    if (!contentSessionId || !req.body.promptNumber || !req.body.promptText) {
+      this.badRequest('Missing required fields: sessionId, promptNumber, promptText');
+    }
 
-    const { contentSessionId, promptNumber, promptText } = req.body;
+    const { promptNumber, promptText } = req.body;
 
     await this.deps.sessionService.recordPrompt({
       contentSessionId,
@@ -96,9 +107,13 @@ export class HooksRouter extends BaseRouter {
    * Called after tool use for observation processing
    */
   private async postToolUse(req: Request, res: Response): Promise<void> {
-    this.validateRequired(req.body, ['contentSessionId', 'toolName', 'toolInput', 'toolOutput']);
+    // Accept both sessionId (new) and contentSessionId (legacy)
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    if (!contentSessionId || !req.body.toolName) {
+      this.badRequest('Missing required fields: sessionId, toolName');
+    }
 
-    const { contentSessionId, toolName, toolInput, toolOutput, promptNumber } = req.body;
+    const { toolName, toolInput, toolOutput, promptNumber } = req.body;
 
     const taskId = await this.deps.sessionService.queueObservation({
       contentSessionId,
@@ -141,9 +156,11 @@ export class HooksRouter extends BaseRouter {
    * Trigger session summarization
    */
   private async summarize(req: Request, res: Response): Promise<void> {
-    this.validateRequired(req.body, ['contentSessionId']);
-
-    const { contentSessionId } = req.body;
+    // Accept both sessionId (new) and contentSessionId (legacy)
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
 
     const session = await this.deps.sessionService.getSession(contentSessionId);
     if (!session) {

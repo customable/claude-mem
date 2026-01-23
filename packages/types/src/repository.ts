@@ -142,10 +142,15 @@ export interface CreateObservationInput {
   text: string;
   type: ObservationType;
   title?: string;
-  concept?: string;
-  sourceFiles?: string;
+  subtitle?: string;
+  concepts?: string;
+  facts?: string;
+  narrative?: string;
+  filesRead?: string;
+  filesModified?: string;
   promptNumber?: number;
   discoveryTokens?: number;
+  gitBranch?: string;
 }
 
 /**

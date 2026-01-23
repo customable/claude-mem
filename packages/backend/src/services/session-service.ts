@@ -46,9 +46,10 @@ export class SessionService {
       return session;
     }
 
-    // Create new session
+    // Create new session - use contentSessionId as memorySessionId if not provided
     session = await this.sessions.create({
       contentSessionId: params.contentSessionId,
+      memorySessionId: params.contentSessionId,
       project: params.project,
       userPrompt: params.userPrompt,
     });

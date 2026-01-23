@@ -117,7 +117,7 @@ export class BackendService {
       await this.startHttpServer();
 
       // Background initialization
-      this.initializeInBackground();
+      await this.initializeInBackground();
     } catch (error) {
       const err = error as Error;
       logger.error('Failed to start backend:', { message: err.message, stack: err.stack });
@@ -199,7 +199,8 @@ export class BackendService {
       // Initialize services
       this.taskService = new TaskService(
         this.unitOfWork.taskQueue,
-        this.sseBroadcaster!
+        this.sseBroadcaster!,
+        this.unitOfWork.observations
       );
 
       this.sessionService = new SessionService(
@@ -214,7 +215,12 @@ export class BackendService {
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
-        this.unitOfWork.taskQueue
+        this.unitOfWork.taskQueue,
+        {
+          sseBroadcaster: this.sseBroadcaster!,
+          observations: this.unitOfWork.observations,
+          sessions: this.unitOfWork.sessions,
+        }
       );
       this.taskDispatcher.start();
 

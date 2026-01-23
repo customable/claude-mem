@@ -6,8 +6,9 @@
  */
 
 import { createLogger } from '@claude-mem/shared';
-import type { ITaskQueueRepository, Task, WorkerCapability } from '@claude-mem/types';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask } from '@claude-mem/types';
 import type { WorkerHub } from './worker-hub.js';
+import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
 
 const logger = createLogger('task-dispatcher');
 
@@ -18,6 +19,12 @@ export interface TaskDispatcherOptions {
   maxRetries?: number;
   /** Timeout for task completion (ms) */
   taskTimeoutMs?: number;
+  /** SSE broadcaster for real-time updates */
+  sseBroadcaster?: SSEBroadcaster;
+  /** Observation repository for storing results */
+  observations?: IObservationRepository;
+  /** Session repository for looking up memory session IDs */
+  sessions?: ISessionRepository;
 }
 
 export class TaskDispatcher {
@@ -27,6 +34,9 @@ export class TaskDispatcher {
   private readonly pollIntervalMs: number;
   private readonly maxRetries: number;
   private readonly taskTimeoutMs: number;
+  private readonly sseBroadcaster?: SSEBroadcaster;
+  private readonly observations?: IObservationRepository;
+  private readonly sessions?: ISessionRepository;
 
   constructor(
     private readonly hub: WorkerHub,
@@ -36,6 +46,9 @@ export class TaskDispatcher {
     this.pollIntervalMs = options.pollIntervalMs ?? 1000;
     this.maxRetries = options.maxRetries ?? 3;
     this.taskTimeoutMs = options.taskTimeoutMs ?? 300000; // 5 minutes
+    this.sseBroadcaster = options.sseBroadcaster;
+    this.observations = options.observations;
+    this.sessions = options.sessions;
 
     // Wire up hub events
     this.hub.onTaskComplete = this.handleTaskComplete.bind(this);
@@ -122,6 +135,10 @@ export class TaskDispatcher {
       } else {
         // Update status to processing
         await this.taskQueue.updateStatus(task.id, 'processing');
+
+        // Broadcast assignment event
+        this.sseBroadcaster?.broadcastTaskAssigned(task.id, worker.id, task.type);
+        logger.debug(`Task ${task.id} (${task.type}) assigned to worker ${worker.id}`);
       }
     } catch (error) {
       const err = error as Error;
@@ -158,13 +175,52 @@ export class TaskDispatcher {
     result: unknown
   ): Promise<void> {
     try {
+      // Get the task first to know its type
+      const task = await this.taskQueue.findById(taskId);
+
       await this.taskQueue.updateStatus(taskId, 'completed', {
         result,
       } as Partial<Task>);
       logger.info(`Task ${taskId} completed by worker ${workerId}`);
 
+      // Broadcast completion event
+      this.sseBroadcaster?.broadcastTaskCompleted(taskId);
+
+      // Handle observation task: store result in database
+      if (task?.type === 'observation' && this.observations && this.sessions) {
+        const observationResult = result as ObservationTask['result'];
+        const payload = task.payload as ObservationTaskPayload;
+
+        if (observationResult?.title && observationResult?.text) {
+          // Look up memory session ID from content session ID
+          const session = await this.sessions.findByContentSessionId(payload.sessionId);
+          const memorySessionId = session?.memory_session_id || payload.sessionId;
+
+          // Store observation in database
+          const observation = await this.observations.create({
+            memorySessionId,
+            project: payload.project,
+            type: observationResult.type || 'discovery',
+            title: observationResult.title,
+            text: observationResult.text,
+            discoveryTokens: observationResult.tokens || 0,
+            promptNumber: payload.promptNumber,
+          });
+
+          logger.info(`Observation ${observation.id} created for session ${payload.sessionId}`);
+
+          // Broadcast observation created event
+          this.sseBroadcaster?.broadcastObservationCreated(
+            observation.id,
+            payload.sessionId
+          );
+        } else {
+          logger.debug(`No observation content for task ${taskId}`);
+        }
+      }
+
       // Trigger another dispatch cycle
-      this.dispatchPendingTasks();
+      await this.dispatchPendingTasks();
     } catch (error) {
       const err = error as Error;
       logger.error(`Error completing task ${taskId}:`, { message: err.message });
@@ -195,6 +251,12 @@ export class TaskDispatcher {
           retryCount: newRetryCount,
         });
         logger.error(`Task ${taskId} failed after ${newRetryCount} retries: ${error}`);
+
+        // Broadcast failure event
+        this.sseBroadcaster?.broadcast({
+          type: 'task:failed',
+          data: { taskId, error, retries: newRetryCount },
+        });
       } else {
         // Reset to pending for retry
         await this.taskQueue.updateStatus(taskId, 'pending', {
@@ -205,7 +267,7 @@ export class TaskDispatcher {
       }
 
       // Trigger another dispatch cycle
-      this.dispatchPendingTasks();
+      await this.dispatchPendingTasks();
     } catch (err) {
       const e = err as Error;
       logger.error(`Error handling task error for ${taskId}:`, { message: e.message });
@@ -239,7 +301,7 @@ export class TaskDispatcher {
       }
 
       // Trigger dispatch to reassign
-      this.dispatchPendingTasks();
+      await this.dispatchPendingTasks();
     } catch (error) {
       const err = error as Error;
       logger.error(`Error handling worker disconnect for ${workerId}:`, { message: err.message });
