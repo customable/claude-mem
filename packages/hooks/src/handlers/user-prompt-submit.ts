@@ -5,7 +5,14 @@
  * Initializes the session in the backend.
  */
 
-import { createLogger, getRepoInfo } from '@claude-mem/shared';
+import {
+  createLogger,
+  getRepoInfo,
+  loadSettings,
+  processSecrets,
+  createSecretsSummary,
+  type SecretDetectorConfig,
+} from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
@@ -44,12 +51,39 @@ export async function handleUserPromptSubmit(input: HookInput): Promise<HookResu
       }
     }
 
+    // Process prompt for secrets
+    const settings = loadSettings();
+    const secretConfig: SecretDetectorConfig = {
+      enabled: settings.SECRET_DETECTION_ENABLED,
+      mode: settings.SECRET_DETECTION_MODE,
+    };
+
+    let prompt = input.prompt;
+
+    if (secretConfig.enabled && prompt) {
+      const result = processSecrets(prompt, secretConfig);
+
+      if (result.secretsFound) {
+        logger.warn(`Secrets detected in user prompt: ${createSecretsSummary(result.matches)}`);
+
+        // Skip if configured to not store prompts with secrets
+        if (secretConfig.mode === 'skip') {
+          logger.info('Skipping prompt storage due to detected secrets');
+          // Still init session, just without the prompt
+          prompt = undefined;
+        } else {
+          // Use processed (potentially redacted) text
+          prompt = result.text;
+        }
+      }
+    }
+
     // Initialize session with repo info
     const response = await client.post<SessionInitResponse>('/api/hooks/session-init', {
       sessionId: input.sessionId,
       project: input.project,
       cwd: input.cwd,
-      prompt: input.prompt,
+      prompt,
       // Git worktree info
       repoPath: repoInfo?.repoPath,
       isWorktree: repoInfo?.isWorktree,
