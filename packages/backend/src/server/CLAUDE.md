@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14337 | 10:08 PM | 🟠 | Added PluginsRouter to backend service | ~5102 |
+| #14336 | 10:08 PM | 🟠 | Adding PluginsRouter to backend imports | ~4893 |
+| #14335 | 10:08 PM | 🟠 | Added plugin manager initialization | ~5055 |
+| #14334 | 10:08 PM | 🟠 | Adding PluginManager imports | ~4933 |
+| #14333 | 10:08 PM | 🔵 | Backend Service Architecture Overview | ~5000 |
+| #14319 | 10:05 PM | 🔵 | Backend API routes structure discovered | ~1111 |
+| #14312 | 10:04 PM | 🟠 | Added SuggestionsRouter to backend | ~5185 |
+| #14304 | 10:04 PM | 🟠 | Initialize SuggestionService | ~5097 |
+| #14302 | 10:04 PM | 🔵 | Backend Service Initialization Process | ~1377 |
+| #14301 | 10:04 PM | 🟠 | Add SuggestionService to BackendService | ~5042 |
+| #14300 | 10:03 PM | 🟠 | Added SuggestionService import | ~5082 |
+| #14299 | 10:03 PM | 🟠 | Added SuggestionsRouter to imports | ~4898 |
+| #14227 | 9:57 PM | 🔵 | Backend Service Architecture Overview | ~5037 |
+| #14225 | 9:57 PM | 🟠 | Added projectSettings to DataRouter | ~5166 |
+| #14192 | 9:51 PM | 🟠 | Added observationTemplates to DataRouter | ~4955 |
+| #14162 | 9:45 PM | 🔵 | Backend API routes structure discovered | ~1164 |
+| #14161 | 9:44 PM | 🟠 | Added observationLinks to DataRouter | ~5156 |
 | #14041 | 9:23 PM | 🔵 | Backend Service Architecture Overview | ~5109 |
 | #13997 | 9:20 PM | 🔵 | Backend Service Architecture Overview | ~2373 |
 | #13980 | 9:20 PM | 🔵 | Backend Service Architecture Overview | ~5089 |
 | #13953 | 9:14 PM | 🟠 | Added Sleep Agent API routes | ~5149 |
 | #13952 | 9:14 PM | 🟠 | Add SleepAgentService to BackendService | ~5131 |
 | #13951 | 9:14 PM | 🟠 | Added SleepAgentService initialization | ~5103 |
-| #13950 | 9:14 PM | 🟠 | Added SleepAgentService imports | ~4978 |
+| #13950 | 9:14 PM | 🟠 | Added SleepAgentService to imports | ~4978 |
 | #13949 | 9:14 PM | 🟠 | Added SleepAgentRouter import | ~5109 |
 | #13948 | 9:14 PM | 🔵 | Backend Service Architecture Overview | ~5099 |
 | #13947 | 9:13 PM | 🔵 | Backend Service Architecture Overview | ~1789 |
 | #13902 | 9:04 PM | 🔵 | Backend Service Architecture Overview | ~5175 |
-| #13901 | 9:04 PM | 🟠 | Adding DecisionsRouter imports | ~5127 |
+| #13901 | 9:04 PM | 🟠 | Adding DecisionsRouter to imports | ~5127 |
 | #13900 | 9:04 PM | 🟠 | Added DecisionService initialization | ~5085 |
-| #13899 | 9:04 PM | 🟠 | Added DecisionsRouter for conflicts | ~5094 |
-| #13898 | 9:04 PM | 🟠 | Add DecisionService to BackendService | ~5112 |
-| #13897 | 9:03 PM | 🟠 | Added DecisionService import | ~4992 |
-| #13849 | 8:55 PM | 🟠 | Added Lazy Mode API Routes | ~5095 |
-| #13848 | 8:55 PM | 🟠 | Added LazyProcessingService integration | ~5283 |
-| #13847 | 8:55 PM | 🔵 | Backend Service Architecture Overview | ~5130 |
-| #13846 | 8:55 PM | 🟠 | Add LazyProcessingService to BackendService | ~5016 |
-| #13845 | 8:55 PM | 🟠 | Added LazyRouter import | ~5109 |
-| #13844 | 8:55 PM | 🟠 | Added LazyProcessingService import | ~5077 |
-| #13739 | 8:27 PM | 🔵 | InsightsRouter and InsightsService usage | ~971 |
-| #13619 | 7:34 PM | 🟠 | Added Insights API route | ~5281 |
-| #13618 | 7:34 PM | 🟠 | Added InsightsService initialization | ~5261 |
-| #13617 | 7:33 PM | 🟠 | Added InsightsService to BackendService | ~5120 |
-| #13616 | 7:33 PM | 🔵 | Backend Service Architecture Overview | ~5123 |
-| #13615 | 7:33 PM | 🟠 | Added InsightsService and InsightsRouter | ~5207 |
-| #13530 | 7:23 PM | 🔵 | Backend service router configuration | ~1011 |
-| #13523 | 7:21 PM | 🟠 | Added codeSnippets to DataRouter | ~5168 |
 
 ## Key Insights
 
-- **Memory Tiering System**: Implemented SleepAgentService with consolidation logic, memory tiering fields (core/working/archive/ephemeral), and API routes for management.
-- **Conflict Detection**: Added DecisionService and DecisionsRouter for conflict detection functionality, integrating with backend services.
-- **Lazy Processing**: Introduced LazyProcessingService with scheduled batch processing and API routes for delayed/background task handling.
-- **Analytics Expansion**: Extended InsightsService with repository dependencies (dailyStats, technologyUsage, achievements) and API endpoints for analytics.
-- **Modular Architecture**: Backend service maintains clean separation of concerns with Express for HTTP, MikroORM for DB access, and WebSocket integration for real-time features.
+- **Plugin System Integration**: New plugin management functionality added via `PluginsRouter` and `PluginManager`, enabling modular extensions to the backend.
+- **Suggestion Service**: Implemented AI-powered memory suggestions with `SuggestionsRouter` and `SuggestionService`, integrating with the observations repository.
+- **Sleep Agent Feature**: Added memory consolidation via `SleepAgentService` and corresponding API routes, enhancing backend functionality.
+- **Architecture Patterns**: Consistent use of modular routers, dependency injection, and MikroORM for database operations across new features.
+- **Feature Expansion**: Multiple new features (project settings, observation templates/links) added to `DataRouter`, extending data management capabilities.
 </claude-mem-context>

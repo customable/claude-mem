@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -33,6 +33,7 @@ import {
   DecisionsRouter,
   SleepAgentRouter,
   SuggestionsRouter,
+  PluginsRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -83,6 +84,7 @@ export class BackendService {
   private decisionService: DecisionService | null = null;
   private sleepAgentService: SleepAgentService | null = null;
   private suggestionService: SuggestionService | null = null;
+  private pluginManager: PluginManager | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -303,6 +305,10 @@ export class BackendService {
         observations: this.unitOfWork.observations,
       });
 
+      // Initialize plugin manager and load plugins
+      this.pluginManager = createPluginManager();
+      await this.pluginManager.loadPlugins();
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -413,6 +419,11 @@ export class BackendService {
     // Suggestions routes (AI-powered memory suggestions)
     this.app.use('/api/suggestions', new SuggestionsRouter({
       suggestionService: this.suggestionService!,
+    }).router);
+
+    // Plugins routes (custom observation processors)
+    this.app.use('/api/plugins', new PluginsRouter({
+      pluginManager: this.pluginManager!,
     }).router);
 
     // Finalize app (error handlers)

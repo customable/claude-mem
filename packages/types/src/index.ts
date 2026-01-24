@@ -24,3 +24,6 @@ export * from './insights.js';
 
 // Decision tracking types
 export * from './decisions.js';
+
+// Plugin system types
+export * from './plugins.js';

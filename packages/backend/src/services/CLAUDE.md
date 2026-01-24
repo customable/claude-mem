@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14329 | 10:07 PM | 🟠 | Added PluginManager exports | ~1400 |
+| #14328 | 10:06 PM | 🟠 | Implemented Plugin Manager Service | ~5468 |
+| #14297 | 10:03 PM | 🟠 | Added SuggestionService exports | ~1480 |
+| #14296 | 10:03 PM | 🔵 | Backend services structure overview | ~1169 |
+| #14292 | 10:02 PM | 🟠 | Created Suggestion Service | ~6045 |
+| #14040 | 9:23 PM | 🔵 | Worker Process Manager Architecture Review | ~4286 |
+| #14007 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~2170 |
 | #13981 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~4183 |
 | #13954 | 9:14 PM | 🔵 | Sleep Agent Service for Memory Consolidation | ~3632 |
-| #13946 | 9:13 PM | 🟠 | Added SleepAgentService exports to services index | ~1486 |
+| #13946 | 9:13 PM | 🟠 | Added SleepAgentService exports | ~1486 |
 | #13943 | 9:12 PM | 🔵 | Backend services structure overview | ~956 |
-| #13937 | 9:11 PM | 🟠 | Created Sleep Agent Service for memory consolidation | ~5853 |
-| #13893 | 9:03 PM | 🟠 | Added DecisionService exports to services index | ~1294 |
+| #13937 | 9:11 PM | 🟠 | Created Sleep Agent Service | ~5853 |
+| #13893 | 9:03 PM | 🟠 | Added DecisionService exports | ~1294 |
 | #13892 | 9:03 PM | 🔵 | Backend services structure overview | ~984 |
-| #13891 | 9:02 PM | 🟠 | Created Decision Service for conflict detection | ~3762 |
+| #13891 | 9:02 PM | 🟠 | Created Decision Service | ~3762 |
 | #13859 | 8:57 PM | 🔴 | Fix error logging in lazy-processing-service | ~3277 |
-| #13855 | 8:57 PM | 🔴 | Fix logger.error call to use structured error object | ~3286 |
+| #13855 | 8:57 PM | 🔴 | Fix logger.error call | ~3286 |
 | #13854 | 8:57 PM | 🔴 | Fix error logging in scheduled batch processing | ~3273 |
 | #13853 | 8:56 PM | 🔵 | Lazy Processing Service Implementation Details | ~1678 |
-| #13852 | 8:56 PM | 🟠 | Added LazyProcessingService exports to services index | ~1401 |
+| #13852 | 8:56 PM | 🟠 | Added LazyProcessingService exports | ~1401 |
 | #13851 | 8:55 PM | 🔵 | Backend services index file structure | ~1036 |
-| #13839 | 8:54 PM | 🟠 | Created Lazy Processing Service for token-efficient message handling | ~5154 |
-| #13791 | 8:42 PM | 🟠 | Expanded achievement system with new categories and tiers | ~8284 |
+| #13839 | 8:54 PM | 🟠 | Created Lazy Processing Service | ~5154 |
+| #13791 | 8:42 PM | 🟠 | Expanded achievement system | ~8284 |
 | #13790 | 8:41 PM | 🔵 | Achievement system structure discovered | ~1592 |
-| #13784 | 8:38 PM | 🔴 | Fallback for empty daily stats in activity heatmap | ~5078 |
+| #13784 | 8:38 PM | 🔴 | Fallback for empty daily stats | ~5078 |
 | #13780 | 8:38 PM | 🟠 | Added fallback logic for empty daily stats | ~5056 |
 | #13766 | 8:33 PM | 🔴 | Fix insights summary token tracking logic | ~4407 |
 | #13748 | 8:29 PM | 🔴 | Fallback to observations when daily stats are empty | ~4893 |
 | #13743 | 8:27 PM | 🔵 | Insights Service Architecture Review | ~3887 |
 | #13731 | 8:26 PM | 🔵 | No "insight" references in SSE broadcaster service | ~718 |
-| #13730 | 8:26 PM | 🔵 | Searching for real-time communication patterns in InsightsService | ~734 |
-| #13621 | 7:34 PM | 🟠 | Added InsightsService export to services index | ~1157 |
-| #13620 | 7:34 PM | 🔵 | Backend services structure overview | ~1034 |
-| #13610 | 7:33 PM | 🟠 | Create Insights Service with Achievement System | ~6194 |
-| #13607 | 7:32 PM | 🔵 | Session Service Architecture Analysis | ~3623 |
-| #13400 | 7:03 PM | 🔵 | Worker Process Manager Architecture Review | ~4352 |
-| #13349 | 6:51 PM | 🔄 | Remove unused settings load in detectWorkerBinaryPath | ~4331 |
 
 ## Key Insights
 
-- **Memory Tiering System**: Implemented SleepAgentService for memory consolidation with tier promotion/demotion (core, working, archive, ephemeral) and cleanup functionality.
-- **Worker Architecture**: WorkerProcessManager oversees worker lifecycle (spawn, exit, error) via WebSocket, with no "InProcessWorker" implementation found.
-- **Error Handling**: Multiple fixes for error logging in lazy-processing-service, ensuring consistent structured error objects.
-- **Achievement System**: Expanded with 70+ achievements across sessions, tokens, discoveries, and special categories to enhance user engagement.
-- **Fallback Mechanisms**: Added robust fallback logic for empty daily stats in insights and activity heatmap to ensure data consistency.
+- **New Services Added**: PluginManager, SuggestionService, SleepAgentService, DecisionService, and LazyProcessingService were all created and integrated into the backend services index.
+- **Error Handling Improvements**: Multiple fixes were made to error logging in the lazy-processing-service to ensure consistent error message formatting.
+- **Fallback Mechanisms**: Several services (InsightsService, LazyProcessingService) now include fallback logic to handle cases where daily_stats are empty, improving robustness.
+- **Worker Architecture**: The WorkerProcessManager was reviewed and documented, revealing its role in managing worker child processes and lifecycle.
+- **Achievement System Expansion**: The achievement system was significantly expanded with new categories and tiers, enhancing user engagement features.
 </claude-mem-context>

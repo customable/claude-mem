@@ -33,3 +33,5 @@ export { SleepAgentRouter } from './sleep-agent.js';
 export type { SleepAgentRouterDeps } from './sleep-agent.js';
 export { SuggestionsRouter } from './suggestions.js';
 export type { SuggestionsRouterDeps } from './suggestions.js';
+export { PluginsRouter } from './plugins.js';
+export type { PluginsRouterDeps } from './plugins.js';

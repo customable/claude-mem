@@ -26,3 +26,5 @@ export type { SleepAgentServiceDeps, SleepAgentConfig, SleepAgentStatus, Consoli
 
 export { SuggestionService } from './suggestion-service.js';
 export type { SuggestionServiceOptions, SuggestionContext, Suggestion, SuggestionFeedback } from './suggestion-service.js';
+
+export { PluginManager, createPluginManager } from './plugin-manager.js';

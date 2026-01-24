@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14159 | 9:44 PM | 🟠 | Added observation link management endpoints | ~6003 |
-| #14158 | 9:44 PM | 🟠 | Added Observation Links API endpoints | ~5059 |
-| #14157 | 9:44 PM | 🔵 | API endpoints for observations, summaries, and tasks | ~1303 |
-| #14156 | 9:44 PM | 🟠 | Add observationLinks to DataRouterDeps interface | ~5147 |
-| #14154 | 9:44 PM | 🟠 | Added ObservationLinkRepository and ObservationLinkType imports | ~5088 |
-| #14117 | 9:37 PM | 🟠 | Added observation pinning and importance management endpoints | ~6066 |
-| #14116 | 9:37 PM | 🟠 | Added observation pinning and importance features to API routes | ~5423 |
-| #14115 | 9:37 PM | 🔵 | Examining Data Router Implementation | ~5059 |
-| #13945 | 9:13 PM | 🟠 | Added SleepAgentRouter exports to routes index | ~1452 |
-| #13944 | 9:12 PM | 🟠 | Created Sleep Agent Router with tier management endpoints | ~3163 |
-| #13912 | 9:07 PM | 🔄 | Change setupRoutes visibility from private to protected | ~2328 |
-| #13911 | 9:07 PM | 🔵 | Identified setupRoutes method in base-router.ts | ~730 |
-| #13896 | 9:03 PM | 🟠 | Added DecisionsRouter exports to routes module | ~1543 |
-| #13895 | 9:03 PM | 🔵 | Backend routes module structure discovered | ~1233 |
-| #13894 | 9:03 PM | 🟠 | Created Decisions Router with conflict detection and management endpoints | ~3173 |
-| #13850 | 8:55 PM | 🔵 | Insights Router Structure and API Endpoints | ~2171 |
-| #13843 | 8:55 PM | 🟠 | Added LazyRouter exports to routes module | ~1497 |
-| #13842 | 8:55 PM | 🔵 | Backend routes module structure discovered | ~1208 |
-| #13841 | 8:54 PM | 🟠 | Created LazyRouter for lazy processing mode | ~3048 |
-| #13779 | 8:37 PM | 🔄 | Optimize analytics timeline with SQL aggregation | ~6216 |
-| #13775 | 8:37 PM | 🔵 | Analytics timeline endpoint implementation | ~1535 |
-| #13767 | 8:33 PM | 🟣 | Increased data fetch limit from 10,000 to 100,000 | ~5176 |
-| #13765 | 8:33 PM | 🔵 | Analytics API endpoints for timeline, types, and projects | ~2026 |
-| #13761 | 8:32 PM | 🔵 | Analytics endpoints found in data.ts | ~2174 |
-| #13757 | 8:32 PM | 🔵 | Analytics-related code found in backend routes | ~755 |
-| #13738 | 8:27 PM | 🔵 | Insights Router Structure and Endpoints | ~2170 |
-| #13623 | 7:34 PM | 🔵 | Discovered backend route structure and available routers | ~1155 |
-| #13622 | 7:34 PM | 🟠 | Added InsightsRouter exports to routes module | ~1462 |
-| #13614 | 7:33 PM | 🟠 | Created Insights Router for learning insights dashboard | ~3459 |
-| #13612 | 7:33 PM | 🔵 | Exploring Data Router Structure | ~1475 |
+| #14332 | 10:08 PM | 🟠 | Added PluginsRouter exports | ~1503 |
+| #14331 | 10:08 PM | 🔵 | Backend routes structure overview | ~1354 |
+| #14330 | 10:07 PM | 🟠 | Created plugins router | ~4033 |
+| #14298 | 10:03 PM | 🟠 | Added SuggestionsRouter exports | ~1489 |
+| #14295 | 10:03 PM | 🔵 | Backend routes module structure | ~1314 |
+| #14294 | 10:03 PM | 🟠 | Created SuggestionsRouter | ~4281 |
+| #14293 | 10:03 PM | 🔵 | Search API uses text fallback | ~1882 |
+| #14226 | 9:57 PM | 🟠 | Added Project Settings API | ~5411 |
+| #14223 | 9:57 PM | 🟠 | Added Project Settings API | ~5939 |
+| #14222 | 9:56 PM | 🟠 | Add projectSettings repository | ~4972 |
+| #14221 | 9:56 PM | 🔵 | Examining Data Router | ~5014 |
+| #14220 | 9:56 PM | 🟠 | Added IProjectSettingsRepository | ~4947 |
+| #14191 | 9:50 PM | 🟠 | Added Observation Template API | ~5977 |
+| #14190 | 9:50 PM | 🟠 | Add observationTemplates repo | ~4924 |
+| #14188 | 9:50 PM | 🟠 | Added Observation Templates API | ~5212 |
+| #14187 | 9:50 PM | 🟠 | Added IObservationTemplateRepo | ~4973 |
+| #14159 | 9:44 PM | 🟠 | Added observation link endpoints | ~6003 |
+| #14158 | 9:44 PM | 🟠 | Added Observation Links API | ~5059 |
+| #14157 | 9:44 PM | 🔵 | API endpoints discovered | ~1303 |
+| #14156 | 9:44 PM | 🟠 | Add observationLinks to deps | ~5147 |
+| #14154 | 9:43 PM | 🟠 | Added ObservationLinkRepo imports | ~5088 |
+| #14117 | 9:37 PM | 🟠 | Added observation pinning API | ~6066 |
+| #14116 | 9:37 PM | 🟠 | Added pinning/importance API | ~5423 |
+| #14115 | 9:37 PM | 🔵 | Examining Data Router | ~5059 |
+| #13945 | 9:13 PM | 🟠 | Added SleepAgentRouter exports | ~1452 |
+| #13944 | 9:12 PM | 🟠 | Created Sleep Agent Router | ~3163 |
+| #13912 | 9:07 PM | 🔄 | Change setupRoutes visibility | ~2328 |
+| #13911 | 9:07 PM | 🔵 | Identified setupRoutes method | ~730 |
+| #13896 | 9:03 PM | 🟠 | Added DecisionsRouter exports | ~1543 |
+| #13895 | 9:03 PM | 🔵 | Backend routes module structure | ~1233 |
 
 ## Key Insights
 
-- **Observation Management Expansion**: Significant work on observation features including link management, pinning, and importance scoring, suggesting enhanced knowledge organization capabilities.
-- **Memory Tiering System**: Implementation of Sleep Agent with memory tiering (core/working/archive/ephemeral) and consolidation logic for memory management.
-- **Analytics Optimization**: Performance improvements through SQL aggregation and increased data fetch limits (10x increase to 100,000 records).
-- **Router Architecture Growth**: Multiple new routers added (Decisions, Lazy, SleepAgent, Insights) following modular design patterns.
-- **Design Pattern Refinement**: Refactoring of router setup methods from private to protected visibility, indicating architectural maturity.
+- **Modular Architecture**: The backend follows a clean, modular router structure with 16+ distinct routers (e.g., PluginsRouter, SuggestionsRouter, SleepAgentRouter), each handling specific domains.
+- **New Features Added**: Project settings, observation templates, observation links, and pinning/importance management were implemented with full CRUD API endpoints.
+- **Search & AI Integration**: The search API currently uses text fallback for semantic search, indicating planned Qdrant integration for advanced search capabilities.
+- **Worker Architecture**: A comprehensive in-process worker system was added with file-based mutex locks and lifecycle management, supporting spawn, in-process, and hybrid modes.
+- **Refactoring**: The `setupRoutes` method visibility was changed from private to protected in DecisionsRouter, suggesting a design shift toward more flexible router initialization.
 </claude-mem-context>

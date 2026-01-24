@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14209 | 9:54 PM | 🟠 | Add ProjectSettingsRecord and ProjectSettingsData interfaces | ~3708 |
-| #14207 | 9:54 PM | 🟠 | Add projectSettings repository to repository interfaces | ~5195 |
-| #14206 | 9:54 PM | 🟠 | Added Project Settings Repository Interface | ~5589 |
-| #14205 | 9:53 PM | 🟠 | Added ProjectSettingsRecord to repository imports | ~5206 |
-| #14182 | 9:49 PM | 🟠 | Added Observation Template Repository Interface | ~5753 |
-| #14181 | 9:48 PM | 🟠 | Added observationTemplates repository to types | ~5099 |
-| #14180 | 9:48 PM | 🟠 | Add ObservationTemplateRecord to repository imports | ~5209 |
-| #14178 | 9:48 PM | 🟠 | Added ObservationTemplateRecord and TemplateFields interfaces | ~3255 |
-| #14163 | 9:45 PM | 🔵 | Exploring shared TypeScript types structure | ~1028 |
-| #14147 | 9:42 PM | 🟠 | Added Observation Link Repository Interface | ~5707 |
-| #14144 | 9:42 PM | 🟠 | Add observationLinks repository interface | ~5103 |
-| #14143 | 9:42 PM | 🔵 | Repository interfaces and Unit of Work pattern discovered | ~1147 |
-| #14142 | 9:42 PM | 🔵 | Repository interface methods and Unit of Work pattern discovered | ~1373 |
-| #14138 | 9:41 PM | 🟠 | Add ObservationLinkRecord and ObservationLinkType to repository imports | ~5229 |
-| #14137 | 9:41 PM | 🟠 | Added observation link types and database record | ~3208 |
-| #14122 | 9:38 PM | 🔵 | Exploring ObservationRecord interface structure | ~1245 |
-| #14119 | 9:37 PM | 🟠 | Added importance scoring methods to IObservationRepository | ~5526 |
+| #14327 | 10:06 PM | 🟠 | Added plugin system types export | ~1200 |
+| #14326 | 10:06 PM | 🔵 | Exploring shared TypeScript types | ~1020 |
+| #14325 | 10:05 PM | 🟠 | Added plugin system architecture | ~3205 |
+| #14217 | 9:56 PM | 🔵 | Repository Pattern Implementation | ~5255 |
+| #14209 | 9:54 PM | 🟠 | Add ProjectSettingsRecord interfaces | ~3708 |
+| #14207 | 9:54 PM | 🟠 | Add projectSettings repository | ~5195 |
+| #14206 | 9:54 PM | 🟠 | Added Project Settings Repository | ~5589 |
+| #14205 | 9:53 PM | 🟠 | Added ProjectSettingsRecord imports | ~5206 |
+| #14182 | 9:49 PM | 🟠 | Added Observation Template Repo | ~5753 |
+| #14181 | 9:48 PM | 🟠 | Added observationTemplates repo | ~5099 |
+| #14180 | 9:48 PM | 🟠 | Add ObservationTemplateRecord | ~5209 |
+| #14178 | 9:48 PM | 🟠 | Added ObservationTemplateRecord | ~3255 |
+| #14163 | 9:45 PM | 🔵 | Exploring shared TypeScript types | ~1028 |
+| #14147 | 9:42 PM | 🟠 | Added Observation Link Repo | ~5707 |
+| #14144 | 9:42 PM | 🟠 | Add observationLinks repo | ~5103 |
+| #14143 | 9:42 PM | 🔵 | Repository interfaces discovered | ~1147 |
+| #14142 | 9:42 PM | 🔵 | Repository methods discovered | ~1373 |
+| #14138 | 9:41 PM | 🟠 | Add ObservationLinkRecord imports | ~5229 |
+| #14137 | 9:41 PM | 🟠 | Added observation link types | ~3208 |
+| #14122 | 9:38 PM | 🔵 | Exploring ObservationRecord | ~1245 |
+| #14119 | 9:37 PM | 🟠 | Added importance scoring methods | ~5526 |
 | #14114 | 9:37 PM | 🔵 | Repository Pattern Architecture | ~5237 |
-| #14107 | 9:35 PM | 🔵 | Database model types for claude-mem | ~1707 |
-| #14103 | 9:35 PM | 🟠 | Added importance scoring fields to ObservationRecord | ~2658 |
-| #14100 | 9:34 PM | 🔵 | Database schema for memory and session tracking | ~1146 |
-| #14062 | 9:28 PM | 🟠 | Added WorkerMode type for task processing modes | ~1749 |
-| #14047 | 9:24 PM | 🔵 | Worker Capabilities System Overview | ~1341 |
-| #14039 | 9:23 PM | 🔵 | Worker Capabilities System Overview | ~1349 |
-| #14038 | 9:23 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1047 |
-| #14036 | 9:23 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Communication | ~1869 |
-| #14027 | 9:22 PM | 🔵 | No TypeScript type files found in types package | ~726 |
-| #13996 | 9:20 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Communication | ~1893 |
-| #13989 | 9:20 PM | 🔵 | Discovered WebSocket message types in types package | ~722 |
-| #13935 | 9:10 PM | 🟠 | Add MemoryTier import to repository types | ~5202 |
+| #14107 | 9:35 PM | 🔵 | Database model types discovered | ~1707 |
+| #14103 | 9:35 PM | 🟠 | Added importance scoring fields | ~2658 |
+| #14100 | 9:34 PM | 🔵 | Database schema discovered | ~1146 |
+| #14062 | 9:28 PM | 🟠 | Added WorkerMode type | ~1749 |
+| #14047 | 9:24 PM | 🔵 | Worker Capabilities System | ~1341 |
+| #14039 | 9:23 PM | 🔵 | Worker Capabilities System | ~1349 |
+| #14038 | 9:23 PM | 🔵 | Exploring shared TypeScript types | ~1047 |
+| #14036 | 9:23 PM | 🔵 | WebSocket Protocol Types | ~1869 |
 
 ## Key Insights
 
-- **Project Settings & Templates**: New interfaces (`ProjectSettingsRecord`, `ProjectSettingsData`, `ObservationTemplateRecord`) and repository patterns (`IProjectSettingsRepository`, `IObservationTemplateRepository`) were added, enabling project-specific configurations and observation templates.
-- **Observation Linking**: Introduced `ObservationLinkRecord` and `ObservationLinkType` with 8 relationship types (e.g., `depends_on`, `blocks`), along with a new `IObservationLinkRepository` for managing links between observations.
-- **Importance Scoring**: Added `pinned` and `importance_boost` fields to `ObservationRecord`, along with methods (`pinObservation`, `setImportanceBoost`) to prioritize observations.
-- **Worker Architecture**: Discovered WebSocket-based worker communication, capability-based task assignment, and added `WorkerMode` type (`spawn`, `in-process`, `hybrid`) for flexible task processing.
-- **Repository Pattern**: Expanded repository interfaces (e.g., `IObservationRepository`) with CRUD operations, search, and Unit of Work pattern for transaction support.
+- **Plugin System Architecture**: A comprehensive plugin system was introduced with lifecycle hooks, metadata, and configuration interfaces, enabling extensibility.
+- **Repository Pattern Expansion**: Multiple new repositories were added (project settings, observation templates, observation links) following the established repository pattern with Unit of Work support.
+- **Observation Enhancements**: New features for observations include importance scoring (pinned/boost), templates for structured data, and relationship links between observations.
+- **Worker Architecture**: Discovered WebSocket-based worker communication with capability matching and added WorkerMode types for different processing modes.
+- **Project Configuration**: Added project-specific settings management with CRUD operations and repository interfaces.
 </claude-mem-context>
