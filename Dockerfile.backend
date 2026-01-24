@@ -37,6 +37,11 @@ RUN pnpm --filter @claude-mem/ui build
 # Production image
 FROM node:22-slim
 
+# Watchtower auto-update labels (Issue #214)
+ARG WATCHTOWER_ENABLE=false
+LABEL com.centurylinklabs.watchtower.enable="${WATCHTOWER_ENABLE}"
+LABEL com.centurylinklabs.watchtower.scope="claude-mem"
+
 WORKDIR /app
 
 # Copy built packages

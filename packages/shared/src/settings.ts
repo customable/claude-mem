@@ -126,6 +126,9 @@ export interface Settings {
   WORKER_MAX_RESTARTS: number; // Max restarts before giving up (0 = unlimited)
   WORKER_RESTART_DELAY_MS: number; // Initial delay before restart
   WORKER_RESTART_BACKOFF_MULTIPLIER: number; // Exponential backoff multiplier
+
+  // Docker Auto-Update (Issue #214)
+  DOCKER_AUTO_UPDATE_ENABLED: boolean; // Enable Watchtower auto-update labels
 }
 
 // ============================================
@@ -244,6 +247,9 @@ export const DEFAULTS: Settings = {
   WORKER_MAX_RESTARTS: 5, // Give up after 5 restarts
   WORKER_RESTART_DELAY_MS: 3000, // 3 seconds initial delay
   WORKER_RESTART_BACKOFF_MULTIPLIER: 2, // Double delay each restart
+
+  // Docker Auto-Update (Issue #214)
+  DOCKER_AUTO_UPDATE_ENABLED: false, // Disabled by default (opt-in for safety)
 };
 
 // ============================================
@@ -267,6 +273,7 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'SECRET_DETECTION_ENABLED',
   'LAZY_PROCESS_ON_SEARCH',
   'CLEANUP_AUTO_ENABLED',
+  'DOCKER_AUTO_UPDATE_ENABLED',
 ];
 
 /**
