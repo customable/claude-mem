@@ -5,7 +5,7 @@
 /**
  * Version of claude-mem
  */
-export const VERSION = '2.19.16';
+export const VERSION = '2.19.17';
 
 /**
  * Hook timeouts in milliseconds
