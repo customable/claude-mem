@@ -7,6 +7,8 @@
     "group:allNonMajor"
   ],
   "labels": ["dependencies"],
+  "platformAutomerge": true,
+  "rebaseWhen": "conflicted",
   "rangeStrategy": "bump",
   "lockFileMaintenance": {
     "enabled": true,
