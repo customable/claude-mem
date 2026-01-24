@@ -203,7 +203,7 @@ export class WorkersRouter extends BaseRouter {
 
     const hubWorkerId = spawnedWorker!.connectedWorkerId;
 
-    // Check if worker is busy
+    // Check if worker is busy via WorkerHub
     if (hubWorkerId && this.deps.workerHub.isWorkerBusy(hubWorkerId)) {
       // Mark for termination after task completes
       this.deps.workerHub.markForTermination(hubWorkerId);
@@ -212,6 +212,18 @@ export class WorkersRouter extends BaseRouter {
         message: 'Worker termination queued',
         queued: true,
         reason: 'Worker is currently processing a task',
+      });
+      return;
+    }
+
+    // Safety check: If worker is running but not yet connected to hub,
+    // queue termination instead of killing immediately (worker might be busy)
+    if (!hubWorkerId && spawnedWorker!.status === 'running') {
+      this.deps.workerProcessManager!.queueTermination(id);
+      this.success(res, {
+        message: 'Worker termination queued',
+        queued: true,
+        reason: 'Worker not yet connected to hub, queued for safety',
       });
       return;
     }

@@ -64,7 +64,8 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
       created_at: now,
     });
 
-    await this.em.persistAndFlush(entity);
+    this.em.persist(entity);
+    await this.em.flush();
     return toTask(entity) as T;
   }
 

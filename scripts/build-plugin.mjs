@@ -62,7 +62,6 @@ async function buildPlugin() {
       minify: true,
       logLevel: 'error',
       external: [
-        'bun:sqlite',
         '@xenova/transformers',
         '@qdrant/js-client-rest',
         'onnxruntime-node',
@@ -72,7 +71,7 @@ async function buildPlugin() {
         '__PLUGIN_VERSION__': JSON.stringify(version),
       },
       banner: {
-        js: '#!/usr/bin/env bun',
+        js: '#!/usr/bin/env node',
       },
     });
     fs.chmodSync(path.join(scriptsDir, 'worker-service.cjs'), 0o755);
@@ -95,9 +94,7 @@ async function buildPlugin() {
       outfile: path.join(scriptsDir, 'mcp-server.cjs'),
       minify: true,
       logLevel: 'error',
-      external: [
-        'bun:sqlite',
-      ],
+      external: [],
       define: {
         '__PLUGIN_VERSION__': JSON.stringify(version),
       },
