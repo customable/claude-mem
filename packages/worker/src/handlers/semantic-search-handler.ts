@@ -65,11 +65,15 @@ export async function handleSemanticSearchTask(
     const docType = idParts[0]; // 'observation' or 'summary'
     const docId = parseInt(idParts[1], 10);
 
+    // Get text from metadata (text field is added during upsert)
+    const metadataText = r.metadata['text'] as string | undefined;
+    const text = metadataText || '';
+
     return {
       id: docId,
       type: docType,
-      title: r.metadata.text?.split('\n')[0] || 'Untitled', // First line as title
-      text: r.metadata.text || '',
+      title: text.split('\n')[0] || 'Untitled', // First line as title
+      text,
       score: r.score,
       project: r.metadata.project,
       createdAt: r.metadata.createdAt ? new Date(r.metadata.createdAt).getTime() : Date.now(),
