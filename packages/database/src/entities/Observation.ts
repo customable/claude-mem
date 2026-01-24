@@ -61,6 +61,10 @@ export class Observation {
   cwd?: string;
 
   @Property({ nullable: true })
+  @Index()
+  repo_path?: string;
+
+  @Property({ nullable: true })
   prompt_number?: number;
 
   @Property({ nullable: true })

@@ -5,7 +5,7 @@
  * Initializes the session in the backend.
  */
 
-import { createLogger } from '@claude-mem/shared';
+import { createLogger, getRepoInfo } from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
@@ -34,12 +34,26 @@ export async function handleUserPromptSubmit(input: HookInput): Promise<HookResu
   }
 
   try {
-    // Initialize session
+    // Get repository info for worktree support
+    let repoInfo = null;
+    if (input.cwd) {
+      try {
+        repoInfo = getRepoInfo(input.cwd);
+      } catch {
+        // Not a git repo or git not available - that's fine
+      }
+    }
+
+    // Initialize session with repo info
     const response = await client.post<SessionInitResponse>('/api/hooks/session-init', {
       sessionId: input.sessionId,
       project: input.project,
       cwd: input.cwd,
       prompt: input.prompt,
+      // Git worktree info
+      repoPath: repoInfo?.repoPath,
+      isWorktree: repoInfo?.isWorktree,
+      branch: repoInfo?.branch,
     });
 
     logger.info(`Session initialized: ${response.sessionId} (created: ${response.created})`);
