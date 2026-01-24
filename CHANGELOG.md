@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.34.1] - 2026-01-24
+
+### Bug Fixes
+- Fixed missing 'special' category in AchievementDefinition types.
+
+
 ## [2.34.0] - 2026-01-24
 
 ### Features
