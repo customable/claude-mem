@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.23.0] - 2026-01-24
+
+### Features
+- Added Server-Sent Events (SSE) auto-sync to the Memories view for real-time updates.
+
+
 ## [2.22.0] - 2026-01-24
 
 ### Features
