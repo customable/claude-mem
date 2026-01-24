@@ -53,6 +53,8 @@ export class DataRouter extends BaseRouter {
     this.router.get('/observations', this.asyncHandler(this.listObservations.bind(this)));
     this.router.post('/observations', this.asyncHandler(this.createObservation.bind(this)));
     this.router.get('/observations/:id', this.asyncHandler(this.getObservation.bind(this)));
+    this.router.delete('/observations/:id', this.asyncHandler(this.deleteObservation.bind(this)));
+    this.router.delete('/observations', this.asyncHandler(this.bulkDeleteObservations.bind(this)));
     this.router.get('/sessions/:sessionId/observations', this.asyncHandler(this.getSessionObservations.bind(this)));
 
     // Summaries
@@ -222,6 +224,70 @@ export class DataRouter extends BaseRouter {
     }
 
     this.success(res, observation);
+  }
+
+  /**
+   * DELETE /api/data/observations/:id
+   * Delete a single observation (GDPR compliance)
+   */
+  private async deleteObservation(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const deleted = await this.deps.observations.delete(id);
+    if (!deleted) {
+      this.notFound(`Observation not found: ${id}`);
+    }
+
+    this.noContent(res);
+  }
+
+  /**
+   * DELETE /api/data/observations
+   * Bulk delete observations with filters (GDPR compliance)
+   * Query params: project, sessionId, before (ISO date), ids (comma-separated)
+   */
+  private async bulkDeleteObservations(req: Request, res: Response): Promise<void> {
+    const { project, sessionId, before, ids } = req.query;
+
+    // At least one filter required for safety
+    if (!project && !sessionId && !before && !ids) {
+      this.badRequest('At least one filter required: project, sessionId, before, or ids');
+    }
+
+    let deletedCount = 0;
+
+    // Delete by specific IDs
+    if (ids) {
+      const idList = getString(ids)!.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id));
+      for (const id of idList) {
+        const deleted = await this.deps.observations.delete(id);
+        if (deleted) deletedCount++;
+      }
+    }
+    // Delete by session
+    else if (sessionId) {
+      deletedCount = await this.deps.observations.deleteBySessionId(getString(sessionId)!);
+    }
+    // Delete by project and/or date (requires listing first)
+    else {
+      const filters: { project?: string; dateRange?: { before?: number } } = {};
+      if (project) filters.project = getString(project);
+      if (before) {
+        const beforeDate = new Date(getString(before)!);
+        if (!isNaN(beforeDate.getTime())) {
+          filters.dateRange = { before: beforeDate.getTime() };
+        }
+      }
+
+      // Get matching observations and delete them
+      const toDelete = await this.deps.observations.list(filters, { limit: 10000 });
+      for (const obs of toDelete) {
+        const deleted = await this.deps.observations.delete(obs.id);
+        if (deleted) deletedCount++;
+      }
+    }
+
+    this.success(res, { deleted: deletedCount });
   }
 
   /**
