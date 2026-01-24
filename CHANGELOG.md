@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.12] - 2026-01-24
+
+### Bug Fixes
+- Stop event propagation on observation tab buttons to prevent unintended behavior.
+
+
 ## [2.19.11] - 2026-01-24
 
 ### Bug Fixes

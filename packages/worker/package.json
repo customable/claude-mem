@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/worker",
-  "version": "2.19.11",
+  "version": "2.19.12",
   "description": "Distributed AI processing worker for claude-mem",
   "type": "module",
   "main": "dist/index.js",
