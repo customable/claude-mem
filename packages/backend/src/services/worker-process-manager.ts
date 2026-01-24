@@ -65,8 +65,6 @@ export class WorkerProcessManager extends EventEmitter {
    * Detect the worker binary path
    */
   private detectWorkerBinaryPath(): void {
-    const settings = loadSettings();
-
     // Priority order for worker binary detection:
     // 1. Sibling package (development/monorepo)
     // 2. Bundled in backend dist
