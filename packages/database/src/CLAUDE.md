@@ -7,39 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14149 | 9:43 PM | 🟠 | Added ObservationLinkRepository export | ~1282 |
-| #14148 | 9:42 PM | 🔵 | MikroORM Repository Structure | ~1184 |
-| #14146 | 9:42 PM | 🟠 | Created ObservationLinkRepository | ~3808 |
-| #14145 | 9:42 PM | 🟠 | Add ObservationLink entity config | ~3342 |
-| #14141 | 9:41 PM | 🟠 | Create ObservationLink Entity | ~1443 |
-| #14140 | 9:41 PM | 🟠 | Add ObservationLink to config | ~3233 |
-| #14139 | 9:41 PM | 🟠 | Add observation_links migration | ~3157 |
-| #14136 | 9:41 PM | 🟠 | Add ObservationLink entity export | ~1186 |
-| #14135 | 9:41 PM | 🟠 | Add migration export | ~1950 |
-| #14134 | 9:41 PM | 🔵 | Database migration structure | ~1521 |
-| #14133 | 9:41 PM | 🔵 | Database entities overview | ~1068 |
-| #14132 | 9:40 PM | 🟠 | Add observation_links migration | ~3299 |
-| #14131 | 9:40 PM | 🟠 | Create observation_links table | ~1745 |
-| #14123 | 9:38 PM | 🟠 | Add importance scoring migration | ~3895 |
-| #14120 | 9:38 PM | 🔵 | Database config structure | ~2673 |
-| #14118 | 9:37 PM | 🟠 | Add importance scoring migration | ~3282 |
-| #14113 | 9:36 PM | 🟠 | Add importance scoring methods | ~6152 |
-| #14112 | 9:36 PM | 🟠 | Add importance fields to record | ~5550 |
-| #14110 | 9:35 PM | 🔵 | Database migration structure | ~1360 |
-| #14109 | 9:35 PM | 🟠 | Add migration export | ~1885 |
-| #14108 | 9:35 PM | 🟠 | Add importance fields to table | ~1381 |
-| #14105 | 9:35 PM | 🟠 | Add importance fields to entity | ~2063 |
-| #14094 | 9:34 PM | 🔵 | Observation Entity Structure | ~1713 |
-| #13936 | 9:10 PM | 🟠 | Add memory tier management | ~6732 |
-| #13931 | 9:09 PM | 🟠 | Add memory tiering fields | ~5570 |
-| #13929 | 9:09 PM | 🔵 | MikroORM with raw SQL for FTS5 | ~1446 |
-| #13926 | 9:09 PM | 🟠 | Add memory tiering migration | ~2039 |
+| #14791 | 11:23 PM | 🟠 | Add urgent prompt field migration export | ~2077 |
+| #14790 | 11:23 PM | 🟠 | Add urgent prompt field migration | ~3356 |
+| #14789 | 11:23 PM | 🟠 | Add isUrgent field to UserPrompt update | ~2284 |
+| #14788 | 11:23 PM | 🔵 | Database config structure analysis | ~3024 |
+| #14787 | 11:23 PM | 🟠 | Add is_urgent field to UserPrompt entity | ~2218 |
+| #14786 | 11:23 PM | 🟠 | Add is_urgent to UserPromptRecord | ~2132 |
+| #14785 | 11:23 PM | 🟠 | Add is_urgent field to UserPrompt | ~1449 |
+| #14784 | 11:23 PM | 🟠 | Add urgent prompt field migration | ~3511 |
+| #14783 | 11:23 PM | 🔵 | UserPrompt entity structure analysis | ~964 |
+| #14782 | 11:22 PM | 🔵 | UserPromptRepository implementation | ~1714 |
+| #14781 | 11:22 PM | 🔵 | Database migration structure | ~1568 |
+| #14778 | 11:21 PM | 🟠 | Add is_urgent to user_prompts table | ~1380 |
+| #14776 | 11:21 PM | 🔵 | Importance scoring fields migration | ~1201 |
+| #14531 | 10:35 PM | 🟠 | Add completeStale to SessionRepository | ~5115 |
+| #14516 | 10:33 PM | 🔵 | Session Repository implementation | ~3050 |
+| #14489 | 10:32 PM | 🔵 | Database schema structure analysis | ~1980 |
+| #14484 | 10:31 PM | 🔵 | Observation entity structure | ~1477 |
+| #14483 | 10:31 PM | 🔵 | Memory tiering in Observation entity | ~1144 |
+| #14482 | 10:31 PM | 🔵 | Session entity structure | ~1285 |
+| #14219 | 9:56 PM | 🔵 | MikroORM Unit of Work analysis | ~2438 |
+| #14218 | 9:56 PM | 🟠 | Add projectSettings to UnitOfWork | ~2753 |
+| #14216 | 9:56 PM | 🔴 | Fix missing projectSettings init | ~2866 |
+| #14215 | 9:56 PM | 🟠 | Create ProjectSettingsRepository | ~3231 |
+| #14214 | 9:56 PM | 🔴 | Fix projectSettings initialization | ~2916 |
+| #14213 | 9:55 PM | 🔵 | MikroORM Unit of Work analysis | ~2413 |
+| #14212 | 9:55 PM | 🟠 | Add ProjectSettingsRepository | ~2735 |
+| #14211 | 9:55 PM | 🟠 | Export ProjectSettingsRepository | ~1348 |
+| #14210 | 9:55 PM | 🔵 | MikroORM repository structure | ~1151 |
+| #14208 | 9:54 PM | 🟠 | Add ProjectSettings migration | ~3355 |
+| #14204 | 9:53 PM | 🟠 | Create ProjectSettings entity | ~1526 |
 
 ## Key Insights
 
-- **Observation Links Feature**: Added comprehensive support for linking observations with typed relationships, including new entity, repository, and database migration.
-- **Importance Scoring**: Implemented pinned/importance_boost fields for observations with repository methods and migrations.
-- **Memory Tiering**: Added tier management fields (memory_tier, access_count) and repository methods for tier transitions.
-- **Database Architecture**: Uses MikroORM with SQLite/PostgreSQL/MySQL support, FTS5 via raw SQL, and 11+ migrations.
-- **Recent Focus**: Heavy development on observation relationships, importance scoring, and memory tiering features.
+- **Urgent Prompt Feature**: Added `is_urgent` field to UserPrompt entity with database migration, enabling CAPSLOCK detection (Issue #233). Includes entity updates, repository changes, and migration files.
+- **Project Settings**: Implemented ProjectSettingsRepository and entity with proper UnitOfWork integration, fixing initialization bugs. Supports project-specific metadata and settings.
+- **Database Architecture**: Uses MikroORM with SQLite/PostgreSQL/MySQL support. 17 entities including sessions, observations, and user prompts with comprehensive migration history.
+- **Memory Management**: Observation entity includes memory tiering (memory_tier, access_count) and decision tracking (superseded_by, supersedes).
+- **Session Handling**: Added `completeStale` method to automatically mark inactive sessions as completed based on last activity timestamps.
 </claude-mem-context>

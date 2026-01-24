@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14099 | 9:34 PM | 🔵 | No "pinned"/"boost" in UI package | ~729 |
-| #13760 | 8:32 PM | 🔵 | Analytics feature in UI package | ~1004 |
-| #13759 | 8:32 PM | 🔵 | API methods for settings/analytics | ~1310 |
-| #13758 | 8:32 PM | 🔵 | Analytics API functions found | ~805 |
-| #13756 | 8:31 PM | 🔵 | Analytics files in UI package | ~717 |
-| #13705 | 8:12 PM | 🟠 | Added code snippet API endpoints | ~7613 |
-| #13701 | 8:11 PM | 🔵 | Code snippet endpoints in client | ~2100 |
-| #13681 | 8:09 PM | 🔵 | API client structure overview | ~5647 |
-| #13678 | 8:09 PM | 🟠 | Added learning insights API | ~7663 |
-| #13647 | 7:40 PM | 🔄 | Removed unused import | ~4936 |
-| #13645 | 7:39 PM | 🔄 | Removed unused activity state | ~5965 |
-| #13644 | 7:39 PM | 🔵 | Insights component structure | ~1657 |
-| #13643 | 7:39 PM | 🟠 | Added Insights to navigation | ~3358 |
-| #13642 | 7:39 PM | 🔄 | Renamed unused state variable | ~4929 |
-| #13641 | 7:38 PM | 🟠 | Added InsightsView to App | ~2733 |
-| #13640 | 7:38 PM | 🟠 | Added Insights navigation tab | ~2842 |
-| #13639 | 7:38 PM | 🔵 | App.tsx routing mechanism | ~2405 |
-| #13638 | 7:38 PM | 🟠 | Created Insights View Component | ~7052 |
-| #13637 | 7:38 PM | 🟠 | Added Insights types | ~5952 |
-| #13636 | 7:37 PM | 🔵 | API client endpoints overview | ~2606 |
-| #13635 | 7:37 PM | 🟠 | Added Insights API endpoints | ~5922 |
-| #13634 | 7:37 PM | 🔵 | API client interfaces | ~1210 |
-| #13633 | 7:37 PM | 🔵 | API methods for analytics | ~1734 |
-| #13632 | 7:37 PM | 🔵 | Analytics View structure | ~4272 |
-| #13631 | 7:37 PM | 🔵 | API client types overview | ~1523 |
-| #13630 | 7:36 PM | 🔵 | 9 view components in UI | ~1031 |
-| #13628 | 7:36 PM | 🔵 | UI components identified | ~795 |
-| #13529 | 7:23 PM | 🟠 | Added CodeSnippets to details | ~4265 |
-| #13528 | 7:22 PM | 🟠 | Imported CodeSnippets | ~3908 |
-| #13527 | 7:22 PM | 🟠 | Created CodeSnippets component | ~5080 |
+| #14807 | 11:28 PM | 🔵 | Metadata references in UI components | ~750 |
+| #14806 | 11:27 PM | 🟠 | Add MetadataDisplay component | ~6476 |
+| #14805 | 11:27 PM | 🔄 | Replace raw metadata display | ~4735 |
+| #14804 | 11:27 PM | 🔵 | Documents View structure | ~4397 |
+| #14592 | 10:41 PM | 🟠 | Add file tracking to Session | ~5293 |
+| #14590 | 10:40 PM | 🟠 | Add file tracking UI | ~7066 |
+| #14587 | 10:40 PM | 🔵 | Sessions View exploration | ~5122 |
+| #14488 | 10:32 PM | 🔵 | API Client structure | ~1369 |
+| #14486 | 10:32 PM | 🔵 | Session Timeline structure | ~2648 |
+| #14474 | 10:31 PM | 🔵 | SessionsView component | ~2127 |
+| #14099 | 9:34 PM | 🔵 | No "pinned" references | ~729 |
+| #13760 | 8:32 PM | 🔵 | Analytics feature exists | ~1004 |
+| #13759 | 8:32 PM | 🔵 | Settings/Analytics API | ~1310 |
+| #13758 | 8:32 PM | 🔵 | Analytics API functions | ~805 |
+| #13756 | 8:31 PM | 🔵 | Analytics files found | ~717 |
+| #13705 | 8:12 PM | 🟠 | Code snippet API endpoints | ~7613 |
+| #13701 | 8:11 PM | 🔵 | Code snippet endpoints | ~2100 |
+| #13681 | 8:09 PM | 🔵 | API Client capabilities | ~5647 |
+| #13678 | 8:09 PM | 🟠 | Learning insights API | ~7663 |
+| #13647 | 7:40 PM | 🔄 | Remove unused import | ~4936 |
+| #13645 | 7:39 PM | 🔄 | Remove unused activity | ~5965 |
+| #13644 | 7:39 PM | 🔵 | Insights component | ~1657 |
+| #13643 | 7:39 PM | 🟠 | Add Insights navigation | ~3358 |
+| #13642 | 7:39 PM | 🔄 | Rename unused state | ~4929 |
+| #13641 | 7:38 PM | 🟠 | Add InsightsView | ~2733 |
+| #13640 | 7:38 PM | 🟠 | Add Insights tab | ~2842 |
+| #13639 | 7:38 PM | 🔵 | App.tsx routing | ~2405 |
+| #13638 | 7:38 PM | 🟠 | Create Insights View | ~7052 |
+| #13637 | 7:37 PM | 🟠 | Add Insights types | ~5952 |
+| #13636 | 7:37 PM | 🔵 | API Client endpoints | ~2606 |
 
 ## Key Insights
 
-- **Analytics & Insights Expansion**: Major focus on analytics (existing) and new Insights dashboard with comprehensive metrics (summary, activity, heatmaps, achievements). Both features now have dedicated UI components and API endpoints.
-- **Code Snippets Integration**: New code snippet management system added with API endpoints, UI component (with syntax highlighting), and integration into observation details.
-- **Refactoring Efforts**: Cleanup of unused code (imports, state variables) in Insights components, improving maintainability.
-- **UI Architecture**: Project uses hash-based routing with 9 main views (Analytics, Projects, Sessions, etc.) and a modular component structure.
-- **API Client Growth**: Significant expansion of API client with new endpoints for insights, code snippets, and enhanced analytics capabilities.
+- **Metadata Display Enhancement**: New `MetadataDisplay` component replaces raw JSON display in document cards, improving UI consistency and user experience.
+- **File Tracking**: Extended `Session` interface with `files_read`/`files_modified` tracking, enhancing session visibility and auditability.
+- **Insights Dashboard**: Comprehensive analytics/insights feature added with heatmaps, technology usage tracking, and achievement metrics.
+- **Code Snippet Management**: New API endpoints for code snippet operations (search, retrieval, deletion) integrated into the client.
+- **Refactoring Focus**: Multiple cleanup operations removing unused imports/state, improving code maintainability and reducing technical debt.
 </claude-mem-context>

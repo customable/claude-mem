@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14199 | 9:53 PM | 🟠 | Add ProjectSettings migration export | ~1985 |
+| #14791 | 11:23 PM | 🟠 | Add urgent prompt field migration | ~2077 |
+| #14781 | 11:22 PM | 🔵 | Database migration structure | ~1568 |
+| #14778 | 11:21 PM | 🟠 | Add is_urgent field to prompts | ~1380 |
+| #14776 | 11:21 PM | 🔵 | Importance scoring fields added | ~1201 |
+| #14489 | 10:32 PM | 🔵 | Database schema structure | ~1980 |
+| #14199 | 9:53 PM | 🟠 | ProjectSettings table migration | ~1985 |
 | #14198 | 9:52 PM | 🟠 | Create project_settings table | ~1574 |
-| #14174 | 9:47 PM | 🟠 | Add TemplatesTable migration export | ~1965 |
-| #14169 | 9:47 PM | 🟠 | Create observation_templates table | ~2499 |
-| #14135 | 9:41 PM | 🟠 | Add ObservationLinksTable migration | ~1950 |
-| #14134 | 9:41 PM | 🔵 | Database migration structure found | ~1521 |
+| #14174 | 9:47 PM | 🟠 | CreateTemplatesTable migration | ~1965 |
+| #14169 | 9:47 PM | 🟠 | Observation templates table | ~2499 |
+| #14135 | 9:41 PM | 🟠 | ObservationLinksTable migration | ~1950 |
+| #14134 | 9:41 PM | 🔵 | Database migration structure | ~1521 |
 | #14131 | 9:40 PM | 🟠 | Create observation_links table | ~1745 |
-| #14110 | 9:35 PM | 🔵 | Database migration structure found | ~1360 |
-| #14109 | 9:35 PM | 🟠 | Add importance scoring migration | ~1885 |
+| #14110 | 9:35 PM | 🔵 | Database migration structure | ~1360 |
+| #14109 | 9:35 PM | 🟠 | Importance scoring migration | ~1885 |
 | #14108 | 9:35 PM | 🟠 | Add importance scoring fields | ~1381 |
-| #13926 | 9:09 PM | 🟠 | Add Memory Tiering Migration | ~2039 |
+| #13926 | 9:09 PM | 🟠 | Memory tiering migration | ~2039 |
 | #13921 | 9:08 PM | 🟠 | Add memory tiering migration | ~1919 |
-| #13872 | 9:00 PM | 🔵 | Database migration structure found | ~1297 |
-| #13870 | 9:00 PM | 🟠 | Add decision tracking migration | ~1786 |
-| #13869 | 9:00 PM | 🟠 | Add Decision Tracking Migration | ~1824 |
-| #13816 | 8:50 PM | 🟠 | Create Raw Messages Table | ~1750 |
-| #13814 | 8:50 PM | 🟠 | Add raw messages migration | ~1749 |
-| #13808 | 8:49 PM | 🔵 | Insights Tables Migration found | ~1587 |
-| #13806 | 8:49 PM | 🔵 | Database migration structure found | ~1214 |
+| #13872 | 9:00 PM | 🔵 | Database migration structure | ~1297 |
+| #13870 | 9:00 PM | 🟠 | Decision tracking migration | ~1786 |
+| #13869 | 9:00 PM | 🟠 | Add decision tracking fields | ~1824 |
+| #13816 | 8:50 PM | 🟠 | Create raw messages table | ~1750 |
+| #13814 | 8:50 PM | 🟠 | Raw messages table migration | ~1749 |
+| #13808 | 8:49 PM | 🔵 | Insights tables structure | ~1587 |
+| #13806 | 8:49 PM | 🔵 | Database migration structure | ~1214 |
 | #13694 | 8:11 PM | 🔴 | Resolved merge conflict | ~2143 |
-| #13693 | 8:11 PM | 🔵 | Migration file conflict detected | ~1382 |
-| #13672 | 8:08 PM | 🔵 | Migration file conflict detected | ~1311 |
-| #13662 | 8:07 PM | 🔴 | Resolved merge conflict | ~2187 |
-| #13551 | 7:26 PM | 🔵 | Migration files structure found | ~1137 |
-| #13550 | 7:26 PM | 🟠 | Add CreateInsightsTables migration | ~1623 |
-| #13547 | 7:26 PM | 🟠 | Create Insights Tables Migration | ~2222 |
-| #13440 | 7:10 PM | 🟠 | Create code_snippets table | ~2595 |
-| #13437 | 7:09 PM | 🟠 | Add CreateCodeSnippetsTable migration | ~1651 |
-| #13435 | 7:09 PM | 🔵 | Migration files structure found | ~1107 |
-| #13434 | 7:09 PM | 🔵 | Documents table schema found | ~1433 |
+| #13693 | 8:11 PM | 🔵 | Migration file conflict | ~1382 |
+| #13672 | 8:08 PM | 🔵 | Migration file conflict | ~1311 |
+| #13662 | 8:07 PM | 🔴 | Fixed merge conflict | ~2187 |
+| #13551 | 7:26 PM | 🔵 | Migration files structure | ~1137 |
+| #13550 | 7:26 PM | 🟠 | CreateInsightsTables migration | ~1623 |
 
 ## Key Insights
 
-- **Database Expansion**: Significant database schema evolution with new tables for project settings, observation templates, links, importance scoring, memory tiering, decision tracking, raw messages, insights, and code snippets.
-- **Memory Tiering**: Implemented a sophisticated memory tiering system (core/working/archive/ephemeral) with consolidation logic via SleepAgentService.
-- **Conflict Resolution**: Multiple merge conflicts in migration files were detected and resolved, particularly around CreateInsightsTables and CreateCodeSnippetsTable.
-- **Feature Growth**: New features include decision tracking, importance scoring, and template-based observation creation.
-- **Worker Architecture**: Completed in-process worker implementation with file-based mutex locks and hybrid worker modes.
+- **Database Schema Evolution**: Significant expansion of database schema with new tables for project settings, observation templates, links, and importance scoring. Memory tiering and decision tracking features were added.
+- **Urgent Prompt Detection**: New `is_urgent` field added to `user_prompts` table to track CAPSLOCK/urgent prompts (Issue #233).
+- **Merge Conflict Resolution**: Multiple merge conflicts in migration files were resolved, ensuring proper export of new migrations.
+- **Feature Additions**: New functionality includes semantic search with Qdrant, worker auto-restart, and cleanup services for process/memory leak prevention.
+- **Next Steps**: Test urgent prompt detection, semantic search, and worker auto-restart functionality. Ensure all migrations are applied and monitor performance.
 </claude-mem-context>

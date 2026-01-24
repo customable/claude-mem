@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14724 | 11:07 PM | 🔵 | Task Dispatcher Architecture Analysis | ~4707 |
 | #14701 | 11:03 PM | 🔵 | WorkerHub WebSocket Management Structure | ~1947 |
 | #14033 | 9:22 PM | 🔵 | Worker Hub WebSocket Management System | ~5207 |
 | #14028 | 9:22 PM | 🔵 | Task Dispatcher Architecture Review | ~4724 |
@@ -36,21 +37,12 @@
 | #13359 | 6:52 PM | 🔵 | WebSocket Types Structure | ~1094 |
 | #13358 | 6:52 PM | 🔵 | Worker connection/disconnection handling | ~1151 |
 | #13345 | 6:51 PM | 🔵 | Task Error Handling and Retry Logic | ~1306 |
-| #13344 | 6:50 PM | 🔄 | Enhanced task failure logging with worker ID | ~5024 |
 
 ## Key Insights
 
-- **WorkerHub WebSocket Management**: The system uses WebSocket connections for worker management, handling authentication, heartbeats, and connection lifecycle. It differentiates between localhost and external workers for authentication.
-- **Task Dispatcher Architecture**: The task dispatcher manages the complete task lifecycle (pending → assigned → processing → completed/failed) and matches tasks to workers based on capabilities. It includes retry logic and timeout handling.
-- **Code Snippet Extraction**: New functionality was added to extract and store code snippets from observation results, enhancing the system's capabilities for handling code-related tasks.
-- **Worker Linking**: The system now supports linking spawned workers to hub workers, improving worker lifecycle management and enabling better context preservation.
-- **Error Handling and Logging**: Enhanced error handling includes retry logic for failed tasks and improved logging with worker IDs for better debugging.
-
-## Next Steps
-
-- Complete the integration of Qdrant for semantic search.
-- Test worker auto-restart functionality in production.
-- Refine pre-compact hook behavior for better context preservation.
-- Ensure all staged changes are committed and pushed.
-- Address any remaining TypeScript typecheck issues.
+- **Task Dispatcher Architecture**: The system uses a sophisticated task lifecycle management (pending → assigned → processing → completed/failed) with capability-based worker matching and SSE-based real-time updates.
+- **Worker Management**: WebSocket-based worker connections with authentication, heartbeats, and lifecycle management. Localhost workers have different auth rules than external workers.
+- **Code Snippet Extraction**: New functionality added to extract and store code snippets from observations, with language detection and normalization.
+- **Worker Linking**: Enhanced worker management with spawned worker linking to hub workers and new `onWorkerLinked` callback for better lifecycle tracking.
+- **Error Handling**: Implemented retry logic for failed tasks with configurable maximum retries before marking as failed.
 </claude-mem-context>

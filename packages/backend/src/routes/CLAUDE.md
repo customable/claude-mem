@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14721 | 11:07 PM | 🔵 | Search routes implementation and semantic search status | ~2318 |
-| #14698 | 11:01 PM | 🟠 | Enhanced semantic search with Qdrant integration status | ~4027 |
-| #14695 | 11:01 PM | 🟠 | Enhanced search API response with vector DB status | ~3504 |
-| #14692 | 11:00 PM | 🟣 | Updated search.ts documentation with semantic search status | ~2849 |
-| #14690 | 10:59 PM | 🔵 | Search routes implementation analysis | ~1908 |
-| #14666 | 10:54 PM | 🔴 | Fix undefined workingDirectory in CLAUDE.md generation | ~3074 |
-| #14664 | 10:54 PM | 🔵 | Session compaction triggers CLAUDE.md generation | ~968 |
-| #14661 | 10:52 PM | 🔵 | Pre-compact event handling in hooks route | ~1030 |
-| #14659 | 10:52 PM | 🟣 | Update queueClaudeMd parameters in pre-compact hook | ~3293 |
-| #14658 | 10:51 PM | 🔄 | Changed setupRoutes visibility from private to protected | ~1413 |
-| #14657 | 10:51 PM | 🔵 | Cleanup Router for System Maintenance | ~993 |
-| #14622 | 10:45 PM | 🟠 | Added pre-compact hook endpoint for context preservation | ~4633 |
-| #14608 | 10:43 PM | 🟠 | Add pre-compact hook endpoint (Issue #73) | ~3396 |
-| #14607 | 10:43 PM | 🔵 | Examining Hooks Router Implementation | ~2515 |
-| #14581 | 10:40 PM | 🟠 | Enhanced session endpoint with file tracking information | ~5551 |
-| #14580 | 10:39 PM | 🟠 | Enhanced session enrichment with file tracking | ~5342 |
-| #14577 | 10:39 PM | 🔵 | Exploring Data Router Implementation | ~4926 |
-| #14537 | 10:35 PM | 🔵 | Backend routes module structure discovered | ~1391 |
-| #14534 | 10:35 PM | 🟠 | Added CleanupRouter exports to routes module | ~1554 |
-| #14533 | 10:35 PM | 🟠 | Created cleanup router for system maintenance | ~1809 |
-| #14475 | 10:31 PM | 🔵 | Examining hooks.ts API endpoints for session management | ~1659 |
-| #14470 | 10:30 PM | 🔵 | Exploring Hooks Router Implementation | ~1763 |
-| #14387 | 10:13 PM | 🟠 | Added ShareRouter exports to routes index | ~1515 |
-| #14384 | 10:13 PM | 🟠 | Implemented ShareRouter for memory sharing API | ~5475 |
-| #14365 | 10:11 PM | 🔵 | Exploring Hooks Router Implementation | ~2500 |
-| #14351 | 10:10 PM | 🔵 | Examining Import Router Implementation | ~3286 |
-| #14350 | 10:10 PM | 🔵 | Export routes structure and functionality | ~2754 |
-| #14332 | 10:08 PM | 🟠 | Added PluginsRouter exports to routes index | ~1503 |
-| #14331 | 10:08 PM | 🔵 | Backend routes structure overview | ~1354 |
-| #14330 | 10:07 PM | 🟠 | Created plugins router with comprehensive API endpoints | ~4033 |
+| #14766 | 11:20 PM | 🟠 | Add CAPSLOCK/urgent detection | ~3691 |
+| #14764 | 11:19 PM | 🔵 | Session init endpoint found | ~1090 |
+| #14763 | 11:19 PM | 🔵 | Session Start Endpoint | ~1099 |
+| #14761 | 11:19 PM | 🔵 | Session start accepts both IDs | ~1601 |
+| #14745 | 11:15 PM | 🔵 | Semantic search fallback | ~1280 |
+| #14731 | 11:08 PM | 🟠 | TaskService integration | ~3239 |
+| #14728 | 11:08 PM | 🟠 | Semantic search with Qdrant | ~5421 |
+| #14721 | 11:07 PM | 🔵 | Search routes implementation | ~2318 |
+| #14698 | 11:01 PM | 🟠 | Enhanced semantic search | ~4027 |
+| #14695 | 11:01 PM | 🟠 | Search API response update | ~3504 |
+| #14692 | 11:00 PM | 🟣 | Updated search.ts docs | ~2849 |
+| #14690 | 10:59 PM | 🔵 | Search routes analysis | ~1908 |
+| #14666 | 10:54 PM | 🔴 | Fix undefined workingDirectory | ~3074 |
+| #14664 | 10:54 PM | 🔵 | Session compaction triggers | ~968 |
+| #14661 | 10:52 PM | 🔵 | Pre-compact event handling | ~1030 |
+| #14659 | 10:52 PM | 🟣 | Update queueClaudeMd params | ~3293 |
+| #14658 | 10:51 PM | 🔄 | Changed setupRoutes visibility | ~1413 |
+| #14657 | 10:51 PM | 🔵 | Cleanup Router discovery | ~993 |
+| #14622 | 10:45 PM | 🟠 | Pre-compact hook endpoint | ~4633 |
+| #14608 | 10:43 PM | 🟠 | Add pre-compact hook | ~3396 |
+| #14607 | 10:43 PM | 🔵 | Hooks Router analysis | ~2515 |
+| #14581 | 10:40 PM | 🟠 | Enhanced session endpoint | ~5551 |
+| #14580 | 10:39 PM | 🟠 | Session enrichment update | ~5342 |
+| #14577 | 10:39 PM | 🔵 | Data Router exploration | ~4926 |
+| #14537 | 10:35 PM | 🔵 | Backend routes structure | ~1391 |
+| #14534 | 10:35 PM | 🟠 | CleanupRouter exports | ~1554 |
+| #14533 | 10:35 PM | 🟠 | Created cleanup router | ~1809 |
+| #14475 | 10:31 PM | 🔵 | Hooks.ts API endpoints | ~1659 |
+| #14470 | 10:30 PM | 🔵 | Hooks Router analysis | ~1763 |
+| #14387 | 10:13 PM | 🟠 | ShareRouter exports | ~1515 |
 
 ## Key Insights
 
-- **Semantic Search Progress**: Qdrant integration is partially implemented but falls back to SQLite FTS5. Enhanced API responses now include vector DB status.
-- **Context Preservation**: Pre-compact hooks were added to preserve context before memory compaction (Issue #73), ensuring CLAUDE.md generation captures state.
-- **File Tracking**: Sessions now aggregate file read/modified data across observations for better visibility.
+- **Semantic Search Progress**: Qdrant integration for semantic search is partially implemented with fallback to text search, enhanced with status reporting and minScore filtering.
+- **Session Management**: Added CAPSLOCK/urgent detection, pre-compact hooks for context preservation, and improved session enrichment with file tracking.
 - **System Maintenance**: New CleanupRouter addresses process/memory leaks (Issue #101) with stats and manual trigger endpoints.
-- **Architecture**: Modular backend with 19+ routers, TypeScript, and plugin-based hooks. Recent additions include ShareRouter and PluginsRouter.
+- **API Enhancements**: Search responses now include vector DB status, and session endpoints provide better file tracking visibility.
+- **Architecture**: Backend follows modular router pattern with 19 specialized routers, using dependency injection for service integration.
 </claude-mem-context>

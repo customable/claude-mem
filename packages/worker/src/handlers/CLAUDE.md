@@ -7,6 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14737 | 11:11 PM | 🔄 | Improve text extraction in semantic search | ~2804 |
+| #14736 | 11:11 PM | 🔵 | Semantic Search Handler Review | ~1707 |
 | #14718 | 11:06 PM | 🟠 | Semantic Search Handler Implementation | ~2494 |
 | #14713 | 11:05 PM | 🟠 | Added semantic search handler export | ~1344 |
 | #14712 | 11:05 PM | 🔵 | Identified task handlers structure | ~998 |
@@ -14,18 +16,18 @@
 | #14704 | 11:04 PM | 🔵 | Qdrant Sync Handler Review | ~2616 |
 | #14000 | 9:20 PM | 🔵 | Observation Handler Review | ~1861 |
 | #13490 | 7:18 PM | 🔵 | Observation Handler Structure | ~1875 |
-| #13266 | 6:36 PM | 🟠 | Add AbortSignal to context task | ~2526 |
+| #13266 | 6:36 PM | 🟠 | Add AbortSignal to context generation | ~2526 |
 | #13265 | 6:35 PM | 🔵 | Context Generation Handler | ~1337 |
-| #13264 | 6:35 PM | 🟠 | Add AbortSignal to CLAUDE.md task | ~3416 |
+| #13264 | 6:35 PM | 🟠 | Add AbortSignal to handleClaudeMdTask | ~3416 |
 | #13263 | 6:35 PM | 🔵 | CLAUDE.md Handler Structure | ~1480 |
 | #13262 | 6:35 PM | 🟠 | Add AbortSignal to summarize handler | ~1876 |
 | #13261 | 6:35 PM | 🔵 | Embedding Handler Review | ~1292 |
 | #13260 | 6:35 PM | 🟠 | Add AbortSignal to Qdrant sync | ~3287 |
 | #13259 | 6:35 PM | 🔵 | Qdrant Sync Handler Architecture | ~2592 |
-| #13258 | 6:34 PM | 🟠 | Add AbortSignal to embedding task | ~2057 |
+| #13258 | 6:34 PM | 🟠 | Add AbortSignal to handleEmbeddingTask | ~2057 |
 | #13257 | 6:34 PM | 🔵 | Summarize Handler Implementation | ~1245 |
 | #13256 | 6:34 PM | 🔵 | Summarize handler parameters | ~1153 |
-| #13255 | 6:34 PM | 🟠 | Add AbortSignal to summarize task | ~2418 |
+| #13255 | 6:34 PM | 🟠 | Add AbortSignal to handleSummarizeTask | ~2418 |
 | #13254 | 6:34 PM | 🟠 | Add AbortSignal to observation handler | ~2855 |
 | #13252 | 6:34 PM | 🔵 | Observation Handler Purpose | ~1267 |
 
@@ -40,14 +42,12 @@
 | #12006 | 11:07 PM | 🔵 | Observation Handler Architecture | ~1901 |
 | #11857 | 10:36 PM | 🔵 | CLAUDE.md handler documentation | ~1162 |
 | #11854 | 10:35 PM | 🔵 | Observation Handler Architecture | ~1860 |
-| #11853 | 10:35 PM | 🔵 | Summarize Handler Review | ~1547 |
-| #11849 | 10:34 PM | 🔵 | CLAUDE.md handler implementation | ~1668 |
 
 ## Key Insights
 
-- **Semantic Search Integration**: New semantic search handler implemented using Qdrant vector database, supporting filtering and similarity searches.
-- **Task Cancellation Support**: Added `AbortSignal` support across multiple handlers (context, CLAUDE.md, summarize, Qdrant sync, embedding, observation) for improved task management.
-- **Handler Architecture**: Discovered and reviewed core handlers (observation, summarize, context, Qdrant sync, embedding) revealing modular AI-driven processing.
-- **Documentation Generation**: CLAUDE.md handler uses AI to generate structured documentation from observations and summaries.
-- **System Resilience**: Worker auto-restart with exponential backoff and pre-compact hooks for context preservation were implemented.
+- **Semantic Search Implementation**: Successfully integrated Qdrant vector database for semantic search, including task handlers and worker capabilities. Refactored text extraction logic for better maintainability.
+- **Task Cancellation Support**: Added `AbortSignal` support across multiple handlers (context generation, summarization, embedding, Qdrant sync, etc.) to enable task cancellation and improve responsiveness.
+- **Handler Architecture**: Discovered and documented the structure of key handlers (observation, context generation, summarization, embedding) and their integration with AI agents for processing tasks.
+- **Worker Auto-Restart**: Implemented worker auto-restart with exponential backoff for improved reliability, though WebSocket integration for Qdrant remains incomplete.
+- **Documentation Generation**: The `claude-md-handler` uses AI to generate CLAUDE.md content, summarizing recent activity and key insights for project continuity.
 </claude-mem-context>

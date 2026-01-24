@@ -11,6 +11,8 @@ import { handleUserPromptSubmit } from './user-prompt-submit.js';
 import { handlePostToolUse } from './post-tool-use.js';
 import { handleStop } from './stop.js';
 import { handlePreCompact } from './pre-compact.js';
+import { handleSubagentStart } from './subagent-start.js';
+import { handleSubagentStop } from './subagent-stop.js';
 
 /**
  * Default handler registry
@@ -23,6 +25,8 @@ const defaultHandlers: HookHandlerRegistry = {
   // session-end can use the same as stop, or be customized
   'session-end': handleStop,
   'pre-compact': handlePreCompact,
+  'subagent-start': handleSubagentStart,
+  'subagent-stop': handleSubagentStop,
 };
 
 /**
@@ -61,3 +65,5 @@ export { handleUserPromptSubmit } from './user-prompt-submit.js';
 export { handlePostToolUse } from './post-tool-use.js';
 export { handleStop } from './stop.js';
 export { handlePreCompact } from './pre-compact.js';
+export { handleSubagentStart } from './subagent-start.js';
+export { handleSubagentStop } from './subagent-stop.js';

@@ -41,6 +41,10 @@ export class HooksRouter extends BaseRouter {
 
     // Pre-compact hook (Issue #73)
     this.router.post('/pre-compact', this.asyncHandler(this.preCompact.bind(this)));
+
+    // Subagent lifecycle hooks (Issue #232)
+    this.router.post('/subagent/start', this.asyncHandler(this.subagentStart.bind(this)));
+    this.router.post('/subagent/stop', this.asyncHandler(this.subagentStop.bind(this)));
   }
 
   /**
@@ -243,6 +247,57 @@ export class HooksRouter extends BaseRouter {
       success: true,
       observationsExtracted: 0,
       blockCompaction: false,
+    });
+  }
+
+  /**
+   * POST /api/hooks/subagent/start
+   * Called when a subagent (Task tool) starts (Issue #232)
+   */
+  private async subagentStart(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { subagentId, subagentType, parentSessionId, cwd } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    // Record subagent start in session service
+    await this.deps.sessionService.recordSubagentStart({
+      contentSessionId,
+      subagentId,
+      subagentType,
+      parentSessionId: parentSessionId || contentSessionId,
+      cwd,
+    });
+
+    this.success(res, {
+      success: true,
+      subagentId,
+    });
+  }
+
+  /**
+   * POST /api/hooks/subagent/stop
+   * Called when a subagent (Task tool) stops (Issue #232)
+   */
+  private async subagentStop(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { subagentId, subagentType } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    // Record subagent stop in session service
+    await this.deps.sessionService.recordSubagentStop({
+      contentSessionId,
+      subagentId,
+      subagentType,
+    });
+
+    this.success(res, {
+      success: true,
     });
   }
 }

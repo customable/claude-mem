@@ -347,4 +347,64 @@ export class SessionService {
 
     logger.info(`Pre-compact event recorded for session ${session.id} (${session.project})`);
   }
+
+  /**
+   * Record a subagent start event (Issue #232)
+   * Called when a Task tool subagent starts
+   */
+  async recordSubagentStart(params: {
+    contentSessionId: string;
+    subagentId?: string;
+    subagentType?: string;
+    parentSessionId?: string;
+    cwd?: string;
+  }): Promise<void> {
+    const session = await this.sessions.findByContentSessionId(params.contentSessionId);
+    if (!session) {
+      logger.warn(`Session not found for subagent start: ${params.contentSessionId}`);
+      return;
+    }
+
+    // Broadcast subagent start event for monitoring/debugging
+    this.sseBroadcaster.broadcast({
+      type: 'subagent:start',
+      data: {
+        sessionId: params.contentSessionId,
+        subagentId: params.subagentId,
+        subagentType: params.subagentType,
+        parentSessionId: params.parentSessionId,
+        cwd: params.cwd,
+      },
+    });
+
+    logger.info(`Subagent started: ${params.subagentId} (type: ${params.subagentType}) in session ${session.id}`);
+  }
+
+  /**
+   * Record a subagent stop event (Issue #232)
+   * Called when a Task tool subagent stops
+   */
+  async recordSubagentStop(params: {
+    contentSessionId: string;
+    subagentId?: string;
+    subagentType?: string;
+  }): Promise<void> {
+    const session = await this.sessions.findByContentSessionId(params.contentSessionId);
+    if (!session) {
+      logger.warn(`Session not found for subagent stop: ${params.contentSessionId}`);
+      return;
+    }
+
+    // Broadcast subagent stop event for monitoring/debugging
+    this.sseBroadcaster.broadcast({
+      type: 'subagent:stop',
+      data: {
+        sessionId: params.contentSessionId,
+        subagentId: params.subagentId,
+        subagentType: params.subagentType,
+      },
+    });
+
+    logger.info(`Subagent stopped: ${params.subagentId} (type: ${params.subagentType}) in session ${session.id}`);
+  }
 }

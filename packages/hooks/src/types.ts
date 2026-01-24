@@ -14,7 +14,9 @@ export type HookEvent =
   | 'post-tool-use'
   | 'stop'
   | 'session-end'
-  | 'pre-compact';
+  | 'pre-compact'
+  | 'subagent-start'
+  | 'subagent-stop';
 
 /**
  * Normalized hook input (platform-agnostic)
@@ -38,6 +40,12 @@ export interface HookInput {
   toolOutput?: string;
   /** Transcript path (stop, session-end) */
   transcriptPath?: string;
+  /** Subagent ID (subagent-start, subagent-stop) */
+  subagentId?: string;
+  /** Subagent type/name (subagent-start, subagent-stop) */
+  subagentType?: string;
+  /** Parent session ID (subagent-start) */
+  parentSessionId?: string;
   /** Raw platform-specific data */
   raw?: unknown;
 }

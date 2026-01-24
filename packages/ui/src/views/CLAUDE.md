@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14592 | 10:41 PM | 🟠 | Add files_read and files_modified to Session interface | ~5293 |
-| #14590 | 10:40 PM | 🟠 | Add file tracking UI to SessionCard component | ~7066 |
+| #14806 | 11:27 PM | 🟠 | Add MetadataDisplay component | ~6476 |
+| #14805 | 11:27 PM | 🔄 | Replace raw metadata display | ~4735 |
+| #14804 | 11:27 PM | 🔵 | Documents View Component Structure | ~4397 |
+| #14592 | 10:41 PM | 🟠 | Add files_read/modified to Session | ~5293 |
+| #14590 | 10:40 PM | 🟠 | Add file tracking UI to SessionCard | ~7066 |
 | #14587 | 10:40 PM | 🔵 | Exploring Sessions View Component | ~5122 |
 | #14486 | 10:32 PM | 🔵 | Session Timeline Component Structure | ~2648 |
-| #14474 | 10:31 PM | 🔵 | Examining SessionsView component structure | ~2127 |
-| #13647 | 7:40 PM | 🔄 | Remove unused import from Insights.tsx | ~4936 |
-| #13645 | 7:39 PM | 🔄 | Removed unused activity state and API call | ~5965 |
-| #13644 | 7:39 PM | 🔵 | Insights view component structure and data fetching | ~1657 |
-| #13642 | 7:39 PM | 🔄 | Renamed unused state variable in InsightsView | ~4929 |
+| #14474 | 10:31 PM | 🔵 | Examining SessionsView component | ~2127 |
+| #13647 | 7:40 PM | 🔄 | Remove unused import from Insights | ~4936 |
+| #13645 | 7:39 PM | 🔄 | Removed unused activity state | ~5965 |
+| #13644 | 7:39 PM | 🔵 | Insights view component structure | ~1657 |
+| #13642 | 7:39 PM | 🔄 | Renamed unused state variable | ~4929 |
 | #13638 | 7:38 PM | 🟠 | Create Insights View Component | ~7052 |
 | #13632 | 7:37 PM | 🔵 | Analytics View Component Structure | ~4272 |
-| #13276 | 6:39 PM | 🔄 | Removed unused type import from useSSE hook | ~3441 |
-| #13274 | 6:38 PM | 🔵 | Dashboard component structure and functionality | ~3456 |
-| #13242 | 6:32 PM | 🟠 | Added real-time updates via SSE to MemoriesView | ~5025 |
-| #13241 | 6:32 PM | 🔵 | Exploring Memories View Component | ~3297 |
-| #13236 | 6:31 PM | 🟠 | Add SSE for real-time dashboard updates | ~6734 |
-| #13229 | 6:30 PM | 🔵 | Dashboard component structure and functionality | ~2919 |
+| #13276 | 6:39 PM | 🔄 | Removed unused type import | ~3441 |
+| #13274 | 6:38 PM | 🔵 | Dashboard component structure | ~3456 |
+| #13242 | 6:32 PM | 🟠 | Added real-time updates via SSE | ~5025 |
+| #13241 | 6:31 PM | 🔵 | Exploring Memories View Component | ~3297 |
+| #13236 | 6:31 PM | 🟠 | Add SSE for real-time dashboard | ~6734 |
+| #13229 | 6:30 PM | 🔵 | Dashboard component structure | ~2919 |
 | #13213 | 6:29 PM | 🔵 | Analytics View Component Structure | ~4317 |
-| #13192 | 6:23 PM | 🟠 | Add Remote Mode and Enhanced Database Configuration | ~7051 |
+| #13192 | 6:23 PM | 🟠 | Add Remote Mode and DB Config | ~7051 |
 | #13190 | 6:23 PM | 🔵 | Exploring Settings View Component | ~5378 |
-| #13189 | 6:22 PM | 🟠 | Added CLAUDE.md generation and secret detection settings | ~6289 |
-| #13188 | 6:22 PM | 🟠 | Extended Settings Interface with New Configuration Options | ~6620 |
-| #13186 | 6:21 PM | 🔵 | Exploring Settings View Component Structure | ~5369 |
-| #13150 | 6:16 PM | 🔄 | Refactor API parameters construction in Documents.tsx | ~4942 |
+| #13189 | 6:22 PM | 🟠 | Added CLAUDE.md settings | ~6289 |
+| #13188 | 6:22 PM | 🟠 | Extended Settings Interface | ~6620 |
+| #13186 | 6:21 PM | 🔵 | Exploring Settings View Structure | ~5369 |
+| #13150 | 6:16 PM | 🔄 | Refactor API params in Documents | ~4942 |
 | #13148 | 6:16 PM | 🟠 | Created Documents View Component | ~6491 |
 | #13143 | 6:15 PM | 🔵 | Memories View Component Structure | ~3255 |
-| #13131 | 6:13 PM | 🔵 | MemoriesView component structure and functionality | ~1575 |
-| #13125 | 6:12 PM | 🔵 | Exploring SessionsView component structure | ~1899 |
-| #12731 | 11:41 AM | 🟠 | Added 'claudemd:ready' event type to Live.tsx | ~5028 |
-| #12728 | 11:40 AM | 🔵 | Event Type Styling Configuration in Live.tsx | ~1171 |
+| #13131 | 6:13 PM | 🔵 | MemoriesView component structure | ~1575 |
 
 ## Key Insights
 
-- **File Tracking Enhancement**: Added `files_read` and `files_modified` to the Session interface and UI, improving session visibility and tracking.
-- **Real-Time Updates**: Integrated Server-Sent Events (SSE) for real-time updates in Dashboard, MemoriesView, and other components.
-- **Insights & Analytics**: Created comprehensive Insights and Analytics views with data visualization using Chart.js.
-- **Settings Expansion**: Extended Settings interface with database configuration, CLAUDE.md generation options, and remote mode support.
-- **Code Cleanup**: Multiple refactoring efforts to remove unused imports, state variables, and API calls, improving maintainability.
+- **UI Enhancements**: Added MetadataDisplay component for better metadata visualization and file tracking UI in SessionCard
+- **Real-time Features**: Implemented SSE (Server-Sent Events) for real-time updates in Dashboard and Memories views
+- **Settings Expansion**: Extended settings with remote mode, database configuration, and CLAUDE.md generation options
+- **Code Quality**: Multiple refactoring efforts to remove unused code and improve maintainability
+- **Component Discovery**: Comprehensive exploration of view components (Documents, Sessions, Insights, Analytics, Settings)
 </claude-mem-context>

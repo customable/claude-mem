@@ -7,12 +7,23 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14770 | 11:20 PM | 🟠 | Add isUrgent parameter to startSession | ~4215 |
+| #14769 | 11:20 PM | 🟠 | Add isUrgent flag to initial prompt | ~4199 |
+| #14768 | 11:20 PM | 🟠 | Add isUrgent flag to user prompt | ~4106 |
+| #14767 | 11:20 PM | 🔵 | Session service handles creation/resumption | ~1814 |
+| #14765 | 11:20 PM | 🔵 | Examining startSession implementation | ~1260 |
+| #14749 | 11:15 PM | 🔵 | Task Service Methods for Observation | ~1629 |
+| #14748 | 11:15 PM | 🔴 | Fix semantic search result type | ~5230 |
+| #14747 | 11:15 PM | 🔵 | Semantic search uses polling | ~1496 |
+| #14746 | 11:15 PM | 🔵 | Found executeSemanticSearch method | ~723 |
+| #14729 | 11:08 PM | 🔵 | Task Service Architecture Analysis | ~4402 |
+| #14726 | 11:07 PM | 🟠 | Added synchronous semantic search | ~5997 |
 | #14722 | 11:07 PM | 🟠 | Add SemanticSearchTask imports | ~4890 |
 | #14688 | 10:59 PM | 🔴 | Cancel pending restarts on termination | ~5801 |
 | #14685 | 10:58 PM | 🔵 | Worker termination with graceful shutdown | ~1275 |
-| #14684 | 10:58 PM | 🟠 | Worker restart with exponential backoff | ~6210 |
-| #14683 | 10:58 PM | 🔵 | Worker lifecycle management | ~1880 |
-| #14682 | 10:58 PM | 🟠 | Auto-restart for crashed workers | ~4979 |
+| #14684 | 10:58 PM | 🟠 | Added worker restart with backoff | ~6210 |
+| #14683 | 10:58 PM | 🔵 | Worker process lifecycle management | ~1880 |
+| #14682 | 10:58 PM | 🟠 | Added auto-restart for crashed workers | ~4979 |
 | #14680 | 10:58 PM | 🟠 | Add restart tracking to WorkerProcessManager | ~4872 |
 | #14671 | 10:56 PM | 🔵 | Worker Process Management Implementation | ~2174 |
 | #14669 | 10:56 PM | 🔵 | Worker Process Manager Structure | ~1772 |
@@ -20,29 +31,18 @@
 | #14637 | 10:46 PM | 🔄 | Refactor pre-compact event broadcasting | ~4669 |
 | #14626 | 10:45 PM | 🔵 | SSE Broadcaster Service Implementation | ~2177 |
 | #14623 | 10:45 PM | 🔵 | SSE Broadcaster Service Structure | ~1619 |
-| #14621 | 10:45 PM | 🟠 | Add 'session:pre-compact' event type | ~3486 |
+| #14621 | 10:44 PM | 🟠 | Add 'session:pre-compact' event type | ~3486 |
 | #14620 | 10:44 PM | 🟠 | Add broadcastPreCompact method | ~3555 |
 | #14617 | 10:44 PM | 🔄 | Simplified pre-compact event handling | ~4797 |
 | #14615 | 10:44 PM | 🟠 | Added recordPreCompact method | ~4786 |
 | #14610 | 10:43 PM | 🔵 | Session Service Architecture Review | ~3603 |
 | #14529 | 10:35 PM | 🟠 | Added CleanupService exports | ~1503 |
-| #14528 | 10:35 PM | 🟠 | Created Cleanup Service | ~4417 |
-| #14526 | 10:34 PM | 🔵 | Backend services index overview | ~1294 |
-| #14524 | 10:34 PM | 🔵 | Worker Process Manager Review | ~4144 |
-| #14500 | 10:33 PM | 🔵 | Session Service Architecture Analysis | ~3630 |
-| #14418 | 10:17 PM | 🔴 | Fix null/undefined text handling | ~4987 |
-| #14412 | 10:16 PM | 🔵 | Privacy handling in share-service | ~1231 |
-| #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
-| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
-| #14405 | 10:15 PM | 🔴 | Filter null/undefined session IDs | ~5141 |
-| #14403 | 10:15 PM | 🔵 | Privacy handling in share-service | ~1735 |
-| #14400 | 10:15 PM | 🔵 | SDKSessionRecord usage | ~766 |
 
 ## Key Insights
 
-- **Worker Management Enhancements**: Added auto-restart with exponential backoff for crashed workers, graceful shutdown handling, and restart tracking. This improves system resilience.
-- **Semantic Search Integration**: New imports for `SemanticSearchTask` suggest ongoing work to integrate semantic search capabilities, though Qdrant integration appears incomplete.
-- **Pre-Compact Hooks**: Added `session:pre-compact` event type and related methods to preserve context before memory compaction, addressing potential data loss.
-- **Cleanup Service**: Created a new `CleanupService` for maintenance tasks like stale session removal, addressing issue #101.
-- **Bug Fixes**: Multiple null-handling fixes in sharing functionality and worker termination logic, improving stability.
+- **CAPSLOCK Detection Feature**: Implemented `isUrgent` parameter across session management and prompt recording to support CAPSLOCK/urgent detection (Issue #233).
+- **Semantic Search Enhancements**: Added synchronous execution for semantic search with Qdrant integration, including polling and timeout mechanisms.
+- **Worker Management Improvements**: Introduced auto-restart for crashed workers with exponential backoff and proper cleanup during termination.
+- **Event System Refinements**: Enhanced SSE broadcasting with new event types (e.g., `session:pre-compact`) and refactored event handling logic.
+- **System Maintenance**: Added cleanup services to prevent process/memory leaks and integrated them into the services index.
 </claude-mem-context>

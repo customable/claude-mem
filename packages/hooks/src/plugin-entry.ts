@@ -9,12 +9,14 @@
  *   hook claude-code <event>   - Run hook event
  *
  * Event mapping:
- *   context      -> session-start
- *   user-message -> user-prompt-submit
- *   session-init -> user-prompt-submit
- *   observation  -> post-tool-use
- *   summarize    -> stop
- *   pre-compact  -> pre-compact (Issue #73)
+ *   context       -> session-start
+ *   user-message  -> user-prompt-submit
+ *   session-init  -> user-prompt-submit
+ *   observation   -> post-tool-use
+ *   summarize     -> stop
+ *   pre-compact   -> pre-compact
+ *   subagent-start -> subagent-start (Issue #232)
+ *   subagent-stop  -> subagent-stop (Issue #232)
  */
 
 import { spawn } from 'child_process';
@@ -40,6 +42,8 @@ const EVENT_MAP: Record<string, HookEvent> = {
   'observation': 'post-tool-use',
   'summarize': 'stop',
   'pre-compact': 'pre-compact',
+  'subagent-start': 'subagent-start',
+  'subagent-stop': 'subagent-stop',
 };
 
 /**
@@ -247,12 +251,14 @@ Usage:
   worker-service.cjs --version                Show version
 
 Events:
-  context      Session start context injection
-  user-message User prompt submitted
-  session-init Session initialization
-  observation  Tool use observation
-  summarize    Session summary/stop
-  pre-compact  Before context compaction (Issue #73)
+  context       Session start context injection
+  user-message  User prompt submitted
+  session-init  Session initialization
+  observation   Tool use observation
+  summarize     Session summary/stop
+  pre-compact   Before context compaction
+  subagent-start Subagent (Task tool) started
+  subagent-stop  Subagent (Task tool) stopped
 
 Examples:
   bun worker-service.cjs start

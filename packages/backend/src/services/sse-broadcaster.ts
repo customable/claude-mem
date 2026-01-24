@@ -18,6 +18,8 @@ export type SSEEventType =
   | 'session:started'
   | 'session:ended'
   | 'session:pre-compact'
+  | 'subagent:start'
+  | 'subagent:stop'
   | 'observation:created'
   | 'observation:queued'
   | 'summary:created'
