@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.18.2] - 2026-01-24
+
+### Bug Fixes
+- Added `windowsHide` option to prevent terminal popup on Windows
+
+
 ## [2.18.1] - 2026-01-24
 
 ### Bug Fixes
