@@ -7,6 +7,16 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14722 | 11:07 PM | 🟠 | Add SemanticSearchTask imports | ~4890 |
+| #14688 | 10:59 PM | 🔴 | Cancel pending restarts on termination | ~5801 |
+| #14685 | 10:58 PM | 🔵 | Worker termination with graceful shutdown | ~1275 |
+| #14684 | 10:58 PM | 🟠 | Worker restart with exponential backoff | ~6210 |
+| #14683 | 10:58 PM | 🔵 | Worker lifecycle management | ~1880 |
+| #14682 | 10:58 PM | 🟠 | Auto-restart for crashed workers | ~4979 |
+| #14680 | 10:58 PM | 🟠 | Add restart tracking to WorkerProcessManager | ~4872 |
+| #14671 | 10:56 PM | 🔵 | Worker Process Management Implementation | ~2174 |
+| #14669 | 10:56 PM | 🔵 | Worker Process Manager Structure | ~1772 |
+| #14660 | 10:52 PM | 🔵 | Found queueClaudeMd function | ~978 |
 | #14637 | 10:46 PM | 🔄 | Refactor pre-compact event broadcasting | ~4669 |
 | #14626 | 10:45 PM | 🔵 | SSE Broadcaster Service Implementation | ~2177 |
 | #14623 | 10:45 PM | 🔵 | SSE Broadcaster Service Structure | ~1619 |
@@ -22,27 +32,17 @@
 | #14500 | 10:33 PM | 🔵 | Session Service Architecture Analysis | ~3630 |
 | #14418 | 10:17 PM | 🔴 | Fix null/undefined text handling | ~4987 |
 | #14412 | 10:16 PM | 🔵 | Privacy handling in share-service | ~1231 |
-| #14409 | 10:15 PM | 🔴 | Fix null handling in processSession | ~5228 |
-| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservation | ~5486 |
+| #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
+| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
 | #14405 | 10:15 PM | 🔴 | Filter null/undefined session IDs | ~5141 |
 | #14403 | 10:15 PM | 🔵 | Privacy handling in share-service | ~1735 |
-| #14400 | 10:15 PM | 🔵 | SDKSessionRecord type usage | ~766 |
-| #14398 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord | ~4879 |
-| #14386 | 10:13 PM | 🟠 | Added ShareService exports | ~1369 |
-| #14381 | 10:12 PM | 🟠 | Created Share Service | ~6893 |
-| #14376 | 10:11 PM | 🔵 | Session Service Structure | ~2247 |
-| #14342 | 10:09 PM | 🔄 | Update import from getDataDir | ~3673 |
-| #14341 | 10:09 PM | 🔄 | Replace getDataDir() with DATA_DIR | ~3579 |
-| #14329 | 10:07 PM | 🟠 | Added PluginManager exports | ~1400 |
-| #14328 | 10:06 PM | 🟠 | Implemented Plugin Manager | ~5468 |
-| #14297 | 10:03 PM | 🟠 | Added SuggestionService exports | ~1480 |
-| #14296 | 10:03 PM | 🔵 | Backend services structure | ~1169 |
+| #14400 | 10:15 PM | 🔵 | SDKSessionRecord usage | ~766 |
 
 ## Key Insights
 
-- **Pre-compact event system implemented**: New `session:pre-compact` event type added with dedicated broadcasting method, simplifying session management.
-- **Cleanup service created**: Handles stale sessions, old tasks, and long-running workers with both automatic and manual execution modes.
-- **Memory sharing functionality added**: ShareService enables creating shareable bundles with privacy controls and importing shared bundles.
-- **Plugin system implemented**: PluginManager supports custom plugins with lifecycle hooks for observation processing.
-- **Critical bug fixes applied**: Multiple null handling issues resolved in session/observation processing and privacy handling.
+- **Worker Management Enhancements**: Added auto-restart with exponential backoff for crashed workers, graceful shutdown handling, and restart tracking. This improves system resilience.
+- **Semantic Search Integration**: New imports for `SemanticSearchTask` suggest ongoing work to integrate semantic search capabilities, though Qdrant integration appears incomplete.
+- **Pre-Compact Hooks**: Added `session:pre-compact` event type and related methods to preserve context before memory compaction, addressing potential data loss.
+- **Cleanup Service**: Created a new `CleanupService` for maintenance tasks like stale session removal, addressing issue #101.
+- **Bug Fixes**: Multiple null-handling fixes in sharing functionality and worker termination logic, improving stability.
 </claude-mem-context>

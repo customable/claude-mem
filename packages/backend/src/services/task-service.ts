@@ -19,6 +19,8 @@ import type {
   EmbeddingTask,
   ContextGenerateTask,
   ClaudeMdTask,
+  SemanticSearchTask,
+  SemanticSearchTaskPayload,
   WorkerCapability,
   ObservationRecord,
   SessionSummaryRecord,
@@ -310,6 +312,71 @@ export class TaskService {
     logger.info(`Queued claude-md task ${task.id} for project ${params.project}${targetInfo}`);
 
     return task;
+  }
+
+  /**
+   * Queue a semantic search task and wait for the result
+   * This is a synchronous operation that blocks until the task completes
+   */
+  async executeSemanticSearch(params: {
+    query: string;
+    project?: string;
+    limit?: number;
+    types?: string[];
+    minScore?: number;
+    timeoutMs?: number;
+  }): Promise<SemanticSearchTask['result']> {
+    const timeoutMs = params.timeoutMs ?? 30000; // 30 second default timeout
+
+    const task = await this.taskQueue.create<SemanticSearchTask>({
+      type: 'semantic-search',
+      requiredCapability: 'semantic:search',
+      priority: this.defaultPriority + 20, // High priority for search
+      maxRetries: 1, // Don't retry search - user is waiting
+      payload: {
+        query: params.query,
+        project: params.project,
+        limit: params.limit ?? 20,
+        types: params.types,
+        minScore: params.minScore ?? 0.5,
+      },
+    });
+
+    this.sseBroadcaster.broadcastTaskQueued(task.id, 'semantic-search');
+    logger.info(`Queued semantic search task ${task.id} for query: "${params.query.slice(0, 50)}..."`);
+
+    // Wait for task completion by polling
+    const startTime = Date.now();
+    const pollInterval = 100; // 100ms poll interval
+
+    while (Date.now() - startTime < timeoutMs) {
+      const updatedTask = await this.taskQueue.findById(task.id);
+
+      if (!updatedTask) {
+        throw new Error(`Task ${task.id} not found`);
+      }
+
+      if (updatedTask.status === 'completed') {
+        const result = (updatedTask as SemanticSearchTask).result;
+        if (!result) {
+          throw new Error('Semantic search completed but no result');
+        }
+        return result;
+      }
+
+      if (updatedTask.status === 'failed') {
+        throw new Error(`Semantic search failed: ${updatedTask.error || 'Unknown error'}`);
+      }
+
+      if (updatedTask.status === 'timeout') {
+        throw new Error('Semantic search task timed out');
+      }
+
+      // Wait before next poll
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+    }
+
+    throw new Error(`Semantic search timed out after ${timeoutMs}ms`);
   }
 
   /**

@@ -7,47 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #12208 | 10:26 AM | 🔵 | Worker termination mechanism discovered | ~5219 |
-| #12206 | 10:26 AM | 🔵 | Found queueTermination method | ~1007 |
-| #12205 | 10:26 AM | 🔴 | Added safety check for unconnected workers | ~4278 |
-| #12204 | 10:26 AM | 🔵 | Discovered SpawnedWorker interface | ~2028 |
-| #12203 | 10:26 AM | 🔵 | Worker termination logic with busy state | ~1191 |
-| #12196 | 10:25 AM | 🔵 | Search API routes structure discovered | ~3314 |
-| #12182 | 10:23 AM | 🟠 | Added GDPR-compliant deletion endpoints | ~6088 |
-| #12180 | 10:22 AM | 🔵 | Found getObservation method | ~1357 |
-| #12179 | 10:22 AM | 🔵 | API endpoints for observations | ~1061 |
-| #12178 | 10:22 AM | 🟠 | Added DELETE endpoints for observations | ~5116 |
-| #12177 | 10:22 AM | 🔵 | Backend API routes structure | ~1513 |
-| #12171 | 10:21 AM | 🔵 | Discovered session/document deletion | ~2527 |
-| #12170 | 10:21 AM | 🔵 | Found DELETE endpoints in data routes | ~971 |
-| #12169 | 10:21 AM | 🔵 | DELETE route handlers in backend | ~710 |
-| #12141 | 10:18 AM | 🔵 | Worker auto-spawn mechanism found | ~992 |
-| #12139 | 10:18 AM | 🔵 | Worker spawning in routes | ~846 |
-| #12138 | 10:18 AM | 🔴 | Add windowsHide option to spawn | ~4515 |
-| #12136 | 10:18 AM | 🔵 | Worker process spawning with env vars | ~999 |
-| #12132 | 10:17 AM | 🔵 | Worker process spawning mechanism | ~1335 |
-| #12101 | 10:15 AM | 🔵 | Discovered searchDocuments endpoint | ~1367 |
-| #12100 | 10:15 AM | 🔵 | Found search endpoint implementation | ~1260 |
-
-### Jan 23, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #12021 | 11:07 PM | 🔵 | Examining Data Router Structure | ~1949 |
-| #12019 | 11:07 PM | 🔵 | Examining Task Service Implementation | ~2105 |
-| #12013 | 11:07 PM | 🔵 | Task Dispatcher Architecture Overview | ~2359 |
-| #12011 | 11:07 PM | 🔵 | Examining Hooks Router Implementation | ~1761 |
-| #12008 | 11:07 PM | 🔵 | Session Service Structure | ~1744 |
-| #11985 | 11:03 PM | 🔄 | Lowered priority for claude-md tasks | ~4851 |
-| #11984 | 11:03 PM | 🟠 | Add task-type-specific timeout config | ~5140 |
-| #11983 | 11:02 PM | 🟠 | Added subdirectory limit for CLAUDE.md | ~4969 |
-| #11982 | 11:02 PM | 🔄 | Limit subdirectory processing | ~5139 |
+| #14701 | 11:03 PM | 🔵 | WorkerHub WebSocket Management Structure | ~1947 |
+| #14700 | 11:03 PM | 🔵 | WorkerHub references found across backend | ~1048 |
+| #14698 | 11:01 PM | 🟠 | Enhanced semantic search with Qdrant status | ~4027 |
+| #14695 | 11:01 PM | 🟠 | Enhanced search API with vector DB status | ~3504 |
+| #14692 | 11:00 PM | 🟣 | Updated search.ts documentation | ~2849 |
+| #14690 | 10:59 PM | 🔵 | Search routes implementation analysis | ~1908 |
+| #14688 | 10:59 PM | 🔴 | Cancel pending restarts on worker termination | ~5801 |
+| #14685 | 10:58 PM | 🔵 | Worker termination with graceful shutdown | ~1275 |
+| #14684 | 10:58 PM | 🟠 | Added worker restart with exponential backoff | ~6210 |
+| #14683 | 10:58 PM | 🔵 | Worker process lifecycle management | ~1880 |
+| #14682 | 10:58 PM | 🟠 | Added auto-restart for crashed workers | ~4979 |
+| #14680 | 10:58 PM | 🟠 | Add restart tracking to WorkerProcessManager | ~4872 |
+| #14671 | 10:56 PM | 🔵 | Worker Process Management Implementation | ~2174 |
+| #14669 | 10:56 PM | 🔵 | Worker Process Manager Structure | ~1772 |
+| #14666 | 10:54 PM | 🔴 | Fix undefined workingDirectory in CLAUDE.md | ~3074 |
+| #14664 | 10:54 PM | 🔵 | Session compaction triggers CLAUDE.md | ~968 |
+| #14661 | 10:52 PM | 🔵 | Pre-compact event handling in hooks route | ~1030 |
+| #14660 | 10:52 PM | 🔵 | Found queueClaudeMd function | ~978 |
+| #14659 | 10:52 PM | 🟣 | Update queueClaudeMd parameters | ~3293 |
+| #14658 | 10:51 PM | 🔄 | Changed setupRoutes visibility | ~1413 |
+| #14657 | 10:51 PM | 🔵 | Cleanup Router for System Maintenance | ~993 |
+| #14637 | 10:46 PM | 🔄 | Refactor pre-compact event broadcasting | ~4669 |
+| #14626 | 10:45 PM | 🔵 | SSE Broadcaster Service Implementation | ~2177 |
+| #14623 | 10:45 PM | 🔵 | SSE Broadcaster Service Structure | ~1619 |
+| #14622 | 10:45 PM | 🟠 | Added pre-compact hook endpoint | ~4633 |
+| #14621 | 10:45 PM | 🟠 | Add 'session:pre-compact' event type | ~3486 |
+| #14620 | 10:44 PM | 🟠 | Add broadcastPreCompact method | ~3555 |
+| #14617 | 10:44 PM | 🔄 | Simplified pre-compact event handling | ~4797 |
+| #14615 | 10:44 PM | 🟠 | Added recordPreCompact method | ~4786 |
+| #14610 | 10:43 PM | 🔵 | Session Service Architecture Review | ~3603 |
 
 ## Key Insights
 
-- **Worker Management**: Discovered and refined worker termination logic, including safety checks for unconnected workers and Windows-specific fixes (`windowsHide` option).
-- **GDPR Compliance**: Added deletion endpoints for observations, sessions, and documents, ensuring data privacy compliance.
-- **Search Functionality**: Explored and documented search endpoints (text, semantic, and combined) and document search capabilities.
-- **Task Prioritization**: Adjusted task priorities and timeouts, particularly for `claude-md` tasks, to optimize system performance.
-- **Architecture**: Gained deeper understanding of the task dispatcher, worker spawning, and API route structures.
+- **Worker Management**: WorkerHub is a core component managing WebSocket connections, with auto-restart logic for crashed workers using exponential backoff.
+- **Semantic Search**: Qdrant integration is partially implemented but falls back to SQLite FTS5; API responses now include vector DB status.
+- **Context Preservation**: Pre-compact hooks and SSE broadcasting ensure context is preserved before memory compaction.
+- **Architecture**: The project uses TypeScript, SSE for real-time updates, and a plugin-based hook system.
+- **Bug Fixes**: Addressed undefined `workingDirectory` in CLAUDE.md generation and orphaned worker restart timers.
 </claude-mem-context>

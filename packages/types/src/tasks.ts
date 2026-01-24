@@ -27,6 +27,7 @@ export type TaskType =
   | 'summarize'
   | 'embedding'
   | 'qdrant-sync'
+  | 'semantic-search'
   | 'context-generate'
   | 'claude-md';
 
@@ -197,6 +198,22 @@ export interface QdrantSyncTaskPayload {
 }
 
 /**
+ * Semantic search task payload
+ */
+export interface SemanticSearchTaskPayload {
+  /** Search query */
+  query: string;
+  /** Project to search in (optional) */
+  project?: string;
+  /** Maximum results to return */
+  limit?: number;
+  /** Filter by observation types */
+  types?: string[];
+  /** Minimum similarity score (0-1) */
+  minScore?: number;
+}
+
+/**
  * Qdrant sync task
  */
 export interface QdrantSyncTask extends BaseTask {
@@ -207,6 +224,28 @@ export interface QdrantSyncTask extends BaseTask {
     documentsAdded: number;
     documentsUpdated: number;
     documentsDeleted: number;
+    durationMs: number;
+  };
+}
+
+/**
+ * Semantic search task
+ */
+export interface SemanticSearchTask extends BaseTask {
+  type: 'semantic-search';
+  payload: SemanticSearchTaskPayload;
+  result?: {
+    results: Array<{
+      id: number;
+      type: string;
+      title: string;
+      text: string;
+      score: number;
+      project?: string;
+      createdAt: number;
+    }>;
+    query: string;
+    totalFound: number;
     durationMs: number;
   };
 }
@@ -243,6 +282,7 @@ export type Task =
   | SummarizeTask
   | EmbeddingTask
   | QdrantSyncTask
+  | SemanticSearchTask
   | ContextGenerateTask
   | ClaudeMdTask;
 

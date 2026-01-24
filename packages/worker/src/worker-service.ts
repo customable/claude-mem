@@ -7,7 +7,7 @@
  */
 
 import { createLogger, loadSettings, VERSION } from '@claude-mem/shared';
-import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload, ClaudeMdTaskPayload } from '@claude-mem/types';
+import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload, ClaudeMdTaskPayload, SemanticSearchTaskPayload } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
 import { handleObservationTask } from './handlers/observation-handler.js';
@@ -15,6 +15,7 @@ import { handleSummarizeTask } from './handlers/summarize-handler.js';
 import { handleEmbeddingTask } from './handlers/embedding-handler.js';
 import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
+import { handleSemanticSearchTask } from './handlers/semantic-search-handler.js';
 import { handleClaudeMdTask } from './handlers/claudemd-handler.js';
 import { getQdrantService } from './services/qdrant-service.js';
 
@@ -107,6 +108,7 @@ export class WorkerService {
 
     // Add qdrant capability if available
     capabilities.push('qdrant:sync');
+    capabilities.push('semantic:search');
 
     // Context generation capability
     capabilities.push('context:generate');
@@ -258,6 +260,9 @@ export class WorkerService {
 
       case 'qdrant-sync':
         return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload, signal);
+
+      case 'semantic-search':
+        return handleSemanticSearchTask(getQdrantService(), payload as SemanticSearchTaskPayload, signal);
 
       case 'context-generate': {
         const contextPayload = payload as import('@claude-mem/types').ContextGenerateTaskPayload;

@@ -35,6 +35,8 @@ export type WorkerCapability =
   | 'embedding:voyage'
   // Vector DB Sync
   | 'qdrant:sync'
+  // Semantic Search
+  | 'semantic:search'
   // Context Generation
   | 'context:generate'
   // CLAUDE.md Generation

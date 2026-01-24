@@ -18,7 +18,10 @@
 import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { IObservationRepository } from '@claude-mem/types';
-import { loadSettings } from '@claude-mem/shared';
+import { loadSettings, createLogger } from '@claude-mem/shared';
+import type { TaskService } from '../services/task-service.js';
+
+const logger = createLogger('search-router');
 
 /**
  * Helper to get string from query/params
@@ -31,7 +34,7 @@ function getString(val: unknown): string | undefined {
 
 export interface SearchRouterDeps {
   observations: IObservationRepository;
-  // qdrantService will be added when worker integration is complete
+  taskService?: TaskService;
 }
 
 export class SearchRouter extends BaseRouter {
@@ -91,6 +94,7 @@ export class SearchRouter extends BaseRouter {
     const project = getString(req.query.project);
     const type = getString(req.query.type);
     const limit = this.parseOptionalIntParam(getString(req.query.limit)) ?? 30;
+    const minScore = this.parseOptionalFloatParam(getString(req.query.minScore)) ?? 0.5;
 
     if (!query) {
       this.badRequest('query parameter is required');
@@ -99,9 +103,35 @@ export class SearchRouter extends BaseRouter {
     const settings = loadSettings();
     const vectorDbEnabled = settings.VECTOR_DB === 'qdrant';
 
-    // When Qdrant is enabled, semantic search is handled by the worker
-    // via WebSocket task. For now, we provide text search as fallback.
-    // Full integration requires: worker sends search results back via WebSocket
+    // If Qdrant is enabled and task service is available, use semantic search
+    if (vectorDbEnabled && this.deps.taskService) {
+      try {
+        const result = await this.deps.taskService.executeSemanticSearch({
+          query: query!,
+          project,
+          limit,
+          types: type ? [type] : undefined,
+          minScore,
+          timeoutMs: 30000,
+        });
+
+        this.success(res, {
+          items: result.results,
+          query,
+          total: result.totalFound,
+          mode: 'semantic',
+          vectorDbEnabled: true,
+          durationMs: result.durationMs,
+        });
+        return;
+      } catch (error) {
+        const err = error as Error;
+        logger.warn(`Semantic search failed, falling back to text: ${err.message}`);
+        // Fall through to text search fallback
+      }
+    }
+
+    // Fallback to text search
     const results = await this.deps.observations.search(
       query!,
       { project, type: type as any },
@@ -112,12 +142,21 @@ export class SearchRouter extends BaseRouter {
       items: results,
       query,
       total: results.length,
-      mode: vectorDbEnabled ? 'semantic-pending' : 'text',
+      mode: vectorDbEnabled ? 'text-fallback' : 'text',
       vectorDbEnabled,
       note: vectorDbEnabled
-        ? 'Qdrant enabled but direct search not yet integrated. Using text fallback.'
+        ? 'Semantic search unavailable, using text fallback.'
         : 'Enable VECTOR_DB=qdrant for semantic search.',
     });
+  }
+
+  /**
+   * Parse optional float parameter
+   */
+  private parseOptionalFloatParam(val: string | undefined): number | undefined {
+    if (!val) return undefined;
+    const num = parseFloat(val);
+    return isNaN(num) ? undefined : num;
   }
 
   /**

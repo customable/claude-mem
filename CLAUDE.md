@@ -177,42 +177,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14655 | 10:50 PM | 🟣 | Pushed commits to remote | ~770 |
-| #14654 | 10:49 PM | 🟣 | Rebased onto forgejo/main | ~1012 |
-| #14653 | 10:49 PM | 🔵 | Git status: diverged branches | ~897 |
-| #14652 | 10:49 PM | 🔵 | Uncommitted CLAUDE.md changes | ~916 |
-| #14651 | 10:49 PM | 🟣 | Committed CLAUDE.md updates | ~809 |
-| #14650 | 10:49 PM | 🔵 | Modified CLAUDE.md files | ~884 |
-| #14649 | 10:49 PM | 🟠 | Implemented PreCompact hook | ~1080 |
-| #14648 | 10:49 PM | 🟣 | Staged files for Issue #73 | ~834 |
-| #14647 | 10:48 PM | 🟠 | Show file details in session | ~855 |
-| #14646 | 10:48 PM | 🟠 | Process/memory leak prevention | ~1096 |
-| #14645 | 10:48 PM | 🟣 | Staged files for Issue #94 | ~705 |
-| #14644 | 10:48 PM | 🟣 | Staged files for Issue #101 | ~888 |
-| #14643 | 10:48 PM | 🔵 | Multiple modified files | ~1392 |
-| #14642 | 10:48 PM | 🔵 | Issue #101 changes analysis | ~1002 |
-| #14641 | 10:48 PM | ✅ | TypeScript check passed | ~834 |
-| #14640 | 10:47 PM | 🟠 | Added 'pre-compact' event | ~3345 |
-| #14639 | 10:47 PM | 🔵 | Plugin entry point structure | ~1363 |
-| #14638 | 10:46 PM | ✅ | Task 3 completed | ~702 |
-| #14637 | 10:46 PM | 🔄 | Refactored event broadcasting | ~4669 |
-| #14636 | 10:46 PM | 🟠 | Added pre-compact event docs | ~3203 |
-| #14635 | 10:46 PM | 🟠 | Added pre-compact event map | ~3486 |
-| #14634 | 10:46 PM | 🔵 | EVENT_MAP discovery | ~1357 |
-| #14633 | 10:45 PM | 🔵 | Pre-compact hook found | ~1669 |
-| #14632 | 10:45 PM | 🔵 | Located hooks.json | ~736 |
-| #14631 | 10:45 PM | 🔵 | Plugin CLI structure | ~1607 |
-| #14629 | 10:45 PM | 🔵 | Located worker-service.cjs | ~719 |
-| #14627 | 10:45 PM | 🟠 | Added PreCompact hook | ~2634 |
-| #14626 | 10:45 PM | 🔵 | SSE Broadcaster Service | ~2177 |
-| #14624 | 10:45 PM | 🔵 | Hook system configuration | ~1423 |
-| #14623 | 10:45 PM | 🔵 | SSE Broadcaster structure | ~1619 |
+| #14722 | 11:07 PM | 🟠 | Add SemanticSearchTask imports | ~4890 |
+| #14721 | 11:07 PM | 🔵 | Search routes implementation | ~2318 |
+| #14720 | 11:06 PM | 🟠 | Add 'semantic:search' capability | ~1627 |
+| #14719 | 11:06 PM | 🟠 | Add semantic search handler import | ~4159 |
+| #14718 | 11:06 PM | 🟠 | Semantic Search Handler Implementation | ~2494 |
+| #14717 | 11:06 PM | 🟠 | Add SemanticSearchTaskPayload import | ~4086 |
+| #14716 | 11:06 PM | 🔵 | Worker Service Architecture Overview | ~3913 |
+| #14715 | 11:06 PM | 🔵 | Located worker service file | ~685 |
+| #14714 | 11:06 PM | 🟠 | Detect CAPSLOCK prompts feature | ~1400 |
+| #14713 | 11:05 PM | 🟠 | Add semantic search handler export | ~1344 |
+| #14712 | 11:05 PM | 🔵 | Task handlers structure discovered | ~998 |
+| #14711 | 11:05 PM | 🔵 | Qdrant Service Implementation Analysis | ~3727 |
+| #14710 | 11:05 PM | 🔵 | Qdrant Sync Handler Implementation Review | ~2615 |
+| #14709 | 11:05 PM | 🔵 | Worker handlers directory structure | ~1019 |
+| #14708 | 11:05 PM | 🟠 | Add SemanticSearchTask to Task union | ~3088 |
+| #14707 | 11:05 PM | 🟠 | Add SemanticSearchTask interface | ~3610 |
+| #14706 | 11:04 PM | 🟠 | Add SemanticSearchTaskPayload interface | ~3292 |
+| #14705 | 11:04 PM | 🟠 | Add 'semantic-search' task type | ~2852 |
+| #14704 | 11:04 PM | 🔵 | Qdrant Sync Handler Implementation Review | ~2616 |
+| #14703 | 11:03 PM | 🔵 | Task system architecture overview | ~2531 |
+| #14702 | 11:03 PM | 🔵 | Task system structure and types | ~1443 |
+| #14701 | 11:03 PM | 🔵 | WorkerHub WebSocket Management | ~1947 |
+| #14700 | 11:03 PM | 🔵 | WorkerHub references found | ~1048 |
+| #14699 | 11:02 PM | 🔄 | Git rebase and push | ~937 |
+| #14698 | 11:01 PM | 🟠 | Enhanced semantic search status | ~4027 |
+| #14697 | 11:01 PM | 🔵 | Recent commits analysis | ~854 |
+| #14696 | 11:01 PM | 🟠 | Document semantic search (#156) | ~1055 |
+| #14695 | 11:01 PM | 🟠 | Enhanced search API response | ~3504 |
+| #14694 | 11:00 PM | ✅ | Task 2 status updated | ~690 |
+| #14693 | 11:00 PM | 🔵 | Qdrant Service Implementation Analysis | ~3738 |
 
 ## Key Insights
 
-- **PreCompact Hook Implementation**: Successfully added a new PreCompact hook feature with backend endpoints, SSE events, and handler registration (Issue #73). This preserves context before memory compaction.
-- **File Tracking in Sessions**: Enhanced session view to display file details (Issue #94), aggregating files_read and files_modified from observations in the backend and UI.
-- **Cleanup Service**: Implemented a comprehensive cleanup service (Issue #101) to prevent process/memory leaks, with configurable settings, API endpoints, and automatic cleanup capabilities.
-- **Event System Enhancement**: Refactored event broadcasting logic and added new event mappings (e.g., 'pre-compact') to extend the plugin's event-driven architecture.
-- **Repository Pattern**: Discovered and utilized the repository pattern for data access, ensuring consistent and maintainable data handling across the project.
+- **Semantic Search Integration**: Major progress on semantic search functionality with Qdrant, including new task types, handlers, and API enhancements. The system now supports vector-based search but falls back to SQLite FTS5 when Qdrant is unavailable.
+- **Worker System Enhancements**: Added 'semantic:search' capability to workers, expanded task handling architecture, and implemented auto-restart with exponential backoff.
+- **Documentation Updates**: Comprehensive documentation added for Qdrant/semantic search architecture and worker features.
+- **Feature Additions**: New CAPSLOCK prompt detection feature to prioritize urgent observations, and enhanced session file tracking.
+- **Architecture Discoveries**: Deep exploration of worker-service architecture, task system, and Qdrant integration patterns.
 </claude-mem-context>

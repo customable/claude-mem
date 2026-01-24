@@ -7,6 +7,11 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14701 | 11:03 PM | 🔵 | WorkerHub WebSocket Management Structure | ~1947 |
+| #14033 | 9:22 PM | 🔵 | Worker Hub WebSocket Management System | ~5207 |
+| #14028 | 9:22 PM | 🔵 | Task Dispatcher Architecture Review | ~4724 |
+| #14018 | 9:21 PM | 🔵 | Task Dispatcher Architecture Overview | ~2453 |
+| #14016 | 9:21 PM | 🔵 | Worker registration and task management logic | ~2628 |
 | #14008 | 9:20 PM | 🔵 | WorkerHub WebSocket Management Structure | ~2769 |
 | #13993 | 9:20 PM | 🔵 | Worker Hub WebSocket Management | ~5222 |
 | #13990 | 9:20 PM | 🔵 | WebSocket Types for Worker Management | ~1164 |
@@ -31,18 +36,21 @@
 | #13359 | 6:52 PM | 🔵 | WebSocket Types Structure | ~1094 |
 | #13358 | 6:52 PM | 🔵 | Worker connection/disconnection handling | ~1151 |
 | #13345 | 6:51 PM | 🔵 | Task Error Handling and Retry Logic | ~1306 |
-| #13344 | 6:50 PM | 🟣 | Enhanced task failure logging with worker ID | ~5024 |
-| #13342 | 6:50 PM | 🔵 | Discovered task error handling mechanism | ~1500 |
-| #13337 | 6:47 PM | 🔵 | Worker Hub WebSocket Management | ~935 |
-| #13336 | 6:47 PM | 🟠 | Implemented latency tracking in worker stats | ~5668 |
-| #13335 | 6:47 PM | 🟠 | Added WebSocket ping for latency measurement | ~5559 |
-| #13334 | 6:47 PM | 🟠 | Added latency tracking for worker connections | ~5472 |
+| #13344 | 6:50 PM | 🔄 | Enhanced task failure logging with worker ID | ~5024 |
 
 ## Key Insights
 
-- **Worker Management Enhancements**: Significant improvements to worker connection handling, including WebSocket management, latency tracking, and worker linking capabilities. The system now supports better monitoring and debugging through enhanced logging and latency measurement.
-- **Code Snippet Extraction**: Added comprehensive code snippet extraction functionality to the TaskDispatcher, including language detection, normalization, and storage capabilities. This extends the system's ability to handle code-related tasks.
-- **Task Dispatcher Architecture**: The TaskDispatcher now supports a broader range of functionalities, including code snippet management, worker linking, and enhanced error handling with retry logic. This makes the system more robust and feature-rich.
-- **Latency and Performance Tracking**: Implemented latency tracking for worker connections, enabling better performance monitoring and optimization. This includes ping/pong mechanisms and statistical analysis of worker responsiveness.
-- **Event-Driven Architecture**: The system leverages callbacks (e.g., `onWorkerLinked`) and WebSocket events for real-time notifications, improving the responsiveness and integration capabilities of the worker management system.
+- **WorkerHub WebSocket Management**: The system uses WebSocket connections for worker management, handling authentication, heartbeats, and connection lifecycle. It differentiates between localhost and external workers for authentication.
+- **Task Dispatcher Architecture**: The task dispatcher manages the complete task lifecycle (pending → assigned → processing → completed/failed) and matches tasks to workers based on capabilities. It includes retry logic and timeout handling.
+- **Code Snippet Extraction**: New functionality was added to extract and store code snippets from observation results, enhancing the system's capabilities for handling code-related tasks.
+- **Worker Linking**: The system now supports linking spawned workers to hub workers, improving worker lifecycle management and enabling better context preservation.
+- **Error Handling and Logging**: Enhanced error handling includes retry logic for failed tasks and improved logging with worker IDs for better debugging.
+
+## Next Steps
+
+- Complete the integration of Qdrant for semantic search.
+- Test worker auto-restart functionality in production.
+- Refine pre-compact hook behavior for better context preservation.
+- Ensure all staged changes are committed and pushed.
+- Address any remaining TypeScript typecheck issues.
 </claude-mem-context>

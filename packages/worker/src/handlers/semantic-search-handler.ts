@@ -1,0 +1,93 @@
+/**
+ * Semantic Search Handler
+ *
+ * Processes semantic search tasks using Qdrant vector database.
+ * Returns similar observations/summaries based on embedding similarity.
+ */
+
+import { createLogger } from '@claude-mem/shared';
+import type { SemanticSearchTaskPayload, SemanticSearchTask } from '@claude-mem/types';
+import { QdrantService } from '../services/qdrant-service.js';
+
+const logger = createLogger('semantic-search-handler');
+
+/**
+ * Result of semantic search operation
+ */
+export type SemanticSearchResult = NonNullable<SemanticSearchTask['result']>;
+
+/**
+ * Handle a semantic search task
+ */
+export async function handleSemanticSearchTask(
+  qdrantService: QdrantService,
+  payload: SemanticSearchTaskPayload,
+  signal?: AbortSignal
+): Promise<SemanticSearchResult> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
+  const startTime = Date.now();
+
+  logger.info('Processing semantic search', {
+    query: payload.query.slice(0, 100),
+    project: payload.project,
+    limit: payload.limit,
+  });
+
+  // Initialize Qdrant service (loads embedding model, ensures collection)
+  await qdrantService.initialize();
+
+  // Build filter for search
+  const filter: { type?: string; project?: string } = {};
+  if (payload.project) {
+    filter.project = payload.project;
+  }
+  // Note: Qdrant filter supports single type, for multiple types we'd need OR logic
+  // For now, if types are specified, we use the first one (can be enhanced later)
+  if (payload.types && payload.types.length > 0) {
+    filter.type = payload.types[0];
+  }
+
+  // Perform vector similarity search
+  const searchResults = await qdrantService.search(payload.query, {
+    limit: payload.limit || 20,
+    filter: Object.keys(filter).length > 0 ? filter : undefined,
+    scoreThreshold: payload.minScore || 0.5,
+  });
+
+  // Transform results to task result format
+  const results = searchResults.map(r => {
+    // Parse ID to get observation/summary ID
+    const idParts = r.id.split('-');
+    const docType = idParts[0]; // 'observation' or 'summary'
+    const docId = parseInt(idParts[1], 10);
+
+    return {
+      id: docId,
+      type: docType,
+      title: r.metadata.text?.split('\n')[0] || 'Untitled', // First line as title
+      text: r.metadata.text || '',
+      score: r.score,
+      project: r.metadata.project,
+      createdAt: r.metadata.createdAt ? new Date(r.metadata.createdAt).getTime() : Date.now(),
+    };
+  });
+
+  const durationMs = Date.now() - startTime;
+
+  logger.info('Semantic search completed', {
+    query: payload.query.slice(0, 50),
+    resultsFound: results.length,
+    durationMs,
+  });
+
+  return {
+    results,
+    query: payload.query,
+    totalFound: results.length,
+    durationMs,
+  };
+}
