@@ -40,7 +40,7 @@ export interface TaskDispatcherOptions {
 }
 
 export class TaskDispatcher {
-  private pollInterval: Timer | null = null;
+  private pollInterval: NodeJS.Timeout | null = null;
   private isRunning = false;
 
   private readonly pollIntervalMs: number;
