@@ -16,6 +16,7 @@ const ROOT = join(CLAUDE_CONFIG_DIR, 'plugins', 'marketplaces', 'customable');
 const PLUGIN_ROOT = ROOT;
 const MARKER = join(ROOT, '.install-version');
 const SETTINGS_PATH = join(CLAUDE_CONFIG_DIR, 'settings.json');
+const HOOKS_PATH = join(CLAUDE_CONFIG_DIR, 'hooks.json');
 const IS_WINDOWS = process.platform === 'win32';
 
 /**
@@ -57,18 +58,24 @@ function installDeps() {
 }
 
 /**
- * Register plugin hooks in settings.json
+ * Register plugin hooks in hooks.json
+ *
+ * Note: We write to hooks.json (not settings.json) because Claude Code
+ * reads hooks from hooks.json. This ensures our correctly expanded paths
+ * take precedence over any incorrect paths that Claude Code's plugin
+ * system might generate (fixing issue #231 where ${CLAUDE_PLUGIN_ROOT}
+ * was incorrectly expanded to include /plugin/ subdirectory).
  */
 function registerHooks() {
-  const hooksJsonPath = join(PLUGIN_ROOT, 'hooks', 'hooks.json');
+  const pluginHooksPath = join(PLUGIN_ROOT, 'hooks', 'hooks.json');
 
-  if (!existsSync(hooksJsonPath)) {
+  if (!existsSync(pluginHooksPath)) {
     console.error('⚠️  Plugin hooks.json not found, skipping hook registration');
     return;
   }
 
   try {
-    const pluginHooksJson = JSON.parse(readFileSync(hooksJsonPath, 'utf-8'));
+    const pluginHooksJson = JSON.parse(readFileSync(pluginHooksPath, 'utf-8'));
     const pluginHooks = pluginHooksJson.hooks;
 
     if (!pluginHooks) {
@@ -77,37 +84,53 @@ function registerHooks() {
     }
 
     // Replace ${CLAUDE_PLUGIN_ROOT} with actual path
+    // This is the key fix for #231 - we ensure the path is correct
+    // (without /plugin/ subdirectory that Claude Code might incorrectly add)
     const hooksString = JSON.stringify(pluginHooks)
       .replace(/\$\{CLAUDE_PLUGIN_ROOT\}/g, PLUGIN_ROOT.replace(/\\/g, '\\\\'));
     const resolvedHooks = JSON.parse(hooksString);
 
-    // Read existing settings or create new object
-    let settings = {};
-    if (existsSync(SETTINGS_PATH)) {
+    // Read existing hooks.json or create new object
+    let hooksConfig = {};
+    if (existsSync(HOOKS_PATH)) {
       try {
-        const content = readFileSync(SETTINGS_PATH, 'utf-8').trim();
+        const content = readFileSync(HOOKS_PATH, 'utf-8').trim();
         if (content) {
-          settings = JSON.parse(content);
+          hooksConfig = JSON.parse(content);
         }
       } catch (parseError) {
-        console.error('⚠️  Could not parse existing settings.json, creating backup');
-        const backupPath = SETTINGS_PATH + '.backup-' + Date.now();
-        writeFileSync(backupPath, readFileSync(SETTINGS_PATH));
+        console.error('⚠️  Could not parse existing hooks.json, creating backup');
+        const backupPath = HOOKS_PATH + '.backup-' + Date.now();
+        writeFileSync(backupPath, readFileSync(HOOKS_PATH));
+      }
+    }
+
+    // Merge our hooks with existing hooks
+    // Our plugin hooks will override any incorrectly expanded paths
+    const existingHooks = hooksConfig.hooks || {};
+    const mergedHooks = { ...existingHooks };
+
+    // Merge each hook type, appending our hooks to existing ones
+    for (const [hookType, hookArray] of Object.entries(resolvedHooks)) {
+      if (Array.isArray(hookArray)) {
+        // Replace existing hooks for this type with ours
+        // (ensures correct paths take precedence)
+        mergedHooks[hookType] = hookArray;
       }
     }
 
     // Check if hooks need updating
-    const existingHooksStr = JSON.stringify(settings.hooks || {});
-    const newHooksStr = JSON.stringify(resolvedHooks);
+    const existingHooksStr = JSON.stringify(hooksConfig.hooks || {});
+    const newHooksStr = JSON.stringify(mergedHooks);
 
     if (existingHooksStr === newHooksStr) {
       return;
     }
 
-    settings.hooks = resolvedHooks;
-    mkdirSync(dirname(SETTINGS_PATH), { recursive: true });
-    writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2));
-    console.error('✅ Hooks registered in settings.json');
+    hooksConfig.hooks = mergedHooks;
+    mkdirSync(dirname(HOOKS_PATH), { recursive: true });
+    writeFileSync(HOOKS_PATH, JSON.stringify(hooksConfig, null, 2));
+    console.error('✅ Hooks registered in hooks.json');
   } catch (error) {
     console.error('⚠️  Failed to register hooks:', error.message);
   }

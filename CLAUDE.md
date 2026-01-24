@@ -177,42 +177,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14414 | 10:17 PM | 🔴 | TypeScript error in share-service.ts prevents build | ~1494 |
+| #14413 | 10:17 PM | 🔵 | Hook Handlers Registry Structure | ~1364 |
+| #14412 | 10:16 PM | 🔵 | Privacy handling in share-service.ts | ~1231 |
+| #14411 | 10:16 PM | 🟠 | Implement SubagentStart and SubagentStop hooks | ~2838 |
+| #14410 | 10:16 PM | 🔵 | Discovered hook system configuration | ~1492 |
 | #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
-| #14408 | 10:15 PM | 🔵 | Located hooks.json file in plugin directory | ~692 |
-| #14407 | 10:15 PM | 🔵 | Search for agent-related patterns yields minimal results | ~810 |
+| #14408 | 10:15 PM | 🔵 | Located hooks.json file | ~692 |
+| #14407 | 10:15 PM | 🔵 | Minimal agent-related patterns found | ~810 |
 | #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
-| #14405 | 10:15 PM | 🔴 | Filter out null/undefined session IDs in fetchSessions | ~5141 |
-| #14404 | 10:15 PM | 🔵 | Documentation on SubagentStart and SubagentStop hooks | ~5377 |
+| #14405 | 10:15 PM | 🔴 | Filter null/undefined session IDs in fetchSessions | ~5141 |
+| #14404 | 10:15 PM | 🔵 | Documentation on SubagentStart/Stop hooks | ~5377 |
 | #14403 | 10:15 PM | 🔵 | Privacy handling in share-service.ts | ~1735 |
 | #14402 | 10:15 PM | 🔵 | Discovered pinned field in database schema | ~824 |
-| #14401 | 10:15 PM | 🔵 | Exploring SdkSessionRecord interface and its usage | ~4715 |
-| #14400 | 10:15 PM | 🔵 | SDKSessionRecord type usage in share-service.ts | ~766 |
-| #14399 | 10:15 PM | 🔴 | TypeScript errors in share-service.ts after build | ~1697 |
+| #14401 | 10:15 PM | 🔵 | Exploring SdkSessionRecord interface | ~4715 |
+| #14400 | 10:15 PM | 🔵 | SDKSessionRecord usage in share-service.ts | ~766 |
+| #14399 | 10:15 PM | 🔴 | TypeScript errors in share-service.ts | ~1697 |
 | #14398 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord | ~4879 |
-| #14397 | 10:14 PM | 🟠 | Added ShareService to BackendService class | ~4908 |
-| #14396 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord for consistency | ~2959 |
-| #14395 | 10:14 PM | 🔴 | TypeScript error in types package: SDKSessionRecord import | ~1077 |
+| #14397 | 10:14 PM | 🟠 | Added ShareService to BackendService | ~4908 |
+| #14396 | 10:14 PM | 🔄 | Rename SDKSessionRecord for consistency | ~2959 |
+| #14395 | 10:14 PM | 🔴 | TypeScript error in types package | ~1077 |
 | #14394 | 10:14 PM | 🟠 | Added ShareRouter to backend service | ~5080 |
-| #14393 | 10:13 PM | 🟠 | Adding ShareService to backend-service imports | ~5031 |
-| #14392 | 10:13 PM | 🔵 | Backend service routes and static UI serving | ~1336 |
-| #14391 | 10:13 PM | 🟠 | Added ShareService initialization to BackendService | ~5129 |
-| #14390 | 10:13 PM | 🔵 | Backend service initialization and route registration | ~1771 |
-| #14389 | 10:13 PM | 🟠 | Added ShareRouter import to backend service | ~4879 |
+| #14393 | 10:13 PM | 🟠 | Adding ShareService to backend imports | ~5031 |
+| #14392 | 10:13 PM | 🔵 | Backend service routes and UI serving | ~1336 |
+| #14391 | 10:13 PM | 🟠 | Added ShareService initialization | ~5129 |
+| #14390 | 10:13 PM | 🔵 | Backend service initialization | ~1771 |
+| #14389 | 10:13 PM | 🟠 | Added ShareRouter import | ~4879 |
 | #14388 | 10:13 PM | 🔵 | Backend Service Architecture Overview | ~1916 |
-| #14387 | 10:13 PM | 🟠 | Added ShareRouter exports to routes index | ~1515 |
-| #14386 | 10:13 PM | 🟠 | Added ShareService exports to services index | ~1369 |
-| #14385 | 10:13 PM | 🔵 | Hook Implementation Analysis in packages/hooks | ~3524 |
-| #14384 | 10:13 PM | 🟠 | Implemented ShareRouter for memory sharing API | ~5475 |
-| #14383 | 10:13 PM | 🔵 | Querying observations from SQLite database | ~2701 |
-| #14382 | 10:12 PM | 🔵 | Subagent detection and session context in hooks | ~2277 |
-| #14381 | 10:12 PM | 🟠 | Created Share Service for memory sharing functionality | ~6893 |
-| #14380 | 10:12 PM | 🔵 | Analyzing session schema and ID patterns in SQLite database | ~6017 |
+| #14387 | 10:13 PM | 🟠 | Added ShareRouter exports | ~1515 |
+| #14386 | 10:13 PM | 🟠 | Added ShareService exports | ~1369 |
+| #14385 | 10:13 PM | 🔵 | Hook Implementation Analysis | ~3524 |
 
 ## Key Insights
 
-- **Share Service Integration**: Major focus on implementing memory sharing functionality with ShareService, ShareRouter, and related components. Multiple bugfixes address null handling and TypeScript errors.
-- **Subagent Analysis**: Discovery of minimal subagent implementation despite database fields suggesting potential support. Hook system captures 4 main events but lacks subagent detection.
-- **Architecture Patterns**: Backend uses MikroORM with Unit of Work pattern, modular router structure, and dependency injection. TypeScript type safety is maintained across packages.
-- **Database Schema**: SQLite database includes session tracking with 15 columns, privacy handling for sharing, and a 'pinned' field for prioritization.
-- **Refactoring**: Consistent naming convention improvements (SDKSessionRecord → SdkSessionRecord) and null safety enhancements across session and observation processing.
+- **Critical Bugfixes**: Multiple TypeScript errors in `share-service.ts` were addressed, particularly around null handling and type mismatches, which were blocking the build process.
+- **New Feature Development**: Significant progress on implementing sharing functionality with the addition of `ShareService`, `ShareRouter`, and related exports to the backend service.
+- **Architecture Discovery**: Detailed exploration of the hook system, backend service architecture, and session management components revealed the system's modular design and event-driven nature.
+- **Subagent Implementation Gap**: While subagent hooks (SubagentStart/SubagentStop) are documented, they are not yet implemented in the codebase, despite database fields suggesting potential support.
+- **Refactoring for Consistency**: Multiple naming consistency improvements were made, particularly around `SDKSessionRecord` → `SdkSessionRecord` to maintain PascalCase conventions.
 </claude-mem-context>

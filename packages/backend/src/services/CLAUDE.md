@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14412 | 10:16 PM | 🔵 | Privacy handling in share-service.ts | ~1231 |
 | #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
 | #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
 | #14405 | 10:15 PM | 🔴 | Filter out null/undefined session IDs in fetchSessions | ~5141 |
@@ -36,13 +37,12 @@
 | #13859 | 8:57 PM | 🔴 | Fix error logging in lazy-processing-service | ~3277 |
 | #13855 | 8:57 PM | 🔴 | Fix logger.error call to use structured error object | ~3286 |
 | #13854 | 8:57 PM | 🔴 | Fix error logging in scheduled batch processing | ~3273 |
-| #13853 | 8:56 PM | 🔵 | Lazy Processing Service Implementation Details | ~1678 |
 
 ## Key Insights
 
-- **Memory Sharing & Privacy**: ShareService was created with robust null handling and privacy controls (full/anonymized sharing modes).
-- **Service Architecture Growth**: Multiple new services added (SleepAgent, Decision, Suggestion, PluginManager) following consistent export patterns.
-- **Error Handling Improvements**: Systematic fixes for error logging across services (lazy-processing, share-service).
-- **Refactoring Trends**: Naming consistency improvements (SDKSessionRecord → SdkSessionRecord) and constant usage (DATA_DIR).
-- **Core Functionality**: Sleep Agent handles memory tiering; Decision Service tracks conflicts; Suggestion Service provides AI-powered context-aware recommendations.
+- **Memory Sharing & Privacy**: ShareService was created with robust privacy controls (privacyLevel handling) and null safety improvements across multiple methods.
+- **Plugin System**: New PluginManager service enables custom observation processing with lifecycle management (load/unload).
+- **AI Suggestions**: SuggestionService introduced for context-aware memory recommendations using multiple matching strategies.
+- **Architecture**: Multiple backend services added (SleepAgent, DecisionService) with consistent export patterns in services index.
+- **Error Handling**: Systematic fixes for null safety and error logging across services (lazy-processing, session handling).
 </claude-mem-context>
