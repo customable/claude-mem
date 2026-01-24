@@ -20,6 +20,9 @@ export interface ConnectedWorker {
   currentTaskType: string | null; // The capability/task type being executed
   pendingTermination?: boolean; // True if queued for termination after task completes
   metadata?: Record<string, unknown>;
+  // Latency tracking
+  lastPingTime?: number;
+  latencyHistory: number[];
 }
 
 /**
