@@ -16,10 +16,11 @@ import { LiveView } from './views/Live';
 import { MemoriesView } from './views/Memories';
 import { AnalyticsView } from './views/Analytics';
 import { ProjectsView } from './views/Projects';
+import { DocumentsView } from './views/Documents';
 
-type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'analytics' | 'projects' | 'workers' | 'settings';
+type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'analytics' | 'projects' | 'documents' | 'workers' | 'settings';
 
-const VALID_VIEWS: View[] = ['dashboard', 'memories', 'sessions', 'live', 'search', 'analytics', 'projects', 'workers', 'settings'];
+const VALID_VIEWS: View[] = ['dashboard', 'memories', 'sessions', 'live', 'search', 'analytics', 'projects', 'documents', 'workers', 'settings'];
 
 function getViewFromHash(): View {
   const hash = window.location.hash.slice(1).split('?')[0]; // Remove # and query params
@@ -60,6 +61,7 @@ export function App() {
     { id: 'search', label: 'Search', icon: 'ph--magnifying-glass' },
     { id: 'analytics', label: 'Analytics', icon: 'ph--chart-line' },
     { id: 'projects', label: 'Projects', icon: 'ph--folder-open' },
+    { id: 'documents', label: 'Docs', icon: 'ph--files' },
     { id: 'workers', label: 'Workers', icon: 'ph--cpu' },
     { id: 'settings', label: 'Settings', icon: 'ph--gear' },
   ];
@@ -112,6 +114,7 @@ export function App() {
           {view === 'search' && <SearchView />}
           {view === 'analytics' && <AnalyticsView />}
           {view === 'projects' && <ProjectsView />}
+          {view === 'documents' && <DocumentsView />}
           {view === 'workers' && <WorkerStatus />}
           {view === 'settings' && <SettingsView />}
         </div>
