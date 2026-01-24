@@ -360,19 +360,16 @@ export class DataRouter extends BaseRouter {
 
     let deletedCount = 0;
 
-    // Delete by specific IDs
+    // Delete by specific IDs (Issue #204: Use batch delete)
     if (ids) {
       const idList = getString(ids)!.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id));
-      for (const id of idList) {
-        const deleted = await this.deps.observations.delete(id);
-        if (deleted) deletedCount++;
-      }
+      deletedCount = await this.deps.observations.batchDelete(idList);
     }
     // Delete by session
     else if (sessionId) {
       deletedCount = await this.deps.observations.deleteBySessionId(getString(sessionId)!);
     }
-    // Delete by project and/or date (requires listing first)
+    // Delete by project and/or date (Issue #204: Use batch delete)
     else {
       const filters: ObservationQueryFilters = {};
       if (project) filters.project = getString(project);
@@ -383,12 +380,10 @@ export class DataRouter extends BaseRouter {
         }
       }
 
-      // Get matching observations and delete them
+      // Get matching observations and batch delete them
       const toDelete = await this.deps.observations.list(filters, { limit: 10000 });
-      for (const obs of toDelete) {
-        const deleted = await this.deps.observations.delete(obs.id);
-        if (deleted) deletedCount++;
-      }
+      const idsToDelete = toDelete.map(obs => obs.id);
+      deletedCount = await this.deps.observations.batchDelete(idsToDelete);
     }
 
     // Invalidate caches (Issue #203)

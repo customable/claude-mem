@@ -328,6 +328,12 @@ export interface IObservationRepository {
   delete(id: number): Promise<boolean>;
 
   /**
+   * Batch delete multiple observations (Issue #204)
+   * Efficiently deletes multiple observations at once
+   */
+  batchDelete(ids: number[]): Promise<number>;
+
+  /**
    * Delete all observations for a session
    */
   deleteBySessionId(memorySessionId: string): Promise<number>;
@@ -750,6 +756,12 @@ export interface ITaskQueueRepository {
    * Clean up old completed/failed tasks
    */
   cleanup(olderThanMs: number): Promise<number>;
+
+  /**
+   * Batch update task status (Issue #204)
+   * Efficiently updates multiple tasks at once
+   */
+  batchUpdateStatus(ids: string[], status: TaskStatus): Promise<number>;
 }
 
 // ============================================

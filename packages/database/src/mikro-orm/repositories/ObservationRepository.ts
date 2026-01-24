@@ -415,6 +415,28 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     return true;
   }
 
+  /**
+   * Batch delete observations by IDs (Issue #204)
+   * Chunks large arrays to avoid SQLite IN clause limits
+   */
+  async batchDelete(ids: number[]): Promise<number> {
+    if (ids.length === 0) return 0;
+
+    // SQLite has a limit on IN clause (~999 items), chunk to be safe
+    const chunkSize = 500;
+    let totalDeleted = 0;
+
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize);
+      const result = await this.em.nativeDelete(Observation, {
+        id: { $in: chunk },
+      });
+      totalDeleted += result;
+    }
+
+    return totalDeleted;
+  }
+
   async deleteBySessionId(memorySessionId: string): Promise<number> {
     const result = await this.em.nativeDelete(Observation, { memory_session_id: memorySessionId });
     return result;

@@ -207,4 +207,34 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
     });
     return result;
   }
+
+  /**
+   * Batch update task status (Issue #204)
+   * Efficiently updates multiple tasks at once
+   */
+  async batchUpdateStatus(ids: string[], status: TaskStatus): Promise<number> {
+    if (ids.length === 0) return 0;
+
+    const now = Date.now();
+    const completedAt = (status === 'completed' || status === 'failed') ? now : undefined;
+
+    // SQLite has a limit on IN clause (~999 items), chunk to be safe
+    const chunkSize = 500;
+    let totalUpdated = 0;
+
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize);
+      const result = await this.em.nativeUpdate(
+        TaskEntity,
+        { id: { $in: chunk } },
+        {
+          status,
+          ...(completedAt ? { completed_at: completedAt } : {}),
+        }
+      );
+      totalUpdated += result;
+    }
+
+    return totalUpdated;
+  }
 }
