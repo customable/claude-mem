@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.1] - 2026-01-24
+
+### Bug Fixes
+- Fixed queue worker termination when not yet connected to hub
+
+
 ## [2.19.0] - 2026-01-24
 
 ### Features
