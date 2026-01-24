@@ -4,9 +4,10 @@
  * Shows connected workers and their capabilities with real-time SSE updates.
  * Supports spawning and terminating workers from the UI.
  * Separates permanent (external) workers from spawned workers.
+ * Enhanced to show abstract capabilities and provider info (Issue #224, #226).
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { api, type Worker, type SpawnStatus } from '../api/client';
 import { useSSE } from '../hooks/useSSE';
 
@@ -28,6 +29,38 @@ function matchTaskTypeToCapability(taskType: string, capability: string): boolea
   };
 
   return mappings[taskType] === capability;
+}
+
+/**
+ * Parse capability into abstract type and provider (Issue #226)
+ */
+function parseCapability(cap: string): { type: string; provider?: string } {
+  // Legacy format: "observation:mistral" -> { type: "observation", provider: "mistral" }
+  const colonIndex = cap.indexOf(':');
+  if (colonIndex > 0) {
+    return {
+      type: cap.substring(0, colonIndex),
+      provider: cap.substring(colonIndex + 1),
+    };
+  }
+  // Abstract format: "observation" -> { type: "observation" }
+  return { type: cap };
+}
+
+/**
+ * Get capability color based on type
+ */
+function getCapabilityColor(type: string): string {
+  const colors: Record<string, string> = {
+    observation: 'badge-primary',
+    summarize: 'badge-secondary',
+    embedding: 'badge-accent',
+    qdrant: 'badge-info',
+    semantic: 'badge-info',
+    context: 'badge-success',
+    claudemd: 'badge-warning',
+  };
+  return colors[type] || 'badge-outline';
 }
 
 export function WorkerStatus() {
@@ -152,6 +185,24 @@ export function WorkerStatus() {
   const busyCount = workers.filter((w) => workerTasks[w.id]?.taskId).length;
   const idleCount = workers.length - busyCount;
 
+  // Aggregate capability distribution (Issue #224, #226)
+  const capabilityDistribution = useMemo(() => {
+    const dist: Record<string, { count: number; providers: Set<string> }> = {};
+    for (const worker of workers) {
+      for (const cap of worker.capabilities) {
+        const parsed = parseCapability(cap);
+        if (!dist[parsed.type]) {
+          dist[parsed.type] = { count: 0, providers: new Set() };
+        }
+        dist[parsed.type].count++;
+        if (parsed.provider) {
+          dist[parsed.type].providers.add(parsed.provider);
+        }
+      }
+    }
+    return dist;
+  }, [workers]);
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -212,6 +263,32 @@ export function WorkerStatus() {
           </button>
         </div>
       </div>
+
+      {/* Capability Overview (Issue #224, #226) */}
+      {workers.length > 0 && Object.keys(capabilityDistribution).length > 0 && (
+        <div className="card bg-base-100 card-border">
+          <div className="card-body p-3">
+            <div className="text-xs text-base-content/60 uppercase tracking-wide mb-2">
+              Available Capabilities
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(capabilityDistribution).map(([type, data]) => (
+                <div
+                  key={type}
+                  className={`badge ${getCapabilityColor(type)} gap-1`}
+                  title={data.providers.size > 0 ? `Providers: ${[...data.providers].join(', ')}` : undefined}
+                >
+                  <span className="font-medium">{type}</span>
+                  <span className="badge badge-xs badge-neutral">{data.count}</span>
+                  {data.providers.size > 0 && (
+                    <span className="opacity-60 text-xs">({[...data.providers].join(', ')})</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error/Info Alert */}
       {error && (
@@ -417,20 +494,25 @@ function WorkerItem({
               // Task types: observation, summarize, embedding, qdrant-sync, context-generate, claude-md
               // Capabilities: observation:*, summarize:*, embedding:*, qdrant:sync, context:generate, claudemd:generate
               const isActive = currentTaskType ? matchTaskTypeToCapability(currentTaskType, cap) : false;
+              const parsed = parseCapability(cap);
+              const colorClass = getCapabilityColor(parsed.type);
               return (
                 <span
                   key={cap}
                   className={`badge badge-sm ${
                     isActive
                       ? 'badge-warning'
-                      : 'badge-outline'
+                      : colorClass
                   }`}
-                  title={isActive ? 'Currently executing' : undefined}
+                  title={isActive ? 'Currently executing' : parsed.provider ? `Provider: ${parsed.provider}` : undefined}
                 >
                   {isActive && (
                     <span className="iconify ph--play size-3 mr-0.5" />
                   )}
-                  {cap}
+                  <span className="font-medium">{parsed.type}</span>
+                  {parsed.provider && (
+                    <span className="opacity-60 ml-0.5">:{parsed.provider}</span>
+                  )}
                 </span>
               );
             })}
