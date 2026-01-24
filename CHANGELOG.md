@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.48.0] - 2026-01-24
+
+### Features
+- Added structured request logging and tracing for improved observability.
+
+
 ## [2.47.2] - 2026-01-24
 
 ### Bug Fixes
