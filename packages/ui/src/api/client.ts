@@ -212,6 +212,15 @@ export const api = {
     }));
   },
   getObservation: (id: number) => get<Observation>(`/data/observations/${id}`),
+  deleteObservation: (id: number) => del<void>(`/data/observations/${id}`),
+  bulkDeleteObservations: (params: { project?: string; sessionId?: string; before?: string; ids?: number[] }) => {
+    const query = new URLSearchParams();
+    if (params.project) query.set('project', params.project);
+    if (params.sessionId) query.set('sessionId', params.sessionId);
+    if (params.before) query.set('before', params.before);
+    if (params.ids) query.set('ids', params.ids.join(','));
+    return del<{ deleted: number }>(`/data/observations?${query.toString()}`);
+  },
 
   // Summaries
   getSessionSummaries: (sessionId: string) =>
