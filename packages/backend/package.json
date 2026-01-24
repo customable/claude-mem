@@ -31,6 +31,6 @@
     "@types/ws": "^8.5.13",
     "@types/cors": "^2.8.17",
     "@types/cookie-parser": "^1.4.7",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   }
 }

@@ -12,7 +12,7 @@ importers:
         specifier: ^0.27.2
         version: 0.27.2
       typescript:
-        specifier: ^5.3.0
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/backend:
@@ -55,7 +55,7 @@ importers:
         specifier: ^8.5.13
         version: 8.18.1
       typescript:
-        specifier: ^5.7.2
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/database:
@@ -92,7 +92,7 @@ importers:
         specifier: ^20.0.0
         version: 20.19.30
       typescript:
-        specifier: ^5.3.0
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/hooks:
@@ -117,7 +117,7 @@ importers:
         specifier: ^22.10.2
         version: 22.19.7
       typescript:
-        specifier: ^5.7.2
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/shared:
@@ -130,7 +130,7 @@ importers:
         specifier: ^20.0.0
         version: 20.19.30
       typescript:
-        specifier: ^5.3.0
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/types:
@@ -139,7 +139,7 @@ importers:
         specifier: ^20.0.0
         version: 20.19.30
       typescript:
-        specifier: ^5.3.0
+        specifier: ^5.9.3
         version: 5.9.3
 
   packages/ui:
@@ -182,7 +182,7 @@ importers:
         specifier: ^4.1.18
         version: 4.1.18
       typescript:
-        specifier: ^5.7.2
+        specifier: ^5.9.3
         version: 5.9.3
       vite:
         specifier: ^7.0.0
@@ -219,7 +219,7 @@ importers:
         specifier: ^8.5.13
         version: 8.18.1
       typescript:
-        specifier: ^5.7.2
+        specifier: ^5.9.3
         version: 5.9.3
 
 packages:

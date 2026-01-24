@@ -33,7 +33,7 @@
   "devDependencies": {
     "@mikro-orm/cli": "^6.6.5",
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist",
