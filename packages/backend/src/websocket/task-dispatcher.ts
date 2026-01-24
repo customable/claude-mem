@@ -8,7 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { createLogger, getSettings } from '@claude-mem/shared';
-import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType } from '@claude-mem/types';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, ICodeSnippetRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType, CreateCodeSnippetInput } from '@claude-mem/types';
 import { createHash } from 'crypto';
 import type { WorkerHub } from './worker-hub.js';
 import type { ConnectedWorker } from './types.js';
@@ -38,6 +38,8 @@ export interface TaskDispatcherOptions {
   taskService?: TaskService;
   /** CLAUDE.md repository for storing generated content */
   claudemd?: IClaudeMdRepository;
+  /** Code snippets repository for storing extracted code */
+  codeSnippets?: ICodeSnippetRepository;
   /** Callback to link spawned worker to hub worker */
   onWorkerLinked?: (spawnedId: string, hubWorkerId: string) => void;
 }
@@ -56,6 +58,7 @@ export class TaskDispatcher {
   private readonly documents?: IDocumentRepository;
   private readonly taskService?: TaskService;
   private readonly claudemd?: IClaudeMdRepository;
+  private readonly codeSnippets?: ICodeSnippetRepository;
   private readonly onWorkerLinked?: (spawnedId: string, hubWorkerId: string) => void;
 
   // Track observation counts per session for CLAUDE.md generation
@@ -76,6 +79,7 @@ export class TaskDispatcher {
     this.documents = options.documents;
     this.taskService = options.taskService;
     this.claudemd = options.claudemd;
+    this.codeSnippets = options.codeSnippets;
     this.onWorkerLinked = options.onWorkerLinked;
 
     // Wire up hub events
@@ -248,6 +252,16 @@ export class TaskDispatcher {
           });
 
           logger.info(`Observation ${observation.id} created for session ${payload.sessionId}`);
+
+          // Extract and store code snippets from observation
+          await this.extractAndStoreCodeSnippets(
+            observation.id,
+            memorySessionId,
+            payload.project,
+            observationResult.text,
+            observationResult.narrative,
+            payload.toolOutput
+          );
 
           // Broadcast observation created event
           this.sseBroadcaster?.broadcastObservationCreated(
@@ -767,5 +781,253 @@ export class TaskDispatcher {
       const err = error as Error;
       logger.error('Error checking task timeouts:', { message: err.message });
     }
+  }
+
+  // ============================================
+  // Code Snippet Extraction
+  // ============================================
+
+  /**
+   * Language aliases for normalization
+   */
+  private static readonly LANGUAGE_ALIASES: Record<string, string> = {
+    'js': 'javascript',
+    'ts': 'typescript',
+    'tsx': 'typescript',
+    'jsx': 'javascript',
+    'py': 'python',
+    'rb': 'ruby',
+    'sh': 'bash',
+    'shell': 'bash',
+    'zsh': 'bash',
+    'yml': 'yaml',
+    'md': 'markdown',
+    'rs': 'rust',
+    'cs': 'csharp',
+    'c++': 'cpp',
+    'c#': 'csharp',
+    'golang': 'go',
+  };
+
+  /**
+   * Extract and store code snippets from observation content
+   */
+  private async extractAndStoreCodeSnippets(
+    observationId: number,
+    memorySessionId: string,
+    project: string,
+    text?: string,
+    narrative?: string,
+    toolOutput?: string
+  ): Promise<void> {
+    if (!this.codeSnippets) return;
+
+    try {
+      const snippets: CreateCodeSnippetInput[] = [];
+
+      // Extract from all text sources
+      const sources = [text, narrative, toolOutput].filter(Boolean) as string[];
+
+      for (const source of sources) {
+        const extracted = this.extractCodeBlocks(source);
+        for (const block of extracted) {
+          // Skip very short snippets (likely inline code)
+          if (block.code.length < 20) continue;
+          // Skip very long snippets (likely entire files pasted)
+          if (block.code.length > 10000) continue;
+
+          snippets.push({
+            observationId,
+            memorySessionId,
+            project,
+            language: block.language,
+            code: block.code,
+            filePath: block.filePath,
+            lineStart: block.lineStart,
+            lineEnd: block.lineEnd,
+            context: block.context,
+          });
+        }
+      }
+
+      // Deduplicate by code content
+      const uniqueSnippets = this.deduplicateSnippets(snippets);
+
+      if (uniqueSnippets.length > 0) {
+        await this.codeSnippets.createMany(uniqueSnippets);
+        logger.debug(`Extracted ${uniqueSnippets.length} code snippets for observation ${observationId}`);
+      }
+    } catch (error) {
+      const err = error as Error;
+      logger.warn(`Failed to extract code snippets for observation ${observationId}:`, { message: err.message });
+      // Don't throw - snippet extraction failure shouldn't fail observation storage
+    }
+  }
+
+  /**
+   * Extract code blocks from markdown/text
+   */
+  private extractCodeBlocks(text: string): Array<{
+    language?: string;
+    code: string;
+    filePath?: string;
+    lineStart?: number;
+    lineEnd?: number;
+    context?: string;
+  }> {
+    const blocks: Array<{
+      language?: string;
+      code: string;
+      filePath?: string;
+      lineStart?: number;
+      lineEnd?: number;
+      context?: string;
+    }> = [];
+
+    // Match fenced code blocks: ```language\ncode\n```
+    const fencedCodeRegex = /```(\w+)?\s*\n([\s\S]*?)```/g;
+    let match: RegExpExecArray | null;
+
+    while ((match = fencedCodeRegex.exec(text)) !== null) {
+      const rawLanguage = match[1]?.toLowerCase();
+      const code = match[2].trim();
+
+      if (code) {
+        // Normalize language name
+        const language = rawLanguage
+          ? (TaskDispatcher.LANGUAGE_ALIASES[rawLanguage] || rawLanguage)
+          : this.detectLanguage(code);
+
+        // Try to extract file path from context (line before code block)
+        const beforeBlock = text.slice(0, match.index);
+        const filePath = this.extractFilePath(beforeBlock);
+
+        // Extract line numbers if present in the context
+        const lineInfo = this.extractLineNumbers(beforeBlock);
+
+        // Get a short context (text before the code block)
+        const contextLines = beforeBlock.split('\n').slice(-3).join('\n').trim();
+        const context = contextLines.length > 200 ? contextLines.slice(-200) : contextLines;
+
+        blocks.push({
+          language,
+          code,
+          filePath,
+          lineStart: lineInfo?.start,
+          lineEnd: lineInfo?.end,
+          context: context || undefined,
+        });
+      }
+    }
+
+    return blocks;
+  }
+
+  /**
+   * Detect programming language from code content
+   */
+  private detectLanguage(code: string): string | undefined {
+    // Simple heuristics for common languages
+    if (/^import .+ from ['"]|^export (default |const |function |class )/.test(code)) {
+      return 'javascript';
+    }
+    if (/^(import|from) \w+/.test(code) && /def \w+\(/.test(code)) {
+      return 'python';
+    }
+    if (/^package \w+|^func \w+\(/.test(code)) {
+      return 'go';
+    }
+    if (/^use \w+::|^fn \w+\(/.test(code)) {
+      return 'rust';
+    }
+    if (/^#!/.test(code)) {
+      return 'bash';
+    }
+    if (/^<\?php/.test(code)) {
+      return 'php';
+    }
+    if (/^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER)\s/i.test(code)) {
+      return 'sql';
+    }
+    if (/<[a-z][\s\S]*>/i.test(code) && /<\/[a-z]+>/i.test(code)) {
+      return 'html';
+    }
+    if (/^\s*\{[\s\S]*"[^"]+"\s*:/.test(code)) {
+      return 'json';
+    }
+    if (/^\s*[\w-]+:\s*[\w"']/.test(code)) {
+      return 'yaml';
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Extract file path from text context
+   */
+  private extractFilePath(text: string): string | undefined {
+    // Look for common file path patterns
+    const patterns = [
+      // "file: path/to/file.ts" or "File: path/to/file.ts"
+      /(?:file|path|in):\s*[`"]?([/\w.-]+\.[a-z]+)[`"]?/i,
+      // "// path/to/file.ts" or "# path/to/file.ts"
+      /(?:\/\/|#)\s*([/\w.-]+\.[a-z]+)/,
+      // Absolute paths
+      /\/(?:home|Users|var|etc)\/[\w/-]+\.[a-z]+/,
+      // Relative paths like ./src/file.ts or src/file.ts
+      /(?:^|\s)\.?\/?((?:src|lib|packages|components)\/[\w/-]+\.[a-z]+)/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) {
+        return match[1] || match[0];
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Extract line numbers from context
+   */
+  private extractLineNumbers(text: string): { start: number; end?: number } | undefined {
+    // Look for patterns like "line 42", "lines 42-50", "L42-L50"
+    const patterns = [
+      /lines?\s*(\d+)(?:\s*-\s*(\d+))?/i,
+      /L(\d+)(?:-L?(\d+))?/,
+      /:(\d+)(?::(\d+))?$/,
+    ];
+
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) {
+        const start = parseInt(match[1], 10);
+        const end = match[2] ? parseInt(match[2], 10) : undefined;
+        return { start, end };
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
+   * Deduplicate snippets by code content
+   */
+  private deduplicateSnippets(snippets: CreateCodeSnippetInput[]): CreateCodeSnippetInput[] {
+    const seen = new Set<string>();
+    const unique: CreateCodeSnippetInput[] = [];
+
+    for (const snippet of snippets) {
+      // Create a simple hash of the code content
+      const hash = createHash('sha256').update(snippet.code).digest('hex').slice(0, 16);
+
+      if (!seen.has(hash)) {
+        seen.add(hash);
+        unique.push(snippet);
+      }
+    }
+
+    return unique;
   }
 }

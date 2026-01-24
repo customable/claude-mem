@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.31.1] - 2026-01-24
+
+### Bug Fixes
+- Filter out empty/null project names in analytics
+
+
+## [2.31.0] - 2026-01-24
+
+### Features
+- Added code snippet extraction and indexing functionality
+- Implemented code snippet display in the UI
+- Created a new `code_snippets` table in the database with corresponding repository methods
+
+
 ## [2.30.0] - 2026-01-24
 
 ### Features

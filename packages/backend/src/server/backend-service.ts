@@ -280,6 +280,7 @@ export class BackendService {
           documents: this.unitOfWork.documents,
           taskService: this.taskService,
           claudemd: this.unitOfWork.claudemd,
+          codeSnippets: this.unitOfWork.codeSnippets,
           onWorkerLinked: (spawnedId, hubWorkerId) => {
             this.workerProcessManager?.linkToHubWorker(spawnedId, hubWorkerId);
           },
@@ -328,6 +329,7 @@ export class BackendService {
       sessions: this.unitOfWork!.sessions,
       documents: this.unitOfWork!.documents,
       userPrompts: this.unitOfWork!.userPrompts,
+      codeSnippets: this.unitOfWork!.codeSnippets,
     }).router);
 
     // Search routes

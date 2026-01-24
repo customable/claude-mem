@@ -224,6 +224,20 @@ export interface Document {
   created_at_epoch: number;
 }
 
+export interface CodeSnippet {
+  id: number;
+  observation_id: number;
+  memory_session_id: string;
+  project: string;
+  language: string | null;
+  code: string;
+  file_path: string | null;
+  line_start: number | null;
+  line_end: number | null;
+  context: string | null;
+  created_at_epoch: number;
+}
+
 export interface Stats {
   sessions: number;
   observations: number;
@@ -423,6 +437,44 @@ export const api = {
     }));
   },
   deleteDocument: (id: number) => del<void>(`/data/documents/${id}`),
+
+  // Code Snippets
+  getCodeSnippets: (params?: { project?: string; language?: string; sessionId?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params) {
+      if (params.project) query.set('project', params.project);
+      if (params.language) query.set('language', params.language);
+      if (params.sessionId) query.set('sessionId', params.sessionId);
+      if (params.limit) query.set('limit', String(params.limit));
+      if (params.offset) query.set('offset', String(params.offset));
+    }
+    const queryStr = query.toString();
+    return get<{ data: CodeSnippet[] }>(`/data/code-snippets${queryStr ? '?' + queryStr : ''}`).then(res => ({
+      items: res.data || [],
+    }));
+  },
+  getCodeSnippet: (id: number) => get<CodeSnippet>(`/data/code-snippets/${id}`),
+  getObservationCodeSnippets: (observationId: number) =>
+    get<{ data: CodeSnippet[] }>(`/data/observations/${observationId}/code-snippets`).then(res => res.data || []),
+  searchCodeSnippets: (params: { q: string; project?: string; language?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    query.set('q', params.q);
+    if (params.project) query.set('project', params.project);
+    if (params.language) query.set('language', params.language);
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.offset) query.set('offset', String(params.offset));
+    return get<{ data: CodeSnippet[]; query: string }>(`/data/code-snippets/search?${query.toString()}`).then(res => ({
+      items: res.data || [],
+      query: res.query,
+    }));
+  },
+  getCodeSnippetLanguages: (project?: string) => {
+    const query = new URLSearchParams();
+    if (project) query.set('project', project);
+    const queryStr = query.toString();
+    return get<{ data: string[] }>(`/data/code-snippets/languages${queryStr ? '?' + queryStr : ''}`).then(res => res.data || []);
+  },
+  deleteCodeSnippet: (id: number) => del<void>(`/data/code-snippets/${id}`),
 
   // Insights
   getInsightsSummary: (days?: number) => {

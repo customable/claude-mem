@@ -17,6 +17,7 @@ import {
   Task,
   ClaudeMd,
   PendingMessage,
+  CodeSnippet,
   DailyStats,
   TechnologyUsage,
   Achievement,
@@ -27,6 +28,7 @@ import { Migration20260123000003_SessionWorkingDirectory } from './mikro-orm/mig
 import { Migration20260123000004_AddSessionRequestType } from './mikro-orm/migrations/Migration20260123000004_AddSessionRequestType.js';
 import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
 import { Migration20260124000001_GitWorktreeSupport } from './mikro-orm/migrations/Migration20260124000001_GitWorktreeSupport.js';
+import { Migration20260124000002_CreateCodeSnippetsTable } from './mikro-orm/migrations/Migration20260124000002_CreateCodeSnippetsTable.js';
 import { Migration20260124000003_CreateInsightsTables } from './mikro-orm/migrations/Migration20260124000003_CreateInsightsTables.js';
 
 /**
@@ -58,6 +60,7 @@ export const entities = [
   Task,
   ClaudeMd,
   PendingMessage,
+  CodeSnippet,
   DailyStats,
   TechnologyUsage,
   Achievement,
@@ -73,6 +76,7 @@ export const migrationsList = [
   Migration20260123000004_AddSessionRequestType,
   Migration20260123000005_CreateDocumentsTable,
   Migration20260124000001_GitWorktreeSupport,
+  Migration20260124000002_CreateCodeSnippetsTable,
   Migration20260124000003_CreateInsightsTables,
 ];
 

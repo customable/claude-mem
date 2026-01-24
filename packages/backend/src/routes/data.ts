@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -36,6 +36,7 @@ export interface DataRouterDeps {
   sessions: ISessionRepository;
   documents: IDocumentRepository;
   userPrompts: IUserPromptRepository;
+  codeSnippets: ICodeSnippetRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -86,6 +87,14 @@ export class DataRouter extends BaseRouter {
     this.router.get('/documents/:id', this.asyncHandler(this.getDocument.bind(this)));
     this.router.get('/documents/search', this.asyncHandler(this.searchDocuments.bind(this)));
     this.router.delete('/documents/:id', this.asyncHandler(this.deleteDocument.bind(this)));
+
+    // Code Snippets
+    this.router.get('/code-snippets', this.asyncHandler(this.listCodeSnippets.bind(this)));
+    this.router.get('/code-snippets/search', this.asyncHandler(this.searchCodeSnippets.bind(this)));
+    this.router.get('/code-snippets/languages', this.asyncHandler(this.getCodeSnippetLanguages.bind(this)));
+    this.router.get('/code-snippets/:id', this.asyncHandler(this.getCodeSnippet.bind(this)));
+    this.router.get('/observations/:id/code-snippets', this.asyncHandler(this.getObservationCodeSnippets.bind(this)));
+    this.router.delete('/code-snippets/:id', this.asyncHandler(this.deleteCodeSnippet.bind(this)));
   }
 
   /**
@@ -451,7 +460,9 @@ export class DataRouter extends BaseRouter {
    * GET /api/data/projects
    */
   private async listProjects(_req: Request, res: Response): Promise<void> {
-    const projects = await this.deps.sessions.getDistinctProjects();
+    const allProjects = await this.deps.sessions.getDistinctProjects();
+    // Filter out empty/null project names
+    const projects = allProjects.filter((p) => p && p.trim() !== '');
     this.success(res, { projects });
   }
 
@@ -611,7 +622,9 @@ export class DataRouter extends BaseRouter {
    * Returns stats per project
    */
   private async getAnalyticsProjects(_req: Request, res: Response): Promise<void> {
-    const projects = await this.deps.sessions.getDistinctProjects();
+    const allProjects = await this.deps.sessions.getDistinctProjects();
+    // Filter out empty/null project names
+    const projects = allProjects.filter((p) => p && p.trim() !== '');
 
     const data = await Promise.all(
       projects.map(async (project) => {
@@ -729,6 +742,117 @@ export class DataRouter extends BaseRouter {
     const deleted = await this.deps.documents.delete(id);
     if (!deleted) {
       this.notFound(`Document not found: ${id}`);
+    }
+
+    this.noContent(res);
+  }
+
+  // ============================================
+  // Code Snippet Endpoints
+  // ============================================
+
+  /**
+   * GET /api/data/code-snippets
+   * List code snippets with optional filtering
+   */
+  private async listCodeSnippets(req: Request, res: Response): Promise<void> {
+    const { project, language, sessionId, limit, offset } = req.query;
+
+    const snippets = await this.deps.codeSnippets.list(
+      {
+        project: getString(project),
+        language: getString(language),
+        sessionId: getString(sessionId),
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+        offset: this.parseOptionalIntParam(getString(offset)),
+        orderBy: 'created_at_epoch',
+        order: 'desc',
+      }
+    );
+
+    this.success(res, { data: snippets });
+  }
+
+  /**
+   * GET /api/data/code-snippets/search
+   * Full-text search across code snippets
+   */
+  private async searchCodeSnippets(req: Request, res: Response): Promise<void> {
+    const query = getString(req.query.q);
+    if (!query) {
+      this.badRequest('Missing required query parameter: q');
+    }
+
+    const { project, language, limit, offset } = req.query;
+
+    const snippets = await this.deps.codeSnippets.search(
+      query,
+      {
+        project: getString(project),
+        language: getString(language),
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 20,
+        offset: this.parseOptionalIntParam(getString(offset)),
+      }
+    );
+
+    this.success(res, { data: snippets, query });
+  }
+
+  /**
+   * GET /api/data/code-snippets/languages
+   * Get distinct programming languages from code snippets
+   */
+  private async getCodeSnippetLanguages(req: Request, res: Response): Promise<void> {
+    const { project } = req.query;
+
+    const languages = await this.deps.codeSnippets.getDistinctLanguages(
+      getString(project)
+    );
+
+    this.success(res, { data: languages });
+  }
+
+  /**
+   * GET /api/data/code-snippets/:id
+   * Get a specific code snippet by ID
+   */
+  private async getCodeSnippet(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const snippet = await this.deps.codeSnippets.findById(id);
+    if (!snippet) {
+      this.notFound(`Code snippet not found: ${id}`);
+    }
+
+    this.success(res, snippet);
+  }
+
+  /**
+   * GET /api/data/observations/:id/code-snippets
+   * Get code snippets for a specific observation
+   */
+  private async getObservationCodeSnippets(req: Request, res: Response): Promise<void> {
+    const observationId = this.parseIntParam(getString(req.params.id), 'id');
+
+    const snippets = await this.deps.codeSnippets.findByObservationId(observationId);
+
+    this.success(res, { data: snippets });
+  }
+
+  /**
+   * DELETE /api/data/code-snippets/:id
+   * Delete a code snippet
+   */
+  private async deleteCodeSnippet(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const deleted = await this.deps.codeSnippets.delete(id);
+    if (!deleted) {
+      this.notFound(`Code snippet not found: ${id}`);
     }
 
     this.noContent(res);
