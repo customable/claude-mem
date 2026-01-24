@@ -4,9 +4,10 @@
  * Timeline-based visualization of observations with filtering.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
+import { useSSE } from '../hooks/useSSE';
 import { TYPE_CONFIG, getTypeConfig } from '../utils/observation';
 import { ObservationDetails } from '../components/ObservationDetails';
 
@@ -20,6 +21,9 @@ export function MemoriesView() {
   const [filters, setFilters] = useState<Filters>({ project: '', type: '', search: '' });
   const [limit] = useState(100);
 
+  // SSE for real-time updates
+  const { lastEvent } = useSSE();
+
   // Fetch observations
   const { data, loading, error, refetch } = useQuery(
     () => api.getObservations({ limit, project: filters.project || '' }),
@@ -28,6 +32,13 @@ export function MemoriesView() {
 
   // Fetch projects for filter dropdown
   const { data: projectsData } = useQuery(() => api.getProjects(), []);
+
+  // Auto-refresh on observation:created events
+  useEffect(() => {
+    if (lastEvent?.type === 'observation:created') {
+      refetch();
+    }
+  }, [lastEvent, refetch]);
 
   const observations = useMemo(() => {
     let items = data?.items || [];
