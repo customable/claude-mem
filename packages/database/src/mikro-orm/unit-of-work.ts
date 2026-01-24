@@ -20,6 +20,7 @@ import { MikroOrmAchievementRepository } from './repositories/AchievementReposit
 import { MikroOrmRawMessageRepository } from './repositories/RawMessageRepository.js';
 import { MikroOrmObservationLinkRepository } from './repositories/ObservationLinkRepository.js';
 import { MikroOrmObservationTemplateRepository } from './repositories/ObservationTemplateRepository.js';
+import { MikroOrmProjectSettingsRepository } from './repositories/ProjectSettingsRepository.js';
 
 /**
  * MikroORM implementation of IUnitOfWork
@@ -39,6 +40,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
   public rawMessages: MikroOrmRawMessageRepository;
   public observationLinks: MikroOrmObservationLinkRepository;
   public observationTemplates: MikroOrmObservationTemplateRepository;
+  public projectSettings: MikroOrmProjectSettingsRepository;
 
   private transactionEm: SqlEntityManager | null = null;
 
@@ -57,6 +59,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.rawMessages = new MikroOrmRawMessageRepository(em);
     this.observationLinks = new MikroOrmObservationLinkRepository(em);
     this.observationTemplates = new MikroOrmObservationTemplateRepository(em);
+    this.projectSettings = new MikroOrmProjectSettingsRepository(em);
   }
 
   async beginTransaction(): Promise<void> {
@@ -112,5 +115,6 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.rawMessages = new MikroOrmRawMessageRepository(em);
     this.observationLinks = new MikroOrmObservationLinkRepository(em);
     this.observationTemplates = new MikroOrmObservationTemplateRepository(em);
+    this.projectSettings = new MikroOrmProjectSettingsRepository(em);
   }
 }

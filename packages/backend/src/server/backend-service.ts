@@ -360,6 +360,7 @@ export class BackendService {
       codeSnippets: this.unitOfWork!.codeSnippets,
       observationLinks: this.unitOfWork!.observationLinks,
       observationTemplates: this.unitOfWork!.observationTemplates,
+      projectSettings: this.unitOfWork!.projectSettings,
     }).router);
 
     // Search routes

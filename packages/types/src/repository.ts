@@ -18,6 +18,7 @@ import type {
   ObservationLinkRecord,
   ObservationLinkType,
   ObservationTemplateRecord,
+  ProjectSettingsRecord,
 } from './database.js';
 
 import type { DecisionCategory } from './decisions.js';
@@ -1160,6 +1161,66 @@ export interface IObservationTemplateRepository {
 }
 
 // ============================================
+// Project Settings Repository
+// ============================================
+
+/**
+ * Project settings upsert input
+ */
+export interface UpsertProjectSettingsInput {
+  project: string;
+  displayName?: string;
+  description?: string;
+  settings?: string; // JSON string
+  metadata?: string; // JSON string
+}
+
+/**
+ * Project Settings Repository Interface
+ */
+export interface IProjectSettingsRepository {
+  /**
+   * Get or create project settings
+   */
+  getOrCreate(project: string): Promise<ProjectSettingsRecord>;
+
+  /**
+   * Find project settings by project name
+   */
+  findByProject(project: string): Promise<ProjectSettingsRecord | null>;
+
+  /**
+   * Update project settings
+   */
+  update(project: string, input: Partial<UpsertProjectSettingsInput>): Promise<ProjectSettingsRecord | null>;
+
+  /**
+   * Update activity stats
+   */
+  updateActivityStats(project: string, observationDelta?: number, sessionDelta?: number): Promise<void>;
+
+  /**
+   * List all projects with settings
+   */
+  listAll(options?: QueryOptions): Promise<ProjectSettingsRecord[]>;
+
+  /**
+   * Get recently active projects
+   */
+  getRecentlyActive(limit?: number): Promise<ProjectSettingsRecord[]>;
+
+  /**
+   * Delete project settings
+   */
+  delete(project: string): Promise<boolean>;
+
+  /**
+   * Count projects
+   */
+  count(): Promise<number>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -1185,6 +1246,7 @@ export interface IUnitOfWork {
   codeSnippets: ICodeSnippetRepository;
   observationLinks: IObservationLinkRepository;
   observationTemplates: IObservationTemplateRepository;
+  projectSettings: IProjectSettingsRepository;
   // Learning insights repositories
   dailyStats: IDailyStatsRepository;
   technologyUsage: ITechnologyUsageRepository;

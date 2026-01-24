@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -39,6 +39,7 @@ export interface DataRouterDeps {
   codeSnippets: ICodeSnippetRepository;
   observationLinks: IObservationLinkRepository;
   observationTemplates: IObservationTemplateRepository;
+  projectSettings: IProjectSettingsRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -114,6 +115,13 @@ export class DataRouter extends BaseRouter {
     this.router.get('/code-snippets/:id', this.asyncHandler(this.getCodeSnippet.bind(this)));
     this.router.get('/observations/:id/code-snippets', this.asyncHandler(this.getObservationCodeSnippets.bind(this)));
     this.router.delete('/code-snippets/:id', this.asyncHandler(this.deleteCodeSnippet.bind(this)));
+
+    // Project Settings
+    this.router.get('/project-settings', this.asyncHandler(this.listProjectSettings.bind(this)));
+    this.router.get('/project-settings/recent', this.asyncHandler(this.getRecentlyActiveProjects.bind(this)));
+    this.router.get('/project-settings/:project', this.asyncHandler(this.getProjectSettings.bind(this)));
+    this.router.put('/project-settings/:project', this.asyncHandler(this.updateProjectSettings.bind(this)));
+    this.router.delete('/project-settings/:project', this.asyncHandler(this.deleteProjectSettings.bind(this)));
   }
 
   /**
@@ -1117,6 +1125,95 @@ export class DataRouter extends BaseRouter {
     const deleted = await this.deps.codeSnippets.delete(id);
     if (!deleted) {
       this.notFound(`Code snippet not found: ${id}`);
+    }
+
+    this.noContent(res);
+  }
+
+  // ============================================
+  // Project Settings
+  // ============================================
+
+  /**
+   * GET /api/data/project-settings
+   * List all project settings
+   */
+  private async listProjectSettings(req: Request, res: Response): Promise<void> {
+    const { limit, offset } = req.query;
+
+    const settings = await this.deps.projectSettings.listAll({
+      limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+      offset: this.parseOptionalIntParam(getString(offset)),
+    });
+
+    const total = await this.deps.projectSettings.count();
+
+    this.success(res, {
+      data: settings,
+      total,
+      limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+      offset: this.parseOptionalIntParam(getString(offset)) ?? 0,
+    });
+  }
+
+  /**
+   * GET /api/data/project-settings/recent
+   * Get recently active projects
+   */
+  private async getRecentlyActiveProjects(req: Request, res: Response): Promise<void> {
+    const { limit } = req.query;
+
+    const settings = await this.deps.projectSettings.getRecentlyActive(
+      this.parseOptionalIntParam(getString(limit)) ?? 10
+    );
+
+    this.success(res, { data: settings });
+  }
+
+  /**
+   * GET /api/data/project-settings/:project
+   * Get or create project settings
+   */
+  private async getProjectSettings(req: Request, res: Response): Promise<void> {
+    const project = decodeURIComponent(getRequiredString(req.params.project));
+
+    const settings = await this.deps.projectSettings.getOrCreate(project);
+
+    this.success(res, settings);
+  }
+
+  /**
+   * PUT /api/data/project-settings/:project
+   * Update project settings
+   */
+  private async updateProjectSettings(req: Request, res: Response): Promise<void> {
+    const project = decodeURIComponent(getRequiredString(req.params.project));
+    const { displayName, description, settings, metadata } = req.body;
+
+    const updated = await this.deps.projectSettings.update(project, {
+      displayName,
+      description,
+      settings: settings ? (typeof settings === 'string' ? settings : JSON.stringify(settings)) : undefined,
+      metadata: metadata ? (typeof metadata === 'string' ? metadata : JSON.stringify(metadata)) : undefined,
+    });
+
+    if (!updated) {
+      this.notFound(`Project settings not found: ${project}`);
+    }
+
+    this.success(res, updated);
+  }
+
+  /**
+   * DELETE /api/data/project-settings/:project
+   * Delete project settings
+   */
+  private async deleteProjectSettings(req: Request, res: Response): Promise<void> {
+    const project = decodeURIComponent(getRequiredString(req.params.project));
+
+    const deleted = await this.deps.projectSettings.delete(project);
+    if (!deleted) {
+      this.notFound(`Project settings not found: ${project}`);
     }
 
     this.noContent(res);

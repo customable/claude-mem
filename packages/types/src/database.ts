@@ -180,6 +180,42 @@ export interface TemplateFields {
 }
 
 /**
+ * Project settings database record
+ */
+export interface ProjectSettingsRecord {
+  id: number;
+  project: string;
+  display_name?: string;
+  description?: string;
+  settings: string; // JSON string
+  metadata: string; // JSON string
+  observation_count?: number;
+  session_count?: number;
+  last_activity_epoch?: number;
+  created_at: string;
+  created_at_epoch: number;
+  updated_at?: string;
+  updated_at_epoch?: number;
+}
+
+/**
+ * Parsed project settings structure
+ */
+export interface ProjectSettingsData {
+  // Observation processing settings
+  autoGenerateClaudeMd?: boolean;
+  claudeMdInterval?: number;
+  // Memory tier settings
+  defaultTier?: MemoryTier;
+  autoArchiveDays?: number;
+  // Display preferences
+  theme?: string;
+  showTokens?: boolean;
+  // Custom settings
+  [key: string]: unknown;
+}
+
+/**
  * Session Summary database record
  */
 export interface SessionSummaryRecord {
