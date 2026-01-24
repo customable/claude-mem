@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.33.0] - 2026-01-24
+
+### Features
+- Implemented agent provider registry pattern for worker functionality.
+
+### Improvements
+- Merged feature branch into main, incorporating the agent provider registry pattern.
+
+
 ## [2.32.0] - 2026-01-24
 
 ### Features
