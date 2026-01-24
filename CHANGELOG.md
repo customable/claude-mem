@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.33.1] - 2026-01-24
+
+### Bug Fixes
+- Removed duplicate `observation_id` in the `CodeSnippet` entity
+
+### Improvements
+- Updated CLAUDE.md context files
+
+
 ## [2.33.0] - 2026-01-24
 
 ### Features
