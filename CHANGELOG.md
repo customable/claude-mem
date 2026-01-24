@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.30.0] - 2026-01-24
+
+### Features
+- Added automatic backend daemon startup if not available.
+
+### Improvements
+- Merged feature branch into main for daemon spawning functionality.
+
+
 ## [2.29.0] - 2026-01-24
 
 ### Features
