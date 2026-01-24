@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.24.0] - 2026-01-24
+
+### Features
+- Added secret detection and redaction functionality to shared components.
+
+### Improvements
+- Merged multiple branches to integrate secret detection and redaction features into the main branch.
+
+
 ## [2.23.0] - 2026-01-24
 
 ### Features
