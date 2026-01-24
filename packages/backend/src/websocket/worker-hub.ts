@@ -27,7 +27,7 @@ export class WorkerHub {
   private wss: WebSocketServer | null = null;
   private workers: Map<string, ConnectedWorker> = new Map();
   private authenticatedWorkers: Set<string> = new Set();
-  private heartbeatInterval: Timer | null = null;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
   private workerCounter = 0;
 
   private readonly authToken: string | undefined;
