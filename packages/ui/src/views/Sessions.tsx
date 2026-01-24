@@ -14,6 +14,8 @@ interface Session {
   status: string;
   observation_count: number;
   prompt_count: number;
+  files_read?: string[];
+  files_modified?: string[];
 }
 
 export function SessionsView() {
@@ -130,6 +132,12 @@ function SessionCard({
   onToggle: () => void;
   onOpen: () => void;
 }) {
+  const [showFilesRead, setShowFilesRead] = useState(false);
+  const [showFilesModified, setShowFilesModified] = useState(false);
+
+  const filesReadCount = session.files_read?.length ?? 0;
+  const filesModifiedCount = session.files_modified?.length ?? 0;
+
   return (
     <div className="card bg-base-200">
       <div className="card-body p-4">
@@ -168,6 +176,27 @@ function SessionCard({
                 <span className="iconify ph--chat-text size-3" />
                 {session.prompt_count ?? 0} prompts
               </span>
+              {/* File counts - Issue #94 */}
+              {filesReadCount > 0 && (
+                <button
+                  className="flex items-center gap-1 hover:text-primary transition-colors"
+                  onClick={(e) => { e.stopPropagation(); setShowFilesRead(!showFilesRead); }}
+                  title="Click to show files read"
+                >
+                  <span className="iconify ph--eye size-3" />
+                  {filesReadCount} read
+                </button>
+              )}
+              {filesModifiedCount > 0 && (
+                <button
+                  className="flex items-center gap-1 hover:text-secondary transition-colors"
+                  onClick={(e) => { e.stopPropagation(); setShowFilesModified(!showFilesModified); }}
+                  title="Click to show files modified"
+                >
+                  <span className="iconify ph--pencil-simple size-3" />
+                  {filesModifiedCount} modified
+                </button>
+              )}
               <span>{formatDate(session.started_at)}</span>
             </div>
           </div>
@@ -182,6 +211,56 @@ function SessionCard({
             />
           </button>
         </div>
+
+        {/* Files Read Expandable Section - Issue #94 */}
+        {showFilesRead && session.files_read && session.files_read.length > 0 && (
+          <div className="mt-3 p-3 bg-base-300 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold flex items-center gap-1">
+                <span className="iconify ph--eye size-3 text-primary" />
+                Files Read ({filesReadCount})
+              </span>
+              <button
+                className="btn btn-ghost btn-xs btn-square"
+                onClick={() => setShowFilesRead(false)}
+              >
+                <span className="iconify ph--x size-3" />
+              </button>
+            </div>
+            <div className="max-h-32 overflow-y-auto text-xs font-mono space-y-0.5">
+              {session.files_read.map((file, i) => (
+                <div key={i} className="truncate text-base-content/70" title={file}>
+                  {file}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Files Modified Expandable Section - Issue #94 */}
+        {showFilesModified && session.files_modified && session.files_modified.length > 0 && (
+          <div className="mt-3 p-3 bg-base-300 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold flex items-center gap-1">
+                <span className="iconify ph--pencil-simple size-3 text-secondary" />
+                Files Modified ({filesModifiedCount})
+              </span>
+              <button
+                className="btn btn-ghost btn-xs btn-square"
+                onClick={() => setShowFilesModified(false)}
+              >
+                <span className="iconify ph--x size-3" />
+              </button>
+            </div>
+            <div className="max-h-32 overflow-y-auto text-xs font-mono space-y-0.5">
+              {session.files_modified.map((file, i) => (
+                <div key={i} className="truncate text-base-content/70" title={file}>
+                  {file}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {isExpanded && (
           <div className="mt-4 pt-4 border-t border-base-300">

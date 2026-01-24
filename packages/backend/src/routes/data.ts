@@ -141,17 +141,45 @@ export class DataRouter extends BaseRouter {
     const sessionIds = sessions.map(s => s.content_session_id);
     const firstPrompts = await this.deps.userPrompts.getFirstPromptsForSessions(sessionIds);
 
-    // Enrich sessions with observation counts and first prompts
+    // Enrich sessions with observation counts, first prompts, and file info
     const enrichedSessions = await Promise.all(
       sessions.map(async (session) => {
-        const observationCount = session.memory_session_id
-          ? await this.deps.observations.count({ sessionId: session.memory_session_id })
-          : 0;
+        let observationCount = 0;
+        const filesRead: string[] = [];
+        const filesModified: string[] = [];
+
+        if (session.memory_session_id) {
+          const observations = await this.deps.observations.getBySessionId(session.memory_session_id);
+          observationCount = observations.length;
+
+          // Aggregate files from all observations
+          for (const obs of observations) {
+            if (obs.files_read) {
+              try {
+                const files = JSON.parse(obs.files_read) as string[];
+                for (const f of files) {
+                  if (!filesRead.includes(f)) filesRead.push(f);
+                }
+              } catch { /* ignore parse errors */ }
+            }
+            if (obs.files_modified) {
+              try {
+                const files = JSON.parse(obs.files_modified) as string[];
+                for (const f of files) {
+                  if (!filesModified.includes(f)) filesModified.push(f);
+                }
+              } catch { /* ignore parse errors */ }
+            }
+          }
+        }
+
         return {
           ...session,
           user_prompt: firstPrompts.get(session.content_session_id) || null,
           observation_count: observationCount,
           prompt_count: session.prompt_counter ?? 0,
+          files_read: filesRead,
+          files_modified: filesModified,
         };
       })
     );
@@ -186,16 +214,43 @@ export class DataRouter extends BaseRouter {
     // Get first prompt
     const firstPrompt = await this.deps.userPrompts.getFirstForSession(session.content_session_id);
 
-    // Enrich with observation count
-    const observationCount = session.memory_session_id
-      ? await this.deps.observations.count({ sessionId: session.memory_session_id })
-      : 0;
+    // Enrich with observation count and file info
+    let observationCount = 0;
+    const filesRead: string[] = [];
+    const filesModified: string[] = [];
+
+    if (session.memory_session_id) {
+      const observations = await this.deps.observations.getBySessionId(session.memory_session_id);
+      observationCount = observations.length;
+
+      // Aggregate files from all observations
+      for (const obs of observations) {
+        if (obs.files_read) {
+          try {
+            const files = JSON.parse(obs.files_read) as string[];
+            for (const f of files) {
+              if (!filesRead.includes(f)) filesRead.push(f);
+            }
+          } catch { /* ignore parse errors */ }
+        }
+        if (obs.files_modified) {
+          try {
+            const files = JSON.parse(obs.files_modified) as string[];
+            for (const f of files) {
+              if (!filesModified.includes(f)) filesModified.push(f);
+            }
+          } catch { /* ignore parse errors */ }
+        }
+      }
+    }
 
     this.success(res, {
       ...session,
       user_prompt: firstPrompt?.prompt_text || null,
       observation_count: observationCount,
       prompt_count: session.prompt_counter ?? 0,
+      files_read: filesRead,
+      files_modified: filesModified,
     });
   }
 
