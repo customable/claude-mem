@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -31,6 +31,7 @@ import {
   InsightsRouter,
   LazyRouter,
   DecisionsRouter,
+  SleepAgentRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -79,6 +80,7 @@ export class BackendService {
   private insightsService: InsightsService | null = null;
   private lazyProcessingService: LazyProcessingService | null = null;
   private decisionService: DecisionService | null = null;
+  private sleepAgentService: SleepAgentService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -286,6 +288,14 @@ export class BackendService {
       // Start scheduled batch processing if enabled
       this.lazyProcessingService.startScheduledProcessing();
 
+      // Initialize sleep agent service for memory consolidation
+      this.sleepAgentService = new SleepAgentService({
+        uow: this.unitOfWork,
+      });
+
+      // Start scheduled consolidation if enabled
+      this.sleepAgentService.startScheduled();
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -383,6 +393,11 @@ export class BackendService {
     // Decisions routes (conflict detection)
     this.app.use('/api/decisions', new DecisionsRouter({
       decisionService: this.decisionService!,
+    }).router);
+
+    // Sleep agent routes (memory consolidation)
+    this.app.use('/api/sleep-agent', new SleepAgentRouter({
+      sleepAgentService: this.sleepAgentService!,
     }).router);
 
     // Finalize app (error handlers)

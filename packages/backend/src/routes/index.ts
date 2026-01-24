@@ -29,3 +29,5 @@ export { LazyRouter } from './lazy.js';
 export type { LazyRouterDeps } from './lazy.js';
 export { DecisionsRouter } from './decisions.js';
 export type { DecisionsRouterDeps } from './decisions.js';
+export { SleepAgentRouter } from './sleep-agent.js';
+export type { SleepAgentRouterDeps } from './sleep-agent.js';

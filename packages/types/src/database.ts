@@ -58,6 +58,11 @@ export interface ObservationTypeConfig {
 export type SessionStatus = 'active' | 'completed' | 'failed';
 
 /**
+ * Memory tier for Sleep Agent
+ */
+export type MemoryTier = 'core' | 'working' | 'archive' | 'ephemeral';
+
+/**
  * SDK Session database record
  */
 export interface SdkSessionRecord {
@@ -111,6 +116,13 @@ export interface ObservationRecord {
   superseded_by?: number;
   supersedes?: number;
   superseded_at?: string;
+  // Memory tiering (Sleep Agent)
+  memory_tier?: MemoryTier;
+  tier_changed_at?: string;
+  access_count?: number;
+  last_accessed_at?: string;
+  last_accessed_at_epoch?: number;
+  consolidation_score?: number;
 }
 
 /**

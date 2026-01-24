@@ -104,6 +104,11 @@ export interface Settings {
   LAZY_BATCH_INTERVAL: number; // seconds, 0 = disabled
   LAZY_PROCESS_ON_SEARCH: boolean;
   LAZY_HYBRID_TYPES: string; // Comma-separated observation types to process in hybrid mode
+
+  // Sleep Agent (memory consolidation)
+  SLEEP_AGENT_ENABLED: boolean;
+  SLEEP_AGENT_INTERVAL: number; // seconds between scheduled runs
+  SLEEP_AGENT_IDLE_TIMEOUT: number; // minutes of inactivity before idle trigger
 }
 
 // ============================================
@@ -200,6 +205,11 @@ export const DEFAULTS: Settings = {
   LAZY_BATCH_INTERVAL: 0, // 0 = disabled, otherwise seconds between batches
   LAZY_PROCESS_ON_SEARCH: true, // Process matching messages when searching
   LAZY_HYBRID_TYPES: 'decision,error', // Types to process in hybrid mode
+
+  // Sleep Agent (memory consolidation)
+  SLEEP_AGENT_ENABLED: false, // Disabled by default
+  SLEEP_AGENT_INTERVAL: 3600, // 1 hour
+  SLEEP_AGENT_IDLE_TIMEOUT: 30, // 30 minutes
 };
 
 // ============================================

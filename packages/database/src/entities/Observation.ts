@@ -89,4 +89,25 @@ export class Observation {
 
   @Property({ nullable: true })
   superseded_at?: string;
+
+  // Memory tiering (for Sleep Agent)
+  @Property({ nullable: true, default: 'working' })
+  @Index()
+  memory_tier?: string; // 'core' | 'working' | 'archive' | 'ephemeral'
+
+  @Property({ nullable: true })
+  tier_changed_at?: string;
+
+  @Property({ nullable: true, default: 0 })
+  access_count?: number;
+
+  @Property({ nullable: true })
+  last_accessed_at?: string;
+
+  @Property({ nullable: true })
+  @Index()
+  last_accessed_at_epoch?: number;
+
+  @Property({ nullable: true })
+  consolidation_score?: number;
 }

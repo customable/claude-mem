@@ -12,3 +12,4 @@ export { Migration20260124000002_CreateCodeSnippetsTable } from './Migration2026
 export { Migration20260124000003_CreateInsightsTables } from './Migration20260124000003_CreateInsightsTables.js';
 export { Migration20260124000004_CreateRawMessagesTable } from './Migration20260124000004_CreateRawMessagesTable.js';
 export { Migration20260124000005_AddDecisionTracking } from './Migration20260124000005_AddDecisionTracking.js';
+export { Migration20260124000006_AddMemoryTiering } from './Migration20260124000006_AddMemoryTiering.js';

@@ -20,3 +20,6 @@ export type { SpawnedWorker, SpawnedWorkerInfo } from './worker-process-manager.
 
 export { DecisionService, createDecisionService } from './decision-service.js';
 export type { DecisionServiceDeps } from './decision-service.js';
+
+export { SleepAgentService, createSleepAgentService } from './sleep-agent-service.js';
+export type { SleepAgentServiceDeps, SleepAgentConfig, SleepAgentStatus, ConsolidationResult } from './sleep-agent-service.js';

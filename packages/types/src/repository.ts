@@ -14,6 +14,7 @@ import type {
   ObservationType,
   DocumentType,
   SessionStatus,
+  MemoryTier,
 } from './database.js';
 
 import type { DecisionCategory } from './decisions.js';
@@ -300,6 +301,49 @@ export interface IObservationRepository {
    * Get decision history (including supersession chain)
    */
   getDecisionHistory(id: number): Promise<ObservationRecord[]>;
+
+  // Memory tier methods (Sleep Agent)
+
+  /**
+   * Get observations by memory tier
+   */
+  getByTier(tier: MemoryTier, options?: {
+    project?: string;
+    limit?: number;
+  }): Promise<ObservationRecord[]>;
+
+  /**
+   * Update memory tier for an observation
+   */
+  updateTier(id: number, tier: MemoryTier): Promise<ObservationRecord | null>;
+
+  /**
+   * Record access to an observation (updates access_count and last_accessed_at)
+   */
+  recordAccess(id: number): Promise<ObservationRecord | null>;
+
+  /**
+   * Get tier distribution counts
+   */
+  getTierCounts(project?: string): Promise<Record<MemoryTier, number>>;
+
+  /**
+   * Get observations eligible for tier demotion
+   */
+  getForDemotion(params: {
+    olderThanDays: number;
+    maxAccessCount: number;
+    limit?: number;
+  }): Promise<ObservationRecord[]>;
+
+  /**
+   * Get observations eligible for promotion to core
+   */
+  getForPromotion(params: {
+    minAccessCount: number;
+    types?: string[];
+    limit?: number;
+  }): Promise<ObservationRecord[]>;
 }
 
 // ============================================
