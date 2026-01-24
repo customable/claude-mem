@@ -51,7 +51,8 @@ export class MikroOrmSessionRepository implements ISessionRepository {
       prompt_counter: 0,
     });
 
-    await this.em.persistAndFlush(entity);
+    this.em.persist(entity);
+    await this.em.flush();
     return toRecord(entity);
   }
 
@@ -153,7 +154,8 @@ export class MikroOrmSessionRepository implements ISessionRepository {
   async delete(id: number): Promise<boolean> {
     const entity = await this.em.findOne(Session, { id });
     if (!entity) return false;
-    await this.em.removeAndFlush(entity);
+    this.em.remove(entity);
+    await this.em.flush();
     return true;
   }
 

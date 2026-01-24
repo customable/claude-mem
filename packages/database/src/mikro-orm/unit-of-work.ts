@@ -38,13 +38,6 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.claudemd = new MikroOrmClaudeMdRepository(em);
   }
 
-  /**
-   * Get the underlying EntityManager
-   */
-  getEntityManager(): SqlEntityManager {
-    return this.transactionEm || this.em;
-  }
-
   async beginTransaction(): Promise<void> {
     if (this.transactionEm) {
       throw new Error('Transaction already in progress');
@@ -77,21 +70,6 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
 
     // Restore original EntityManager
     this.updateRepositoryEm(this.em);
-  }
-
-  /**
-   * Execute a function within a transaction
-   */
-  async withTransaction<T>(fn: () => Promise<T>): Promise<T> {
-    await this.beginTransaction();
-    try {
-      const result = await fn();
-      await this.commit();
-      return result;
-    } catch (error) {
-      await this.rollback();
-      throw error;
-    }
   }
 
   /**
