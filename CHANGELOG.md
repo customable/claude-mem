@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.38.0] - 2026-01-24
+
+### Features
+- Added memory tier methods to `ObservationRepository` for enhanced data handling capabilities.
+
+
 ## [2.37.0] - 2026-01-24
 
 ### Features
