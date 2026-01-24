@@ -120,6 +120,12 @@ export interface Settings {
   CLEANUP_INTERVAL_MS: number; // Cleanup interval in milliseconds
   CLEANUP_STALE_TIMEOUT_MS: number; // Sessions inactive for this duration are completed
   CLEANUP_TASK_AGE_MS: number; // Completed/failed tasks older than this are removed
+
+  // Worker Auto-Restart (Issue #118)
+  WORKER_RESTART_POLICY: 'never' | 'on-failure' | 'always';
+  WORKER_MAX_RESTARTS: number; // Max restarts before giving up (0 = unlimited)
+  WORKER_RESTART_DELAY_MS: number; // Initial delay before restart
+  WORKER_RESTART_BACKOFF_MULTIPLIER: number; // Exponential backoff multiplier
 }
 
 // ============================================
@@ -232,6 +238,12 @@ export const DEFAULTS: Settings = {
   CLEANUP_INTERVAL_MS: 30 * 60 * 1000, // 30 minutes
   CLEANUP_STALE_TIMEOUT_MS: 4 * 60 * 60 * 1000, // 4 hours
   CLEANUP_TASK_AGE_MS: 24 * 60 * 60 * 1000, // 24 hours
+
+  // Worker Auto-Restart (Issue #118)
+  WORKER_RESTART_POLICY: 'on-failure', // Restart workers on crash
+  WORKER_MAX_RESTARTS: 5, // Give up after 5 restarts
+  WORKER_RESTART_DELAY_MS: 3000, // 3 seconds initial delay
+  WORKER_RESTART_BACKOFF_MULTIPLIER: 2, // Double delay each restart
 };
 
 // ============================================
@@ -279,6 +291,9 @@ const NUMBER_KEYS: SettingKey[] = [
   'CLEANUP_INTERVAL_MS',
   'CLEANUP_STALE_TIMEOUT_MS',
   'CLEANUP_TASK_AGE_MS',
+  'WORKER_MAX_RESTARTS',
+  'WORKER_RESTART_DELAY_MS',
+  'WORKER_RESTART_BACKOFF_MULTIPLIER',
 ];
 
 // ============================================

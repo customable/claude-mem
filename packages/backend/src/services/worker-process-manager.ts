@@ -51,6 +51,8 @@ export class WorkerProcessManager extends EventEmitter {
   private pendingTerminations: Set<string> = new Set(); // Spawned IDs queued for termination
   private workerCounter = 0;
   private workerBinaryPath: string | null = null;
+  private restartCounts: Map<string, number> = new Map(); // Provider -> restart count
+  private restartTimers: Map<string, NodeJS.Timeout> = new Map(); // Provider -> pending restart timer
 
   constructor(
     private readonly backendHost: string,
@@ -216,11 +218,17 @@ export class WorkerProcessManager extends EventEmitter {
     });
 
     child.on('exit', (code, signal) => {
-      spawnedWorker.status = code === 0 ? 'stopped' : 'crashed';
+      const crashed = code !== 0;
+      spawnedWorker.status = crashed ? 'crashed' : 'stopped';
       spawnedWorker.exitCode = code ?? undefined;
       this.emit('worker:exited', { id, pid: child.pid, code, signal });
       this.spawnedWorkers.delete(id);
       logger.info(`Worker ${id} exited with code ${code}, signal ${signal}`);
+
+      // Auto-restart logic (Issue #118)
+      if (crashed && !this.pendingTerminations.has(id)) {
+        this.handleWorkerRestart(provider);
+      }
     });
 
     child.on('error', (error) => {
@@ -245,6 +253,84 @@ export class WorkerProcessManager extends EventEmitter {
     });
 
     return { id, pid: child.pid, provider };
+  }
+
+  /**
+   * Handle worker restart after crash (Issue #118)
+   */
+  private handleWorkerRestart(provider: string): void {
+    const settings = loadSettings();
+    const policy = settings.WORKER_RESTART_POLICY;
+
+    // Check restart policy
+    if (policy === 'never') {
+      logger.debug(`Worker restart policy is 'never', not restarting ${provider}`);
+      return;
+    }
+
+    // Get current restart count
+    const restartCount = this.restartCounts.get(provider) || 0;
+    const maxRestarts = settings.WORKER_MAX_RESTARTS;
+
+    // Check max restarts (0 = unlimited)
+    if (maxRestarts > 0 && restartCount >= maxRestarts) {
+      logger.warn(`Worker ${provider} exceeded max restarts (${maxRestarts}), not restarting`);
+      this.emit('worker:max-restarts', { provider, count: restartCount });
+      return;
+    }
+
+    // Calculate delay with exponential backoff
+    const baseDelay = settings.WORKER_RESTART_DELAY_MS;
+    const multiplier = settings.WORKER_RESTART_BACKOFF_MULTIPLIER;
+    const delay = baseDelay * Math.pow(multiplier, restartCount);
+
+    // Cancel any pending restart for this provider
+    const existingTimer = this.restartTimers.get(provider);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+
+    logger.info(`Scheduling worker restart for ${provider} in ${delay}ms (attempt ${restartCount + 1}/${maxRestarts || 'unlimited'})`);
+
+    // Schedule restart
+    const timer = setTimeout(async () => {
+      this.restartTimers.delete(provider);
+      try {
+        await this.spawn({ provider });
+        // Reset restart count on successful spawn
+        // (actual reset happens after worker connects successfully)
+        this.restartCounts.set(provider, restartCount + 1);
+        logger.info(`Worker ${provider} restarted successfully`);
+      } catch (err) {
+        const error = err as Error;
+        logger.error(`Failed to restart worker ${provider}:`, { message: error.message });
+        // Try again with increased count
+        this.restartCounts.set(provider, restartCount + 1);
+        this.handleWorkerRestart(provider);
+      }
+    }, delay);
+
+    this.restartTimers.set(provider, timer);
+  }
+
+  /**
+   * Reset restart count for a provider (call when worker connects successfully)
+   */
+  resetRestartCount(provider: string): void {
+    this.restartCounts.delete(provider);
+    logger.debug(`Reset restart count for provider ${provider}`);
+  }
+
+  /**
+   * Cancel pending restart for a provider
+   */
+  cancelPendingRestart(provider: string): void {
+    const timer = this.restartTimers.get(provider);
+    if (timer) {
+      clearTimeout(timer);
+      this.restartTimers.delete(provider);
+      logger.debug(`Cancelled pending restart for provider ${provider}`);
+    }
   }
 
   /**
@@ -285,6 +371,14 @@ export class WorkerProcessManager extends EventEmitter {
    */
   async terminateAll(): Promise<void> {
     logger.info(`Terminating all ${this.spawnedWorkers.size} spawned workers`);
+
+    // Cancel all pending restarts
+    for (const [provider, timer] of this.restartTimers) {
+      clearTimeout(timer);
+      logger.debug(`Cancelled pending restart for ${provider}`);
+    }
+    this.restartTimers.clear();
+    this.restartCounts.clear();
 
     const promises = Array.from(this.spawnedWorkers.keys()).map((id) =>
       this.terminate(id).catch((err) => {
