@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.18] - 2026-01-24
+
+### Improvements
+- Removed unused SSE methods and event types from both backend and UI components.
+
+
 ## [2.19.17] - 2026-01-24
 
 ### Improvements
