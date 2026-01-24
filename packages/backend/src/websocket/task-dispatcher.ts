@@ -660,14 +660,22 @@ export class TaskDispatcher {
     const toolConfig = TaskDispatcher.DOCUMENTATION_TOOLS[payload.toolName];
     if (!toolConfig) return;
 
-    const content = payload.toolOutput;
-    if (!content || content.length < 100) {
+    const rawContent = payload.toolOutput;
+    if (!rawContent || rawContent.length < 100) {
       logger.debug(`Tool output too short to store as document: ${payload.toolName}`);
       return;
     }
 
     try {
-      // Generate content hash for deduplication
+      // Parse JSON response if applicable (Issue #234)
+      const { content, url, metadata: jsonMetadata } = this.parseDocumentContent(rawContent);
+
+      if (!content || content.length < 50) {
+        logger.debug(`Parsed content too short to store as document: ${payload.toolName}`);
+        return;
+      }
+
+      // Generate content hash for deduplication (use parsed content)
       const contentHash = createHash('sha256').update(content).digest('hex');
 
       // Check if document with same hash already exists
@@ -682,14 +690,18 @@ export class TaskDispatcher {
       // Extract source identifier from tool input
       const source = toolConfig.extractSource(payload.toolInput);
 
-      // Extract title from the content (first line or first heading)
-      const title = this.extractDocumentTitle(content, source);
+      // Use URL as title if available, otherwise extract from content
+      const title = url || this.extractDocumentTitle(content, source);
 
       // Build metadata
       const metadata: Record<string, unknown> = {
         query: this.extractQuery(payload.toolInput),
         toolInput: payload.toolInput.slice(0, 500), // Store truncated input for reference
+        ...jsonMetadata, // Include parsed metadata (bytes, code, durationMs)
       };
+      if (url) {
+        metadata.url = url;
+      }
 
       // Create the document
       const document = await this.documents.create({
@@ -711,6 +723,40 @@ export class TaskDispatcher {
       logger.warn(`Failed to store document for ${payload.toolName}:`, { message: err.message });
       // Don't throw - document storage failure shouldn't fail the observation
     }
+  }
+
+  /**
+   * Parse document content from raw tool output (Issue #234)
+   * Handles JSON responses from WebFetch/Context7 by extracting the result field
+   */
+  private parseDocumentContent(rawContent: string): {
+    content: string;
+    url?: string;
+    metadata?: Record<string, unknown>;
+  } {
+    // Try to parse as JSON
+    try {
+      const parsed = JSON.parse(rawContent);
+
+      // Check if it's a WebFetch/Context7 JSON response format
+      if (typeof parsed === 'object' && parsed !== null) {
+        // Extract the actual content from 'result' field
+        const content = typeof parsed.result === 'string' ? parsed.result : rawContent;
+        const url = typeof parsed.url === 'string' ? parsed.url : undefined;
+
+        // Collect metadata fields
+        const metadata: Record<string, unknown> = {};
+        if (typeof parsed.bytes === 'number') metadata.bytes = parsed.bytes;
+        if (typeof parsed.code === 'number') metadata.code = parsed.code;
+        if (typeof parsed.durationMs === 'number') metadata.durationMs = parsed.durationMs;
+
+        return { content, url, metadata: Object.keys(metadata).length > 0 ? metadata : undefined };
+      }
+    } catch {
+      // Not JSON, use as-is
+    }
+
+    return { content: rawContent };
   }
 
   /**
