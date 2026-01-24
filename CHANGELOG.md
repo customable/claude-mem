@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.48.1] - 2026-01-24
+
+### Features
+- Implemented response caching for expensive API endpoints to improve performance.
+
+
 ## [2.48.0] - 2026-01-24
 
 ### Features
