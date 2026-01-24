@@ -164,4 +164,3 @@ export interface DocumentRecord {
   created_at: string;
   created_at_epoch: number;
 }
-
