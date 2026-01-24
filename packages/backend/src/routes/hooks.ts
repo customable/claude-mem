@@ -231,8 +231,9 @@ export class HooksRouter extends BaseRouter {
     if (session.project) {
       await this.deps.taskService.queueClaudeMd({
         project: session.project,
-        sessionId: contentSessionId,
-        trigger: 'pre-compact',
+        contentSessionId,
+        memorySessionId: session.memory_session_id || contentSessionId,
+        workingDirectory: session.working_directory,
       });
     }
 

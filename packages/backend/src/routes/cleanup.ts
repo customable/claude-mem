@@ -22,7 +22,7 @@ export class CleanupRouter extends BaseRouter {
     this.setupRoutes();
   }
 
-  private setupRoutes(): void {
+  protected setupRoutes(): void {
     /**
      * GET /api/cleanup/stats
      * Get cleanup statistics
