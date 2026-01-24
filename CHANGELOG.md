@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.14] - 2026-01-24
+
+### Improvements
+- Removed unused constants from `constants.ts` in the shared module to streamline the codebase.
+
+
 ## [2.19.13] - 2026-01-24
 
 ### Improvements
