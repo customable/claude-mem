@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.47.1] - 2026-01-24
+
+### Bug Fixes
+- Fixed an issue where `Set` was not being converted to an array in capability distribution, which could cause unexpected behavior in the UI.
+
+
 ## [2.47.0] - 2026-01-24
 
 ### Features
