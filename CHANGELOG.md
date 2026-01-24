@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.43.2] - 2026-01-24
+
+### Bug Fixes
+- Fixed undefined result type in executeSemanticSearch
+
+
 ## [2.43.1] - 2026-01-24
 
 ### Bug Fixes
