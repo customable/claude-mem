@@ -40,9 +40,9 @@
 
 ## Key Insights
 
-- **Pre-compact Event Implementation**: A major feature addition with multiple components: new event type, handler implementation, registry updates, and documentation. This addresses Issue #73 for memory compaction.
-- **Hook System Architecture**: Comprehensive discovery of the event-driven architecture with EVENT_MAP translating between fork-style and monorepo events, and a well-structured handler registry.
-- **Critical Bug Fix**: Fixed hook registration path (hooks.json vs settings.json) resolving issue #231 with incorrect path expansion.
-- **Backend Integration**: The pre-compact handler integrates with backend services for context preservation before compaction operations.
-- **Installation Improvements**: Smart install script enhancements for dependency management and hook registration.
+- **Pre-compact hook implementation**: A major feature addition with new event type, handler, and backend integration to preserve context before compaction (Issue #73).
+- **Event system architecture**: Discovered the EVENT_MAP translation layer between fork-style and monorepo events, and the extensible hook handler registry.
+- **Critical bug fixes**: Fixed hook registration path (hooks.json vs settings.json) and addressed CJS/ESM compatibility issues.
+- **Backend integration**: Enhanced backend client with health checks, authentication, and graceful degradation patterns.
+- **Cleanup service**: New service for automatic and manual cleanup of sessions, integrated with SSE events and UI.
 </claude-mem-context>

@@ -177,42 +177,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14641 | 10:48 PM | 🔵 | TypeScript type check passes | ~834 |
-| #14640 | 10:47 PM | 🟠 | Added 'pre-compact' event to EVENT_MAP | ~3345 |
+| #14655 | 10:50 PM | 🟣 | Pushed commits to remote | ~770 |
+| #14654 | 10:49 PM | 🟣 | Rebased onto forgejo/main | ~1012 |
+| #14653 | 10:49 PM | 🔵 | Git status: diverged branches | ~897 |
+| #14652 | 10:49 PM | 🔵 | Uncommitted CLAUDE.md changes | ~916 |
+| #14651 | 10:49 PM | 🟣 | Committed CLAUDE.md updates | ~809 |
+| #14650 | 10:49 PM | 🔵 | Modified CLAUDE.md files | ~884 |
+| #14649 | 10:49 PM | 🟠 | Implemented PreCompact hook | ~1080 |
+| #14648 | 10:49 PM | 🟣 | Staged files for Issue #73 | ~834 |
+| #14647 | 10:48 PM | 🟠 | Show file details in session | ~855 |
+| #14646 | 10:48 PM | 🟠 | Process/memory leak prevention | ~1096 |
+| #14645 | 10:48 PM | 🟣 | Staged files for Issue #94 | ~705 |
+| #14644 | 10:48 PM | 🟣 | Staged files for Issue #101 | ~888 |
+| #14643 | 10:48 PM | 🔵 | Multiple modified files | ~1392 |
+| #14642 | 10:48 PM | 🔵 | Issue #101 changes analysis | ~1002 |
+| #14641 | 10:48 PM | ✅ | TypeScript check passed | ~834 |
+| #14640 | 10:47 PM | 🟠 | Added 'pre-compact' event | ~3345 |
 | #14639 | 10:47 PM | 🔵 | Plugin entry point structure | ~1363 |
-| #14638 | 10:47 PM | 🟣 | Task 3 status updated | ~702 |
-| #14637 | 10:46 PM | 🔄 | Refactored pre-compact event broadcasting | ~4669 |
-| #14636 | 10:46 PM | 🟠 | Added pre-compact event to docs | ~3203 |
-| #14635 | 10:46 PM | 🟠 | Added pre-compact event mapping | ~3486 |
+| #14638 | 10:46 PM | ✅ | Task 3 completed | ~702 |
+| #14637 | 10:46 PM | 🔄 | Refactored event broadcasting | ~4669 |
+| #14636 | 10:46 PM | 🟠 | Added pre-compact event docs | ~3203 |
+| #14635 | 10:46 PM | 🟠 | Added pre-compact event map | ~3486 |
 | #14634 | 10:46 PM | 🔵 | EVENT_MAP discovery | ~1357 |
-| #14633 | 10:45 PM | 🔵 | Pre-compact hook implementation | ~1669 |
+| #14633 | 10:45 PM | 🔵 | Pre-compact hook found | ~1669 |
 | #14632 | 10:45 PM | 🔵 | Located hooks.json | ~736 |
-| #14631 | 10:45 PM | 🔵 | Plugin entry point structure | ~1607 |
+| #14631 | 10:45 PM | 🔵 | Plugin CLI structure | ~1607 |
 | #14629 | 10:45 PM | 🔵 | Located worker-service.cjs | ~719 |
 | #14627 | 10:45 PM | 🟠 | Added PreCompact hook | ~2634 |
 | #14626 | 10:45 PM | 🔵 | SSE Broadcaster Service | ~2177 |
-| #14624 | 10:45 PM | 🔵 | Hooks configuration | ~1423 |
+| #14624 | 10:45 PM | 🔵 | Hook system configuration | ~1423 |
 | #14623 | 10:45 PM | 🔵 | SSE Broadcaster structure | ~1619 |
-| #14622 | 10:45 PM | 🟠 | Added pre-compact hook endpoint | ~4633 |
-| #14621 | 10:45 PM | 🟠 | Added 'session:pre-compact' event | ~3486 |
-| #14620 | 10:44 PM | 🟠 | Added broadcastPreCompact method | ~3555 |
-| #14618 | 10:44 PM | 🔵 | Repository pattern | ~2121 |
-| #14617 | 10:44 PM | 🔄 | Simplified pre-compact handling | ~4797 |
-| #14615 | 10:44 PM | 🟠 | Added recordPreCompact method | ~4786 |
-| #14613 | 10:44 PM | 🔵 | Found last_pre_compact references | ~714 |
-| #14612 | 10:43 PM | 🔵 | Stop hook handler functionality | ~1735 |
-| #14610 | 10:43 PM | 🔵 | Session Service Architecture | ~3603 |
-| #14609 | 10:43 PM | 🔵 | Located hooks route file | ~680 |
-| #14608 | 10:43 PM | 🟠 | Added pre-compact hook endpoint | ~3396 |
-| #14607 | 10:43 PM | 🔵 | Hooks Router Implementation | ~2515 |
-| #14606 | 10:43 PM | 🟠 | Added 'pre-compact' handler | ~1698 |
-| #14604 | 10:42 PM | 🔵 | Hook handlers registry | ~1403 |
 
 ## Key Insights
 
-- **Pre-compact event system implemented**: Added new 'pre-compact' event handling across multiple components (EVENT_MAP, SSE broadcaster, hooks.json, and API endpoints) to support context preservation before memory compaction (Issue #73).
-- **Refactored event broadcasting**: Simplified `recordPreCompact` method to focus on SSE broadcasting, removing redundant session updates while maintaining project context in broadcasts.
-- **TypeScript validation**: Confirmed the entire monorepo passes TypeScript type checking, ensuring codebase stability.
-- **Discovered core architecture**: Identified key components like the repository pattern for data access, SSE broadcaster for real-time updates, and EVENT_MAP for fork-style to monorepo event translation.
-- **Task completion**: Task 3 marked as completed, indicating progress in the project timeline.
+- **PreCompact Hook Implementation**: Successfully added a new PreCompact hook feature with backend endpoints, SSE events, and handler registration (Issue #73). This preserves context before memory compaction.
+- **File Tracking in Sessions**: Enhanced session view to display file details (Issue #94), aggregating files_read and files_modified from observations in the backend and UI.
+- **Cleanup Service**: Implemented a comprehensive cleanup service (Issue #101) to prevent process/memory leaks, with configurable settings, API endpoints, and automatic cleanup capabilities.
+- **Event System Enhancement**: Refactored event broadcasting logic and added new event mappings (e.g., 'pre-compact') to extend the plugin's event-driven architecture.
+- **Repository Pattern**: Discovered and utilized the repository pattern for data access, ensuring consistent and maintainable data handling across the project.
 </claude-mem-context>
