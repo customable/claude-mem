@@ -69,4 +69,3 @@ export interface TaskRequirements {
   /** Fallback capabilities if primary not available */
   fallbackCapabilities?: WorkerCapability[];
 }
-
