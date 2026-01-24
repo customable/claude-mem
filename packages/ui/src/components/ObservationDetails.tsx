@@ -52,14 +52,14 @@ export function ObservationDetails({
           <div className="tabs tabs-box tabs-xs">
             <button
               className={`tab ${viewMode === 'narrative' ? 'tab-active' : ''}`}
-              onClick={() => setViewMode('narrative')}
+              onClick={(e) => { e.stopPropagation(); setViewMode('narrative'); }}
             >
               <span className="iconify ph--text-align-left size-3 mr-1" />
               Narrative
             </button>
             <button
               className={`tab ${viewMode === 'facts' ? 'tab-active' : ''}`}
-              onClick={() => setViewMode('facts')}
+              onClick={(e) => { e.stopPropagation(); setViewMode('facts'); }}
             >
               <span className="iconify ph--list-bullets size-3 mr-1" />
               Details

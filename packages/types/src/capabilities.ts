@@ -33,15 +33,6 @@ export type WorkerCapability =
   | 'claudemd:generate';
 
 /**
- * Capability configuration with optional metadata
- */
-export interface CapabilityConfig {
-  capability: WorkerCapability;
-  priority?: number;  // Higher = preferred for this task type
-  maxConcurrent?: number;  // Max concurrent tasks of this type
-}
-
-/**
  * Worker registration info
  */
 export interface WorkerRegistration {
@@ -79,40 +70,3 @@ export interface TaskRequirements {
   fallbackCapabilities?: WorkerCapability[];
 }
 
-/**
- * Check if a worker can handle given requirements
- */
-export function canWorkerHandle(
-  worker: ConnectedWorker,
-  requirements: TaskRequirements
-): boolean {
-  if (worker.capabilities.includes(requirements.requiredCapability)) {
-    return true;
-  }
-  if (requirements.fallbackCapabilities) {
-    return requirements.fallbackCapabilities.some(cap =>
-      worker.capabilities.includes(cap)
-    );
-  }
-  return false;
-}
-
-/**
- * Get the capability that a worker will use for given requirements
- */
-export function getMatchingCapability(
-  worker: ConnectedWorker,
-  requirements: TaskRequirements
-): WorkerCapability | null {
-  if (worker.capabilities.includes(requirements.requiredCapability)) {
-    return requirements.requiredCapability;
-  }
-  if (requirements.fallbackCapabilities) {
-    for (const cap of requirements.fallbackCapabilities) {
-      if (worker.capabilities.includes(cap)) {
-        return cap;
-      }
-    }
-  }
-  return null;
-}
