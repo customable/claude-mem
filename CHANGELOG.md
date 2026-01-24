@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.8] - 2026-01-24
+
+### Bug Fixes
+- Removed unused exports from `capabilities.ts` to clean up the codebase.
+
+### Improvements
+- Refactored `capabilities.ts` to eliminate unnecessary exports, improving maintainability.
+
+
 ## [2.19.7] - 2026-01-24
 
 ### Bug Fixes
