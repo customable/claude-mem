@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.47.2] - 2026-01-24
+
+### Bug Fixes
+- Fixed React Hooks rule violation by moving `useMemo` before early returns in the UI component.
+
+
 ## [2.47.1] - 2026-01-24
 
 ### Bug Fixes
