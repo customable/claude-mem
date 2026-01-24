@@ -15,6 +15,8 @@ import {
   requestIdMiddleware,
   requestLoggerMiddleware,
   metricsMiddleware,
+  standardLimiter,
+  speedLimiter,
 } from '../middleware/index.js';
 
 const logger = createLogger('app');
@@ -60,6 +62,12 @@ export function createApp(options: AppOptions = {}): Application {
 
   // Prometheus metrics collection (Issue #209)
   app.use(metricsMiddleware);
+
+  // Rate limiting (Issue #205)
+  // Global standard rate limit: 100 requests per minute
+  app.use('/api', standardLimiter);
+  // Speed limiter: gradually slow down after 50 requests
+  app.use('/api', speedLimiter);
 
   // Authentication (applied to all /api routes)
   if (options.authToken) {

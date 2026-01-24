@@ -21,3 +21,13 @@ export { metricsMiddleware } from './metrics.js';
 
 export { withCache, noCache, cacheHeaders } from './cache.js';
 export type { CacheMiddlewareOptions } from './cache.js';
+
+export {
+  standardLimiter,
+  expensiveLimiter,
+  searchLimiter,
+  speedLimiter,
+  workerSpawnLimiter,
+  projectLimiter,
+  adminLimiter,
+} from './rate-limit.js';

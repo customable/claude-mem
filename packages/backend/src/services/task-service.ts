@@ -32,11 +32,14 @@ const logger = createLogger('task-service');
 export interface TaskServiceOptions {
   defaultMaxRetries?: number;
   defaultPriority?: number;
+  /** Maximum pending tasks before rejecting new tasks (backpressure - Issue #205) */
+  maxPendingTasks?: number;
 }
 
 export class TaskService {
   private readonly defaultMaxRetries: number;
   private readonly defaultPriority: number;
+  private readonly maxPendingTasks: number;
 
   constructor(
     private readonly taskQueue: ITaskQueueRepository,
@@ -48,6 +51,26 @@ export class TaskService {
   ) {
     this.defaultMaxRetries = options.defaultMaxRetries ?? 3;
     this.defaultPriority = options.defaultPriority ?? 50;
+    this.maxPendingTasks = options.maxPendingTasks ?? 1000;
+  }
+
+  /**
+   * Check queue backpressure (Issue #205)
+   * Throws if queue is full to prevent overload
+   */
+  private async checkBackpressure(): Promise<void> {
+    const counts = await this.taskQueue.countByStatus();
+    const pendingCount = counts.pending + counts.assigned + counts.processing;
+
+    if (pendingCount >= this.maxPendingTasks) {
+      logger.warn('Task queue full, rejecting new task', {
+        pending: counts.pending,
+        assigned: counts.assigned,
+        processing: counts.processing,
+        maxPendingTasks: this.maxPendingTasks,
+      });
+      throw new Error('Task queue full, please try again later');
+    }
   }
 
   /**
@@ -65,6 +88,7 @@ export class TaskService {
     targetDirectory?: string;
     preferredProvider?: string;
   }): Promise<ObservationTask> {
+    await this.checkBackpressure();
     const capability = this.resolveCapability('observation', params.preferredProvider);
     const fallbacks = this.getFallbackCapabilities('observation', capability);
 
@@ -101,6 +125,7 @@ export class TaskService {
     project: string;
     preferredProvider?: string;
   }): Promise<SummarizeTask> {
+    await this.checkBackpressure();
     const capability = this.resolveCapability('summarize', params.preferredProvider);
     const fallbacks = this.getFallbackCapabilities('summarize', capability);
 
@@ -150,6 +175,7 @@ export class TaskService {
     observationIds: number[];
     preferredProvider?: string;
   }): Promise<EmbeddingTask> {
+    await this.checkBackpressure();
     const capability = this.resolveCapability('embedding', params.preferredProvider);
     const fallbacks = this.getFallbackCapabilities('embedding', capability);
 
@@ -178,6 +204,7 @@ export class TaskService {
     query?: string;
     limit?: number;
   }): Promise<ContextGenerateTask> {
+    await this.checkBackpressure();
     // Load recent observations for the project
     let observations: Array<{
       title: string;
@@ -229,6 +256,7 @@ export class TaskService {
     workingDirectory?: string;
     targetDirectory?: string;
   }): Promise<ClaudeMdTask> {
+    await this.checkBackpressure();
     // Load recent observations for the project
     // If targetDirectory is specified, filter to observations from that directory
     let observations: Array<{

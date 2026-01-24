@@ -38,6 +38,12 @@ import {
   CleanupRouter,
   MetricsRouter,
 } from '../routes/index.js';
+import {
+  expensiveLimiter,
+  searchLimiter,
+  workerSpawnLimiter,
+  adminLimiter,
+} from '../middleware/index.js';
 
 const logger = createLogger('backend');
 
@@ -372,6 +378,17 @@ export class BackendService {
    */
   private registerRoutes(): void {
     if (!this.app) return;
+
+    // Apply specific rate limiters to expensive routes (Issue #205)
+    this.app.use('/api/search', searchLimiter);
+    this.app.use('/api/data/analytics', expensiveLimiter);
+    this.app.use('/api/export', expensiveLimiter);
+    this.app.use('/api/import', expensiveLimiter);
+    this.app.use('/api/insights', expensiveLimiter);
+    this.app.use('/api/sleep-agent', expensiveLimiter);
+    this.app.use('/api/workers/spawn', workerSpawnLimiter);
+    this.app.use('/api/admin', adminLimiter);
+    this.app.use('/api/cleanup', adminLimiter);
 
     // Hooks routes
     this.app.use('/api/hooks', new HooksRouter({
