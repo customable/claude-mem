@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.19.4] - 2026-01-24
+
+### Bug Fixes
+- Stop event propagation on observation tab buttons
+
+### Improvements
+- Add Node.js tool cache
+- Test runner cache after config update
+- Test cache after enabling Forgejo cache server
+- Add explicit pnpm cache using actions/cache
+
+
 ## [2.19.3] - 2026-01-24
 
 ### Bug Fixes
