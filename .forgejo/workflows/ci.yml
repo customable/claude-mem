@@ -19,8 +19,8 @@ jobs:
       - name: Check if skip
         id: check
         run: |
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" =~ ^chore\(release\): ]]; then
+          COMMIT_MSG="${{ github.event.head_commit.message || '' }}"
+          if [[ -n "$COMMIT_MSG" && "$COMMIT_MSG" =~ ^chore\(release\): ]]; then
             echo "Skipping CI for release commit"
             echo "skip=true" >> $GITHUB_OUTPUT
           fi
