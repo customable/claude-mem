@@ -23,3 +23,6 @@ export type { DecisionServiceDeps } from './decision-service.js';
 
 export { SleepAgentService, createSleepAgentService } from './sleep-agent-service.js';
 export type { SleepAgentServiceDeps, SleepAgentConfig, SleepAgentStatus, ConsolidationResult } from './sleep-agent-service.js';
+
+export { SuggestionService } from './suggestion-service.js';
+export type { SuggestionServiceOptions, SuggestionContext, Suggestion, SuggestionFeedback } from './suggestion-service.js';

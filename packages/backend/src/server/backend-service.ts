@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -32,6 +32,7 @@ import {
   LazyRouter,
   DecisionsRouter,
   SleepAgentRouter,
+  SuggestionsRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -81,6 +82,7 @@ export class BackendService {
   private lazyProcessingService: LazyProcessingService | null = null;
   private decisionService: DecisionService | null = null;
   private sleepAgentService: SleepAgentService | null = null;
+  private suggestionService: SuggestionService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -296,6 +298,11 @@ export class BackendService {
       // Start scheduled consolidation if enabled
       this.sleepAgentService.startScheduled();
 
+      // Initialize suggestion service for AI-powered memory suggestions
+      this.suggestionService = new SuggestionService({
+        observations: this.unitOfWork.observations,
+      });
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -401,6 +408,11 @@ export class BackendService {
     // Sleep agent routes (memory consolidation)
     this.app.use('/api/sleep-agent', new SleepAgentRouter({
       sleepAgentService: this.sleepAgentService!,
+    }).router);
+
+    // Suggestions routes (AI-powered memory suggestions)
+    this.app.use('/api/suggestions', new SuggestionsRouter({
+      suggestionService: this.suggestionService!,
     }).router);
 
     // Finalize app (error handlers)
