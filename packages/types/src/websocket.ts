@@ -175,4 +175,3 @@ export type ConnectionState =
   | 'reconnecting'
   | 'disconnected'
   | 'error';
-

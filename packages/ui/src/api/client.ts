@@ -144,6 +144,32 @@ export interface SpawnStatus {
   canSpawnMore: boolean;
 }
 
+export type DocumentType =
+  | 'library-docs'
+  | 'web-content'
+  | 'api-reference'
+  | 'code-example'
+  | 'tutorial'
+  | 'custom';
+
+export interface Document {
+  id: number;
+  project: string;
+  source: string;
+  source_tool: string;
+  title: string | null;
+  content: string;
+  content_hash: string;
+  type: DocumentType;
+  metadata: string | null;
+  memory_session_id: string | null;
+  observation_id: number | null;
+  access_count: number;
+  last_accessed_epoch: number;
+  created_at: string;
+  created_at_epoch: number;
+}
+
 export interface Stats {
   sessions: number;
   observations: number;
@@ -314,4 +340,33 @@ export const api = {
     const queryStr = query.toString();
     return get<{ entries: Array<{ timestamp: number; level: string; context: string; message: string; data?: unknown }> }>(`/logs${queryStr ? '?' + queryStr : ''}`);
   },
+
+  // Documents
+  getDocuments: (params?: Record<string, string | number>) => {
+    const query = new URLSearchParams();
+    if (params) {
+      for (const [key, val] of Object.entries(params)) {
+        query.set(key, String(val));
+      }
+    }
+    const queryStr = query.toString();
+    return get<{ data: Document[]; total: number }>(`/data/documents${queryStr ? '?' + queryStr : ''}`).then(res => ({
+      items: res.data || [],
+      total: res.total,
+    }));
+  },
+  getDocument: (id: number) => get<Document>(`/data/documents/${id}`),
+  searchDocuments: (params: { q: string; project?: string; type?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    query.set('q', params.q);
+    if (params.project) query.set('project', params.project);
+    if (params.type) query.set('type', params.type);
+    if (params.limit) query.set('limit', String(params.limit));
+    if (params.offset) query.set('offset', String(params.offset));
+    return get<{ data: Document[]; query: string }>(`/data/documents/search?${query.toString()}`).then(res => ({
+      items: res.data || [],
+      query: res.query,
+    }));
+  },
+  deleteDocument: (id: number) => del<void>(`/data/documents/${id}`),
 };

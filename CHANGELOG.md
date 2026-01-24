@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.19.24] - 2026-01-24
+
+### Bug Fixes
+- Migrated MCP server from deprecated `Server` to `McpServer` to ensure compatibility with the latest API.
+
+
+## [2.19.23] - 2026-01-24
+
+### Improvements
+- Removed unused exports from `websocket.ts` to clean up the type definitions.
+
+
+## [2.19.22] - 2026-01-24
+
+### Improvements
+- Removed unused exports from `capabilities.ts` to streamline the type definitions.
+
+
 ## [2.19.21] - 2026-01-24
 
 ### Improvements
