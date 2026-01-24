@@ -17,6 +17,7 @@ export type SSEEventType =
   | 'prompt:new'
   | 'session:started'
   | 'session:ended'
+  | 'session:pre-compact'
   | 'observation:created'
   | 'observation:queued'
   | 'summary:created'
@@ -265,6 +266,16 @@ export class SSEBroadcaster {
     this.broadcast({
       type: 'claudemd:ready',
       data,
+    });
+  }
+
+  /**
+   * Broadcast pre-compact event (Issue #73)
+   */
+  broadcastPreCompact(sessionId: string, project: string): void {
+    this.broadcast({
+      type: 'session:pre-compact',
+      data: { sessionId, project },
     });
   }
 

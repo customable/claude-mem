@@ -14,6 +14,7 @@
  *   session-init -> user-prompt-submit
  *   observation  -> post-tool-use
  *   summarize    -> stop
+ *   pre-compact  -> pre-compact (Issue #73)
  */
 
 import { spawn } from 'child_process';
@@ -38,6 +39,7 @@ const EVENT_MAP: Record<string, HookEvent> = {
   'session-init': 'user-prompt-submit',
   'observation': 'post-tool-use',
   'summarize': 'stop',
+  'pre-compact': 'pre-compact',
 };
 
 /**
@@ -250,6 +252,7 @@ Events:
   session-init Session initialization
   observation  Tool use observation
   summarize    Session summary/stop
+  pre-compact  Before context compaction (Issue #73)
 
 Examples:
   bun worker-service.cjs start

@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14362 | 10:10 PM | 🔵 | User prompt submission handler with secret detection | ~1661 |
-| #14361 | 10:10 PM | 🔵 | Understanding the stop hook handler functionality | ~1757 |
-| #14359 | 10:10 PM | 🔵 | Hook Handlers Registry Structure | ~1368 |
-| #14357 | 10:10 PM | 🔵 | Post-tool-use handler for observation extraction | ~2570 |
-| #14355 | 10:10 PM | 🔵 | Session Start Handler Implementation Review | ~3273 |
-| #14075 | 9:31 PM | 🔴 | Removed redundant settings load in worker transition | ~2877 |
-| #14069 | 9:29 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2590 |
-| #14064 | 9:28 PM | 🟠 | Add in-process worker transition logic to post-tool-use handler | ~3485 |
-| #14060 | 9:27 PM | 🟠 | Add worker lifecycle transition to post-tool-use handler | ~2807 |
-| #14050 | 9:25 PM | 🔵 | Post-tool-use handler for observation extraction | ~2379 |
-| #14029 | 9:22 PM | 🔵 | Understanding the stop hook handler functionality | ~1771 |
-| #14022 | 9:22 PM | 🔵 | Session Start Handler Implementation Review | ~3288 |
-| #14012 | 9:21 PM | 🔵 | Session Start Handler Implementation Review | ~3256 |
-| #14011 | 9:21 PM | 🔵 | Hook Handlers Registry Structure | ~1358 |
-| #14010 | 9:20 PM | 🔵 | Understanding the stop hook handler functionality | ~1754 |
-| #13208 | 6:27 PM | 🟠 | Add secret detection and redaction to user prompt submit handler | ~4056 |
-| #13181 | 6:20 PM | 🔵 | User prompt submission handler initializes backend session | ~1209 |
-| #13179 | 6:19 PM | 🟠 | Added secret detection to user prompt handling | ~2857 |
-| #13177 | 6:19 PM | 🟠 | Added secret detection utilities to user-prompt-submit handler | ~1717 |
-| #13176 | 6:19 PM | 🟠 | Added secret detection and redaction to tool observations | ~4258 |
-| #13175 | 6:19 PM | 🟠 | Added secret detection utilities to post-tool-use handler | ~2542 |
-| #13174 | 6:19 PM | 🔵 | Post-tool-use handler sends observations to backend | ~2043 |
-| #13164 | 6:17 PM | 🔵 | Session start handler fetches project context from API | ~1160 |
-| #13158 | 6:17 PM | 🔄 | Conditional Query Parameter Construction for API Request | ~4158 |
-| #13111 | 6:07 PM | 🔵 | User prompt submission handler initializes backend sessions | ~1409 |
-| #13108 | 6:07 PM | 🔵 | Session Start Handler Implementation Analysis | ~3232 |
-| #13077 | 6:03 PM | 🔄 | Added safe repository info retrieval and updated spawnSseWriter signature | ~3587 |
-| #13075 | 6:02 PM | 🔵 | UserPromptSubmit handler initializes backend sessions | ~1202 |
-| #13073 | 6:02 PM | 🟠 | Added Git repository info collection for worktree support | ~2165 |
-| #13072 | 6:02 PM | 🟠 | Added getRepoInfo import to user-prompt-submit handler | ~1527 |
+| #14612 | 10:43 PM | 🔵 | Understanding stop hook handler | ~1735 |
+| #14606 | 10:43 PM | 🟠 | Added 'pre-compact' handler | ~1698 |
+| #14604 | 10:42 PM | 🔵 | Hook handlers registry structure | ~1403 |
+| #14603 | 10:42 PM | 🟠 | Added handlePreCompact import | ~1798 |
+| #14602 | 10:42 PM | 🟠 | Add handlePreCompact export | ~1654 |
+| #14600 | 10:42 PM | 🟠 | Implemented pre-compact handler | ~2227 |
+| #14480 | 10:31 PM | 🔵 | Session Start Handler Review | ~3325 |
+| #14466 | 10:30 PM | 🔵 | Hook Handlers Registry | ~1383 |
+| #14464 | 10:30 PM | 🔵 | Post-tool-use handler processes | ~2574 |
+| #14413 | 10:17 PM | 🔵 | Hook Handlers Registry | ~1364 |
+| #14362 | 10:10 PM | 🔵 | User prompt handler with secrets | ~1661 |
+| #14361 | 10:10 PM | 🔵 | Understanding stop hook handler | ~1757 |
+| #14359 | 10:10 PM | 🔵 | Hook Handlers Registry | ~1368 |
+| #14357 | 10:10 PM | 🔵 | Post-tool-use handler | ~2570 |
+| #14355 | 10:10 PM | 🔵 | Session Start Handler Review | ~3273 |
+| #14075 | 9:31 PM | 🔴 | Removed redundant settings load | ~2877 |
+| #14069 | 9:29 PM | 🔵 | Post-tool-use handler processes | ~2590 |
+| #14064 | 9:28 PM | 🟠 | Add in-process worker transition | ~3485 |
+| #14060 | 9:27 PM | 🟠 | Add worker lifecycle transition | ~2807 |
+| #14050 | 9:25 PM | 🔵 | Post-tool-use handler | ~2379 |
+| #14029 | 9:22 PM | 🔵 | Understanding stop hook handler | ~1771 |
+| #14022 | 9:22 PM | 🔵 | Session Start Handler Review | ~3288 |
+| #14012 | 9:21 PM | 🔵 | Session Start Handler Review | ~3256 |
+| #14011 | 9:20 PM | 🔵 | Hook Handlers Registry | ~1358 |
+| #14010 | 9:20 PM | 🔵 | Understanding stop hook handler | ~1754 |
+| #13208 | 6:27 PM | 🟠 | Add secret detection to prompts | ~4056 |
+| #13181 | 6:20 PM | 🔵 | User prompt handler initializes | ~1209 |
+| #13179 | 6:19 PM | 🟠 | Added secret detection to prompts | ~2857 |
+| #13177 | 6:19 PM | 🟠 | Added secret detection utilities | ~1717 |
+| #13176 | 6:19 PM | 🟠 | Added secret detection to tools | ~4258 |
 
 ## Key Insights
 
-- **Secret Detection Integration**: Major focus on implementing secret detection across handlers (user-prompt-submit, post-tool-use), with redaction capabilities and configurable modes.
-- **Worker Architecture Enhancements**: Added in-process worker transition logic and lifecycle management to post-tool-use handlers, supporting multiple worker modes (spawn, in-process, hybrid).
-- **Repository Context Handling**: Improved Git repository information collection (including worktree support) and safe retrieval methods for session initialization.
-- **Hook Handler Architecture**: Comprehensive discovery of the hook handler registry structure with core events (session-start, user-prompt-submit, post-tool-use, stop) and their respective functionalities.
-- **Code Quality Improvements**: Refactored API request handling (conditional query parameters) and removed redundant operations (settings load in worker transitions).
+- **Pre-compact handler implemented**: New `pre-compact` hook handler added to preserve context before automatic compaction, integrating with backend for observation extraction and compaction event recording.
+- **Secret detection enhanced**: Comprehensive secret detection and redaction added to both user prompt handlers and post-tool-use handlers, with configurable modes (skip/redact).
+- **Worker lifecycle management**: Post-tool-use handler now includes worker transition logic, supporting both in-process and background worker modes.
+- **Hook system architecture**: Discovered and documented the centralized hook handlers registry supporting session lifecycle events (start, prompt, tool-use, stop, end).
+- **Performance optimization**: Removed redundant settings loading in worker transitions, eliminating unnecessary function calls.
 </claude-mem-context>

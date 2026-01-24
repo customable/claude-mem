@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14640 | 10:47 PM | 🟠 | Added 'pre-compact' event to EVENT_MAP | ~3345 |
+| #14639 | 10:47 PM | 🔵 | Plugin entry point structure and event mapping | ~1363 |
+| #14636 | 10:46 PM | 🟠 | Added pre-compact event to plugin entry documentation | ~3203 |
+| #14635 | 10:46 PM | 🟠 | Added pre-compact event mapping for Issue #73 | ~3486 |
+| #14634 | 10:46 PM | 🔵 | EVENT_MAP maps fork-style events to monorepo events | ~1357 |
+| #14631 | 10:45 PM | 🔵 | Discovered plugin entry point structure and CLI commands | ~1607 |
+| #14612 | 10:43 PM | 🔵 | Understanding the stop hook handler functionality | ~1735 |
+| #14606 | 10:43 PM | 🟠 | Added 'pre-compact' handler to default handlers registry | ~1698 |
+| #14604 | 10:42 PM | 🔵 | Hook handlers registry structure discovered | ~1403 |
+| #14603 | 10:42 PM | 🟠 | Added handlePreCompact import to handlers index | ~1798 |
+| #14602 | 10:42 PM | 🟠 | Add handlePreCompact handler export | ~1654 |
+| #14600 | 10:42 PM | 🟠 | Implemented pre-compact hook handler | ~2227 |
+| #14593 | 10:41 PM | 🟠 | Added 'pre-compact' event to HookEvent type | ~1736 |
+| #14591 | 10:41 PM | 🔵 | Hook system types and structure discovered | ~1529 |
+| #14491 | 10:32 PM | 🔵 | Hook Runner Implementation Analysis | ~1592 |
+| #14490 | 10:32 PM | 🔵 | Backend Client Implementation Analysis | ~1541 |
+| #14480 | 10:31 PM | 🔵 | Session Start Handler Implementation Review | ~3325 |
+| #14466 | 10:30 PM | 🔵 | Hook Handlers Registry Structure | ~1383 |
+| #14465 | 10:30 PM | 🔵 | Hook system types and structure | ~1532 |
+| #14464 | 10:30 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2574 |
+| #14436 | 10:21 PM | 🔵 | Smart Install Script for claude-mem | ~2072 |
+| #14435 | 10:20 PM | 🔴 | Fix hook registration to use hooks.json instead of settings.json | ~6267 |
+| #14434 | 10:20 PM | 🟠 | Add HOOKS_PATH constant for hooks.json file | ~2297 |
+| #14433 | 10:20 PM | 🔵 | Smart Install Script for claude-mem | ~2116 |
 | #14413 | 10:17 PM | 🔵 | Hook Handlers Registry Structure | ~1364 |
-| #14375 | 10:11 PM | 🔵 | Hook system types and structure | ~1521 |
-| #14374 | 10:11 PM | 🔵 | Backend Client Implementation | ~2089 |
-| #14366 | 10:11 PM | 🔵 | Plugin entry point structure | ~2864 |
-| #14364 | 10:11 PM | 🔵 | Hooks package exports | ~886 |
-| #14362 | 10:10 PM | 🔵 | User prompt submission handler | ~1661 |
-| #14361 | 10:10 PM | 🔵 | Stop hook handler functionality | ~1757 |
-| #14360 | 10:10 PM | 🔵 | Worker Lifecycle Manager | ~2286 |
-| #14359 | 10:10 PM | 🔵 | Hook Handlers Registry | ~1368 |
-| #14358 | 10:10 PM | 🔵 | Hook Runner Module | ~2156 |
-| #14357 | 10:10 PM | 🔵 | Post-tool-use handler | ~2570 |
-| #14355 | 10:10 PM | 🔵 | Session Start Handler | ~3273 |
-| #14075 | 9:31 PM | 🔴 | Removed redundant settings load | ~2877 |
-| #14071 | 9:29 PM | 🔵 | Worker lifecycle management | ~1049 |
-| #14070 | 9:29 PM | 🔴 | Add missing type annotation | ~2462 |
-| #14069 | 9:29 PM | 🔵 | Post-tool-use handler processes | ~2590 |
-| #14064 | 9:28 PM | 🟠 | Add worker transition logic | ~3485 |
-| #14061 | 9:28 PM | 🟠 | Worker Lifecycle Manager | ~3733 |
-| #14060 | 9:27 PM | 🟠 | Add worker lifecycle transition | ~2807 |
-| #14050 | 9:25 PM | 🔵 | Post-tool-use handler | ~2379 |
-| #14042 | 9:23 PM | 🔵 | SSE Writer Component | ~3492 |
-| #14032 | 9:22 PM | 🔵 | Hook runner implementation | ~2105 |
-| #14029 | 9:22 PM | 🔵 | Stop hook handler | ~1771 |
-| #14022 | 9:22 PM | 🔵 | Session Start Handler | ~3288 |
-| #14021 | 9:22 PM | 🔵 | Plugin entry point architecture | ~2853 |
-| #14013 | 9:21 PM | 🔵 | Exported functions in hooks | ~987 |
-| #14012 | 9:21 PM | 🔵 | Session Start Handler | ~3256 |
-| #14011 | 9:21 PM | 🔵 | Hook Handlers Registry | ~1358 |
-| #14010 | 9:20 PM | 🔵 | Stop hook handler | ~1754 |
-| #14003 | 9:20 PM | 🔵 | Hook runner implementation | ~2114 |
+| #14375 | 10:11 PM | 🔵 | Hook system types and structure discovered | ~1521 |
+| #14374 | 10:11 PM | 🔵 | Backend Client Implementation Analysis | ~2089 |
+| #14366 | 10:11 PM | 🔵 | Plugin entry point structure and backend management | ~2864 |
+| #14364 | 10:11 PM | 🔵 | Exploring hooks package exports | ~886 |
+| #14362 | 10:10 PM | 🔵 | User prompt submission handler with secret detection | ~1661 |
 
 ## Key Insights
 
-- **Hook System Architecture**: The hook system is well-structured with handlers for session-start, user-prompt-submit, post-tool-use, and stop events. It integrates with backend services and supports session lifecycle management.
-- **Worker Lifecycle Management**: A Worker Lifecycle Manager has been implemented to transition from hook processes to in-process workers, ensuring only one process becomes a worker using a lock mechanism.
-- **Subagent Absence**: Despite database fields suggesting potential support, subagent functionality is not implemented in the codebase. This requires further investigation or implementation planning.
-- **SSE Writer Component**: A standalone SSE Writer process handles backend SSE events and writes CLAUDE.md files, validating session IDs and project directories.
-- **Recent Fixes**: Bug fixes include removing redundant settings loads and adding missing type annotations, improving code maintainability and performance.
+- **Pre-compact Hook Implementation**: A major feature addition with multiple components: new event type (`pre-compact`), handler implementation, EVENT_MAP integration, and documentation. This addresses Issue #73 for memory compaction.
+- **Hook System Architecture**: Comprehensive discovery of the event-driven architecture with session lifecycle events, handler registry, and backend integration.
+- **Critical Bug Fix**: Hook registration now correctly uses `hooks.json` instead of `settings.json`, resolving path expansion issues.
+- **Backend Integration**: The system relies heavily on backend communication for session management, secret detection, and context preservation.
+- **Installation Improvements**: Smart install script handles dependency management and hook registration with version checking.
 </claude-mem-context>

@@ -13,7 +13,8 @@ export type HookEvent =
   | 'user-prompt-submit'
   | 'post-tool-use'
   | 'stop'
-  | 'session-end';
+  | 'session-end'
+  | 'pre-compact';
 
 /**
  * Normalized hook input (platform-agnostic)

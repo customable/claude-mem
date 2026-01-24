@@ -326,4 +326,21 @@ export class SessionService {
 
     return this.sessions.delete(session.id);
   }
+
+  /**
+   * Record a pre-compact event (Issue #73)
+   * Called before Claude Code compacts the context
+   */
+  async recordPreCompact(contentSessionId: string): Promise<void> {
+    const session = await this.sessions.findByContentSessionId(contentSessionId);
+    if (!session) {
+      logger.warn(`Session not found for pre-compact: ${contentSessionId}`);
+      return;
+    }
+
+    // Broadcast pre-compact event for monitoring/debugging
+    this.sseBroadcaster.broadcastPreCompact(contentSessionId, session.project);
+
+    logger.info(`Pre-compact event recorded for session ${session.id} (${session.project})`);
+  }
 }

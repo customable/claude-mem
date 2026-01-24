@@ -38,6 +38,9 @@ export class HooksRouter extends BaseRouter {
 
     // Summary trigger
     this.router.post('/summarize', this.asyncHandler(this.summarize.bind(this)));
+
+    // Pre-compact hook (Issue #73)
+    this.router.post('/pre-compact', this.asyncHandler(this.preCompact.bind(this)));
   }
 
   /**
@@ -195,6 +198,48 @@ export class HooksRouter extends BaseRouter {
     this.success(res, {
       success: true,
       taskId: task.id,
+    });
+  }
+
+  /**
+   * POST /api/hooks/pre-compact
+   * Called before Claude Code compacts the context (Issue #73)
+   * Preserves context by extracting unprocessed observations
+   */
+  private async preCompact(req: Request, res: Response): Promise<void> {
+    // Accept both sessionId (new) and contentSessionId (legacy)
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    const session = await this.deps.sessionService.getSession(contentSessionId);
+    if (!session) {
+      // Session not found - allow compaction (fail-open)
+      this.success(res, {
+        success: true,
+        observationsExtracted: 0,
+        blockCompaction: false,
+      });
+      return;
+    }
+
+    // Record pre-compact event in session
+    await this.deps.sessionService.recordPreCompact(contentSessionId);
+
+    // Queue CLAUDE.md generation to preserve context before compaction
+    if (session.project) {
+      await this.deps.taskService.queueClaudeMd({
+        project: session.project,
+        sessionId: contentSessionId,
+        trigger: 'pre-compact',
+      });
+    }
+
+    this.success(res, {
+      success: true,
+      observationsExtracted: 0,
+      blockCompaction: false,
     });
   }
 }

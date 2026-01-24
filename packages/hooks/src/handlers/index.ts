@@ -10,6 +10,7 @@ import { handleSessionStart } from './session-start.js';
 import { handleUserPromptSubmit } from './user-prompt-submit.js';
 import { handlePostToolUse } from './post-tool-use.js';
 import { handleStop } from './stop.js';
+import { handlePreCompact } from './pre-compact.js';
 
 /**
  * Default handler registry
@@ -21,6 +22,7 @@ const defaultHandlers: HookHandlerRegistry = {
   'stop': handleStop,
   // session-end can use the same as stop, or be customized
   'session-end': handleStop,
+  'pre-compact': handlePreCompact,
 };
 
 /**
@@ -58,3 +60,4 @@ export { handleSessionStart } from './session-start.js';
 export { handleUserPromptSubmit } from './user-prompt-submit.js';
 export { handlePostToolUse } from './post-tool-use.js';
 export { handleStop } from './stop.js';
+export { handlePreCompact } from './pre-compact.js';
