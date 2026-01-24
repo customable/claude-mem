@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13791 | 8:42 PM | 🟠 | Expanded achievement system | ~8284 |
-| #13790 | 8:41 PM | 🔵 | Achievement system structure | ~1592 |
-| #13784 | 8:38 PM | 🔴 | Fallback for empty daily stats | ~5078 |
-| #13780 | 8:38 PM | 🟠 | Added fallback logic | ~5056 |
-| #13766 | 8:33 PM | 🔴 | Fix insights token tracking | ~4407 |
-| #13748 | 8:29 PM | 🔴 | Fallback to observations | ~4893 |
-| #13743 | 8:27 PM | 🔵 | Insights Service review | ~3887 |
-| #13731 | 8:26 PM | 🔵 | No "insight" in SSE broadcaster | ~718 |
-| #13730 | 8:26 PM | 🔵 | Searching for SSE patterns | ~734 |
-| #13621 | 7:34 PM | 🟠 | Added InsightsService export | ~1157 |
-| #13620 | 7:34 PM | 🔵 | Backend services overview | ~1034 |
-| #13610 | 7:33 PM | 🟠 | Create Insights Service | ~6194 |
-| #13607 | 7:32 PM | 🔵 | Session Service analysis | ~3623 |
-| #13400 | 7:03 PM | 🔵 | Worker Process Manager review | ~4352 |
-| #13349 | 6:51 PM | 🔄 | Remove unused settings load | ~4331 |
-| #13347 | 6:51 PM | 🔵 | Found loadSettings usage | ~763 |
-| #13346 | 6:51 PM | 🔵 | Worker binary path detection | ~1304 |
-| #13291 | 6:41 PM | 🟠 | Added broadcastTaskProgress | ~3418 |
-| #13290 | 6:41 PM | 🟠 | Add 'task:progress' event | ~3125 |
-| #13288 | 6:41 PM | 🔵 | SSE Broadcaster service | ~2760 |
-| #13091 | 6:05 PM | 🟠 | Add Git worktree support | ~3952 |
-| #13085 | 6:04 PM | 🟠 | Add Git worktree support | ~4084 |
-| #13081 | 6:04 PM | 🔵 | Session Service analysis | ~3537 |
-| #13078 | 6:03 PM | 🔵 | Session Service analysis | ~3546 |
-| #12561 | 11:15 AM | 🔵 | SSE Broadcaster service | ~2932 |
-| #12559 | 11:15 AM | 🔄 | Removed unused SSE methods | ~3466 |
-| #12558 | 11:15 AM | 🔄 | Remove 'processing:status' | ~3176 |
-| #12535 | 11:12 AM | 🔵 | Session Service analysis | ~3939 |
-| #12529 | 11:12 AM | 🔵 | Path module usage found | ~745 |
-| #12528 | 11:12 AM | 🔄 | Removed getWorkingDirectories | ~5439 |
+| #13981 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~4183 |
+| #13954 | 9:14 PM | 🔵 | Sleep Agent Service for Memory Consolidation | ~3632 |
+| #13946 | 9:13 PM | 🟠 | Added SleepAgentService exports to services index | ~1486 |
+| #13943 | 9:12 PM | 🔵 | Backend services structure overview | ~956 |
+| #13937 | 9:11 PM | 🟠 | Created Sleep Agent Service for memory consolidation | ~5853 |
+| #13893 | 9:03 PM | 🟠 | Added DecisionService exports to services index | ~1294 |
+| #13892 | 9:03 PM | 🔵 | Backend services structure overview | ~984 |
+| #13891 | 9:02 PM | 🟠 | Created Decision Service for conflict detection | ~3762 |
+| #13859 | 8:57 PM | 🔴 | Fix error logging in lazy-processing-service | ~3277 |
+| #13855 | 8:57 PM | 🔴 | Fix logger.error call to use structured error object | ~3286 |
+| #13854 | 8:57 PM | 🔴 | Fix error logging in scheduled batch processing | ~3273 |
+| #13853 | 8:56 PM | 🔵 | Lazy Processing Service Implementation Details | ~1678 |
+| #13852 | 8:56 PM | 🟠 | Added LazyProcessingService exports to services index | ~1401 |
+| #13851 | 8:55 PM | 🔵 | Backend services index file structure | ~1036 |
+| #13839 | 8:54 PM | 🟠 | Created Lazy Processing Service for token-efficient message handling | ~5154 |
+| #13791 | 8:42 PM | 🟠 | Expanded achievement system with new categories and tiers | ~8284 |
+| #13790 | 8:41 PM | 🔵 | Achievement system structure discovered | ~1592 |
+| #13784 | 8:38 PM | 🔴 | Fallback for empty daily stats in activity heatmap | ~5078 |
+| #13780 | 8:38 PM | 🟠 | Added fallback logic for empty daily stats | ~5056 |
+| #13766 | 8:33 PM | 🔴 | Fix insights summary token tracking logic | ~4407 |
+| #13748 | 8:29 PM | 🔴 | Fallback to observations when daily stats are empty | ~4893 |
+| #13743 | 8:27 PM | 🔵 | Insights Service Architecture Review | ~3887 |
+| #13731 | 8:26 PM | 🔵 | No "insight" references in SSE broadcaster service | ~718 |
+| #13730 | 8:26 PM | 🔵 | Searching for real-time communication patterns in InsightsService | ~734 |
+| #13621 | 7:34 PM | 🟠 | Added InsightsService export to services index | ~1157 |
+| #13620 | 7:34 PM | 🔵 | Backend services structure overview | ~1034 |
+| #13610 | 7:33 PM | 🟠 | Create Insights Service with Achievement System | ~6194 |
+| #13607 | 7:32 PM | 🔵 | Session Service Architecture Analysis | ~3623 |
+| #13400 | 7:03 PM | 🔵 | Worker Process Manager Architecture Review | ~4352 |
+| #13349 | 6:51 PM | 🔄 | Remove unused settings load in detectWorkerBinaryPath | ~4331 |
 
 ## Key Insights
 
-- **Achievement System Expansion**: The achievement system was significantly expanded with new categories (sessions, tokens, discoveries, special achievements) and additional tiers, enhancing user engagement.
-- **Fallback Mechanisms**: Multiple fixes were implemented to handle cases where daily stats are empty, ensuring the system always returns meaningful data by falling back to observations.
-- **Real-Time Updates**: Added support for real-time progress updates via SSE broadcasting, including a new 'task:progress' event type.
-- **Git Worktree Support**: Added support for Git worktree functionality in session creation, allowing sessions to work with different branches and repositories.
-- **Code Cleanup**: Several refactoring efforts were made to remove unused methods and code, improving code maintainability.
+- **Memory Tiering System**: Implemented SleepAgentService for memory consolidation with tier promotion/demotion (core, working, archive, ephemeral) and cleanup functionality.
+- **Worker Architecture**: WorkerProcessManager oversees worker lifecycle (spawn, exit, error) via WebSocket, with no "InProcessWorker" implementation found.
+- **Error Handling**: Multiple fixes for error logging in lazy-processing-service, ensuring consistent structured error objects.
+- **Achievement System**: Expanded with 70+ achievements across sessions, tokens, discoveries, and special categories to enhance user engagement.
+- **Fallback Mechanisms**: Added robust fallback logic for empty daily stats in insights and activity heatmap to ensure data consistency.
 </claude-mem-context>

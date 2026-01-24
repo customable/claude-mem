@@ -109,6 +109,11 @@ export interface Settings {
   SLEEP_AGENT_ENABLED: boolean;
   SLEEP_AGENT_INTERVAL: number; // seconds between scheduled runs
   SLEEP_AGENT_IDLE_TIMEOUT: number; // minutes of inactivity before idle trigger
+
+  // In-Process Worker
+  WORKER_MODE: 'spawn' | 'in-process' | 'hybrid';
+  IN_PROCESS_WORKER_TIMEOUT: number; // minutes - max runtime for in-process worker
+  IN_PROCESS_WORKER_IDLE_EXIT: number; // seconds - exit after idle
 }
 
 // ============================================
@@ -210,6 +215,11 @@ export const DEFAULTS: Settings = {
   SLEEP_AGENT_ENABLED: false, // Disabled by default
   SLEEP_AGENT_INTERVAL: 3600, // 1 hour
   SLEEP_AGENT_IDLE_TIMEOUT: 30, // 30 minutes
+
+  // In-Process Worker
+  WORKER_MODE: 'spawn', // 'spawn' | 'in-process' | 'hybrid'
+  IN_PROCESS_WORKER_TIMEOUT: 30, // 30 minutes max runtime
+  IN_PROCESS_WORKER_IDLE_EXIT: 120, // 2 minutes idle timeout
 };
 
 // ============================================
@@ -251,6 +261,8 @@ const NUMBER_KEYS: SettingKey[] = [
   'CLAUDEMD_TASK_TIMEOUT',
   'CLAUDEMD_MAX_SUBDIRS',
   'LAZY_BATCH_INTERVAL',
+  'IN_PROCESS_WORKER_TIMEOUT',
+  'IN_PROCESS_WORKER_IDLE_EXIT',
 ];
 
 // ============================================

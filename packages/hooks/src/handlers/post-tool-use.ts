@@ -17,6 +17,7 @@ import {
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
+import { maybeTransitionToWorker } from '../worker-lifecycle.js';
 
 const logger = createLogger('hook:post-tool-use');
 
@@ -179,6 +180,26 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
 
     if (response.queued) {
       logger.debug(`Observation queued: ${response.taskId}`);
+    }
+
+    // Try to become an in-process worker (if configured)
+    // This is non-blocking - if we can't become a worker, we just return
+    // If we do become a worker, this will block until the worker exits
+    if (settings.WORKER_MODE !== 'spawn') {
+      // Run in background - don't block the hook response
+      // The worker will start after the hook completes
+      setImmediate(async () => {
+        try {
+          const transitioned = await maybeTransitionToWorker();
+          if (transitioned) {
+            // Worker completed - exit the process
+            process.exit(0);
+          }
+        } catch (err) {
+          const error = err as Error;
+          logger.debug('Worker transition failed:', { message: error.message });
+        }
+      });
     }
 
     return success();

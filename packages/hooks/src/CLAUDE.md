@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13042 | 5:54 PM | 🔄 | Migrate MCP server tool registration to Zod | ~7090 |
-| #13040 | 5:53 PM | 🔵 | MCP Server Implementation for Memory Search | ~3021 |
-| #13036 | 5:52 PM | 🔵 | MCP Server Implementation Analysis | ~3355 |
-| #13032 | 5:51 PM | 🔄 | Migrate MCP server from Server to McpServer | ~7171 |
-| #13029 | 5:50 PM | 🔵 | MCP Server Migration in Progress | ~4239 |
-| #12805 | 12:01 PM | 🔄 | Remove Bun dependency, switch to npm | ~6315 |
-| #12792 | 12:00 PM | 🔄 | Remove uv support from smart-install.js | ~7702 |
-| #12789 | 11:59 AM | 🔵 | Smart Install Script Analysis | ~4720 |
-| #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call | ~2241 |
-| #12656 | 11:30 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2253 |
-| #12653 | 11:30 AM | 🔵 | Understanding target directory extraction | ~1055 |
-| #12649 | 11:29 AM | 🔄 | Remove unused logger import | ~2322 |
-| #12645 | 11:29 AM | 🔄 | Remove duplicate isReady method | ~2498 |
-| #12644 | 11:29 AM | 🔵 | Backend Client Implementation Analysis | ~2174 |
-| #12423 | 10:57 AM | 🔄 | Refactor MCP server to use new SDK API | ~6580 |
-| #12421 | 10:57 AM | 🔵 | API Endpoints and Error Handling | ~1338 |
-| #12417 | 10:56 AM | 🔵 | MCP Server Implementation for Memory Tools | ~2534 |
-| #12410 | 10:55 AM | 🔵 | Backend Client Implementation Analysis | ~2206 |
-| #12409 | 10:55 AM | 🔄 | Remove duplicate isReady method | ~2505 |
-| #12408 | 10:55 AM | 🔄 | Remove unused logger import | ~2322 |
-| #12397 | 10:53 AM | 🔵 | Post-tool-use handler sends observations | ~1992 |
-| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory function call | ~2229 |
-| #12395 | 10:53 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2269 |
-| #12243 | 10:31 AM | 🔴 | Add authentication header to save_memory | ~3594 |
-| #12242 | 10:31 AM | 🔵 | MCP Server Implementation Analysis | ~2985 |
-| #12241 | 10:30 AM | 🟠 | Add JWT authentication to backend API | ~3826 |
-| #12240 | 10:30 AM | 🟠 | Add remote backend support | ~4625 |
-| #12239 | 10:30 AM | 🔵 | MCP Server Implementation Overview | ~1521 |
-| #12193 | 10:24 AM | 🔵 | Exploring MCP entry tools definition | ~1001 |
-| #12142 | 10:18 AM | 🔵 | SSE writer process spawning mechanism | ~1151 |
+| #14042 | 9:23 PM | 🔵 | Understanding SSE Writer Component | ~3492 |
+| #14032 | 9:22 PM | 🔵 | Examined hook runner implementation | ~2105 |
+| #14029 | 9:22 PM | 🔵 | Understanding stop hook handler | ~1771 |
+| #14022 | 9:22 PM | 🔵 | Session Start Handler Review | ~3288 |
+| #14021 | 9:22 PM | 🔵 | Plugin entry point architecture | ~2853 |
+| #14013 | 9:21 PM | 🔵 | Exported functions in hooks package | ~987 |
+| #14012 | 9:21 PM | 🔵 | Session Start Handler Review | ~3256 |
+| #14011 | 9:21 PM | 🔵 | Hook Handlers Registry Structure | ~1358 |
+| #14010 | 9:20 PM | 🔵 | Understanding stop hook handler | ~1754 |
+| #14003 | 9:20 PM | 🔵 | Examining hook runner implementation | ~2114 |
+| #13991 | 9:20 PM | 🔵 | Backend Client Implementation | ~2079 |
+| #13979 | 9:20 PM | 🔵 | SSE Writer Process for CLAUDE.md | ~3521 |
+| #13977 | 9:20 PM | 🔵 | Plugin entry point architecture | ~2844 |
+| #13412 | 7:04 PM | 🟠 | Added backend process imports | ~2399 |
+| #13405 | 7:03 PM | 🟠 | Implemented backend auto-start | ~5516 |
+| #13402 | 7:03 PM | 🔵 | Backend Client Implementation | ~2064 |
+| #13399 | 7:02 PM | 🔵 | Plugin entry point for hooks | ~2024 |
+| #13208 | 6:27 PM | 🟠 | Added secret detection to prompts | ~4056 |
+| #13181 | 6:20 PM | 🔵 | User prompt submission handler | ~1209 |
+| #13179 | 6:19 PM | 🟠 | Added secret detection to prompts | ~2857 |
+| #13177 | 6:19 PM | 🟠 | Added secret detection utilities | ~1717 |
+| #13176 | 6:19 PM | 🟠 | Added secret detection to tools | ~4258 |
+| #13175 | 6:19 PM | 🟠 | Added secret detection utilities | ~2542 |
+| #13174 | 6:19 PM | 🔵 | Post-tool-use handler analysis | ~2043 |
+| #13164 | 6:17 PM | 🔵 | Session start handler analysis | ~1160 |
+| #13158 | 6:17 PM | 🔄 | Refactored API query parameters | ~4158 |
+| #13111 | 6:07 PM | 🔵 | User prompt submission handler | ~1409 |
+| #13108 | 6:07 PM | 🔵 | Session Start Handler Review | ~3232 |
+| #13077 | 6:03 PM | 🔄 | Refactored repository info handling | ~3587 |
+| #13075 | 6:02 PM | 🔵 | UserPromptSubmit handler analysis | ~1202 |
 
 ## Key Insights
 
-- **MCP Server Migration**: Major refactoring from deprecated `Server` to `McpServer` with Zod validation for improved type safety and input validation.
-- **Dependency Cleanup**: Removed Bun and uv dependencies, switching to npm for installation, and cleaned up unused imports/parameters across multiple files.
-- **Authentication Enhancements**: Added JWT authentication support for backend API calls, ensuring secure communication with remote services.
-- **Backend Client Refactoring**: Removed duplicate methods (`isReady`) and unused logger imports, streamlining the `BackendClient` implementation.
-- **Merge Conflict Resolution**: Multiple PR branches had merge conflicts (e.g., settings.ts, database.ts) that were resolved, enabling clean merges into main.
+- **SSE Writer Component**: Standalone Node.js process for CLAUDE.md management with validation and event handling.
+- **Hook System**: Centralized event handling with default handlers for core events (session-start, user-prompt-submit, etc.).
+- **Secret Detection**: Added to user prompts and tool observations with configurable detection modes.
+- **Backend Integration**: Auto-start functionality and health checks for backend processes.
+- **Refactoring**: Improved API query parameter construction and repository info handling.
 </claude-mem-context>

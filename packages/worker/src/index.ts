@@ -7,6 +7,9 @@
 // Worker Service
 export { WorkerService, type WorkerServiceConfig } from './worker-service.js';
 
+// In-Process Worker
+export { InProcessWorker, type InProcessWorkerOptions } from './in-process-worker.js';
+
 // Agents
 export * from './agents/index.js';
 

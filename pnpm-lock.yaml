@@ -103,6 +103,9 @@ importers:
       '@claude-mem/types':
         specifier: workspace:*
         version: link:../types
+      '@claude-mem/worker':
+        specifier: workspace:*
+        version: link:../worker
       '@modelcontextprotocol/sdk':
         specifier: ^1.0.0
         version: 1.25.3(hono@4.11.5)(zod@4.3.6)

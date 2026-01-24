@@ -21,3 +21,6 @@ export * from './git-utils.js';
 
 // Secret Detection
 export * from './secret-detector.js';
+
+// Worker Lock
+export * from './worker-lock.js';

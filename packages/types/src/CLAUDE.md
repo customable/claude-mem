@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13712 | 8:13 PM | 🔵 | Identified key interfaces in repository.ts | ~877 |
-| #13711 | 8:13 PM | 🔵 | Identified repository-related types in types package | ~763 |
-| #13710 | 8:13 PM | 🔵 | Exploring shared TypeScript types structure | ~1046 |
-| #13703 | 8:12 PM | 🔵 | Merge conflict detected in IUnitOfWork interface | ~1150 |
-| #13702 | 8:12 PM | 🔴 | Resolved merge conflict in repository interface | ~5370 |
-| #13680 | 8:09 PM | 🔴 | Resolved merge conflict in repository.ts | ~5434 |
-| #13671 | 8:08 PM | 🔵 | Repository Pattern Implementation in claude-mem | ~5306 |
-| #13603 | 7:32 PM | 🔵 | Unit of Work Pattern Implementation | ~1141 |
-| #13571 | 7:30 PM | 🔵 | Repository Pattern Implementation Analysis | ~5176 |
-| #13569 | 7:30 PM | 🟠 | Added learning insights repositories to Unit of Work interface | ~5603 |
-| #13561 | 7:28 PM | 🟠 | Added learning insights types export to types index | ~1191 |
-| #13560 | 7:28 PM | 🟠 | Added comprehensive learning insights types and interfaces | ~4857 |
-| #13559 | 7:27 PM | 🔵 | Exploring shared TypeScript types structure | ~996 |
-| #13494 | 7:18 PM | 🔵 | Code Snippet Repository Interface Structure | ~1568 |
-| #13485 | 7:17 PM | 🔵 | Discovered CodeSnippet repository interface in types package | ~1056 |
-| #13479 | 7:17 PM | 🔵 | No "CodeSnippet" references found in types package | ~714 |
-| #13454 | 7:12 PM | 🟠 | Added Code Snippet Repository Interface | ~6099 |
-| #13449 | 7:11 PM | 🔵 | Unit of Work Pattern Implementation | ~1079 |
-| #13433 | 7:09 PM | 🔵 | Found ObservationType references in database.ts | ~814 |
-| #13425 | 7:08 PM | 🔵 | Database model types for claude-mem | ~1451 |
-| #13383 | 7:00 PM | 🔵 | Repository Pattern Implementation in claude-mem | ~5272 |
-| #13292 | 6:41 PM | 🔵 | No SSE or EventType references in types package | ~722 |
-| #13285 | 6:40 PM | 🔵 | Search for SSEEventType yields no results in types package | ~729 |
-| #13132 | 6:13 PM | 🔵 | DocumentRecord interface structure | ~1024 |
-| #13130 | 6:13 PM | 🔵 | Repository Pattern Implementation | ~5147 |
-| #13129 | 6:13 PM | 🔵 | Database model types for claude-mem | ~2057 |
-| #13096 | 6:06 PM | 🟠 | Add Git worktree support to ObservationRecord | ~2977 |
-| #13095 | 6:06 PM | 🟠 | Added Git worktree support to SdkSessionRecord | ~2769 |
-| #13093 | 6:05 PM | 🔵 | Database model types for claude-mem | ~2224 |
-| #13084 | 6:04 PM | 🟠 | Add Git worktree support to UpdateSessionInput | ~5394 |
+| #14047 | 9:24 PM | 🔵 | Worker Capabilities System Overview | ~1341 |
+| #14039 | 9:23 PM | 🔵 | Worker Capabilities System Overview | ~1349 |
+| #14038 | 9:23 PM | 🔵 | Exploring shared TypeScript types | ~1047 |
+| #14036 | 9:23 PM | 🔵 | WebSocket Protocol Types | ~1869 |
+| #14027 | 9:22 PM | 🔵 | No TypeScript type files found | ~726 |
+| #13996 | 9:20 PM | 🔵 | WebSocket Protocol Types | ~1893 |
+| #13989 | 9:20 PM | 🔵 | WebSocket message types discovered | ~722 |
+| #13935 | 9:10 PM | 🟠 | Add MemoryTier import | ~5202 |
+| #13934 | 9:10 PM | 🔵 | Decision management repository | ~1227 |
+| #13932 | 9:10 PM | 🟠 | Memory Tier Methods Added | ~5632 |
+| #13930 | 9:09 PM | 🟠 | Memory tiering fields added | ~2762 |
+| #13927 | 9:09 PM | 🟠 | MemoryTier type added | ~2453 |
+| #13925 | 9:09 PM | 🔵 | Database model types | ~1853 |
+| #13887 | 9:02 PM | 🔵 | Database model types | ~2053 |
+| #13885 | 9:01 PM | 🟠 | Decision tracking fields added | ~3047 |
+| #13884 | 9:01 PM | 🔵 | Repository Pattern Implementation | ~5250 |
+| #13882 | 9:01 PM | 🟠 | Decision tracking methods added | ~5585 |
+| #13881 | 9:01 PM | 🟠 | DecisionCategory field added | ~5330 |
+| #13880 | 9:01 PM | 🟠 | DecisionCategory import added | ~5240 |
+| #13878 | 9:00 PM | 🟠 | Decision tracking types export | ~1070 |
+| #13877 | 9:00 PM | 🟠 | Decision tracking types created | ~1890 |
+| #13876 | 9:00 PM | 🔵 | Shared TypeScript types structure | ~1018 |
+| #13829 | 8:51 PM | 🟠 | RawMessages repository added | ~5301 |
+| #13828 | 8:51 PM | 🟠 | Raw Message Repository Interface | ~6010 |
+| #13826 | 8:51 PM | 🔵 | Repository interfaces discovered | ~2073 |
+| #13825 | 8:51 PM | 🔵 | Repository Pattern Implementation | ~1435 |
+| #13823 | 8:51 PM | 🔵 | Document/User Prompt Repositories | ~1904 |
+| #13783 | 8:38 PM | 🔵 | ISessionRepository interface | ~1915 |
+| #13777 | 8:37 PM | 🔵 | Observation Repository Interface | ~1112 |
+| #13776 | 8:37 PM | 🟠 | getTimelineStats method added | ~5256 |
 
 ## Key Insights
 
-- **Repository Pattern & Unit of Work**: The project uses a robust repository pattern with a Unit of Work implementation, supporting multiple database backends (SQLite, PostgreSQL, MySQL). This abstraction layer centralizes access to repositories like sessions, observations, and summaries.
-- **Learning Insights Dashboard**: A new feature was added with comprehensive analytics capabilities, including daily stats, technology usage tracking, and achievements. This required extending the Unit of Work interface and adding new repository interfaces.
-- **Code Snippets Feature**: A parallel development effort introduced a code snippet management system with CRUD operations, requiring resolution of merge conflicts in the repository interfaces.
-- **Git Worktree Support**: Enhanced session management with optional fields (`repo_path`, `is_worktree`, `branch`) to support Git worktree functionality.
-- **Merge Conflicts Resolved**: Multiple merge conflicts were detected and resolved, particularly in the `IUnitOfWork` interface and repository implementations, ensuring smooth integration of new features.
+- **Worker Architecture**: Workers register capabilities via WebSocket, backend assigns tasks. No "InProcessWorker" implementation found.
+- **Memory Tiering**: Added MemoryTier type and fields (core/working/archive/ephemeral) to support Sleep Agent functionality.
+- **Decision Tracking**: Enhanced repository interfaces with decision management (conflict detection, supersession tracking).
+- **Repository Pattern**: Comprehensive CRUD interfaces for sessions, observations, documents, and raw messages.
+- **WebSocket Protocol**: Defined message types for authentication, task management, and heartbeats between backend and workers.
 </claude-mem-context>

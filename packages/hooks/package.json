@@ -15,6 +15,7 @@
   "dependencies": {
     "@claude-mem/shared": "workspace:*",
     "@claude-mem/types": "workspace:*",
+    "@claude-mem/worker": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "eventsource": "^3.0.6"
   },

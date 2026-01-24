@@ -7,40 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13073 | 6:02 PM | 🟠 | Added Git repo info collection | ~2165 |
-| #13072 | 6:02 PM | 🟠 | Added getRepoInfo import | ~1527 |
-| #13071 | 6:02 PM | 🟠 | Add repo info to SSE writer | ~3381 |
-| #13070 | 6:02 PM | 🟠 | Add Git repo info support | ~4813 |
-| #13069 | 6:02 PM | 🔵 | Session Start Handler Analysis | ~2945 |
-| #13068 | 6:01 PM | 🟠 | Add getRepoInfo import | ~3275 |
-| #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call | ~2241 |
-| #12656 | 11:30 AM | 🔄 | Remove unused parameter | ~2253 |
-| #12653 | 11:30 AM | 🔵 | Target directory extraction logic | ~1055 |
-| #12397 | 10:53 AM | 🔵 | Post-tool-use handler analysis | ~1992 |
-| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory call | ~2229 |
-| #12395 | 10:53 AM | 🔄 | Remove unused parameter | ~2269 |
-| #12142 | 10:18 AM | 🔵 | SSE writer process mechanism | ~1151 |
-| #12140 | 10:18 AM | 🔴 | Add windowsHide option | ~3395 |
-| #12135 | 10:18 AM | 🔵 | SSE Writer Process Spawning | ~1266 |
-| #12128 | 10:17 AM | 🔵 | Stop hook handler analysis | ~1771 |
-
-### Jan 23
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #12037 | 11:09 PM | 🔵 | Post-tool-use handler analysis | ~2068 |
-| #12029 | 11:08 PM | 🔵 | Post-tool-use handler analysis | ~2065 |
-| #12026 | 11:08 PM | 🔵 | User prompt submission handler | ~1236 |
-| #12018 | 11:07 PM | 🔵 | Stop hook handler analysis | ~1761 |
-| #12005 | 11:07 PM | 🔵 | Session Start Handler Analysis | ~2861 |
-| #11909 | 10:47 PM | 🔵 | Post-tool-use hook analysis | ~2078 |
-| #11877 | 10:38 PM | 🔵 | Session Start Handler Analysis | ~2947 |
+| #14050 | 9:25 PM | 🔵 | Post-tool-use handler for observation extraction | ~2379 |
+| #14029 | 9:22 PM | 🔵 | Understanding the stop hook handler functionality | ~1771 |
+| #14022 | 9:22 PM | 🔵 | Session Start Handler Implementation Review | ~3288 |
+| #14012 | 9:21 PM | 🔵 | Session Start Handler Implementation Review | ~3256 |
+| #14011 | 9:21 PM | 🔵 | Hook Handlers Registry Structure | ~1358 |
+| #14010 | 9:20 PM | 🔵 | Understanding the stop hook handler functionality | ~1754 |
+| #13208 | 6:27 PM | 🟠 | Add secret detection and redaction to user prompt submit handler | ~4056 |
+| #13181 | 6:20 PM | 🔵 | User prompt submission handler initializes backend session | ~1209 |
+| #13179 | 6:19 PM | 🟠 | Added secret detection to user prompt handling | ~2857 |
+| #13177 | 6:19 PM | 🟠 | Added secret detection utilities to user-prompt-submit handler | ~1717 |
+| #13176 | 6:19 PM | 🟠 | Added secret detection and redaction to tool observations | ~4258 |
+| #13175 | 6:19 PM | 🟠 | Added secret detection utilities to post-tool-use handler | ~2542 |
+| #13174 | 6:19 PM | 🔵 | Post-tool-use handler sends observations to backend | ~2043 |
+| #13164 | 6:17 PM | 🔵 | Session start handler fetches project context from API | ~1160 |
+| #13158 | 6:17 PM | 🔄 | Conditional Query Parameter Construction for API Request | ~4158 |
+| #13111 | 6:07 PM | 🔵 | User prompt submission handler initializes backend sessions | ~1409 |
+| #13108 | 6:07 PM | 🔵 | Session Start Handler Implementation Analysis | ~3232 |
+| #13077 | 6:03 PM | 🔄 | Added safe repository info retrieval and updated spawnSseWriter signature | ~3587 |
+| #13075 | 6:02 PM | 🔵 | UserPromptSubmit handler initializes backend sessions | ~1202 |
+| #13073 | 6:02 PM | 🟠 | Added Git repository info collection for worktree support | ~2165 |
+| #13072 | 6:02 PM | 🟠 | Added getRepoInfo import to user-prompt-submit handler | ~1527 |
+| #13071 | 6:02 PM | 🟠 | Add repository info to SSE writer process arguments | ~3381 |
+| #13070 | 6:02 PM | 🟠 | Add Git repository info support for worktree handling | ~4813 |
+| #13069 | 6:02 PM | 🔵 | Session Start Handler Implementation Analysis | ~2945 |
+| #13068 | 6:01 PM | 🟠 | Add getRepoInfo import and RepoInfo type to session-start handler | ~3275 |
+| #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call by removing redundant toolName parameter | ~2241 |
+| #12656 | 11:30 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2253 |
+| #12653 | 11:30 AM | 🔵 | Understanding target directory extraction logic | ~1055 |
+| #12397 | 10:53 AM | 🔵 | Post-tool-use handler sends observations to backend | ~1992 |
+| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory function call | ~2229 |
 
 ## Key Insights
 
-- **Git Worktree Support**: Major feature additions for Git repository information collection and worktree handling (IDs #13070-13073, #13068). This enables better context-aware session management.
-- **Code Cleanup**: Multiple refactoring efforts to remove unused parameters and fix function calls (IDs #12656, #12657, #12395, #12396). Focus on `extractTargetDirectory` function improvements.
-- **Cross-platform Fixes**: Added Windows compatibility with `windowsHide` option for spawned processes (ID #12140).
-- **Session Management**: Enhanced session start/stop handlers with repository context and cleanup processes (IDs #13069, #12128, #12005).
-- **Observation Pipeline**: Consistent pattern of post-tool-use handlers sending data to backend for observation extraction (IDs #12397, #12037, #12029, #11909).
+- **Secret Detection Integration**: Major focus on adding secret detection and redaction across handlers (user-prompt-submit, post-tool-use). This enhances security by preventing sensitive data exposure.
+- **Repository Context Enhancement**: Added Git repository info collection (path, branch, worktree) to support worktree handling and improve session context.
+- **Handler Architecture**: Discovered the hook handlers registry structure centralizing event handling (session-start, user-prompt-submit, post-tool-use, stop).
+- **Bug Fixes**: Corrected `extractTargetDirectory` function calls by removing redundant parameters, improving code reliability.
+- **Memory Tiering**: Recent work on memory tiering (core, working, archive, ephemeral) with Sleep Agent service for consolidation.
 </claude-mem-context>

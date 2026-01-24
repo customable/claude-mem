@@ -6,6 +6,14 @@
  */
 
 /**
+ * Worker mode for task processing
+ * - spawn: Traditional mode, spawn separate worker processes
+ * - in-process: Hook process becomes the worker (no spawn)
+ * - hybrid: In-process preferred, spawn as fallback
+ */
+export type WorkerMode = 'spawn' | 'in-process' | 'hybrid';
+
+/**
  * All possible worker capabilities
  */
 export type WorkerCapability =

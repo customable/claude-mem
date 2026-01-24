@@ -7,43 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13779 | 8:37 PM | 🔄 | Optimize analytics timeline with SQL aggregation | ~6216 |
-| #13775 | 8:37 PM | 🔵 | Analytics timeline endpoint implementation | ~1535 |
-| #13767 | 8:33 PM | 🟣 | Increased data fetch limit from 10,000 to 100,000 | ~5176 |
-| #13765 | 8:33 PM | 🔵 | Analytics API endpoints for timeline, types, and projects | ~2026 |
-| #13761 | 8:32 PM | 🔵 | Analytics endpoints found in data.ts | ~2174 |
-| #13757 | 8:32 PM | 🔵 | Analytics-related code found in backend routes | ~755 |
-| #13738 | 8:27 PM | 🔵 | Insights Router Structure and Endpoints | ~2170 |
-| #13623 | 7:34 PM | 🔵 | Discovered backend route structure and available routers | ~1155 |
-| #13622 | 7:34 PM | 🟠 | Added InsightsRouter exports to routes module | ~1462 |
-| #13614 | 7:33 PM | 🟠 | Created Insights Router for learning insights dashboard | ~3459 |
-| #13612 | 7:33 PM | 🔵 | Exploring Data Router Structure | ~1475 |
-| #13519 | 7:21 PM | 🔵 | Document search and deletion endpoints discovered | ~1184 |
-| #13513 | 7:21 PM | 🟠 | Added code snippet endpoints to data routes | ~6296 |
-| #13510 | 7:20 PM | 🟠 | Added ICodeSnippetRepository to data route imports | ~5009 |
-| #13509 | 7:20 PM | 🟠 | Added code snippets API endpoints to data routes | ~5392 |
-| #13508 | 7:20 PM | 🔵 | Backend API routes for data endpoints discovered | ~1247 |
-| #13507 | 7:20 PM | 🟠 | Added codeSnippets repository to DataRouterDeps interface | ~5087 |
-| #13506 | 7:20 PM | 🔵 | Exploring Data Router Structure and API Endpoints | ~1778 |
-| #13390 | 7:01 PM | 🟠 | Implemented cached context retrieval in getContext endpoint | ~3610 |
-| #13385 | 7:00 PM | 🟠 | Add IClaudeMdRepository dependency to HooksRouter | ~3013 |
-| #13378 | 6:58 PM | 🔵 | Exploring Hooks Router Implementation | ~2446 |
-| #13230 | 6:30 PM | 🔵 | Analytics endpoint implementation for project statistics | ~1334 |
-| #13224 | 6:29 PM | 🔴 | Filter out empty/null project names in analytics | ~5146 |
-| #13222 | 6:29 PM | 🔵 | Found '/projects' route in data.ts | ~729 |
-| #13221 | 6:29 PM | 🔴 | Filter out empty/null project names in listProjects | ~5155 |
-| #13220 | 6:29 PM | 🔵 | Discovered project listing endpoint in data routes | ~864 |
-| #13219 | 6:29 PM | 🔵 | Discovered listProjects endpoint implementation | ~1317 |
-| #13218 | 6:29 PM | 🔵 | API endpoint for listing observations discovered | ~1224 |
-| #13216 | 6:29 PM | 🔵 | Found analytics projects endpoint in data routes | ~828 |
-| #13118 | 6:11 PM | 🔵 | Examining Data Router Implementation | ~5057 |
+| #13945 | 9:13 PM | 🟠 | Added SleepAgentRouter exports | ~1452 |
+| #13944 | 9:12 PM | 🟠 | Created Sleep Agent Router | ~3163 |
+| #13912 | 9:07 PM | 🔄 | Changed setupRoutes visibility | ~2328 |
+| #13911 | 9:07 PM | 🔵 | Identified setupRoutes method | ~730 |
+| #13896 | 9:03 PM | 🟠 | Added DecisionsRouter exports | ~1543 |
+| #13895 | 9:03 PM | 🔵 | Backend routes module structure | ~1233 |
+| #13894 | 9:03 PM | 🟠 | Created Decisions Router | ~3173 |
+| #13850 | 8:55 PM | 🔵 | Insights Router Structure | ~2171 |
+| #13843 | 8:55 PM | 🟠 | Added LazyRouter exports | ~1497 |
+| #13842 | 8:55 PM | 🔵 | Backend routes module structure | ~1208 |
+| #13841 | 8:54 PM | 🟠 | Created LazyRouter | ~3048 |
+| #13779 | 8:37 PM | 🔄 | Optimize analytics timeline | ~6216 |
+| #13775 | 8:37 PM | 🔵 | Analytics timeline endpoint | ~1535 |
+| #13767 | 8:33 PM | 🔄 | Increased data fetch limit | ~5176 |
+| #13765 | 8:33 PM | 🔵 | Analytics API endpoints | ~2026 |
+| #13761 | 8:32 PM | 🔵 | Analytics endpoints found | ~2174 |
+| #13757 | 8:32 PM | 🔵 | Analytics-related code found | ~755 |
+| #13738 | 8:27 PM | 🔵 | Insights Router Structure | ~2170 |
+| #13623 | 7:34 PM | 🔵 | Backend route structure | ~1155 |
+| #13622 | 7:34 PM | 🟠 | Added InsightsRouter exports | ~1462 |
+| #13614 | 7:33 PM | 🟠 | Created Insights Router | ~3459 |
+| #13612 | 7:33 PM | 🔵 | Data Router Structure | ~1475 |
+| #13519 | 7:21 PM | 🔵 | Document search endpoints | ~1184 |
+| #13513 | 7:21 PM | 🟠 | Added code snippet endpoints | ~6296 |
+| #13510 | 7:20 PM | 🟠 | Added ICodeSnippetRepository | ~5009 |
+| #13509 | 7:20 PM | 🟠 | Added code snippets API | ~5392 |
+| #13508 | 7:20 PM | 🔵 | Backend API routes | ~1247 |
+| #13507 | 7:20 PM | 🟠 | Added codeSnippets repo | ~5087 |
+| #13506 | 7:20 PM | 🔵 | Data Router Structure | ~1778 |
+| #13390 | 7:01 PM | 🟠 | Implemented cached context | ~3610 |
 
 ## Key Insights
 
-- **Analytics Optimization**: Refactored `getAnalyticsTimeline` to use SQL aggregation, improving performance by offloading processing to the database.
-- **Data Fetch Limits**: Increased API fetch limits from 10,000 to 100,000 records to support larger datasets.
-- **Insights Dashboard**: Added a new `InsightsRouter` for learning analytics, including summary stats, activity tracking, and heatmap visualizations.
-- **Code Snippets**: Expanded API with CRUD endpoints for code snippet management, integrating `ICodeSnippetRepository`.
-- **Bug Fixes**: Resolved issues with empty/null project names in analytics and fixed a duplicate `observation_id` bug in `CodeSnippet` entity.
-- **Real-Time Updates**: Identified gaps in SSE integration for insights; next steps include implementing real-time broadcasting.
+- **Memory Tiering System**: New SleepAgentRouter and SleepAgentService introduced for memory tier management (core, working, archive, ephemeral tiers) with consolidation logic.
+- **Router Architecture**: Backend follows modular router pattern with 14+ router classes (Health, Data, Insights, Decisions, LazyRouter, etc.) each handling specific domains.
+- **Performance Optimizations**: Analytics timeline refactored to use SQL aggregation (~#13779), data fetch limit increased from 10K to 100K (~#13767).
+- **New Features**: Added code snippet management (~#13509), 70+ achievements system, and conflict detection in DecisionsRouter.
+- **Design Changes**: setupRoutes visibility changed from private to protected (~#13912), suggesting more flexible router inheritance patterns.
 </claude-mem-context>

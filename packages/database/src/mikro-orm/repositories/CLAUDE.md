@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13781 | 8:38 PM | 🟠 | Added getTimelineStats to SessionRepository | ~3996 |
-| #13778 | 8:37 PM | 🔵 | Reading SessionRepository.ts file end | ~777 |
-| #13774 | 8:37 PM | 🟠 | Added getTimelineStats to ObservationRepository | ~5812 |
-| #13768 | 8:33 PM | 🔵 | Found getInsightsSummary in ObservationRepository | ~961 |
-| #13763 | 8:32 PM | 🟠 | Add totalTokens to insights summary response | ~4729 |
-| #13762 | 8:32 PM | 🟠 | Add token count to insights summary query | ~4931 |
-| #13749 | 8:29 PM | 🟠 | Added getInsightsSummary to ObservationRepository | ~6511 |
-| #13746 | 8:28 PM | 🔵 | Exploring MikroORM Observation Repository | ~3163 |
-| #13742 | 8:27 PM | 🔵 | ObservationRepository contains count method | ~743 |
-| #13741 | 8:27 PM | 🔵 | DailyStatsRepository implements upsert logic | ~2978 |
-| #13696 | 8:11 PM | 🔴 | Resolved merge conflict in MikroORM exports | ~1823 |
-| #13692 | 8:11 PM | 🔵 | Merge conflict in repository exports | ~1175 |
-| #13673 | 8:08 PM | 🔴 | Resolving merge conflict in repository exports | ~1814 |
-| #13660 | 8:07 PM | 🔵 | Merge conflict in MikroORM repository exports | ~1238 |
-| #13568 | 7:30 PM | 🟠 | Add new repository exports to MikroORM index | ~1485 |
-| #13566 | 7:30 PM | 🟠 | Created TechnologyUsageRepository | ~2718 |
-| #13565 | 7:30 PM | 🔵 | Discovered MikroORM repository exports | ~967 |
-| #13564 | 7:29 PM | 🟠 | Created AchievementRepository for MikroORM | ~2766 |
-| #13563 | 7:29 PM | 🟠 | Implemented DailyStatsRepository for MikroORM | ~4960 |
-| #13562 | 7:29 PM | 🔵 | MikroORM Repository Exports Structure | ~1049 |
-| #13455 | 7:12 PM | 🟠 | Implemented MikroORM CodeSnippet Repository | ~4191 |
-| #13452 | 7:12 PM | 🟠 | Added MikroOrmCodeSnippetRepository export | ~1369 |
-| #13451 | 7:11 PM | 🔵 | MikroORM Repository Exports Structure | ~987 |
-| #13450 | 7:11 PM | 🔵 | Examining MikroORM Document Repository | ~1532 |
-| #13387 | 7:00 PM | 🔵 | Examining MikroORM CLAUDE.md storage | ~2087 |
-| #13133 | 6:13 PM | 🔵 | Examining MikroORM Document Repository | ~3273 |
-| #13092 | 6:05 PM | 🟠 | Added Git worktree support to SessionRepository | ~3708 |
-| #13090 | 6:05 PM | 🟠 | Add Git worktree support to Session creation | ~3378 |
-| #13089 | 6:04 PM | 🟠 | Added Git worktree support to SessionRepository | ~3438 |
-| #13088 | 6:04 PM | 🔵 | Examining MikroORM Session Repository | ~2503 |
+| #13936 | 9:10 PM | 🟠 | Added memory tier management methods | ~6732 |
+| #13933 | 9:10 PM | 🔵 | Observation history traversal logic | ~1196 |
+| #13931 | 9:09 PM | 🟠 | Add memory tiering fields to Observation | ~5570 |
+| #13929 | 9:09 PM | 🔵 | MikroORM uses raw SQL for FTS5 | ~1446 |
+| #13928 | 9:09 PM | 🟣 | Added MemoryTier import | ~5451 |
+| #13907 | 9:05 PM | 🔵 | Decision history traversal logic | ~1252 |
+| #13905 | 9:05 PM | 🔄 | Improved variable naming in getDecisionHistory | ~5825 |
+| #13890 | 9:02 PM | 🟠 | Added decision tracking methods | ~6601 |
+| #13889 | 9:02 PM | 🟣 | Added DecisionCategory import | ~5426 |
+| #13888 | 9:02 PM | 🟠 | Add decision_category field | ~5756 |
+| #13886 | 9:02 PM | 🟠 | Add decision tracking fields | ~5716 |
+| #13883 | 9:01 PM | 🔵 | MikroORM Observation Repository | ~4701 |
+| #13831 | 8:52 PM | 🟠 | Add MikroOrmRawMessageRepository export | ~1263 |
+| #13830 | 8:52 PM | 🟠 | Implemented RawMessageRepository | ~5443 |
+| #13827 | 8:51 PM | 🔵 | DailyStatsRepository logic | ~2963 |
+| #13822 | 8:51 PM | 🔵 | MikroORM repository exports | ~1166 |
+| #13781 | 8:38 PM | 🟠 | Added getTimelineStats method | ~3996 |
+| #13778 | 8:37 PM | 🔵 | Reading SessionRepository.ts | ~777 |
+| #13774 | 8:37 PM | 🟠 | Added getTimelineStats to Observation | ~5812 |
+| #13768 | 8:33 PM | 🔵 | Found getInsightsSummary method | ~961 |
+| #13763 | 8:32 PM | 🟠 | Add totalTokens to insights | ~4729 |
+| #13762 | 8:32 PM | 🟠 | Add token count to query | ~4931 |
+| #13749 | 8:29 PM | 🟠 | Added getInsightsSummary method | ~6511 |
+| #13746 | 8:28 PM | 🔵 | MikroORM Observation Repository | ~3163 |
+| #13742 | 8:27 PM | 🔵 | ObservationRepository count method | ~743 |
+| #13741 | 8:27 PM | 🔵 | DailyStatsRepository logic | ~2978 |
+| #13696 | 8:11 PM | 🔴 | Resolved merge conflict | ~1823 |
+| #13692 | 8:11 PM | 🔵 | Merge conflict detected | ~1175 |
+| #13673 | 8:08 PM | 🔴 | Resolving merge conflict | ~1814 |
+| #13660 | 8:07 PM | 🔵 | Merge conflict detected | ~1238 |
 
 ## Key Insights
 
-- **Analytics Expansion**: Added `getTimelineStats` to both `SessionRepository` and `ObservationRepository`, enabling time-series analytics (daily/weekly/monthly). Enhanced `getInsightsSummary` with `totalTokens` tracking (198M tokens across 12,407 observations).
-- **Repository Growth**: Implemented new repositories (`DailyStats`, `TechnologyUsage`, `Achievement`, `CodeSnippet`) with upsert/aggregation logic, extending MikroORM's data layer capabilities.
-- **Merge Conflict Resolution**: Fixed conflicts in MikroORM exports, ensuring consistency between branches (e.g., `main` vs. `forgejo/main`).
-- **Git Worktree Support**: Extended `SessionRepository` with `repoPath`, `isWorktree`, and `branch` fields to track repository context.
-- **Next Steps**: Prioritize real-time SSE integration for insights, validate analytics endpoints, and address gaps in daily stats aggregation.
+- Memory tiering system implemented with new fields (memory_tier, access_count, etc.) and management methods in ObservationRepository
+- Decision tracking system enhanced with new fields (decision_category, supersedes/superseded_by) and traversal logic
+- Analytics capabilities expanded with timeline stats, insights summary, and token tracking
+- Multiple merge conflicts resolved in repository exports, indicating active parallel development
+- Raw SQL used for FTS5 queries as MikroORM lacks native support
 </claude-mem-context>
