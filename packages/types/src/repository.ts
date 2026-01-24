@@ -696,7 +696,7 @@ export interface IUserPromptRepository {
 // Task Queue Repository
 // ============================================
 
-import type { Task, TaskStatus, TaskType, CreateTaskInput } from './tasks.js';
+import type { Task, TaskStatus, TaskType, CreateTaskInput, TaskUpdateExtras } from './tasks.js';
 
 /**
  * Task query filters
@@ -725,7 +725,7 @@ export interface ITaskQueueRepository {
   /**
    * Update task status
    */
-  updateStatus(id: string, status: TaskStatus, extra?: Partial<Task>): Promise<Task | null>;
+  updateStatus(id: string, status: TaskStatus, extra?: TaskUpdateExtras): Promise<Task | null>;
 
   /**
    * Assign task to worker

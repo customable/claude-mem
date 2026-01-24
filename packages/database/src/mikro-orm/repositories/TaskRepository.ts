@@ -14,6 +14,7 @@ import type {
   Task,
   TaskStatus,
   CreateTaskInput,
+  TaskUpdateExtras,
 } from '@claude-mem/types';
 import { Task as TaskEntity } from '../../entities/Task.js';
 
@@ -39,6 +40,7 @@ function toTask(entity: TaskEntity): Task {
     createdAt: entity.created_at,
     assignedAt: entity.assigned_at || undefined,
     completedAt: entity.completed_at || undefined,
+    retryAfter: entity.retry_after || undefined,
   } as Task;
 }
 
@@ -74,7 +76,7 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
     return entity ? toTask(entity) : null;
   }
 
-  async updateStatus(id: string, status: TaskStatus, extra?: Partial<Task>): Promise<Task | null> {
+  async updateStatus(id: string, status: TaskStatus, extra?: TaskUpdateExtras): Promise<Task | null> {
     const entity = await this.em.findOne(TaskEntity, { id });
     if (!entity) return null;
 
@@ -92,6 +94,10 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
     }
     if (extra?.retryCount !== undefined) {
       entity.retry_count = extra.retryCount;
+    }
+    // Support for exponential backoff (Issue #206)
+    if (extra?.retryAfter !== undefined) {
+      entity.retry_after = extra.retryAfter;
     }
 
     await this.em.flush();
@@ -116,9 +122,15 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
     const knex = this.em.getKnex();
 
     const placeholders = capabilities.map(() => '?').join(', ');
+    const now = Date.now();
 
     const row = await knex('task_queue')
       .where('status', 'pending')
+      // Only get tasks that are ready to be retried (Issue #206)
+      .where(function(this: ReturnType<typeof knex>) {
+        this.whereNull('retry_after')
+          .orWhere('retry_after', '<=', now);
+      })
       .where(function(this: ReturnType<typeof knex>) {
         this.whereIn('required_capability', capabilities)
           .orWhereRaw(`EXISTS (

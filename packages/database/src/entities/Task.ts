@@ -57,4 +57,8 @@ export class Task {
 
   @Property({ nullable: true })
   completed_at?: number; // epoch
+
+  @Property({ nullable: true })
+  @Index()
+  retry_after?: number; // epoch - when task can be retried (Issue #206)
 }

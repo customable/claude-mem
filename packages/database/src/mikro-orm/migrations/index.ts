@@ -18,3 +18,4 @@ export { Migration20260124000008_CreateObservationLinksTable } from './Migration
 export { Migration20260124000009_CreateTemplatesTable } from './Migration20260124000009_CreateTemplatesTable.js';
 export { Migration20260124000010_CreateProjectSettingsTable } from './Migration20260124000010_CreateProjectSettingsTable.js';
 export { Migration20260124000011_AddUrgentPromptField } from './Migration20260124000011_AddUrgentPromptField.js';
+export { Migration20260125000001_AddRetryAfterField } from './Migration20260125000001_AddRetryAfterField.js';

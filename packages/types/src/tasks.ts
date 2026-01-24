@@ -48,6 +48,22 @@ export interface BaseTask {
   error?: string;
   retryCount: number;
   maxRetries: number;
+  /** Unix timestamp (ms) for when the task can be retried (Issue #206) */
+  retryAfter?: number;
+}
+
+/**
+ * Extra fields for task status updates (Issue #206)
+ */
+export interface TaskUpdateExtras {
+  /** Task result (type-specific) */
+  result?: unknown;
+  /** Error message */
+  error?: string;
+  /** Updated retry count */
+  retryCount?: number;
+  /** Unix timestamp (ms) for when the task can be retried */
+  retryAfter?: number;
 }
 
 /**
