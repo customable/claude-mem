@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.13] - 2026-01-24
+
+### Improvements
+- Removed unused `mikroOrmMigrations` export from the database module.
+
+
 ## [2.19.12] - 2026-01-24
 
 ### Bug Fixes
