@@ -9,3 +9,4 @@ export { MikroOrmDocumentRepository } from './DocumentRepository.js';
 export { MikroOrmUserPromptRepository } from './UserPromptRepository.js';
 export { MikroOrmTaskRepository } from './TaskRepository.js';
 export { MikroOrmClaudeMdRepository, type ClaudeMdRecord, type UpsertClaudeMdInput } from './ClaudeMdRepository.js';
+export { MikroOrmCodeSnippetRepository } from './CodeSnippetRepository.js';

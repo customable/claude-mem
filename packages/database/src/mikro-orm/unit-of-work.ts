@@ -13,6 +13,7 @@ import { MikroOrmDocumentRepository } from './repositories/DocumentRepository.js
 import { MikroOrmUserPromptRepository } from './repositories/UserPromptRepository.js';
 import { MikroOrmTaskRepository } from './repositories/TaskRepository.js';
 import { MikroOrmClaudeMdRepository } from './repositories/ClaudeMdRepository.js';
+import { MikroOrmCodeSnippetRepository } from './repositories/CodeSnippetRepository.js';
 
 /**
  * MikroORM implementation of IUnitOfWork
@@ -25,6 +26,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
   public userPrompts: MikroOrmUserPromptRepository;
   public taskQueue: MikroOrmTaskRepository;
   public claudemd: MikroOrmClaudeMdRepository;
+  public codeSnippets: MikroOrmCodeSnippetRepository;
 
   private transactionEm: SqlEntityManager | null = null;
 
@@ -36,6 +38,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.userPrompts = new MikroOrmUserPromptRepository(em);
     this.taskQueue = new MikroOrmTaskRepository(em);
     this.claudemd = new MikroOrmClaudeMdRepository(em);
+    this.codeSnippets = new MikroOrmCodeSnippetRepository(em);
   }
 
   async beginTransaction(): Promise<void> {
@@ -84,5 +87,6 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.userPrompts = new MikroOrmUserPromptRepository(em);
     this.taskQueue = new MikroOrmTaskRepository(em);
     this.claudemd = new MikroOrmClaudeMdRepository(em);
+    this.codeSnippets = new MikroOrmCodeSnippetRepository(em);
   }
 }
