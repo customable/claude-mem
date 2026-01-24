@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.19.10] - 2026-01-24
+
+### Features
+- Added auto-merge workflow for all PRs
+- Enabled Renovate platform automerge and auto-rebase
+
+### Bug Fixes
+- Removed auto-merge from CI workflow
+- Prevented cancellation of in-progress CI runs
+- Moved auto-merge to the end of the CI workflow
+- Ensured auto-merge runs only after CI succeeds
+- Removed unused `toolName` parameter from `extractTargetDirectory`
+- Removed platform from Renovate repo config
+
+### Improvements
+- Minor code quality improvements
+- Removed unused `getWorkingDirectories` method from backend
+- Cleaned up `MikroOrmDatabase` initializer
+- Removed unused methods from `MikroOrmUnitOfWork`
+- Replaced deprecated `MikroORM` methods
+- Removed unused `mikroOrmMigrations` export
+- Removed unused logger and `isReady` from `client.ts`
+- Removed unused exports from `websocket.ts`
+- Updated `react` dependency
+- Updated `typescript` dependency to `^5.9.3`
+- Added Renovate configuration for automated dependency updates
+
+
 ## [2.19.9] - 2026-01-24
 
 ### Bug Fixes
