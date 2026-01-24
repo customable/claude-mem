@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.0] - 2026-01-24
+
+### Features
+- Added DELETE endpoints for observations to support GDPR compliance
+
+### Bug Fixes
+- Fixed incorrect DateRangeFilter type for bulk delete operations
+
+
 ## [2.18.2] - 2026-01-24
 
 ### Bug Fixes
