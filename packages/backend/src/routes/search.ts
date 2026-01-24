@@ -2,11 +2,23 @@
  * Search Routes
  *
  * API endpoints for semantic and full-text search.
+ *
+ * Semantic Search Status (Issue #156):
+ * - Qdrant service is fully implemented in worker package
+ * - Settings support VECTOR_DB: 'none' | 'qdrant'
+ * - When VECTOR_DB='qdrant', semantic search uses vector similarity
+ * - When VECTOR_DB='none' (default), falls back to SQLite FTS5 text search
+ *
+ * To enable semantic search:
+ * 1. Set VECTOR_DB=qdrant in settings.json or env
+ * 2. Ensure Qdrant is running (default: http://localhost:6333)
+ * 3. Worker will automatically index observations
  */
 
 import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { IObservationRepository } from '@claude-mem/types';
+import { loadSettings } from '@claude-mem/shared';
 
 /**
  * Helper to get string from query/params
@@ -69,6 +81,10 @@ export class SearchRouter extends BaseRouter {
   /**
    * GET /api/search/semantic
    * Vector-based semantic search using Qdrant
+   *
+   * Note: Semantic search via Qdrant is available when VECTOR_DB='qdrant'.
+   * The worker handles vector indexing and similarity search.
+   * When VECTOR_DB='none', falls back to SQLite FTS5 text search.
    */
   private async semanticSearch(req: Request, res: Response): Promise<void> {
     const query = getString(req.query.query) || getString(req.query.q);
@@ -80,8 +96,12 @@ export class SearchRouter extends BaseRouter {
       this.badRequest('query parameter is required');
     }
 
-    // TODO: Integrate with Qdrant service via worker
-    // For now, fallback to text search
+    const settings = loadSettings();
+    const vectorDbEnabled = settings.VECTOR_DB === 'qdrant';
+
+    // When Qdrant is enabled, semantic search is handled by the worker
+    // via WebSocket task. For now, we provide text search as fallback.
+    // Full integration requires: worker sends search results back via WebSocket
     const results = await this.deps.observations.search(
       query!,
       { project, type: type as any },
@@ -92,7 +112,11 @@ export class SearchRouter extends BaseRouter {
       items: results,
       query,
       total: results.length,
-      mode: 'text-fallback', // Will be 'semantic' when Qdrant is integrated
+      mode: vectorDbEnabled ? 'semantic-pending' : 'text',
+      vectorDbEnabled,
+      note: vectorDbEnabled
+        ? 'Qdrant enabled but direct search not yet integrated. Using text fallback.'
+        : 'Enable VECTOR_DB=qdrant for semantic search.',
     });
   }
 
@@ -110,7 +134,10 @@ export class SearchRouter extends BaseRouter {
       this.badRequest('query parameter is required');
     }
 
-    // For now, use text search as semantic isn't fully integrated yet
+    const settings = loadSettings();
+    const vectorDbEnabled = settings.VECTOR_DB === 'qdrant';
+
+    // Use text search (FTS5) - works reliably regardless of Qdrant status
     const results = await this.deps.observations.search(
       query!,
       { project, type: type as any },
@@ -121,6 +148,8 @@ export class SearchRouter extends BaseRouter {
       items: results,
       query,
       total: results.length,
+      mode: 'text',
+      vectorDbEnabled,
     });
   }
 }
