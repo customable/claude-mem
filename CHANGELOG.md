@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.36.0] - 2026-01-24
+
+### Features
+- Implemented conflict detection for decisions
+
+
 ## [2.35.0] - 2026-01-24
 
 ### Features
