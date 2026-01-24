@@ -4,8 +4,6 @@
  * Business logic for session management.
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
 import { createLogger } from '@claude-mem/shared';
 import type {
   ISessionRepository,
@@ -33,11 +31,7 @@ function isRealUserPrompt(prompt: string | undefined): boolean {
   if (trimmed.startsWith('<task-notification>')) return false;
 
   // Filter out prompts that are ONLY task-notifications
-  if (trimmed.includes('<task-notification>') && !trimmed.replace(/<task-notification>[\s\S]*?<\/task-notification>/g, '').trim()) {
-    return false;
-  }
-
-  return true;
+  return !(trimmed.includes('<task-notification>') && !trimmed.replace(/<task-notification>[\s\S]*?<\/task-notification>/g, '').trim());
 }
 
 /**
@@ -274,53 +268,6 @@ export class SessionService {
    */
   async getSessionSummaries(memorySessionId: string): Promise<SessionSummaryRecord[]> {
     return this.summaries.getBySessionId(memorySessionId);
-  }
-
-  /**
-   * Get unique working directories from session observations
-   * Returns directories that:
-   * 1. Are within the session's working directory (subdirectories only)
-   * 2. Have an existing CLAUDE.md file
-   */
-  async getWorkingDirectories(contentSessionId: string): Promise<string[]> {
-    const session = await this.sessions.findByContentSessionId(contentSessionId);
-    if (!session?.memory_session_id || !session.working_directory) {
-      return [];
-    }
-
-    // Get all observations for this session
-    const observations = await this.observations.getBySessionId(session.memory_session_id);
-
-    // Extract unique cwd values
-    const cwdSet = new Set<string>();
-    for (const obs of observations) {
-      if (obs.cwd) {
-        cwdSet.add(obs.cwd);
-      }
-    }
-
-    const sessionWorkingDir = session.working_directory;
-    const result: string[] = [];
-
-    for (const cwd of cwdSet) {
-      // Skip if not a subdirectory of session working directory
-      if (!cwd.startsWith(sessionWorkingDir)) continue;
-
-      // Skip the root working directory itself (handled separately)
-      if (cwd === sessionWorkingDir) continue;
-
-      // Check if CLAUDE.md exists in this directory
-      const claudeMdPath = path.join(cwd, 'CLAUDE.md');
-      try {
-        if (fs.existsSync(claudeMdPath)) {
-          result.push(cwd);
-        }
-      } catch {
-        // Ignore access errors
-      }
-    }
-
-    return result;
   }
 
   /**

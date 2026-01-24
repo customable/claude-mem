@@ -67,7 +67,8 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       created_at_epoch: now.getTime(),
     });
 
-    await this.em.persistAndFlush(entity);
+    this.em.persist(entity);
+    await this.em.flush();
     return toRecord(entity);
   }
 
@@ -224,7 +225,8 @@ export class MikroOrmObservationRepository implements IObservationRepository {
   async delete(id: number): Promise<boolean> {
     const entity = await this.em.findOne(Observation, { id });
     if (!entity) return false;
-    await this.em.removeAndFlush(entity);
+    this.em.remove(entity);
+    await this.em.flush();
     return true;
   }
 

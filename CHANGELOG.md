@@ -1,5 +1,120 @@
 # Changelog
 
+## [2.19.9] - 2026-01-24
+
+### Bug Fixes
+- Removed unused `api.ts` file to clean up the codebase.
+
+### Improvements
+- Refactored type definitions to eliminate redundant files.
+
+
+## [2.19.8] - 2026-01-24
+
+### Bug Fixes
+- Removed unused exports from `capabilities.ts` to clean up the codebase.
+
+### Improvements
+- Refactored `capabilities.ts` to eliminate unnecessary exports, improving maintainability.
+
+
+## [2.19.7] - 2026-01-24
+
+### Bug Fixes
+- Removed unused functions from `settings.ts` to clean up the codebase.
+
+### Improvements
+- Streamlined the `settings.ts` file by eliminating redundant functions.
+
+
+## [2.19.6] - 2026-01-24
+
+### Bug Fixes
+- Reverted Docker cache to registry-based
+
+### Improvements
+- Removed unused constants from `constants.ts`
+- Removed Bun from backend Dockerfile, now using Node.js
+
+
+## [2.19.5] - 2026-01-24
+
+### Bug Fixes
+- Removed unused exports from `paths.ts` to clean up the codebase.
+
+### Improvements
+- Switched Docker builds to use GitHub Actions cache for improved build performance.
+
+
+## [2.19.4] - 2026-01-24
+
+### Bug Fixes
+- Stop event propagation on observation tab buttons
+
+### Improvements
+- Add Node.js tool cache
+- Test runner cache after config update
+- Test cache after enabling Forgejo cache server
+- Add explicit pnpm cache using actions/cache
+
+
+## [2.19.3] - 2026-01-24
+
+### Bug Fixes
+- MCP server now correctly respects remote backend configuration.
+
+
+## [2.19.2] - 2026-01-24
+
+### Bug Fixes
+- Removed explicit pnpm version in CI to use the version specified in package.json
+
+### Improvements
+- Optimized CI workflows for faster execution
+
+
+## [2.19.1] - 2026-01-24
+
+### Bug Fixes
+- Fixed queue worker termination when not yet connected to hub
+
+
+## [2.19.0] - 2026-01-24
+
+### Features
+- Added DELETE endpoints for observations to support GDPR compliance
+
+### Bug Fixes
+- Fixed incorrect DateRangeFilter type for bulk delete operations
+
+
+## [2.18.2] - 2026-01-24
+
+### Bug Fixes
+- Added `windowsHide` option to prevent terminal popup on Windows
+
+
+## [2.18.1] - 2026-01-24
+
+### Bug Fixes
+- Removed Bun runtime dependency from hooks
+
+### Improvements
+- Cleaned up smart install hooks
+
+
+## [2.18.0] - 2026-01-24
+
+### Features
+- Added `search_documents` MCP tool for searching cached documentation.
+
+
+## [2.17.3] - 2026-01-24
+
+### Bug Fixes
+- Removed unused exports from `database.ts` to clean up the codebase.
+
+
 ## [2.17.2] - 2026-01-23
 
 ### Bug Fixes
