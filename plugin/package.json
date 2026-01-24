@@ -1,6 +1,6 @@
 {
   "name": "claude-mem-plugin",
-  "version": "2.19.13",
+  "version": "2.19.14",
   "private": true,
   "description": "Runtime dependencies for claude-mem bundled hooks",
   "type": "module",
