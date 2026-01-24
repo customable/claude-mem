@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.29.0] - 2026-01-24
+
+### Features
+- Added SSE auto-sync to Dashboard
+
+### Bug Fixes
+- Removed unused SSEEvent import in Dashboard
+
+
 ## [2.28.0] - 2026-01-24
 
 ### Features
