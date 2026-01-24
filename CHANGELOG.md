@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.40.0] - 2026-01-24
+
+### Features
+- Implemented memory sharing and collaboration
+- Implemented plugin system for custom processors
+- Implemented AI-powered memory suggestions
+- Implemented project-scoped storage
+- Implemented memory templates for observation types
+- Implemented memory links and relationships
+- Implemented memory importance scoring
+
+### Bug Fixes
+- Fixed Forgejo repository owner in CLAUDE.md
+
+### Improvements
+- Write hooks to hooks.json instead of settings.json
+
+
 ## [2.39.0] - 2026-01-24
 
 ### Features
