@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.18.1] - 2026-01-24
+
+### Bug Fixes
+- Removed Bun runtime dependency from hooks
+
+### Improvements
+- Cleaned up smart install hooks
+
+
 ## [2.18.0] - 2026-01-24
 
 ### Features
