@@ -460,7 +460,9 @@ export class DataRouter extends BaseRouter {
    * GET /api/data/projects
    */
   private async listProjects(_req: Request, res: Response): Promise<void> {
-    const projects = await this.deps.sessions.getDistinctProjects();
+    const allProjects = await this.deps.sessions.getDistinctProjects();
+    // Filter out empty/null project names
+    const projects = allProjects.filter((p) => p && p.trim() !== '');
     this.success(res, { projects });
   }
 
@@ -620,7 +622,9 @@ export class DataRouter extends BaseRouter {
    * Returns stats per project
    */
   private async getAnalyticsProjects(_req: Request, res: Response): Promise<void> {
-    const projects = await this.deps.sessions.getDistinctProjects();
+    const allProjects = await this.deps.sessions.getDistinctProjects();
+    // Filter out empty/null project names
+    const projects = allProjects.filter((p) => p && p.trim() !== '');
 
     const data = await Promise.all(
       projects.map(async (project) => {
