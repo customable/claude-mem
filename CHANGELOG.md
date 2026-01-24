@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.11] - 2026-01-24
+
+### Bug Fixes
+- Fixed formatting of `claudemd:ready` events in Live view
+
+### Improvements
+- Improved event filtering for `claudemd` events in Live view
+
+
 ## [2.19.10] - 2026-01-24
 
 ### Features
