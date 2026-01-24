@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13045 | 5:54 PM | 🟣 | Building hooks package | ~698 |
-| #13042 | 5:54 PM | 🔄 | Migrate MCP server tool registration to use Zod validation | ~7090 |
-| #13040 | 5:53 PM | 🔵 | MCP Server Implementation for Memory Search | ~3021 |
-| #13036 | 5:52 PM | 🔵 | MCP Server Implementation Analysis | ~3355 |
-| #13032 | 5:51 PM | 🔄 | Migrate MCP server from deprecated Server to McpServer | ~7171 |
-| #13029 | 5:50 PM | 🔵 | MCP Server Migration in Progress | ~4239 |
-| #12805 | 12:01 PM | 🔄 | Remove Bun dependency and switch to npm for installation | ~6315 |
-| #12792 | 12:00 PM | 🔄 | Remove uv (Python package manager) support from smart-install.js | ~7702 |
-| #12789 | 11:59 AM | 🔵 | Smart Install Script for claude-mem | ~4720 |
-| #12661 | 11:31 AM | 🔵 | Found extractTargetDirectory function in post-tool-use handler | ~2018 |
-| #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call by removing redundant toolName parameter | ~2241 |
-| #12656 | 11:30 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2253 |
-| #12653 | 11:30 AM | 🔵 | Understanding target directory extraction logic | ~1055 |
-| #12649 | 11:29 AM | 🔄 | Removed unused logger import from BackendClient | ~2322 |
-| #12645 | 11:29 AM | 🔄 | Remove duplicate isReady method from BackendClient | ~2498 |
-| #12644 | 11:29 AM | 🔵 | Backend Client Implementation Analysis | ~2174 |
-| #12643 | 11:29 AM | 🔵 | Logging and readiness checks in hooks package | ~2188 |
-| #12423 | 10:57 AM | 🔄 | Refactor MCP server implementation to use new SDK API | ~6580 |
-| #12421 | 10:57 AM | 🔵 | API Endpoints and Error Handling in MCP Entry | ~1338 |
-| #12417 | 10:56 AM | 🔵 | MCP Server Implementation for Memory Search Tools | ~2534 |
-| #12410 | 10:55 AM | 🔵 | Backend Client Implementation Analysis | ~2206 |
-| #12409 | 10:55 AM | 🔄 | Remove duplicate isReady method from BackendClient | ~2505 |
-| #12408 | 10:55 AM | 🔄 | Removed unused logger import from BackendClient | ~2322 |
-| #12405 | 10:54 AM | 🔵 | Logging and readiness checks in hooks package | ~1875 |
-| #12397 | 10:53 AM | 🔵 | Post-tool-use handler sends observations to backend | ~1992 |
-| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory function call | ~2229 |
-| #12395 | 10:53 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2269 |
-| #12243 | 10:31 AM | 🔴 | Add authentication header to save_memory API call | ~3594 |
-| #12242 | 10:30 AM | 🔵 | MCP Server Implementation Analysis | ~2985 |
-| #12241 | 10:30 AM | 🟠 | Add JWT authentication to backend API calls | ~3826 |
+| #14640 | 10:47 PM | 🟠 | Added 'pre-compact' event to EVENT_MAP | ~3345 |
+| #14639 | 10:47 PM | 🔵 | Plugin entry point structure and event mapping | ~1363 |
+| #14636 | 10:46 PM | 🟠 | Added pre-compact event to plugin entry documentation | ~3203 |
+| #14635 | 10:46 PM | 🟠 | Added pre-compact event mapping for Issue #73 | ~3486 |
+| #14634 | 10:46 PM | 🔵 | EVENT_MAP maps fork-style events to monorepo events | ~1357 |
+| #14633 | 10:45 PM | 🔵 | Pre-compact hook implementation found in hooks package | ~1669 |
+| #14631 | 10:45 PM | 🔵 | Discovered plugin entry point structure and CLI commands | ~1607 |
+| #14612 | 10:43 PM | 🔵 | Understanding the stop hook handler functionality | ~1735 |
+| #14606 | 10:43 PM | 🟠 | Added 'pre-compact' handler to default handlers registry | ~1698 |
+| #14604 | 10:42 PM | 🔵 | Hook handlers registry structure discovered | ~1403 |
+| #14603 | 10:42 PM | 🟠 | Added handlePreCompact import to handlers index | ~1798 |
+| #14602 | 10:42 PM | 🟠 | Add handlePreCompact handler export | ~1654 |
+| #14600 | 10:42 PM | 🟠 | Implemented pre-compact hook handler | ~2227 |
+| #14593 | 10:41 PM | 🟠 | Added 'pre-compact' event to HookEvent type | ~1736 |
+| #14591 | 10:41 PM | 🔵 | Hook system types and structure discovered | ~1529 |
+| #14491 | 10:32 PM | 🔵 | Hook Runner Implementation Analysis | ~1592 |
+| #14490 | 10:32 PM | 🔵 | Backend Client Implementation Analysis | ~1541 |
+| #14480 | 10:31 PM | 🔵 | Session Start Handler Implementation Review | ~3325 |
+| #14466 | 10:30 PM | 🔵 | Hook Handlers Registry Structure | ~1383 |
+| #14465 | 10:30 PM | 🔵 | Hook system types and structure | ~1532 |
+| #14464 | 10:30 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2574 |
+| #14436 | 10:21 PM | 🔵 | Smart Install Script for claude-mem | ~2072 |
+| #14435 | 10:20 PM | 🔴 | Fix hook registration to use hooks.json instead of settings.json | ~6267 |
+| #14434 | 10:20 PM | 🟠 | Add HOOKS_PATH constant for hooks.json file | ~2297 |
+| #14433 | 10:20 PM | 🔵 | Smart Install Script for claude-mem | ~2116 |
+| #14413 | 10:17 PM | 🔵 | Hook Handlers Registry Structure | ~1364 |
+| #14375 | 10:11 PM | 🔵 | Hook system types and structure discovered | ~1521 |
+| #14374 | 10:11 PM | 🔵 | Backend Client Implementation Analysis | ~2089 |
+| #14366 | 10:11 PM | 🔵 | Plugin entry point structure and backend management | ~2864 |
+| #14364 | 10:11 PM | 🔵 | Exploring hooks package exports | ~886 |
 
 ## Key Insights
 
-- **MCP Server Migration**: Successfully migrated from deprecated `Server` to `McpServer` and integrated Zod validation for tool registration, improving type safety and input validation.
-- **Dependency Cleanup**: Removed Bun and uv dependencies from `smart-install.js`, simplifying the installation process and reducing external dependencies.
-- **Code Refactoring**: Cleaned up unused imports, parameters, and duplicate methods (e.g., `isReady` in `BackendClient`), improving maintainability.
-- **Authentication Enhancements**: Added JWT authentication support to backend API calls, ensuring secure communication with remote services.
-- **Merge Conflict Resolution**: Resolved multiple merge conflicts in PR branches (e.g., settings.ts, database.ts), ensuring smooth integration into the main branch.
+- **Pre-compact Hook Implementation**: A significant feature addition with multiple components (event mapping, handler, type definitions) to support memory compaction events (Issue #73).
+- **Event System Architecture**: Discovered the EVENT_MAP that translates between fork-style and monorepo event names, crucial for plugin compatibility.
+- **Hook System Structure**: Comprehensive exploration of the hook system including handlers registry, runner implementation, and backend client integration.
+- **Bug Fix**: Critical fix for hook registration path (hooks.json vs settings.json) resolving issue #231.
+- **Installation Process**: Smart install script handles dependency management and hook registration with version checking.
 </claude-mem-context>
