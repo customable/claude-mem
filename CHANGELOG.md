@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.32.0] - 2026-01-24
+
+### Features
+- Added a new learning insights dashboard to provide users with data-driven insights into their learning progress and performance.
+
+
 ## [2.31.1] - 2026-01-24
 
 ### Bug Fixes
