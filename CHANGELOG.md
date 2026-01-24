@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.42.0] - 2026-01-24
+
+### Features
+- Added auto-restart functionality for crashed workers
+
+### Improvements
+- Documented the current status of semantic search implementation
+
+
 ## [2.41.2] - 2026-01-24
 
 ### Bug Fixes

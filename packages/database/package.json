@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/database",
-  "version": "2.41.2",
+  "version": "2.42.0",
   "description": "Database layer for claude-mem with SQLite implementation",
   "type": "module",
   "main": "./dist/index.js",
