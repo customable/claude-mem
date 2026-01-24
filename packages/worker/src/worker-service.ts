@@ -39,7 +39,7 @@ export interface WorkerServiceConfig {
  */
 export class WorkerService {
   private client: WebSocketClient;
-  private agent: Agent;
+  private readonly agent: Agent;
   private isRunning = false;
   private currentTaskId: string | null = null;
 
@@ -296,11 +296,7 @@ export class WorkerService {
     }
 
     // Timeout errors are retryable
-    if (message.includes('timeout') || message.includes('timed out')) {
-      return true;
-    }
-
-    return false;
+    return message.includes('timeout') || message.includes('timed out');
   }
 
   /**
