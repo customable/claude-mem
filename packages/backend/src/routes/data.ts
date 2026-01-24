@@ -541,52 +541,34 @@ export class DataRouter extends BaseRouter {
   /**
    * GET /api/data/analytics/timeline
    * Returns observations/sessions/tokens grouped by day/week/month
+   * Uses SQL aggregation for efficiency
    */
   private async getAnalyticsTimeline(req: Request, res: Response): Promise<void> {
-    const period = getString(req.query.period) || 'day';
+    const period = (getString(req.query.period) || 'day') as 'day' | 'week' | 'month';
     const project = getString(req.query.project);
     const days = this.parseOptionalIntParam(getString(req.query.days)) || 30;
 
-    const now = Date.now();
-    const startEpoch = now - days * 24 * 60 * 60 * 1000;
+    const startEpoch = Date.now() - days * 24 * 60 * 60 * 1000;
 
-    const [observations, sessions] = await Promise.all([
-      this.deps.observations.list(
-        { project, dateRange: { start: startEpoch } },
-        { limit: 10000 }
-      ),
-      this.deps.sessions.list(
-        { project, dateRange: { start: startEpoch } },
-        { limit: 10000 }
-      ),
+    // Use SQL aggregation instead of loading all records
+    const [obsStats, sessStats] = await Promise.all([
+      this.deps.observations.getTimelineStats({ startEpoch, period, project }),
+      this.deps.sessions.getTimelineStats({ startEpoch, period, project }),
     ]);
 
-    // Group by period
-    const getKey = (epoch: number): string => {
-      const date = new Date(epoch);
-      if (period === 'week') {
-        const weekStart = new Date(date);
-        weekStart.setDate(date.getDate() - date.getDay());
-        return weekStart.toISOString().slice(0, 10);
-      } else if (period === 'month') {
-        return date.toISOString().slice(0, 7);
-      }
-      return date.toISOString().slice(0, 10); // day
-    };
-
+    // Merge observation and session stats
     const timeline: Record<string, { observations: number; sessions: number; tokens: number }> = {};
 
-    for (const obs of observations) {
-      const key = getKey(obs.created_at_epoch);
-      if (!timeline[key]) timeline[key] = { observations: 0, sessions: 0, tokens: 0 };
-      timeline[key].observations++;
-      timeline[key].tokens += obs.discovery_tokens || 0;
+    for (const obs of obsStats) {
+      timeline[obs.date] = { observations: obs.observations, sessions: 0, tokens: obs.tokens };
     }
 
-    for (const sess of sessions) {
-      const key = getKey(sess.started_at_epoch);
-      if (!timeline[key]) timeline[key] = { observations: 0, sessions: 0, tokens: 0 };
-      timeline[key].sessions++;
+    for (const sess of sessStats) {
+      if (timeline[sess.date]) {
+        timeline[sess.date].sessions = sess.sessions;
+      } else {
+        timeline[sess.date] = { observations: 0, sessions: sess.sessions, tokens: 0 };
+      }
     }
 
     const data = Object.entries(timeline)

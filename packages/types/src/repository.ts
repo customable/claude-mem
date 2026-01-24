@@ -138,6 +138,15 @@ export interface ISessionRepository {
    * Get all distinct project names
    */
   getDistinctProjects(): Promise<string[]>;
+
+  /**
+   * Get timeline statistics using SQL aggregation
+   */
+  getTimelineStats(params: {
+    startEpoch: number;
+    period: 'day' | 'week' | 'month';
+    project?: string;
+  }): Promise<Array<{ date: string; sessions: number }>>;
 }
 
 // ============================================
@@ -232,6 +241,30 @@ export interface IObservationRepository {
    * Delete all observations for a session
    */
   deleteBySessionId(memorySessionId: string): Promise<number>;
+
+  /**
+   * Get aggregated insights summary directly from observations
+   * Used when daily_stats table is empty
+   */
+  getInsightsSummary(days: number): Promise<{
+    totalObservations: number;
+    totalSessions: number;
+    totalProjects: number;
+    totalDecisions: number;
+    totalTokens: number;
+    activeDays: number;
+    currentStreak: number;
+    longestStreak: number;
+  }>;
+
+  /**
+   * Get timeline statistics using SQL aggregation
+   */
+  getTimelineStats(params: {
+    startEpoch: number;
+    period: 'day' | 'week' | 'month';
+    project?: string;
+  }): Promise<Array<{ date: string; observations: number; tokens: number }>>;
 }
 
 // ============================================

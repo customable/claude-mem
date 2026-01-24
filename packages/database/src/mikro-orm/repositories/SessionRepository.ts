@@ -178,4 +178,42 @@ export class MikroOrmSessionRepository implements ISessionRepository {
       .execute<{ project: string }[]>();
     return result.map((r: { project: string }) => r.project);
   }
+
+  async getTimelineStats(params: {
+    startEpoch: number;
+    period: 'day' | 'week' | 'month';
+    project?: string;
+  }): Promise<Array<{ date: string; sessions: number }>> {
+    const { startEpoch, period, project } = params;
+    const knex = this.em.getKnex();
+
+    // SQLite date formatting based on period
+    let dateFormat: string;
+    if (period === 'month') {
+      dateFormat = "strftime('%Y-%m', datetime(started_at_epoch / 1000, 'unixepoch'))";
+    } else if (period === 'week') {
+      dateFormat = "date(datetime(started_at_epoch / 1000, 'unixepoch'), 'weekday 0', '-7 days')";
+    } else {
+      dateFormat = "date(datetime(started_at_epoch / 1000, 'unixepoch'))";
+    }
+
+    let query = knex('sdk_sessions')
+      .where('started_at_epoch', '>=', startEpoch)
+      .select(
+        knex.raw(`${dateFormat} as date`),
+        knex.raw('COUNT(*) as sessions')
+      )
+      .groupByRaw(dateFormat)
+      .orderBy('date', 'asc');
+
+    if (project) {
+      query = query.andWhere('project', project);
+    }
+
+    const rows = await query;
+    return rows.map((r: { date: string; sessions: string | number }) => ({
+      date: r.date,
+      sessions: Number(r.sessions),
+    }));
+  }
 }

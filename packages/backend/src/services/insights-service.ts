@@ -60,14 +60,49 @@ export class InsightsService {
   async getSummary(days: number = 30): Promise<InsightsSummary> {
     const endDate = new Date().toISOString().split('T')[0];
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-    return this.dailyStats.aggregateForPeriod(startDate, endDate);
+
+    // Try from daily_stats first
+    const summary = await this.dailyStats.aggregateForPeriod(startDate, endDate);
+
+    // If daily_stats is empty, compute directly from observations
+    if (summary.totalObservations === 0) {
+      return this.observations.getInsightsSummary(days);
+    }
+
+    return summary;
   }
 
   /**
    * Get recent daily activity
    */
   async getRecentActivity(days: number = 30): Promise<DailyStatsRecord[]> {
-    return this.dailyStats.getRecent(days);
+    const stats = await this.dailyStats.getRecent(days);
+
+    // If daily_stats is empty, compute from observations
+    if (stats.length === 0) {
+      const obsStats = await this.observations.getTimelineStats({
+        startEpoch: Date.now() - days * 24 * 60 * 60 * 1000,
+        period: 'day',
+      });
+
+      return obsStats.map((s, idx) => ({
+        id: idx,
+        date: s.date,
+        observation_count: s.observations,
+        session_count: 0,
+        project_count: 0,
+        decision_count: 0,
+        error_count: 0,
+        bug_fix_count: 0,
+        discovery_count: 0,
+        tokens_used: s.tokens,
+        technologies: null,
+        projects: null,
+        created_at_epoch: Date.now(),
+      }));
+    }
+
+    return stats;
   }
 
   /**
@@ -246,6 +281,20 @@ export class InsightsService {
    */
   async getActivityHeatmap(): Promise<Array<{ date: string; count: number }>> {
     const stats = await this.dailyStats.getRecent(365);
+
+    // If daily_stats is empty, compute from observations
+    if (stats.length === 0) {
+      const obsStats = await this.observations.getTimelineStats({
+        startEpoch: Date.now() - 365 * 24 * 60 * 60 * 1000,
+        period: 'day',
+      });
+
+      return obsStats.map(s => ({
+        date: s.date,
+        count: s.observations,
+      }));
+    }
+
     return stats.map(s => ({
       date: s.date,
       count: s.observation_count,

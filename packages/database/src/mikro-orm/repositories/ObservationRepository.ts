@@ -234,4 +234,149 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     const result = await this.em.nativeDelete(Observation, { memory_session_id: memorySessionId });
     return result;
   }
+
+  async getInsightsSummary(days: number): Promise<{
+    totalObservations: number;
+    totalSessions: number;
+    totalProjects: number;
+    totalDecisions: number;
+    totalTokens: number;
+    activeDays: number;
+    currentStreak: number;
+    longestStreak: number;
+  }> {
+    const cutoffEpoch = Date.now() - days * 24 * 60 * 60 * 1000;
+    const knex = this.em.getKnex();
+
+    // Get basic counts
+    const [counts] = await knex('observations')
+      .where('created_at_epoch', '>=', cutoffEpoch)
+      .select(
+        knex.raw('COUNT(*) as total_observations'),
+        knex.raw('COUNT(DISTINCT memory_session_id) as total_sessions'),
+        knex.raw('COUNT(DISTINCT project) as total_projects'),
+        knex.raw("SUM(CASE WHEN type = 'decision' THEN 1 ELSE 0 END) as total_decisions"),
+        knex.raw('COALESCE(SUM(discovery_tokens), 0) as total_tokens')
+      );
+
+    // Get active days (distinct dates with observations)
+    const activeDaysResult = await knex('observations')
+      .where('created_at_epoch', '>=', cutoffEpoch)
+      .select(knex.raw("DATE(created_at_epoch / 1000, 'unixepoch') as date"))
+      .groupBy('date')
+      .orderBy('date', 'desc');
+
+    const activeDates = activeDaysResult.map((r: { date: string }) => r.date);
+    const activeDays = activeDates.length;
+
+    // Calculate streaks
+    const { currentStreak, longestStreak } = this.calculateStreaksFromDates(activeDates);
+
+    return {
+      totalObservations: Number(counts.total_observations) || 0,
+      totalSessions: Number(counts.total_sessions) || 0,
+      totalProjects: Number(counts.total_projects) || 0,
+      totalDecisions: Number(counts.total_decisions) || 0,
+      totalTokens: Number(counts.total_tokens) || 0,
+      activeDays,
+      currentStreak,
+      longestStreak,
+    };
+  }
+
+  private calculateStreaksFromDates(dates: string[]): { currentStreak: number; longestStreak: number } {
+    if (dates.length === 0) return { currentStreak: 0, longestStreak: 0 };
+
+    // Dates are already sorted desc
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let streak = 0;
+    let prevDate: Date | null = null;
+
+    // Check if streak is active (today or yesterday has activity)
+    const streakActive = dates[0] === today || dates[0] === yesterday;
+
+    for (const dateStr of dates) {
+      const date = new Date(dateStr);
+
+      if (prevDate === null) {
+        streak = 1;
+      } else {
+        const diffDays = (prevDate.getTime() - date.getTime()) / (24 * 60 * 60 * 1000);
+        if (diffDays === 1) {
+          streak++;
+        } else {
+          longestStreak = Math.max(longestStreak, streak);
+          streak = 1;
+        }
+      }
+      prevDate = date;
+    }
+
+    longestStreak = Math.max(longestStreak, streak);
+    currentStreak = streakActive ? streak : 0;
+
+    // Re-calculate current streak properly from today
+    if (streakActive) {
+      currentStreak = 0;
+      let checkDate = dates[0] === today ? today : yesterday;
+      for (const dateStr of dates) {
+        if (dateStr === checkDate) {
+          currentStreak++;
+          const d = new Date(checkDate);
+          d.setDate(d.getDate() - 1);
+          checkDate = d.toISOString().split('T')[0];
+        } else if (dateStr < checkDate) {
+          break;
+        }
+      }
+    }
+
+    return { currentStreak, longestStreak };
+  }
+
+  async getTimelineStats(params: {
+    startEpoch: number;
+    period: 'day' | 'week' | 'month';
+    project?: string;
+  }): Promise<Array<{ date: string; observations: number; tokens: number }>> {
+    const { startEpoch, period, project } = params;
+    const knex = this.em.getKnex();
+
+    // SQLite date formatting based on period
+    let dateFormat: string;
+    if (period === 'month') {
+      dateFormat = "strftime('%Y-%m', datetime(created_at_epoch / 1000, 'unixepoch'))";
+    } else if (period === 'week') {
+      // Week start (Sunday)
+      dateFormat = "date(datetime(created_at_epoch / 1000, 'unixepoch'), 'weekday 0', '-7 days')";
+    } else {
+      // Day
+      dateFormat = "date(datetime(created_at_epoch / 1000, 'unixepoch'))";
+    }
+
+    let query = knex('observations')
+      .where('created_at_epoch', '>=', startEpoch)
+      .select(
+        knex.raw(`${dateFormat} as date`),
+        knex.raw('COUNT(*) as observations'),
+        knex.raw('COALESCE(SUM(discovery_tokens), 0) as tokens')
+      )
+      .groupByRaw(dateFormat)
+      .orderBy('date', 'asc');
+
+    if (project) {
+      query = query.andWhere('project', project);
+    }
+
+    const rows = await query;
+    return rows.map((r: { date: string; observations: string | number; tokens: string | number }) => ({
+      date: r.date,
+      observations: Number(r.observations),
+      tokens: Number(r.tokens),
+    }));
+  }
 }
