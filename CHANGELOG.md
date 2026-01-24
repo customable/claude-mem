@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.25.0] - 2026-01-24
+
+### Features
+- Added Server-Sent Events (SSE) for task progress updates in the backend.
+
+### Improvements
+- Merged feature branch `feat/173-task-progress` into `main`.
+
+
 ## [2.24.0] - 2026-01-24
 
 ### Features
