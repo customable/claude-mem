@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.44.0] - 2026-01-24
+
+### Features
+- Added detection for CAPSLOCK and urgent prompts.
+
+### Bug Fixes
+- Fixed JSON response parsing when storing documents.
+
+
 ## [2.43.2] - 2026-01-24
 
 ### Bug Fixes
