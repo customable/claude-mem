@@ -29,6 +29,13 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         uses: actions/checkout@v4
 
+      - name: Cache Node.js
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/cache@v4
+        with:
+          path: /opt/hostedtoolcache/node
+          key: node-20
+
       - name: Setup pnpm
         if: steps.check.outputs.skip != 'true'
         uses: pnpm/action-setup@v4
@@ -39,17 +46,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Get pnpm store directory
-        if: steps.check.outputs.skip != 'true'
-        id: pnpm-cache
-        shell: bash
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-
       - name: Cache pnpm store
         if: steps.check.outputs.skip != 'true'
         uses: actions/cache@v4
         with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          path: ~/.local/share/pnpm/store
           key: pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: pnpm-store-
 
