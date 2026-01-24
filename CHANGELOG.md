@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.24] - 2026-01-24
+
+### Bug Fixes
+- Migrated MCP server from deprecated `Server` to `McpServer` to ensure compatibility with the latest API.
+
+
 ## [2.19.23] - 2026-01-24
 
 ### Improvements
