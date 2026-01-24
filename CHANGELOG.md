@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.3] - 2026-01-24
+
+### Bug Fixes
+- MCP server now correctly respects remote backend configuration.
+
+
 ## [2.19.2] - 2026-01-24
 
 ### Bug Fixes
