@@ -28,8 +28,14 @@ export interface TimestampedObservation {
 export async function handleContextTask(
   agent: Agent,
   payload: ContextGenerateTaskPayload,
-  observations: TimestampedObservation[]
+  observations: TimestampedObservation[],
+  signal?: AbortSignal
 ): Promise<ContextGenerateTask['result']> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
   logger.debug(`Generating context for ${payload.project} with ${observations.length} observations`);
 
   if (observations.length === 0) {
@@ -49,6 +55,7 @@ export async function handleContextTask(
     messages: [{ role: 'user', content: userPrompt }],
     maxTokens: 2048,
     temperature: 0.3,
+    signal,
   });
 
   return {
