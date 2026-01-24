@@ -5,13 +5,10 @@
  * Delegates to backend HTTP API for actual queries.
  */
 
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
 import { loadSettings } from '@claude-mem/shared';
+import { z } from 'zod';
 
 // Version injected at build time
 declare const __PLUGIN_VERSION__: string;
@@ -92,169 +89,124 @@ async function callBackendAPI(
 }
 
 /**
- * Tool definitions
- */
-const TOOLS = [
-  {
-    name: 'search',
-    description: 'Search memory observations. Returns index with IDs for filtering.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        query: { type: 'string', description: 'Search query text' },
-        limit: { type: 'number', description: 'Max results (default 20)' },
-        type: { type: 'string', description: 'Filter by observation type' },
-        project: { type: 'string', description: 'Filter by project' },
-        dateStart: { type: 'string', description: 'Start date (ISO 8601)' },
-        dateEnd: { type: 'string', description: 'End date (ISO 8601)' },
-      },
-      required: ['query'],
-    },
-  },
-  {
-    name: 'timeline',
-    description: 'Get context around an observation. Use after search to fetch details.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        anchor: { type: 'number', description: 'Observation ID to center on' },
-        query: { type: 'string', description: 'Or search query to find anchor' },
-        depth_before: { type: 'number', description: 'Observations before anchor' },
-        depth_after: { type: 'number', description: 'Observations after anchor' },
-        project: { type: 'string', description: 'Filter by project' },
-      },
-    },
-  },
-  {
-    name: 'get_observations',
-    description: 'Fetch full details for filtered observation IDs.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        ids: {
-          type: 'array',
-          items: { type: 'number' },
-          description: 'Array of observation IDs to fetch',
-        },
-        project: { type: 'string', description: 'Filter by project' },
-      },
-      required: ['ids'],
-    },
-  },
-  {
-    name: 'save_memory',
-    description: 'Save important information to persistent memory for semantic search.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        text: { type: 'string', description: 'Content to remember' },
-        title: { type: 'string', description: 'Short title (optional)' },
-        project: { type: 'string', description: 'Project name (optional)' },
-        type: {
-          type: 'string',
-          enum: ['decision', 'discovery', 'note', 'bookmark'],
-          description: 'Memory type: decision (architectural choice), discovery (learning), note (general), bookmark (important moment)',
-        },
-      },
-      required: ['text'],
-    },
-  },
-  {
-    name: 'search_documents',
-    description: 'Search cached documentation from Context7 and WebFetch. Use this to recall previously fetched library docs without re-querying external sources.',
-    inputSchema: {
-      type: 'object' as const,
-      properties: {
-        query: { type: 'string', description: 'Search query for documentation content' },
-        project: { type: 'string', description: 'Filter by project (optional)' },
-        type: { type: 'string', description: 'Filter by document type: library-docs, api-docs, etc. (optional)' },
-        limit: { type: 'number', description: 'Max results (default 10)' },
-      },
-      required: ['query'],
-    },
-  },
-];
-
-/**
  * Create and run MCP server
  */
 async function main(): Promise<void> {
-  const server = new Server(
+  const server = new McpServer({
+    name: 'claude-mem-mcp-search',
+    version,
+  });
+
+  // Register search tool
+  server.registerTool(
+    'search',
     {
-      name: 'claude-mem-mcp-search',
-      version,
-    },
-    {
-      capabilities: {
-        tools: {},
+      description: 'Search memory observations. Returns index with IDs for filtering.',
+      inputSchema: {
+        query: z.string().describe('Search query text'),
+        limit: z.number().optional().describe('Max results (default 20)'),
+        type: z.string().optional().describe('Filter by observation type'),
+        project: z.string().optional().describe('Filter by project'),
+        dateStart: z.string().optional().describe('Start date (ISO 8601)'),
+        dateEnd: z.string().optional().describe('End date (ISO 8601)'),
       },
+    },
+    async (args) => callBackendAPI('/api/search', args as Record<string, unknown>)
+  );
+
+  // Register timeline tool
+  server.registerTool(
+    'timeline',
+    {
+      description: 'Get context around an observation. Use after search to fetch details.',
+      inputSchema: {
+        anchor: z.number().optional().describe('Observation ID to center on'),
+        query: z.string().optional().describe('Or search query to find anchor'),
+        depth_before: z.number().optional().describe('Observations before anchor'),
+        depth_after: z.number().optional().describe('Observations after anchor'),
+        project: z.string().optional().describe('Filter by project'),
+      },
+    },
+    async (args) => callBackendAPI('/api/search/timeline', args as Record<string, unknown>)
+  );
+
+  // Register get_observations tool
+  server.registerTool(
+    'get_observations',
+    {
+      description: 'Fetch full details for filtered observation IDs.',
+      inputSchema: {
+        ids: z.array(z.number()).describe('Array of observation IDs to fetch'),
+        project: z.string().optional().describe('Filter by project'),
+      },
+    },
+    async (args) => callBackendAPI('/api/search/observations', args as Record<string, unknown>)
+  );
+
+  // Register save_memory tool
+  server.registerTool(
+    'save_memory',
+    {
+      description: 'Save important information to persistent memory for semantic search.',
+      inputSchema: {
+        text: z.string().describe('Content to remember'),
+        title: z.string().optional().describe('Short title (optional)'),
+        project: z.string().optional().describe('Project name (optional)'),
+        type: z.enum(['decision', 'discovery', 'note', 'bookmark']).optional()
+          .describe('Memory type: decision (architectural choice), discovery (learning), note (general), bookmark (important moment)'),
+      },
+    },
+    async (args) => {
+      try {
+        const postHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (AUTH_TOKEN) {
+          postHeaders['Authorization'] = `Bearer ${AUTH_TOKEN}`;
+        }
+        const response = await fetch(`${BACKEND_BASE_URL}/api/data/observations`, {
+          method: 'POST',
+          headers: postHeaders,
+          body: JSON.stringify(args),
+        });
+        const data = await response.json();
+        return {
+          content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }],
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: 'text' as const,
+            text: `Error: ${error instanceof Error ? error.message : String(error)}`
+          }],
+          isError: true,
+        };
+      }
     }
   );
 
-  // List tools handler
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: TOOLS,
-  }));
-
-  // Call tool handler
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    const { name, arguments: args } = request.params;
-
-    switch (name) {
-      case 'search':
-        return callBackendAPI('/api/search', args as Record<string, unknown>);
-
-      case 'timeline':
-        return callBackendAPI('/api/search/timeline', args as Record<string, unknown>);
-
-      case 'get_observations':
-        return callBackendAPI('/api/search/observations', args as Record<string, unknown>);
-
-      case 'save_memory':
-        // POST request for saving
-        try {
-          const postHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-          if (AUTH_TOKEN) {
-            postHeaders['Authorization'] = `Bearer ${AUTH_TOKEN}`;
-          }
-          const response = await fetch(`${BACKEND_BASE_URL}/api/data/observations`, {
-            method: 'POST',
-            headers: postHeaders,
-            body: JSON.stringify(args),
-          });
-          const data = await response.json();
-          return {
-            content: [{ type: 'text' as const, text: JSON.stringify(data, null, 2) }],
-          };
-        } catch (error) {
-          return {
-            content: [{
-              type: 'text' as const,
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`
-            }],
-            isError: true,
-          };
-        }
-
-      case 'search_documents': {
-        const params = args as Record<string, unknown>;
-        // Map 'query' to 'q' for backend API
-        const backendParams: Record<string, unknown> = {
-          q: params.query,
-          project: params.project,
-          type: params.type,
-          limit: params.limit ?? 10,
-        };
-        return callBackendAPI('/api/data/documents/search', backendParams);
-      }
-
-      default:
-        return {
-          content: [{ type: 'text' as const, text: `Unknown tool: ${name}` }],
-          isError: true,
-        };
+  // Register search_documents tool
+  server.registerTool(
+    'search_documents',
+    {
+      description: 'Search cached documentation from Context7 and WebFetch. Use this to recall previously fetched library docs without re-querying external sources.',
+      inputSchema: {
+        query: z.string().describe('Search query for documentation content'),
+        project: z.string().optional().describe('Filter by project (optional)'),
+        type: z.string().optional().describe('Filter by document type: library-docs, api-docs, etc. (optional)'),
+        limit: z.number().optional().describe('Max results (default 10)'),
+      },
+    },
+    async (args) => {
+      const params = args as Record<string, unknown>;
+      // Map 'query' to 'q' for backend API
+      const backendParams: Record<string, unknown> = {
+        q: params.query,
+        project: params.project,
+        type: params.type,
+        limit: params.limit ?? 10,
+      };
+      return callBackendAPI('/api/data/documents/search', backendParams);
     }
-  });
+  );
 
   // Connect via stdio
   const transport = new StdioServerTransport();
