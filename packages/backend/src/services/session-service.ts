@@ -60,6 +60,10 @@ export class SessionService {
     project: string;
     userPrompt?: string;
     workingDirectory?: string;
+    // Git worktree support
+    repoPath?: string;
+    isWorktree?: boolean;
+    branch?: string;
   }): Promise<SdkSessionRecord> {
     // Check for existing session
     let session = await this.sessions.findByContentSessionId(params.contentSessionId);
@@ -118,6 +122,10 @@ export class SessionService {
       project: params.project,
       userPrompt: cleanedPrompt,
       workingDirectory: params.workingDirectory,
+      // Git worktree support
+      repoPath: params.repoPath,
+      isWorktree: params.isWorktree,
+      branch: params.branch,
     });
 
     // Only set prompt counter to 1 if there's a real prompt, otherwise 0
