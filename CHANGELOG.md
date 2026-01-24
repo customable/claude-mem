@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.20.0] - 2026-01-24
+
+### Features
+- Added documents view to WebUI
+
+
 ## [2.19.24] - 2026-01-24
 
 ### Bug Fixes

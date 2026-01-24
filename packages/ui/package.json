@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/ui",
-  "version": "2.19.24",
+  "version": "2.20.0",
   "description": "Web UI for claude-mem",
   "type": "module",
   "scripts": {
