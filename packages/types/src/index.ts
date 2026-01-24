@@ -27,3 +27,6 @@ export * from './decisions.js';
 
 // Plugin system types
 export * from './plugins.js';
+
+// Memory sharing types
+export * from './sharing.js';

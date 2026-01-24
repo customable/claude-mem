@@ -177,42 +177,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14209 | 9:54 PM | 🟠 | Add ProjectSettingsRecord and ProjectSettingsData interfaces | ~3708 |
-| #14208 | 9:54 PM | 🟠 | Add new migration for ProjectSettings table | ~3355 |
-| #14207 | 9:54 PM | 🟠 | Add projectSettings repository to repository interfaces | ~5195 |
-| #14206 | 9:54 PM | 🟠 | Added Project Settings Repository Interface | ~5589 |
-| #14205 | 9:53 PM | 🟠 | Added ProjectSettingsRecord to repository imports | ~5206 |
-| #14204 | 9:53 PM | 🟠 | Created ProjectSettings entity for project metadata storage | ~1526 |
-| #14203 | 9:53 PM | 🟠 | Add ProjectSettings entity export to database entities index | ~1246 |
-| #14202 | 9:53 PM | 🟠 | Add ProjectSettings entity to MikroORM configuration | ~3050 |
-| #14201 | 9:53 PM | 🟠 | Add ProjectSettings entity to MikroORM configuration | ~3198 |
-| #14200 | 9:53 PM | 🟠 | Add new migration for ProjectSettings table | ~3521 |
-| #14199 | 9:53 PM | 🟠 | Add new migration export for ProjectSettings table | ~1985 |
-| #14198 | 9:52 PM | 🟠 | Create project_settings table migration | ~1574 |
-| #14197 | 9:52 PM | 🔄 | Task 7 status updated to "in_progress" | ~699 |
-| #14196 | 9:52 PM | 🔄 | Task 3 status updated to completed | ~682 |
-| #14195 | 9:51 PM | 🟠 | Implement memory templates for observation types | ~1131 |
-| #14194 | 9:51 PM | 🔄 | Successful monorepo build with CSS warning | ~1415 |
-| #14193 | 9:51 PM | 🟠 | Add observationTemplates repository to UnitOfWork | ~2713 |
-| #14192 | 9:51 PM | 🟠 | Added observationTemplates to DataRouter initialization | ~4955 |
-| #14191 | 9:50 PM | 🟠 | Added Observation Template API Endpoints | ~5977 |
-| #14190 | 9:50 PM | 🟠 | Add observationTemplates repository to DataRouter dependencies | ~4924 |
-| #14189 | 9:50 PM | 🔴 | Initialize observationTemplates repository in constructor | ~2723 |
-| #14188 | 9:50 PM | 🟠 | Added Observation Templates API endpoints | ~5212 |
-| #14187 | 9:50 PM | 🟠 | Added IObservationTemplateRepository to data routes import | ~4973 |
-| #14186 | 9:50 PM | 🟠 | Add ObservationTemplateRepository import to UnitOfWork | ~2677 |
-| #14185 | 9:49 PM | 🟠 | Add observationTemplates repository to UnitOfWork | ~2538 |
-| #14184 | 9:49 PM | 🟠 | Implemented ObservationTemplateRepository for MikroORM | ~4048 |
-| #14183 | 9:49 PM | 🟠 | Add ObservationTemplateRepository export to MikroORM repositories | ~1326 |
-| #14182 | 9:49 PM | 🟠 | Added Observation Template Repository Interface | ~5753 |
-| #14181 | 9:48 PM | 🟠 | Added observationTemplates repository to types | ~5099 |
-| #14180 | 9:48 PM | 🟠 | Add ObservationTemplateRecord to repository imports | ~5209 |
+| #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
+| #14408 | 10:15 PM | 🔵 | Located hooks.json file in plugin directory | ~692 |
+| #14407 | 10:15 PM | 🔵 | Search for agent-related patterns yields minimal results | ~810 |
+| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
+| #14405 | 10:15 PM | 🔴 | Filter out null/undefined session IDs in fetchSessions | ~5141 |
+| #14404 | 10:15 PM | 🔵 | Documentation on SubagentStart and SubagentStop hooks | ~5377 |
+| #14403 | 10:15 PM | 🔵 | Privacy handling in share-service.ts | ~1735 |
+| #14402 | 10:15 PM | 🔵 | Discovered pinned field in database schema | ~824 |
+| #14401 | 10:15 PM | 🔵 | Exploring SdkSessionRecord interface and its usage | ~4715 |
+| #14400 | 10:15 PM | 🔵 | SDKSessionRecord type usage in share-service.ts | ~766 |
+| #14399 | 10:15 PM | 🔴 | TypeScript errors in share-service.ts after build | ~1697 |
+| #14398 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord | ~4879 |
+| #14397 | 10:14 PM | 🟠 | Added ShareService to BackendService class | ~4908 |
+| #14396 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord for consistency | ~2959 |
+| #14395 | 10:14 PM | 🔴 | TypeScript error in types package: SDKSessionRecord import | ~1077 |
+| #14394 | 10:14 PM | 🟠 | Added ShareRouter to backend service | ~5080 |
+| #14393 | 10:13 PM | 🟠 | Adding ShareService to backend-service imports | ~5031 |
+| #14392 | 10:13 PM | 🔵 | Backend service routes and static UI serving | ~1336 |
+| #14391 | 10:13 PM | 🟠 | Added ShareService initialization to BackendService | ~5129 |
+| #14390 | 10:13 PM | 🔵 | Backend service initialization and route registration | ~1771 |
+| #14389 | 10:13 PM | 🟠 | Added ShareRouter import to backend service | ~4879 |
+| #14388 | 10:13 PM | 🔵 | Backend Service Architecture Overview | ~1916 |
+| #14387 | 10:13 PM | 🟠 | Added ShareRouter exports to routes index | ~1515 |
+| #14386 | 10:13 PM | 🟠 | Added ShareService exports to services index | ~1369 |
+| #14385 | 10:13 PM | 🔵 | Hook Implementation Analysis in packages/hooks | ~3524 |
+| #14384 | 10:13 PM | 🟠 | Implemented ShareRouter for memory sharing API | ~5475 |
+| #14383 | 10:13 PM | 🔵 | Querying observations from SQLite database | ~2701 |
+| #14382 | 10:12 PM | 🔵 | Subagent detection and session context in hooks | ~2277 |
+| #14381 | 10:12 PM | 🟠 | Created Share Service for memory sharing functionality | ~6893 |
+| #14380 | 10:12 PM | 🔵 | Analyzing session schema and ID patterns in SQLite database | ~6017 |
 
 ## Key Insights
 
-- **Project Settings Infrastructure**: A comprehensive system for project-specific settings was implemented, including database tables, entities, repositories, and interfaces. This enables granular project configuration and metadata storage.
-- **Observation Templates**: A new feature for customizable observation templates was added, supporting different types (Bug Fix, Feature, Decision, etc.) with full CRUD API endpoints and repository integration.
-- **Task Management**: Active progress on task management with status updates (Task 3 completed, Task 7 in progress), indicating ongoing project tracking.
-- **Build System**: Successful monorepo build with minor CSS warnings, confirming the project's build pipeline is functional.
-- **Database Schema Evolution**: Multiple migrations and entity additions show significant expansion of the database schema to support new features.
+- **Share Service Integration**: Major focus on implementing memory sharing functionality with ShareService, ShareRouter, and related components. Multiple bugfixes address null handling and TypeScript errors.
+- **Subagent Analysis**: Discovery of minimal subagent implementation despite database fields suggesting potential support. Hook system captures 4 main events but lacks subagent detection.
+- **Architecture Patterns**: Backend uses MikroORM with Unit of Work pattern, modular router structure, and dependency injection. TypeScript type safety is maintained across packages.
+- **Database Schema**: SQLite database includes session tracking with 15 columns, privacy handling for sharing, and a 'pinned' field for prioritization.
+- **Refactoring**: Consistent naming convention improvements (SDKSessionRecord → SdkSessionRecord) and null safety enhancements across session and observation processing.
 </claude-mem-context>

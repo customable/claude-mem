@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14387 | 10:13 PM | 🟠 | Added ShareRouter exports | ~1515 |
+| #14384 | 10:13 PM | 🟠 | Implemented ShareRouter | ~5475 |
+| #14365 | 10:11 PM | 🔵 | Exploring Hooks Router | ~2500 |
+| #14351 | 10:10 PM | 🔵 | Examining Import Router | ~3286 |
+| #14350 | 10:10 PM | 🔵 | Export routes structure | ~2754 |
 | #14332 | 10:08 PM | 🟠 | Added PluginsRouter exports | ~1503 |
-| #14331 | 10:08 PM | 🔵 | Backend routes structure overview | ~1354 |
+| #14331 | 10:08 PM | 🔵 | Backend routes overview | ~1354 |
 | #14330 | 10:07 PM | 🟠 | Created plugins router | ~4033 |
 | #14298 | 10:03 PM | 🟠 | Added SuggestionsRouter exports | ~1489 |
-| #14295 | 10:03 PM | 🔵 | Backend routes module structure | ~1314 |
+| #14295 | 10:03 PM | 🔵 | Backend routes module | ~1314 |
 | #14294 | 10:03 PM | 🟠 | Created SuggestionsRouter | ~4281 |
-| #14293 | 10:03 PM | 🔵 | Search API uses text fallback | ~1882 |
-| #14226 | 9:57 PM | 🟠 | Added Project Settings API | ~5411 |
-| #14223 | 9:57 PM | 🟠 | Added Project Settings API | ~5939 |
-| #14222 | 9:56 PM | 🟠 | Add projectSettings repository | ~4972 |
-| #14221 | 9:56 PM | 🔵 | Examining Data Router | ~5014 |
-| #14220 | 9:56 PM | 🟠 | Added IProjectSettingsRepository | ~4947 |
-| #14191 | 9:50 PM | 🟠 | Added Observation Template API | ~5977 |
-| #14190 | 9:50 PM | 🟠 | Add observationTemplates repo | ~4924 |
-| #14188 | 9:50 PM | 🟠 | Added Observation Templates API | ~5212 |
-| #14187 | 9:50 PM | 🟠 | Added IObservationTemplateRepo | ~4973 |
-| #14159 | 9:44 PM | 🟠 | Added observation link endpoints | ~6003 |
-| #14158 | 9:44 PM | 🟠 | Added Observation Links API | ~5059 |
-| #14157 | 9:44 PM | 🔵 | API endpoints discovered | ~1303 |
-| #14156 | 9:44 PM | 🟠 | Add observationLinks to deps | ~5147 |
-| #14154 | 9:43 PM | 🟠 | Added ObservationLinkRepo imports | ~5088 |
-| #14117 | 9:37 PM | 🟠 | Added observation pinning API | ~6066 |
-| #14116 | 9:37 PM | 🟠 | Added pinning/importance API | ~5423 |
-| #14115 | 9:37 PM | 🔵 | Examining Data Router | ~5059 |
-| #13945 | 9:13 PM | 🟠 | Added SleepAgentRouter exports | ~1452 |
-| #13944 | 9:12 PM | 🟠 | Created Sleep Agent Router | ~3163 |
-| #13912 | 9:07 PM | 🔄 | Change setupRoutes visibility | ~2328 |
-| #13911 | 9:07 PM | 🔵 | Identified setupRoutes method | ~730 |
-| #13896 | 9:03 PM | 🟠 | Added DecisionsRouter exports | ~1543 |
-| #13895 | 9:03 PM | 🔵 | Backend routes module structure | ~1233 |
+| #14293 | 10:03 PM | 🔵 | Search API fallback | ~1882 |
+| #14226 | 9:57 PM | 🟠 | Project Settings API | ~5411 |
+| #14223 | 9:57 PM | 🟠 | Project Settings API | ~5939 |
+| #14222 | 9:56 PM | 🟠 | Project settings repo | ~4972 |
+| #14221 | 9:56 PM | 🔵 | Data Router analysis | ~5014 |
+| #14220 | 9:56 PM | 🟠 | Project settings import | ~4947 |
+| #14191 | 9:50 PM | 🟠 | Observation Template API | ~5977 |
+| #14190 | 9:50 PM | 🟠 | Observation templates repo | ~4924 |
+| #14188 | 9:50 PM | 🟠 | Observation Templates API | ~5212 |
+| #14187 | 9:50 PM | 🟠 | Observation template import | ~4973 |
+| #14159 | 9:44 PM | 🟠 | Observation link endpoints | ~6003 |
+| #14158 | 9:44 PM | 🟠 | Observation Links API | ~5059 |
+| #14157 | 9:44 PM | 🔵 | API endpoints analysis | ~1303 |
+| #14156 | 9:44 PM | 🟠 | Observation links repo | ~5147 |
+| #14154 | 9:43 PM | 🟠 | Observation link imports | ~5088 |
+| #14117 | 9:37 PM | 🟠 | Observation pinning API | ~6066 |
+| #14116 | 9:37 PM | 🟠 | Observation importance API | ~5423 |
+| #14115 | 9:37 PM | 🔵 | Data Router analysis | ~5059 |
+| #13945 | 9:13 PM | 🟠 | SleepAgentRouter exports | ~1452 |
 
 ## Key Insights
 
-- **Modular Architecture**: The backend follows a clean, modular router structure with 16+ distinct routers (e.g., PluginsRouter, SuggestionsRouter, SleepAgentRouter), each handling specific domains.
-- **New Features Added**: Project settings, observation templates, observation links, and pinning/importance management were implemented with full CRUD API endpoints.
-- **Search & AI Integration**: The search API currently uses text fallback for semantic search, indicating planned Qdrant integration for advanced search capabilities.
-- **Worker Architecture**: A comprehensive in-process worker system was added with file-based mutex locks and lifecycle management, supporting spawn, in-process, and hybrid modes.
-- **Refactoring**: The `setupRoutes` method visibility was changed from private to protected in DecisionsRouter, suggesting a design shift toward more flexible router initialization.
+- **Major Feature Expansion**: Added multiple new routers (ShareRouter, PluginsRouter, SuggestionsRouter) and comprehensive API endpoints for project settings, observation templates, links, and pinning functionality.
+- **Modular Architecture**: The backend follows a clean modular router structure with 16+ distinct router modules, each handling specific functionality (health checks, hooks, data, etc.).
+- **Database Integration**: Uses MikroORM with Unit of Work pattern for transactions, maintaining TypeScript type safety across packages.
+- **Planned Features**: Search API has placeholder for semantic search (Qdrant integration planned), and some database fields suggest potential subagent functionality not yet implemented.
+- **Next Steps**: Need to commit staged changes, address UI CSS warnings, and test new features (project settings, observation templates/links) in integration scenarios.
 </claude-mem-context>

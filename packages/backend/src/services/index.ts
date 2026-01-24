@@ -28,3 +28,6 @@ export { SuggestionService } from './suggestion-service.js';
 export type { SuggestionServiceOptions, SuggestionContext, Suggestion, SuggestionFeedback } from './suggestion-service.js';
 
 export { PluginManager, createPluginManager } from './plugin-manager.js';
+
+export { ShareService, createShareService } from './share-service.js';
+export type { ShareServiceDeps } from './share-service.js';

@@ -7,6 +7,11 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14362 | 10:10 PM | 🔵 | User prompt submission handler with secret detection | ~1661 |
+| #14361 | 10:10 PM | 🔵 | Understanding the stop hook handler functionality | ~1757 |
+| #14359 | 10:10 PM | 🔵 | Hook Handlers Registry Structure | ~1368 |
+| #14357 | 10:10 PM | 🔵 | Post-tool-use handler for observation extraction | ~2570 |
+| #14355 | 10:10 PM | 🔵 | Session Start Handler Implementation Review | ~3273 |
 | #14075 | 9:31 PM | 🔴 | Removed redundant settings load in worker transition | ~2877 |
 | #14069 | 9:29 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2590 |
 | #14064 | 9:28 PM | 🟠 | Add in-process worker transition logic to post-tool-use handler | ~3485 |
@@ -32,17 +37,12 @@
 | #13075 | 6:02 PM | 🔵 | UserPromptSubmit handler initializes backend sessions | ~1202 |
 | #13073 | 6:02 PM | 🟠 | Added Git repository info collection for worktree support | ~2165 |
 | #13072 | 6:02 PM | 🟠 | Added getRepoInfo import to user-prompt-submit handler | ~1527 |
-| #13071 | 6:02 PM | 🟠 | Add repository info to SSE writer process arguments | ~3381 |
-| #13070 | 6:02 PM | 🟠 | Add Git repository info support for worktree handling | ~4813 |
-| #13069 | 6:02 PM | 🔵 | Session Start Handler Implementation Analysis | ~2945 |
-| #13068 | 6:01 PM | 🟠 | Add getRepoInfo import and RepoInfo type to session-start handler | ~3275 |
-| #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call by removing redundant toolName parameter | ~2241 |
 
 ## Key Insights
 
-- **Worker Architecture**: Implemented in-process worker transition logic with lifecycle management and file-based mutex locks. Supports spawn, in-process, and hybrid worker modes.
-- **Secret Detection**: Added comprehensive secret detection and redaction across user prompts and tool observations, with configurable detection modes.
-- **Repository Support**: Enhanced Git repository info collection, including worktree support, and integrated it into session handlers and SSE writer processes.
-- **Hook Handlers**: Centralized event handling for core events (session-start, user-prompt-submit, post-tool-use) with backend communication and context injection.
-- **Refactoring**: Improved API request handling with conditional query parameters and safe repository info retrieval with proper error handling.
+- **Secret Detection Integration**: Major focus on implementing secret detection across handlers (user-prompt-submit, post-tool-use), with redaction capabilities and configurable modes.
+- **Worker Architecture Enhancements**: Added in-process worker transition logic and lifecycle management to post-tool-use handlers, supporting multiple worker modes (spawn, in-process, hybrid).
+- **Repository Context Handling**: Improved Git repository information collection (including worktree support) and safe retrieval methods for session initialization.
+- **Hook Handler Architecture**: Comprehensive discovery of the hook handler registry structure with core events (session-start, user-prompt-submit, post-tool-use, stop) and their respective functionalities.
+- **Code Quality Improvements**: Refactored API request handling (conditional query parameters) and removed redundant operations (settings load in worker transitions).
 </claude-mem-context>

@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14329 | 10:07 PM | 🟠 | Added PluginManager exports | ~1400 |
+| #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
+| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
+| #14405 | 10:15 PM | 🔴 | Filter out null/undefined session IDs in fetchSessions | ~5141 |
+| #14403 | 10:15 PM | 🔵 | Privacy handling in share-service.ts | ~1735 |
+| #14400 | 10:15 PM | 🔵 | SDKSessionRecord type usage in share-service.ts | ~766 |
+| #14398 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord | ~4879 |
+| #14386 | 10:13 PM | 🟠 | Added ShareService exports to services index | ~1369 |
+| #14381 | 10:12 PM | 🟠 | Created Share Service for memory sharing functionality | ~6893 |
+| #14376 | 10:11 PM | 🔵 | Session Service Structure and User Prompt Handling | ~2247 |
+| #14342 | 10:09 PM | 🔄 | Update import from getDataDir to DATA_DIR in plugin-manager | ~3673 |
+| #14341 | 10:09 PM | 🔄 | Replace getDataDir() with DATA_DIR constant | ~3579 |
+| #14329 | 10:07 PM | 🟠 | Added PluginManager exports to services index | ~1400 |
 | #14328 | 10:06 PM | 🟠 | Implemented Plugin Manager Service | ~5468 |
-| #14297 | 10:03 PM | 🟠 | Added SuggestionService exports | ~1480 |
+| #14297 | 10:03 PM | 🟠 | Added SuggestionService exports to services index | ~1480 |
 | #14296 | 10:03 PM | 🔵 | Backend services structure overview | ~1169 |
-| #14292 | 10:02 PM | 🟠 | Created Suggestion Service | ~6045 |
+| #14292 | 10:02 PM | 🟠 | Created Suggestion Service for AI-powered memory suggestions | ~6045 |
 | #14040 | 9:23 PM | 🔵 | Worker Process Manager Architecture Review | ~4286 |
 | #14007 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~2170 |
 | #13981 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~4183 |
 | #13954 | 9:14 PM | 🔵 | Sleep Agent Service for Memory Consolidation | ~3632 |
-| #13946 | 9:13 PM | 🟠 | Added SleepAgentService exports | ~1486 |
+| #13946 | 9:13 PM | 🟠 | Added SleepAgentService exports to services index | ~1486 |
 | #13943 | 9:12 PM | 🔵 | Backend services structure overview | ~956 |
-| #13937 | 9:11 PM | 🟠 | Created Sleep Agent Service | ~5853 |
-| #13893 | 9:03 PM | 🟠 | Added DecisionService exports | ~1294 |
+| #13937 | 9:11 PM | 🟠 | Created Sleep Agent Service for memory consolidation | ~5853 |
+| #13893 | 9:03 PM | 🟠 | Added DecisionService exports to services index | ~1294 |
 | #13892 | 9:03 PM | 🔵 | Backend services structure overview | ~984 |
-| #13891 | 9:02 PM | 🟠 | Created Decision Service | ~3762 |
+| #13891 | 9:02 PM | 🟠 | Created Decision Service for conflict detection and decision tracking | ~3762 |
 | #13859 | 8:57 PM | 🔴 | Fix error logging in lazy-processing-service | ~3277 |
-| #13855 | 8:57 PM | 🔴 | Fix logger.error call | ~3286 |
+| #13855 | 8:57 PM | 🔴 | Fix logger.error call to use structured error object | ~3286 |
 | #13854 | 8:57 PM | 🔴 | Fix error logging in scheduled batch processing | ~3273 |
 | #13853 | 8:56 PM | 🔵 | Lazy Processing Service Implementation Details | ~1678 |
-| #13852 | 8:56 PM | 🟠 | Added LazyProcessingService exports | ~1401 |
-| #13851 | 8:55 PM | 🔵 | Backend services index file structure | ~1036 |
-| #13839 | 8:54 PM | 🟠 | Created Lazy Processing Service | ~5154 |
-| #13791 | 8:42 PM | 🟠 | Expanded achievement system | ~8284 |
-| #13790 | 8:41 PM | 🔵 | Achievement system structure discovered | ~1592 |
-| #13784 | 8:38 PM | 🔴 | Fallback for empty daily stats | ~5078 |
-| #13780 | 8:38 PM | 🟠 | Added fallback logic for empty daily stats | ~5056 |
-| #13766 | 8:33 PM | 🔴 | Fix insights summary token tracking logic | ~4407 |
-| #13748 | 8:29 PM | 🔴 | Fallback to observations when daily stats are empty | ~4893 |
-| #13743 | 8:27 PM | 🔵 | Insights Service Architecture Review | ~3887 |
-| #13731 | 8:26 PM | 🔵 | No "insight" references in SSE broadcaster service | ~718 |
 
 ## Key Insights
 
-- **New Services Added**: PluginManager, SuggestionService, SleepAgentService, DecisionService, and LazyProcessingService were all created and integrated into the backend services index.
-- **Error Handling Improvements**: Multiple fixes were made to error logging in the lazy-processing-service to ensure consistent error message formatting.
-- **Fallback Mechanisms**: Several services (InsightsService, LazyProcessingService) now include fallback logic to handle cases where daily_stats are empty, improving robustness.
-- **Worker Architecture**: The WorkerProcessManager was reviewed and documented, revealing its role in managing worker child processes and lifecycle.
-- **Achievement System Expansion**: The achievement system was significantly expanded with new categories and tiers, enhancing user engagement features.
+- **Memory Sharing & Privacy**: ShareService was created with robust null handling and privacy controls (full/anonymized sharing modes).
+- **Service Architecture Growth**: Multiple new services added (SleepAgent, Decision, Suggestion, PluginManager) following consistent export patterns.
+- **Error Handling Improvements**: Systematic fixes for error logging across services (lazy-processing, share-service).
+- **Refactoring Trends**: Naming consistency improvements (SDKSessionRecord → SdkSessionRecord) and constant usage (DATA_DIR).
+- **Core Functionality**: Sleep Agent handles memory tiering; Decision Service tracks conflicts; Suggestion Service provides AI-powered context-aware recommendations.
 </claude-mem-context>

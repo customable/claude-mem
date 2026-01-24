@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -34,6 +34,7 @@ import {
   SleepAgentRouter,
   SuggestionsRouter,
   PluginsRouter,
+  ShareRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -85,6 +86,7 @@ export class BackendService {
   private sleepAgentService: SleepAgentService | null = null;
   private suggestionService: SuggestionService | null = null;
   private pluginManager: PluginManager | null = null;
+  private shareService: ShareService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -309,6 +311,13 @@ export class BackendService {
       this.pluginManager = createPluginManager();
       await this.pluginManager.loadPlugins();
 
+      // Initialize share service for memory sharing and collaboration
+      this.shareService = createShareService({
+        observations: this.unitOfWork.observations,
+        summaries: this.unitOfWork.summaries,
+        sessions: this.unitOfWork.sessions,
+      });
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -424,6 +433,11 @@ export class BackendService {
     // Plugins routes (custom observation processors)
     this.app.use('/api/plugins', new PluginsRouter({
       pluginManager: this.pluginManager!,
+    }).router);
+
+    // Share routes (memory sharing and collaboration)
+    this.app.use('/api/share', new ShareRouter({
+      shareService: this.shareService!,
     }).router);
 
     // Finalize app (error handlers)

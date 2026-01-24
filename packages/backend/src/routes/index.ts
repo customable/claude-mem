@@ -35,3 +35,5 @@ export { SuggestionsRouter } from './suggestions.js';
 export type { SuggestionsRouterDeps } from './suggestions.js';
 export { PluginsRouter } from './plugins.js';
 export type { PluginsRouterDeps } from './plugins.js';
+export { ShareRouter } from './share.js';
+export type { ShareRouterDeps } from './share.js';
