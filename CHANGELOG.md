@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.2] - 2026-01-24
+
+### Bug Fixes
+- Removed explicit pnpm version in CI to use the version specified in package.json
+
+### Improvements
+- Optimized CI workflows for faster execution
+
+
 ## [2.19.1] - 2026-01-24
 
 ### Bug Fixes
