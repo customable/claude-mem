@@ -7,18 +7,13 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #12828 | 12:05 PM | 🟣 | Remove bun:sqlite from worker-service externals | ~3688 |
-| #12827 | 12:05 PM | 🟣 | Removed bun:sqlite from mcp-server.cjs externals | ~3199 |
-| #12826 | 12:04 PM | 🔵 | Build script config for worker-service/mcp-server | ~1572 |
-| #12825 | 12:04 PM | 🔵 | SQLite dependency in build config | ~936 |
-| #12810 | 12:02 PM | 🔵 | Build script for plugin distribution | ~1301 |
 | #12288 | 10:37 AM | 🔵 | Version functions in build scripts | ~864 |
 
 ## Key Insights
 
-- SQLite is now bundled directly into worker-service and mcp-server (removed from externals)
-- Build process uses esbuild targeting Node 18 with CommonJS format for both services
-- Plugin distribution bundles multiple components including worker-service and mcp-server
-- Version management is handled separately in different build processes
-- Recent refactoring removed significant unused code (e.g., 39% reduction in capabilities.ts)
+- Version management is fragmented across `build-plugin.mjs` and `sync-marketplace.cjs`
+- GDPR-compliant deletion endpoints were successfully implemented
+- Windows terminal popup issues resolved with `windowsHide: true` flag
+- Critical issues remain: process/memory leaks (Issue #101) and Docker documentation gaps
+- MCP tool enhancements (e.g., `search_documents`) are progressing but need further refinement
 </claude-mem-context>
