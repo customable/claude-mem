@@ -144,6 +144,60 @@ export interface SpawnStatus {
   canSpawnMore: boolean;
 }
 
+// Insights types
+export interface InsightsSummary {
+  totalObservations: number;
+  totalSessions: number;
+  totalProjects: number;
+  totalDecisions: number;
+  totalTokens: number;
+  activeDays: number;
+  currentStreak: number;
+  longestStreak: number;
+}
+
+export interface DailyStatsRecord {
+  id: number;
+  date: string;
+  observation_count: number;
+  session_count: number;
+  project_count: number;
+  decision_count: number;
+  error_count: number;
+  bug_fix_count: number;
+  discovery_count: number;
+  tokens_used: number;
+  technologies: string | null;
+  projects: string | null;
+  created_at_epoch: number;
+}
+
+export interface TechnologyUsageRecord {
+  id: number;
+  name: string;
+  category: string | null;
+  first_seen_epoch: number;
+  last_used_epoch: number;
+  observation_count: number;
+  project: string | null;
+}
+
+export interface AchievementDefinition {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'activity' | 'learning' | 'milestone' | 'streak';
+  threshold?: number;
+}
+
+export interface AchievementProgress {
+  definition: AchievementDefinition;
+  progress: number;
+  unlocked: boolean;
+  unlockedAt?: number;
+}
+
 export type DocumentType =
   | 'library-docs'
   | 'web-content'
@@ -421,4 +475,28 @@ export const api = {
     return get<{ data: string[] }>(`/data/code-snippets/languages${queryStr ? '?' + queryStr : ''}`).then(res => res.data || []);
   },
   deleteCodeSnippet: (id: number) => del<void>(`/data/code-snippets/${id}`),
+
+  // Insights
+  getInsightsSummary: (days?: number) => {
+    const query = days ? `?days=${days}` : '';
+    return get<InsightsSummary>(`/insights/summary${query}`);
+  },
+  getInsightsActivity: (days?: number) => {
+    const query = days ? `?days=${days}` : '';
+    return get<DailyStatsRecord[]>(`/insights/activity${query}`);
+  },
+  getInsightsHeatmap: () => get<Array<{ date: string; count: number }>>('/insights/activity/heatmap'),
+  getInsightsTechnologies: (params?: { limit?: number; project?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.project) query.set('project', params.project);
+    const queryStr = query.toString();
+    return get<TechnologyUsageRecord[]>(`/insights/technologies${queryStr ? '?' + queryStr : ''}`);
+  },
+  getInsightsTechnologyCategories: () => get<string[]>('/insights/technologies/categories'),
+  trackTechnology: (name: string, category?: string, project?: string) =>
+    post<TechnologyUsageRecord>('/insights/technologies', { name, category, project }),
+  getInsightsAchievements: () => get<AchievementProgress[]>('/insights/achievements'),
+  checkAchievements: () =>
+    post<{ checked: boolean; updated: number; achievements: AchievementProgress[] }>('/insights/achievements/check', {}),
 };

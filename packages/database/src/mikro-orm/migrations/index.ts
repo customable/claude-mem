@@ -9,3 +9,4 @@ export { Migration20260123000004_AddSessionRequestType } from './Migration202601
 export { Migration20260123000005_CreateDocumentsTable } from './Migration20260123000005_CreateDocumentsTable.js';
 export { Migration20260124000001_GitWorktreeSupport } from './Migration20260124000001_GitWorktreeSupport.js';
 export { Migration20260124000002_CreateCodeSnippetsTable } from './Migration20260124000002_CreateCodeSnippetsTable.js';
+export { Migration20260124000003_CreateInsightsTables } from './Migration20260124000003_CreateInsightsTables.js';

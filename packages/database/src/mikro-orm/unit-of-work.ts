@@ -14,6 +14,9 @@ import { MikroOrmUserPromptRepository } from './repositories/UserPromptRepositor
 import { MikroOrmTaskRepository } from './repositories/TaskRepository.js';
 import { MikroOrmClaudeMdRepository } from './repositories/ClaudeMdRepository.js';
 import { MikroOrmCodeSnippetRepository } from './repositories/CodeSnippetRepository.js';
+import { MikroOrmDailyStatsRepository } from './repositories/DailyStatsRepository.js';
+import { MikroOrmTechnologyUsageRepository } from './repositories/TechnologyUsageRepository.js';
+import { MikroOrmAchievementRepository } from './repositories/AchievementRepository.js';
 
 /**
  * MikroORM implementation of IUnitOfWork
@@ -27,6 +30,9 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
   public taskQueue: MikroOrmTaskRepository;
   public claudemd: MikroOrmClaudeMdRepository;
   public codeSnippets: MikroOrmCodeSnippetRepository;
+  public dailyStats: MikroOrmDailyStatsRepository;
+  public technologyUsage: MikroOrmTechnologyUsageRepository;
+  public achievements: MikroOrmAchievementRepository;
 
   private transactionEm: SqlEntityManager | null = null;
 
@@ -39,6 +45,9 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.taskQueue = new MikroOrmTaskRepository(em);
     this.claudemd = new MikroOrmClaudeMdRepository(em);
     this.codeSnippets = new MikroOrmCodeSnippetRepository(em);
+    this.dailyStats = new MikroOrmDailyStatsRepository(em);
+    this.technologyUsage = new MikroOrmTechnologyUsageRepository(em);
+    this.achievements = new MikroOrmAchievementRepository(em);
   }
 
   async beginTransaction(): Promise<void> {
@@ -88,5 +97,8 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.taskQueue = new MikroOrmTaskRepository(em);
     this.claudemd = new MikroOrmClaudeMdRepository(em);
     this.codeSnippets = new MikroOrmCodeSnippetRepository(em);
+    this.dailyStats = new MikroOrmDailyStatsRepository(em);
+    this.technologyUsage = new MikroOrmTechnologyUsageRepository(em);
+    this.achievements = new MikroOrmAchievementRepository(em);
   }
 }

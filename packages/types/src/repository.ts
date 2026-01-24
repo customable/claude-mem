@@ -749,6 +749,13 @@ export interface ICodeSnippetRepository {
 // Unit of Work Pattern
 // ============================================
 
+// Import insights repository interfaces
+import type {
+  IDailyStatsRepository,
+  ITechnologyUsageRepository,
+  IAchievementRepository,
+} from './insights.js';
+
 /**
  * Unit of Work - provides access to all repositories
  * with transaction support
@@ -762,6 +769,10 @@ export interface IUnitOfWork {
   taskQueue: ITaskQueueRepository;
   claudemd: IClaudeMdRepository;
   codeSnippets: ICodeSnippetRepository;
+  // Learning insights repositories
+  dailyStats: IDailyStatsRepository;
+  technologyUsage: ITechnologyUsageRepository;
+  achievements: IAchievementRepository;
 
   /**
    * Start a transaction
