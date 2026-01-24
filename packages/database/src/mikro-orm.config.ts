@@ -21,6 +21,7 @@ import {
   DailyStats,
   TechnologyUsage,
   Achievement,
+  RawMessage,
 } from './entities/index.js';
 import { Migration20240101000001_InitialSchema } from './mikro-orm/migrations/Migration20240101000001_InitialSchema.js';
 import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migration20240101000002_FTS5Indexes.js';
@@ -30,6 +31,7 @@ import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrat
 import { Migration20260124000001_GitWorktreeSupport } from './mikro-orm/migrations/Migration20260124000001_GitWorktreeSupport.js';
 import { Migration20260124000002_CreateCodeSnippetsTable } from './mikro-orm/migrations/Migration20260124000002_CreateCodeSnippetsTable.js';
 import { Migration20260124000003_CreateInsightsTables } from './mikro-orm/migrations/Migration20260124000003_CreateInsightsTables.js';
+import { Migration20260124000004_CreateRawMessagesTable } from './mikro-orm/migrations/Migration20260124000004_CreateRawMessagesTable.js';
 
 /**
  * Database configuration options
@@ -64,6 +66,7 @@ export const entities = [
   DailyStats,
   TechnologyUsage,
   Achievement,
+  RawMessage,
 ];
 
 /**
@@ -78,6 +81,7 @@ export const migrationsList = [
   Migration20260124000001_GitWorktreeSupport,
   Migration20260124000002_CreateCodeSnippetsTable,
   Migration20260124000003_CreateInsightsTables,
+  Migration20260124000004_CreateRawMessagesTable,
 ];
 
 /**

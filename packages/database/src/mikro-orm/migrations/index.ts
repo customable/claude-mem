@@ -10,3 +10,4 @@ export { Migration20260123000005_CreateDocumentsTable } from './Migration2026012
 export { Migration20260124000001_GitWorktreeSupport } from './Migration20260124000001_GitWorktreeSupport.js';
 export { Migration20260124000002_CreateCodeSnippetsTable } from './Migration20260124000002_CreateCodeSnippetsTable.js';
 export { Migration20260124000003_CreateInsightsTables } from './Migration20260124000003_CreateInsightsTables.js';
+export { Migration20260124000004_CreateRawMessagesTable } from './Migration20260124000004_CreateRawMessagesTable.js';

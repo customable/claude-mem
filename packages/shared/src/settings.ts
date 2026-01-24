@@ -98,6 +98,12 @@ export interface Settings {
   // Secret Detection
   SECRET_DETECTION_ENABLED: boolean;
   SECRET_DETECTION_MODE: 'redact' | 'skip' | 'warn';
+
+  // Lazy Mode (token efficiency)
+  PROCESSING_MODE: 'normal' | 'lazy' | 'hybrid';
+  LAZY_BATCH_INTERVAL: number; // seconds, 0 = disabled
+  LAZY_PROCESS_ON_SEARCH: boolean;
+  LAZY_HYBRID_TYPES: string; // Comma-separated observation types to process in hybrid mode
 }
 
 // ============================================
@@ -188,6 +194,12 @@ export const DEFAULTS: Settings = {
   // Secret Detection
   SECRET_DETECTION_ENABLED: true, // Enabled by default for security
   SECRET_DETECTION_MODE: 'redact', // Redact secrets by default
+
+  // Lazy Mode (token efficiency)
+  PROCESSING_MODE: 'normal', // 'normal' | 'lazy' | 'hybrid'
+  LAZY_BATCH_INTERVAL: 0, // 0 = disabled, otherwise seconds between batches
+  LAZY_PROCESS_ON_SEARCH: true, // Process matching messages when searching
+  LAZY_HYBRID_TYPES: 'decision,error', // Types to process in hybrid mode
 };
 
 // ============================================
@@ -209,6 +221,7 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'RETENTION_ENABLED',
   'CLAUDEMD_ENABLED',
   'SECRET_DETECTION_ENABLED',
+  'LAZY_PROCESS_ON_SEARCH',
 ];
 
 /**
@@ -227,6 +240,7 @@ const NUMBER_KEYS: SettingKey[] = [
   'CLAUDEMD_OBSERVATION_INTERVAL',
   'CLAUDEMD_TASK_TIMEOUT',
   'CLAUDEMD_MAX_SUBDIRS',
+  'LAZY_BATCH_INTERVAL',
 ];
 
 // ============================================

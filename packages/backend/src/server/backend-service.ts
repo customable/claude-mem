@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -29,6 +29,7 @@ import {
   ExportRouter,
   ImportRouter,
   InsightsRouter,
+  LazyRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -75,6 +76,7 @@ export class BackendService {
   private sessionService: SessionService | null = null;
   private workerProcessManager: WorkerProcessManager | null = null;
   private insightsService: InsightsService | null = null;
+  private lazyProcessingService: LazyProcessingService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -268,6 +270,15 @@ export class BackendService {
         this.unitOfWork.observations
       );
 
+      // Initialize lazy processing service
+      this.lazyProcessingService = new LazyProcessingService({
+        uow: this.unitOfWork,
+        // processMessage can be wired up later for actual message processing
+      });
+
+      // Start scheduled batch processing if enabled
+      this.lazyProcessingService.startScheduledProcessing();
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -355,6 +366,11 @@ export class BackendService {
     // Insights routes
     this.app.use('/api/insights', new InsightsRouter({
       insightsService: this.insightsService!,
+    }).router);
+
+    // Lazy mode routes
+    this.app.use('/api/lazy', new LazyRouter({
+      lazyService: this.lazyProcessingService!,
     }).router);
 
     // Finalize app (error handlers)

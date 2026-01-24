@@ -17,6 +17,7 @@ import { MikroOrmCodeSnippetRepository } from './repositories/CodeSnippetReposit
 import { MikroOrmDailyStatsRepository } from './repositories/DailyStatsRepository.js';
 import { MikroOrmTechnologyUsageRepository } from './repositories/TechnologyUsageRepository.js';
 import { MikroOrmAchievementRepository } from './repositories/AchievementRepository.js';
+import { MikroOrmRawMessageRepository } from './repositories/RawMessageRepository.js';
 
 /**
  * MikroORM implementation of IUnitOfWork
@@ -33,6 +34,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
   public dailyStats: MikroOrmDailyStatsRepository;
   public technologyUsage: MikroOrmTechnologyUsageRepository;
   public achievements: MikroOrmAchievementRepository;
+  public rawMessages: MikroOrmRawMessageRepository;
 
   private transactionEm: SqlEntityManager | null = null;
 
@@ -48,6 +50,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.dailyStats = new MikroOrmDailyStatsRepository(em);
     this.technologyUsage = new MikroOrmTechnologyUsageRepository(em);
     this.achievements = new MikroOrmAchievementRepository(em);
+    this.rawMessages = new MikroOrmRawMessageRepository(em);
   }
 
   async beginTransaction(): Promise<void> {
@@ -100,5 +103,6 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.dailyStats = new MikroOrmDailyStatsRepository(em);
     this.technologyUsage = new MikroOrmTechnologyUsageRepository(em);
     this.achievements = new MikroOrmAchievementRepository(em);
+    this.rawMessages = new MikroOrmRawMessageRepository(em);
   }
 }

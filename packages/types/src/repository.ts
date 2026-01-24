@@ -779,6 +779,121 @@ export interface ICodeSnippetRepository {
 }
 
 // ============================================
+// Raw Message Repository (Lazy Mode)
+// ============================================
+
+/**
+ * Raw message record from database
+ */
+export interface RawMessageRecord {
+  id: number;
+  session_id: string;
+  project: string;
+  prompt_number: number | null;
+  role: 'user' | 'assistant' | 'tool';
+  content: string;
+  tool_calls: string | null;
+  tool_name: string | null;
+  tool_input: string | null;
+  tool_output: string | null;
+  processed: boolean;
+  processed_at: string | null;
+  processed_at_epoch: number | null;
+  observation_id: number | null;
+  created_at: string;
+  created_at_epoch: number;
+}
+
+/**
+ * Input for creating raw messages
+ */
+export interface CreateRawMessageInput {
+  sessionId: string;
+  project: string;
+  promptNumber?: number;
+  role: 'user' | 'assistant' | 'tool';
+  content: string;
+  toolCalls?: string;
+  toolName?: string;
+  toolInput?: string;
+  toolOutput?: string;
+}
+
+/**
+ * Raw message query filters
+ */
+export interface RawMessageQueryFilters {
+  sessionId?: string;
+  project?: string;
+  processed?: boolean;
+  dateRange?: DateRangeFilter;
+}
+
+/**
+ * Raw Message Repository Interface
+ */
+export interface IRawMessageRepository {
+  /**
+   * Create a new raw message
+   */
+  create(input: CreateRawMessageInput): Promise<RawMessageRecord>;
+
+  /**
+   * Create multiple raw messages
+   */
+  createMany(inputs: CreateRawMessageInput[]): Promise<RawMessageRecord[]>;
+
+  /**
+   * Find message by ID
+   */
+  findById(id: number): Promise<RawMessageRecord | null>;
+
+  /**
+   * List messages with optional filters
+   */
+  list(filters?: RawMessageQueryFilters, options?: QueryOptions): Promise<RawMessageRecord[]>;
+
+  /**
+   * Get unprocessed messages
+   */
+  getUnprocessed(limit?: number): Promise<RawMessageRecord[]>;
+
+  /**
+   * Count unprocessed messages
+   */
+  countUnprocessed(): Promise<number>;
+
+  /**
+   * Mark messages as processed
+   */
+  markProcessed(ids: number[], observationId?: number): Promise<void>;
+
+  /**
+   * Search raw messages (for on-demand processing)
+   */
+  search(query: string, filters?: RawMessageQueryFilters, options?: QueryOptions): Promise<RawMessageRecord[]>;
+
+  /**
+   * Delete messages
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Delete processed messages older than X days
+   */
+  cleanupProcessed(olderThanDays: number): Promise<number>;
+
+  /**
+   * Get processing status
+   */
+  getStatus(): Promise<{
+    unprocessedCount: number;
+    oldestUnprocessed: number | null;
+    lastProcessed: number | null;
+  }>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -806,6 +921,8 @@ export interface IUnitOfWork {
   dailyStats: IDailyStatsRepository;
   technologyUsage: ITechnologyUsageRepository;
   achievements: IAchievementRepository;
+  // Lazy mode
+  rawMessages: IRawMessageRepository;
 
   /**
    * Start a transaction

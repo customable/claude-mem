@@ -13,3 +13,4 @@ export { MikroOrmCodeSnippetRepository } from './CodeSnippetRepository.js';
 export { MikroOrmDailyStatsRepository } from './DailyStatsRepository.js';
 export { MikroOrmTechnologyUsageRepository } from './TechnologyUsageRepository.js';
 export { MikroOrmAchievementRepository } from './AchievementRepository.js';
+export { MikroOrmRawMessageRepository } from './RawMessageRepository.js';
