@@ -110,4 +110,12 @@ export class Observation {
 
   @Property({ nullable: true })
   consolidation_score?: number;
+
+  // Importance scoring
+  @Property({ nullable: true, default: false })
+  @Index()
+  pinned?: boolean;
+
+  @Property({ nullable: true, default: 0 })
+  importance_boost?: number; // Manual boost (-10 to +10)
 }

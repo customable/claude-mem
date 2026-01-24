@@ -344,6 +344,36 @@ export interface IObservationRepository {
     types?: string[];
     limit?: number;
   }): Promise<ObservationRecord[]>;
+
+  // Importance scoring methods
+
+  /**
+   * Pin an observation (high importance)
+   */
+  pinObservation(id: number): Promise<ObservationRecord | null>;
+
+  /**
+   * Unpin an observation
+   */
+  unpinObservation(id: number): Promise<ObservationRecord | null>;
+
+  /**
+   * Set importance boost for an observation
+   */
+  setImportanceBoost(id: number, boost: number): Promise<ObservationRecord | null>;
+
+  /**
+   * Get observations ordered by importance (pinned first, then by boost)
+   */
+  getByImportance(options?: {
+    project?: string;
+    limit?: number;
+  }): Promise<ObservationRecord[]>;
+
+  /**
+   * Get all pinned observations
+   */
+  getPinnedObservations(project?: string): Promise<ObservationRecord[]>;
 }
 
 // ============================================

@@ -123,6 +123,9 @@ export interface ObservationRecord {
   last_accessed_at?: string;
   last_accessed_at_epoch?: number;
   consolidation_score?: number;
+  // Importance scoring
+  pinned?: boolean;
+  importance_boost?: number;
 }
 
 /**

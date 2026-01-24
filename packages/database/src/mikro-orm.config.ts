@@ -34,6 +34,7 @@ import { Migration20260124000003_CreateInsightsTables } from './mikro-orm/migrat
 import { Migration20260124000004_CreateRawMessagesTable } from './mikro-orm/migrations/Migration20260124000004_CreateRawMessagesTable.js';
 import { Migration20260124000005_AddDecisionTracking } from './mikro-orm/migrations/Migration20260124000005_AddDecisionTracking.js';
 import { Migration20260124000006_AddMemoryTiering } from './mikro-orm/migrations/Migration20260124000006_AddMemoryTiering.js';
+import { Migration20260124000007_AddImportanceScoring } from './mikro-orm/migrations/Migration20260124000007_AddImportanceScoring.js';
 
 /**
  * Database configuration options
@@ -86,6 +87,7 @@ export const migrationsList = [
   Migration20260124000004_CreateRawMessagesTable,
   Migration20260124000005_AddDecisionTracking,
   Migration20260124000006_AddMemoryTiering,
+  Migration20260124000007_AddImportanceScoring,
 ];
 
 /**

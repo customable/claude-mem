@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14107 | 9:35 PM | 🔵 | Database model types for claude-mem | ~1707 |
+| #14103 | 9:35 PM | 🟠 | Added importance scoring fields | ~2658 |
+| #14100 | 9:34 PM | 🔵 | Database schema for memory tracking | ~1146 |
+| #14062 | 9:28 PM | 🟠 | Added WorkerMode type | ~1749 |
 | #14047 | 9:24 PM | 🔵 | Worker Capabilities System Overview | ~1341 |
 | #14039 | 9:23 PM | 🔵 | Worker Capabilities System Overview | ~1349 |
 | #14038 | 9:23 PM | 🔵 | Exploring shared TypeScript types | ~1047 |
 | #14036 | 9:23 PM | 🔵 | WebSocket Protocol Types | ~1869 |
 | #14027 | 9:22 PM | 🔵 | No TypeScript type files found | ~726 |
 | #13996 | 9:20 PM | 🔵 | WebSocket Protocol Types | ~1893 |
-| #13989 | 9:20 PM | 🔵 | WebSocket message types discovered | ~722 |
+| #13989 | 9:20 PM | 🔵 | Discovered WebSocket message types | ~722 |
 | #13935 | 9:10 PM | 🟠 | Add MemoryTier import | ~5202 |
-| #13934 | 9:10 PM | 🔵 | Decision management repository | ~1227 |
-| #13932 | 9:10 PM | 🟠 | Memory Tier Methods Added | ~5632 |
-| #13930 | 9:09 PM | 🟠 | Memory tiering fields added | ~2762 |
-| #13927 | 9:09 PM | 🟠 | MemoryTier type added | ~2453 |
+| #13934 | 9:10 PM | 🔵 | Repository interface for decisions | ~1227 |
+| #13932 | 9:10 PM | 🟠 | Added Memory Tier Methods | ~5632 |
+| #13930 | 9:09 PM | 🟠 | Added memory tiering fields | ~2762 |
+| #13927 | 9:09 PM | 🟠 | Added MemoryTier type | ~2453 |
 | #13925 | 9:09 PM | 🔵 | Database model types | ~1853 |
 | #13887 | 9:02 PM | 🔵 | Database model types | ~2053 |
-| #13885 | 9:01 PM | 🟠 | Decision tracking fields added | ~3047 |
+| #13885 | 9:01 PM | 🟠 | Add decision tracking fields | ~3047 |
 | #13884 | 9:01 PM | 🔵 | Repository Pattern Implementation | ~5250 |
-| #13882 | 9:01 PM | 🟠 | Decision tracking methods added | ~5585 |
-| #13881 | 9:01 PM | 🟠 | DecisionCategory field added | ~5330 |
-| #13880 | 9:01 PM | 🟠 | DecisionCategory import added | ~5240 |
-| #13878 | 9:00 PM | 🟠 | Decision tracking types export | ~1070 |
-| #13877 | 9:00 PM | 🟠 | Decision tracking types created | ~1890 |
-| #13876 | 9:00 PM | 🔵 | Shared TypeScript types structure | ~1018 |
-| #13829 | 8:51 PM | 🟠 | RawMessages repository added | ~5301 |
-| #13828 | 8:51 PM | 🟠 | Raw Message Repository Interface | ~6010 |
+| #13882 | 9:01 PM | 🟠 | Added decision tracking methods | ~5585 |
+| #13881 | 9:01 PM | 🟠 | Add decisionCategory field | ~5330 |
+| #13880 | 9:01 PM | 🟠 | Add DecisionCategory import | ~5240 |
+| #13878 | 9:00 PM | 🟠 | Added decision tracking types export | ~1070 |
+| #13877 | 9:00 PM | 🟠 | Added decision tracking types | ~1890 |
+| #13876 | 9:00 PM | 🔵 | Exploring shared TypeScript types | ~1018 |
+| #13829 | 8:51 PM | 🟠 | Added rawMessages repository | ~5301 |
+| #13828 | 8:51 PM | 🟠 | Added Raw Message Repository | ~6010 |
 | #13826 | 8:51 PM | 🔵 | Repository interfaces discovered | ~2073 |
 | #13825 | 8:51 PM | 🔵 | Repository Pattern Implementation | ~1435 |
-| #13823 | 8:51 PM | 🔵 | Document/User Prompt Repositories | ~1904 |
-| #13783 | 8:38 PM | 🔵 | ISessionRepository interface | ~1915 |
-| #13777 | 8:37 PM | 🔵 | Observation Repository Interface | ~1112 |
-| #13776 | 8:37 PM | 🟠 | getTimelineStats method added | ~5256 |
 
 ## Key Insights
 
-- **Worker Architecture**: Workers register capabilities via WebSocket, backend assigns tasks. No "InProcessWorker" implementation found.
-- **Memory Tiering**: Added MemoryTier type and fields (core/working/archive/ephemeral) to support Sleep Agent functionality.
-- **Decision Tracking**: Enhanced repository interfaces with decision management (conflict detection, supersession tracking).
-- **Repository Pattern**: Comprehensive CRUD interfaces for sessions, observations, documents, and raw messages.
-- **WebSocket Protocol**: Defined message types for authentication, task management, and heartbeats between backend and workers.
+- **Memory Tiering System**: Added comprehensive memory tiering support with four tiers (core, working, archive, ephemeral) and related database fields, repository methods, and Sleep Agent functionality.
+- **Decision Tracking**: Implemented robust decision tracking with conflict detection, versioning, and history management through new repository methods and database fields.
+- **Worker Architecture**: Discovered WebSocket-based worker communication protocol and added WorkerMode type supporting spawn, in-process, and hybrid modes.
+- **Repository Pattern**: Expanded repository interfaces for raw messages, decisions, and memory tiers while maintaining database backend flexibility.
+- **Type System**: Enhanced shared TypeScript types with new exports for decisions, memory tiers, and worker capabilities.
 </claude-mem-context>

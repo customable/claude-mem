@@ -53,8 +53,13 @@ export class DataRouter extends BaseRouter {
     // Observations
     this.router.get('/observations', this.asyncHandler(this.listObservations.bind(this)));
     this.router.post('/observations', this.asyncHandler(this.createObservation.bind(this)));
+    this.router.get('/observations/pinned', this.asyncHandler(this.getPinnedObservations.bind(this)));
+    this.router.get('/observations/important', this.asyncHandler(this.getImportantObservations.bind(this)));
     this.router.get('/observations/:id', this.asyncHandler(this.getObservation.bind(this)));
     this.router.delete('/observations/:id', this.asyncHandler(this.deleteObservation.bind(this)));
+    this.router.post('/observations/:id/pin', this.asyncHandler(this.pinObservation.bind(this)));
+    this.router.post('/observations/:id/unpin', this.asyncHandler(this.unpinObservation.bind(this)));
+    this.router.post('/observations/:id/importance-boost', this.asyncHandler(this.setImportanceBoost.bind(this)));
     this.router.delete('/observations', this.asyncHandler(this.bulkDeleteObservations.bind(this)));
     this.router.get('/sessions/:sessionId/observations', this.asyncHandler(this.getSessionObservations.bind(this)));
 
@@ -367,6 +372,85 @@ export class DataRouter extends BaseRouter {
     const observations = await this.deps.sessionService.getSessionObservations(sessionId, {
       limit: this.parseOptionalIntParam(getString(limit)),
       offset: this.parseOptionalIntParam(getString(offset)),
+    });
+
+    this.success(res, { data: observations });
+  }
+
+  /**
+   * POST /api/data/observations/:id/pin
+   * Pin an observation (mark as important)
+   */
+  private async pinObservation(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const observation = await this.deps.observations.pinObservation(id);
+    if (!observation) {
+      this.notFound(`Observation not found: ${id}`);
+    }
+
+    this.success(res, observation);
+  }
+
+  /**
+   * POST /api/data/observations/:id/unpin
+   * Unpin an observation
+   */
+  private async unpinObservation(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const observation = await this.deps.observations.unpinObservation(id);
+    if (!observation) {
+      this.notFound(`Observation not found: ${id}`);
+    }
+
+    this.success(res, observation);
+  }
+
+  /**
+   * POST /api/data/observations/:id/importance-boost
+   * Set importance boost for an observation
+   */
+  private async setImportanceBoost(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+    const { boost } = req.body;
+
+    if (typeof boost !== 'number') {
+      this.badRequest('Missing or invalid boost value (must be a number)');
+    }
+
+    const observation = await this.deps.observations.setImportanceBoost(id, boost);
+    if (!observation) {
+      this.notFound(`Observation not found: ${id}`);
+    }
+
+    this.success(res, observation);
+  }
+
+  /**
+   * GET /api/data/observations/pinned
+   * Get all pinned observations
+   */
+  private async getPinnedObservations(req: Request, res: Response): Promise<void> {
+    const { project } = req.query;
+
+    const observations = await this.deps.observations.getPinnedObservations(
+      getString(project)
+    );
+
+    this.success(res, { data: observations });
+  }
+
+  /**
+   * GET /api/data/observations/important
+   * Get observations sorted by importance
+   */
+  private async getImportantObservations(req: Request, res: Response): Promise<void> {
+    const { project, limit } = req.query;
+
+    const observations = await this.deps.observations.getByImportance({
+      project: getString(project),
+      limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
     });
 
     this.success(res, { data: observations });

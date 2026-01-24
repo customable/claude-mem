@@ -7,6 +7,10 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14075 | 9:31 PM | 🔴 | Removed redundant settings load in worker transition | ~2877 |
+| #14069 | 9:29 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2590 |
+| #14064 | 9:28 PM | 🟠 | Add in-process worker transition logic to post-tool-use handler | ~3485 |
+| #14060 | 9:27 PM | 🟠 | Add worker lifecycle transition to post-tool-use handler | ~2807 |
 | #14050 | 9:25 PM | 🔵 | Post-tool-use handler for observation extraction | ~2379 |
 | #14029 | 9:22 PM | 🔵 | Understanding the stop hook handler functionality | ~1771 |
 | #14022 | 9:22 PM | 🔵 | Session Start Handler Implementation Review | ~3288 |
@@ -33,16 +37,12 @@
 | #13069 | 6:02 PM | 🔵 | Session Start Handler Implementation Analysis | ~2945 |
 | #13068 | 6:01 PM | 🟠 | Add getRepoInfo import and RepoInfo type to session-start handler | ~3275 |
 | #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call by removing redundant toolName parameter | ~2241 |
-| #12656 | 11:30 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2253 |
-| #12653 | 11:30 AM | 🔵 | Understanding target directory extraction logic | ~1055 |
-| #12397 | 10:53 AM | 🔵 | Post-tool-use handler sends observations to backend | ~1992 |
-| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory function call | ~2229 |
 
 ## Key Insights
 
-- **Secret Detection Integration**: Major focus on adding secret detection and redaction across handlers (user-prompt-submit, post-tool-use). This enhances security by preventing sensitive data exposure.
-- **Repository Context Enhancement**: Added Git repository info collection (path, branch, worktree) to support worktree handling and improve session context.
-- **Handler Architecture**: Discovered the hook handlers registry structure centralizing event handling (session-start, user-prompt-submit, post-tool-use, stop).
-- **Bug Fixes**: Corrected `extractTargetDirectory` function calls by removing redundant parameters, improving code reliability.
-- **Memory Tiering**: Recent work on memory tiering (core, working, archive, ephemeral) with Sleep Agent service for consolidation.
+- **Worker Architecture**: Implemented in-process worker transition logic with lifecycle management and file-based mutex locks. Supports spawn, in-process, and hybrid worker modes.
+- **Secret Detection**: Added comprehensive secret detection and redaction across user prompts and tool observations, with configurable detection modes.
+- **Repository Support**: Enhanced Git repository info collection, including worktree support, and integrated it into session handlers and SSE writer processes.
+- **Hook Handlers**: Centralized event handling for core events (session-start, user-prompt-submit, post-tool-use) with backend communication and context injection.
+- **Refactoring**: Improved API request handling with conditional query parameters and safe repository info retrieval with proper error handling.
 </claude-mem-context>

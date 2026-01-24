@@ -7,6 +7,11 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14110 | 9:35 PM | 🔵 | Database migration structure discovered | ~1360 |
+| #14109 | 9:35 PM | 🟠 | Add new migration export for importance scoring | ~1885 |
+| #14108 | 9:35 PM | 🟠 | Add importance scoring fields to observations table | ~1381 |
+| #13926 | 9:09 PM | 🟠 | Add Memory Tiering Migration for Observations Table | ~2039 |
+| #13921 | 9:08 PM | 🟠 | Add new migration for memory tiering | ~1919 |
 | #13872 | 9:00 PM | 🔵 | Database migration structure discovered | ~1297 |
 | #13870 | 9:00 PM | 🟠 | Add new migration export for decision tracking | ~1786 |
 | #13869 | 9:00 PM | 🟠 | Add Decision Tracking Migration | ~1824 |
@@ -32,22 +37,12 @@
 | #12636 | 11:28 AM | 🔄 | Remove migration list export from index file | ~2127 |
 | #12632 | 11:28 AM | 🔵 | Database migration structure discovered | ~1203 |
 | #12444 | 11:01 AM | 🔄 | Remove migration array export from index file | ~2127 |
-| #12440 | 11:00 AM | 🔵 | Database migration structure discovered | ~1222 |
-
-### Jan 23
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #11928 | 10:50 PM | 🟠 | Add new migration for documents table | ~3016 |
-| #11927 | 10:50 PM | 🟠 | Create documents table migration for caching MCP documentation | ~1872 |
-| #11926 | 10:50 PM | 🔵 | Database migration structure discovered | ~1125 |
-| #11924 | 10:50 PM | 🔵 | Migration adds 'session-request' type and 'cwd' field to observations | ~1770 |
 
 ## Key Insights
 
-- **Database Evolution**: The project uses MikroORM with a structured migration system, evolving from initial schema to complex features like decision tracking, raw messages, and insights tables.
-- **Conflict Resolution**: Multiple merge conflicts in migration files were detected and resolved, indicating active parallel development.
-- **Feature Expansion**: New features include decision tracking, raw message storage for Lazy Mode, insights dashboard (daily stats, tech usage, achievements), and code snippets with full-text search.
-- **Git Integration**: Added Git worktree support with repo_path, branch tracking, and working directory management.
-- **Performance Optimization**: Migrated from in-memory analytics to SQL-based aggregation for better performance with large datasets (12K+ observations, 198M tokens).
+- **Database Evolution**: The project uses MikroORM with 10+ migrations, showing rapid schema development including memory tiering, decision tracking, and importance scoring features.
+- **Memory Tiering**: New fields (`memory_tier`, `access_count`, etc.) and SleepAgentService were added for memory consolidation across core/working/archive/ephemeral tiers.
+- **Conflict Resolution**: Multiple merge conflicts in migration files were resolved, particularly around CreateInsightsTables and CreateCodeSnippetsTable migrations.
+- **New Features**: Added support for Git worktree tracking, raw messages storage, code snippets with FTS, and learning insights dashboard tables.
+- **Refactoring**: Migration index file was simplified by removing redundant `mikroOrmMigrations` array exports while maintaining individual migration exports.
 </claude-mem-context>

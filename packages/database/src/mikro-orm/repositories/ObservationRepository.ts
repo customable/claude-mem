@@ -53,6 +53,9 @@ function toRecord(entity: Observation): ObservationRecord {
     last_accessed_at: entity.last_accessed_at,
     last_accessed_at_epoch: entity.last_accessed_at_epoch,
     consolidation_score: entity.consolidation_score,
+    // Importance scoring
+    pinned: entity.pinned,
+    importance_boost: entity.importance_boost,
   };
 }
 
@@ -628,6 +631,77 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     if (params.limit) {
       qb.limit(params.limit);
     }
+
+    const entities = await qb.getResult();
+    return entities.map(toRecord);
+  }
+
+  // Importance scoring methods
+
+  async pinObservation(id: number): Promise<ObservationRecord | null> {
+    const entity = await this.em.findOne(Observation, { id });
+    if (!entity) return null;
+
+    entity.pinned = true;
+
+    await this.em.flush();
+    return toRecord(entity);
+  }
+
+  async unpinObservation(id: number): Promise<ObservationRecord | null> {
+    const entity = await this.em.findOne(Observation, { id });
+    if (!entity) return null;
+
+    entity.pinned = false;
+
+    await this.em.flush();
+    return toRecord(entity);
+  }
+
+  async setImportanceBoost(id: number, boost: number): Promise<ObservationRecord | null> {
+    const entity = await this.em.findOne(Observation, { id });
+    if (!entity) return null;
+
+    entity.importance_boost = boost;
+
+    await this.em.flush();
+    return toRecord(entity);
+  }
+
+  async getByImportance(options?: {
+    project?: string;
+    limit?: number;
+  }): Promise<ObservationRecord[]> {
+    const knex = this.em.getKnex();
+
+    // Calculate importance score: pinned items first, then by boost + recency
+    let query = knex('observations')
+      .select('*')
+      .orderByRaw('CASE WHEN pinned = 1 THEN 0 ELSE 1 END')
+      .orderByRaw('COALESCE(importance_boost, 0) DESC')
+      .orderBy('created_at_epoch', 'desc');
+
+    if (options?.project) {
+      query = query.where('project', options.project);
+    }
+
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+
+    const rows = await query;
+    return rows as ObservationRecord[];
+  }
+
+  async getPinnedObservations(project?: string): Promise<ObservationRecord[]> {
+    const qb = this.em.createQueryBuilder(Observation, 'o')
+      .where({ pinned: true });
+
+    if (project) {
+      qb.andWhere({ project });
+    }
+
+    qb.orderBy({ created_at_epoch: 'DESC' });
 
     const entities = await qb.getResult();
     return entities.map(toRecord);

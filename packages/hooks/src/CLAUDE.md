@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14075 | 9:31 PM | 🔴 | Removed redundant settings load in worker transition | ~2877 |
+| #14071 | 9:29 PM | 🔵 | Worker lifecycle management in hooks package | ~1049 |
+| #14070 | 9:29 PM | 🔴 | Add missing type annotation for onExit callback | ~2462 |
+| #14069 | 9:29 PM | 🔵 | Post-tool-use handler processes observations | ~2590 |
+| #14064 | 9:28 PM | 🟠 | Add in-process worker transition logic | ~3485 |
+| #14061 | 9:28 PM | 🟠 | Worker Lifecycle Manager Implementation | ~3733 |
+| #14060 | 9:27 PM | 🟠 | Add worker lifecycle transition to handler | ~2807 |
+| #14050 | 9:25 PM | 🔵 | Post-tool-use handler for observation extraction | ~2379 |
 | #14042 | 9:23 PM | 🔵 | Understanding SSE Writer Component | ~3492 |
 | #14032 | 9:22 PM | 🔵 | Examined hook runner implementation | ~2105 |
-| #14029 | 9:22 PM | 🔵 | Understanding stop hook handler | ~1771 |
-| #14022 | 9:22 PM | 🔵 | Session Start Handler Review | ~3288 |
-| #14021 | 9:22 PM | 🔵 | Plugin entry point architecture | ~2853 |
-| #14013 | 9:21 PM | 🔵 | Exported functions in hooks package | ~987 |
-| #14012 | 9:21 PM | 🔵 | Session Start Handler Review | ~3256 |
+| #14029 | 9:22 PM | 🔵 | Understanding stop hook handler functionality | ~1771 |
+| #14022 | 9:22 PM | 🔵 | Session Start Handler Implementation Review | ~3288 |
+| #14021 | 9:22 PM | 🔵 | Plugin entry point architecture discovered | ~2853 |
+| #14013 | 9:21 PM | 🔵 | Identified exported functions in hooks package | ~987 |
+| #14012 | 9:21 PM | 🔵 | Session Start Handler Implementation Review | ~3256 |
 | #14011 | 9:21 PM | 🔵 | Hook Handlers Registry Structure | ~1358 |
-| #14010 | 9:20 PM | 🔵 | Understanding stop hook handler | ~1754 |
+| #14010 | 9:20 PM | 🔵 | Understanding stop hook handler functionality | ~1754 |
 | #14003 | 9:20 PM | 🔵 | Examining hook runner implementation | ~2114 |
-| #13991 | 9:20 PM | 🔵 | Backend Client Implementation | ~2079 |
-| #13979 | 9:20 PM | 🔵 | SSE Writer Process for CLAUDE.md | ~3521 |
-| #13977 | 9:20 PM | 🔵 | Plugin entry point architecture | ~2844 |
-| #13412 | 7:04 PM | 🟠 | Added backend process imports | ~2399 |
-| #13405 | 7:03 PM | 🟠 | Implemented backend auto-start | ~5516 |
-| #13402 | 7:03 PM | 🔵 | Backend Client Implementation | ~2064 |
-| #13399 | 7:02 PM | 🔵 | Plugin entry point for hooks | ~2024 |
-| #13208 | 6:27 PM | 🟠 | Added secret detection to prompts | ~4056 |
-| #13181 | 6:20 PM | 🔵 | User prompt submission handler | ~1209 |
-| #13179 | 6:19 PM | 🟠 | Added secret detection to prompts | ~2857 |
-| #13177 | 6:19 PM | 🟠 | Added secret detection utilities | ~1717 |
-| #13176 | 6:19 PM | 🟠 | Added secret detection to tools | ~4258 |
-| #13175 | 6:19 PM | 🟠 | Added secret detection utilities | ~2542 |
-| #13174 | 6:19 PM | 🔵 | Post-tool-use handler analysis | ~2043 |
-| #13164 | 6:17 PM | 🔵 | Session start handler analysis | ~1160 |
-| #13158 | 6:17 PM | 🔄 | Refactored API query parameters | ~4158 |
-| #13111 | 6:07 PM | 🔵 | User prompt submission handler | ~1409 |
-| #13108 | 6:07 PM | 🔵 | Session Start Handler Review | ~3232 |
-| #13077 | 6:03 PM | 🔄 | Refactored repository info handling | ~3587 |
-| #13075 | 6:02 PM | 🔵 | UserPromptSubmit handler analysis | ~1202 |
+| #13991 | 9:20 PM | 🔵 | Backend Client Implementation Analysis | ~2079 |
+| #13979 | 9:20 PM | 🔵 | SSE Writer Process for CLAUDE.md Management | ~3521 |
+| #13977 | 9:20 PM | 🔵 | Plugin entry point architecture discovered | ~2844 |
+| #13412 | 7:04 PM | 🟠 | Added new imports for backend process management | ~2399 |
+| #13405 | 7:03 PM | 🟠 | Implemented backend auto-start functionality | ~5516 |
+| #13402 | 7:03 PM | 🔵 | Backend Client Implementation Analysis | ~2064 |
+| #13399 | 7:02 PM | 🔵 | Plugin entry point for claude-mem hooks | ~2024 |
+| #13208 | 6:27 PM | 🟠 | Add secret detection to user prompt handler | ~4056 |
+| #13181 | 6:20 PM | 🔵 | User prompt submission handler initializes session | ~1209 |
+| #13179 | 6:19 PM | 🟠 | Added secret detection to user prompt handling | ~2857 |
+| #13177 | 6:19 PM | 🟠 | Added secret detection utilities to handler | ~1717 |
+| #13176 | 6:19 PM | 🟠 | Added secret detection to tool observations | ~4258 |
 
 ## Key Insights
 
-- **SSE Writer Component**: Standalone Node.js process for CLAUDE.md management with validation and event handling.
-- **Hook System**: Centralized event handling with default handlers for core events (session-start, user-prompt-submit, etc.).
-- **Secret Detection**: Added to user prompts and tool observations with configurable detection modes.
-- **Backend Integration**: Auto-start functionality and health checks for backend processes.
-- **Refactoring**: Improved API query parameter construction and repository info handling.
+- **Worker Architecture**: Implemented comprehensive in-process worker system with lifecycle management, mutex locks, and configurable modes (spawn/in-process/hybrid).
+- **Secret Detection**: Added robust secret detection and redaction across user prompts and tool observations using configurable detection modes.
+- **Backend Integration**: Enhanced backend auto-start functionality with path detection and process management capabilities.
+- **SSE Writer**: Discovered standalone SSE Writer process for CLAUDE.md file management with validation and filesystem operations.
+- **Hook System**: Mapped complete hook architecture including session management, tool observation processing, and event handling registry.
 </claude-mem-context>
