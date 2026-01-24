@@ -13,8 +13,141 @@
  */
 export type WorkerMode = 'spawn' | 'in-process' | 'hybrid';
 
+// ============================================
+// Abstract Capabilities (Issue #226)
+// ============================================
+
 /**
- * All possible worker capabilities
+ * Abstract worker capabilities (decoupled from providers)
+ * Describes WHAT a worker can do, not HOW it does it.
+ */
+export type AbstractCapability =
+  | 'observation'      // Generate observations from tool use
+  | 'summarize'        // Summarize sessions
+  | 'embedding'        // Generate embeddings
+  | 'qdrant-sync'      // Sync to vector database
+  | 'semantic-search'  // Semantic vector search
+  | 'context-generate' // Generate context
+  | 'claudemd-generate'; // Generate CLAUDE.md content
+
+/**
+ * LLM providers for AI tasks (observation, summarize, claudemd, context)
+ */
+export type LLMProvider = 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic' | 'sdk';
+
+/**
+ * Embedding providers for vector embeddings
+ */
+export type EmbeddingProvider = 'local' | 'openai' | 'voyage';
+
+/**
+ * Vector database providers
+ */
+export type VectorDBProvider = 'qdrant-local' | 'qdrant-cloud' | 'qdrant-remote';
+
+/**
+ * Provider configuration for a worker
+ */
+export interface ProviderConfig {
+  /** LLM provider for AI tasks (observation, summarize, claudemd, context) */
+  llm?: LLMProvider;
+  /** Embedding provider for vector generation */
+  embedding?: EmbeddingProvider;
+  /** Vector database provider */
+  vectordb?: VectorDBProvider;
+}
+
+/**
+ * Worker configuration with abstract capabilities and providers (Issue #226)
+ */
+export interface WorkerConfig {
+  /** Abstract capabilities this worker can handle */
+  capabilities: AbstractCapability[];
+  /** Provider configuration */
+  providers: ProviderConfig;
+  /** Optional name/comment for this worker */
+  name?: string;
+}
+
+/**
+ * Mapping from abstract capabilities to provider types
+ */
+export const CAPABILITY_PROVIDER_MAP: Record<AbstractCapability, keyof ProviderConfig | null> = {
+  'observation': 'llm',
+  'summarize': 'llm',
+  'claudemd-generate': 'llm',
+  'context-generate': 'llm',
+  'embedding': 'embedding',
+  'qdrant-sync': 'vectordb',
+  'semantic-search': 'vectordb',
+};
+
+/**
+ * Get the provider type for a capability
+ */
+export function getProviderTypeForCapability(capability: AbstractCapability): keyof ProviderConfig | null {
+  return CAPABILITY_PROVIDER_MAP[capability];
+}
+
+/**
+ * Convert abstract capability + provider to legacy capability string
+ * For backwards compatibility during migration
+ */
+export function toLegacyCapability(capability: AbstractCapability, providers: ProviderConfig): WorkerCapability | null {
+  const providerType = CAPABILITY_PROVIDER_MAP[capability];
+  if (!providerType) {
+    // Capabilities without provider mapping
+    if (capability === 'qdrant-sync') return 'qdrant:sync';
+    if (capability === 'semantic-search') return 'semantic:search';
+    if (capability === 'context-generate') return 'context:generate';
+    if (capability === 'claudemd-generate') return 'claudemd:generate';
+    return null;
+  }
+
+  const provider = providers[providerType];
+  if (!provider) return null;
+
+  // Map to legacy format
+  if (capability === 'observation' && providerType === 'llm') {
+    return `observation:${provider}` as WorkerCapability;
+  }
+  if (capability === 'summarize' && providerType === 'llm') {
+    return `summarize:${provider}` as WorkerCapability;
+  }
+  if (capability === 'embedding' && providerType === 'embedding') {
+    return `embedding:${provider}` as WorkerCapability;
+  }
+
+  return null;
+}
+
+/**
+ * Convert legacy capability to abstract capability + provider
+ */
+export function fromLegacyCapability(legacy: WorkerCapability): { capability: AbstractCapability; provider?: string } | null {
+  if (legacy.startsWith('observation:')) {
+    return { capability: 'observation', provider: legacy.replace('observation:', '') };
+  }
+  if (legacy.startsWith('summarize:')) {
+    return { capability: 'summarize', provider: legacy.replace('summarize:', '') };
+  }
+  if (legacy.startsWith('embedding:')) {
+    return { capability: 'embedding', provider: legacy.replace('embedding:', '') };
+  }
+  if (legacy === 'qdrant:sync') return { capability: 'qdrant-sync' };
+  if (legacy === 'semantic:search') return { capability: 'semantic-search' };
+  if (legacy === 'context:generate') return { capability: 'context-generate' };
+  if (legacy === 'claudemd:generate') return { capability: 'claudemd-generate' };
+  return null;
+}
+
+// ============================================
+// Legacy Capabilities (backwards compatibility)
+// ============================================
+
+/**
+ * All possible worker capabilities (legacy format with provider suffix)
+ * @deprecated Use AbstractCapability + ProviderConfig instead
  */
 export type WorkerCapability =
   // AI Observation Generation
@@ -23,12 +156,14 @@ export type WorkerCapability =
   | 'observation:openrouter'
   | 'observation:sdk'
   | 'observation:openai'
+  | 'observation:anthropic'
   // Session Summarization
   | 'summarize:mistral'
   | 'summarize:gemini'
   | 'summarize:openrouter'
   | 'summarize:sdk'
   | 'summarize:openai'
+  | 'summarize:anthropic'
   // Embeddings & Vector Search
   | 'embedding:local'
   | 'embedding:openai'

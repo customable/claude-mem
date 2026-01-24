@@ -129,6 +129,11 @@ export interface Settings {
 
   // Docker Auto-Update (Issue #214)
   DOCKER_AUTO_UPDATE_ENABLED: boolean; // Enable Watchtower auto-update labels
+
+  // Worker Capability Profiles (Issue #226)
+  DEFAULT_LLM_PROVIDER: string; // Default LLM provider for new workers
+  DEFAULT_EMBEDDING_PROVIDER: string; // Default embedding provider
+  DEFAULT_VECTORDB_PROVIDER: string; // Default vector DB provider
 }
 
 // ============================================
@@ -250,6 +255,11 @@ export const DEFAULTS: Settings = {
 
   // Docker Auto-Update (Issue #214)
   DOCKER_AUTO_UPDATE_ENABLED: false, // Disabled by default (opt-in for safety)
+
+  // Worker Capability Profiles (Issue #226)
+  DEFAULT_LLM_PROVIDER: 'mistral', // Default LLM for new workers
+  DEFAULT_EMBEDDING_PROVIDER: 'local', // Default embedding provider
+  DEFAULT_VECTORDB_PROVIDER: 'qdrant-local', // Default vector DB
 };
 
 // ============================================
