@@ -24,7 +24,8 @@ export type SSEEventType =
   | 'task:queued'
   | 'task:assigned'
   | 'task:completed'
-  | 'task:failed';
+  | 'task:failed'
+  | 'task:progress';
 
 /**
  * SSE Event payload
@@ -46,6 +47,8 @@ export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'er
 export interface WorkerTaskInfo {
   taskId: string;
   taskType: string | null;
+  progress?: number;
+  progressMessage?: string;
 }
 
 /**
@@ -127,6 +130,18 @@ function connectGlobal() {
             const { workerId, taskId, taskType } = data.data as { workerId: string; taskId: string; taskType?: string };
             if (workerId) {
               globalWorkerTasks[workerId] = { taskId, taskType: taskType || null };
+            }
+          }
+          break;
+        case 'task:progress':
+          if (data.data && typeof data.data === 'object') {
+            const { workerId, progress, message } = data.data as { workerId: string; progress: number; message?: string };
+            if (workerId && globalWorkerTasks[workerId]) {
+              globalWorkerTasks[workerId] = {
+                ...globalWorkerTasks[workerId]!,
+                progress,
+                progressMessage: message,
+              };
             }
           }
           break;
