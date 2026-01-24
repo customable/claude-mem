@@ -14,7 +14,6 @@ const logger = createLogger('sse');
  */
 export type SSEEventType =
   | 'connected'
-  | 'processing:status'
   | 'prompt:new'
   | 'session:started'
   | 'session:ended'
@@ -151,34 +150,6 @@ export class SSEBroadcaster {
     }
 
     return false;
-  }
-
-  /**
-   * Get client count
-   */
-  getClientCount(): number {
-    return this.clients.size;
-  }
-
-  /**
-   * Check if any clients are connected
-   */
-  hasClients(): boolean {
-    return this.clients.size > 0;
-  }
-
-  /**
-   * Broadcast processing status
-   */
-  broadcastProcessingStatus(status: {
-    pendingTasks: number;
-    activeSessions: number;
-    connectedWorkers: number;
-  }): void {
-    this.broadcast({
-      type: 'processing:status',
-      data: status,
-    });
   }
 
   /**

@@ -11,7 +11,6 @@ import { useState, useEffect, useCallback } from 'react';
  */
 export type SSEEventType =
   | 'connected'
-  | 'processing:status'
   | 'prompt:new'
   | 'session:started'
   | 'session:ended'
@@ -121,11 +120,6 @@ function connectGlobal() {
           if (data.data && typeof data.data === 'object' && 'workerId' in data.data) {
             const workerId = (data.data as { workerId: string }).workerId;
             delete globalWorkerTasks[workerId];
-          }
-          break;
-        case 'processing:status':
-          if (data.data && typeof data.data === 'object' && 'connectedWorkers' in data.data) {
-            globalWorkerCount = (data.data as { connectedWorkers: number }).connectedWorkers;
           }
           break;
         case 'task:assigned':
