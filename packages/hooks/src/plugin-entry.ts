@@ -16,9 +16,14 @@
  *   summarize    -> stop
  */
 
+import { spawn } from 'child_process';
+import { existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import type { HookEvent } from './types.js';
 import { runHook } from './runner.js';
 import { getBackendClient } from './client.js';
+import { loadSettings } from '@claude-mem/shared';
 
 // Version injected at build time
 declare const __PLUGIN_VERSION__: string;
@@ -36,21 +41,125 @@ const EVENT_MAP: Record<string, HookEvent> = {
 };
 
 /**
+ * Detect the backend binary path
+ */
+function detectBackendPath(): string | null {
+  const possiblePaths = [
+    // Development: sibling package
+    join(dirname(fileURLToPath(import.meta.url)), '../../backend/dist/index.js'),
+    // Plugin bundled structure
+    join(dirname(fileURLToPath(import.meta.url)), '../../../backend/dist/index.js'),
+    // Alternative plugin structure
+    join(dirname(fileURLToPath(import.meta.url)), '../../../../backend/dist/index.js'),
+  ];
+
+  for (const path of possiblePaths) {
+    if (existsSync(path)) {
+      return path;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Wait for backend to be ready
+ */
+async function waitForBackendReady(timeoutMs: number): Promise<boolean> {
+  const client = getBackendClient();
+  const startTime = Date.now();
+  const checkInterval = 200;
+
+  while (Date.now() - startTime < timeoutMs) {
+    try {
+      const isReady = await client.isCoreReady();
+      if (isReady) {
+        return true;
+      }
+    } catch {
+      // Backend not responding yet, keep waiting
+    }
+    await new Promise((resolve) => setTimeout(resolve, checkInterval));
+  }
+
+  return false;
+}
+
+/**
+ * Spawn the backend as a daemon process
+ */
+function spawnBackendDaemon(backendPath: string): void {
+  const settings = loadSettings();
+
+  const env: Record<string, string> = {
+    ...(process.env as Record<string, string>),
+    CLAUDE_MEM_LOG_LEVEL: settings.LOG_LEVEL,
+  };
+
+  // Pass relevant settings to backend
+  if (settings.DATABASE_PATH) {
+    env.CLAUDE_MEM_DATABASE_PATH = settings.DATABASE_PATH;
+  }
+  if (settings.BACKEND_PORT) {
+    env.CLAUDE_MEM_BACKEND_PORT = String(settings.BACKEND_PORT);
+  }
+  if (settings.BACKEND_HOST) {
+    env.CLAUDE_MEM_BACKEND_HOST = settings.BACKEND_HOST;
+  }
+
+  const child = spawn('node', [backendPath], {
+    env,
+    stdio: 'ignore',
+    detached: true,
+    windowsHide: true,
+  });
+
+  // Unref to allow the parent process to exit independently
+  child.unref();
+}
+
+/**
  * Start/health check the backend
  */
 async function ensureBackend(): Promise<void> {
+  const client = getBackendClient();
+
+  // First check if backend is already running
   try {
-    const client = getBackendClient();
     const isReady = await client.isCoreReady();
     if (isReady) {
       // Backend is running and healthy
       return;
     }
-    console.error('Backend not ready. Please start the backend service.');
   } catch {
-    // Backend not responding - try to start it
-    console.error('Backend not available. Please start the backend service.');
-    // For now, just exit - TODO: implement daemon spawning
+    // Backend not responding - will try to start it
+  }
+
+  // Backend not available - try to spawn it
+  const backendPath = detectBackendPath();
+
+  if (!backendPath) {
+    console.error('Backend not available and could not find backend binary to start.');
+    console.error('Please start the backend service manually.');
+    return;
+  }
+
+  console.error('Backend not available, starting daemon...');
+
+  try {
+    spawnBackendDaemon(backendPath);
+
+    // Wait for backend to be ready (up to 10 seconds)
+    const ready = await waitForBackendReady(10000);
+
+    if (ready) {
+      console.error('Backend daemon started successfully.');
+    } else {
+      console.error('Backend started but not ready within timeout. It may still be initializing.');
+    }
+  } catch (error) {
+    const err = error as Error;
+    console.error('Failed to start backend daemon:', err.message);
   }
 }
 
