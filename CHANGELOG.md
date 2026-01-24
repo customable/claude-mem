@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.43.1] - 2026-01-24
+
+### Bug Fixes
+- Fixed TypeScript errors in semantic-search-handler
+
+
 ## [2.43.0] - 2026-01-24
 
 ### Features
