@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.23] - 2026-01-24
+
+### Improvements
+- Removed unused exports from `websocket.ts` to clean up the type definitions.
+
+
 ## [2.19.22] - 2026-01-24
 
 ### Improvements
