@@ -1,5 +1,79 @@
 # Changelog
 
+## [2.31.1] - 2026-01-24
+
+### Bug Fixes
+- Filter out empty/null project names in analytics
+
+
+## [2.31.0] - 2026-01-24
+
+### Features
+- Added code snippet extraction and indexing functionality
+- Implemented code snippet display in the UI
+- Created a new `code_snippets` table in the database with corresponding repository methods
+
+
+## [2.30.0] - 2026-01-24
+
+### Features
+- Added automatic backend daemon startup if not available.
+
+### Improvements
+- Merged feature branch into main for daemon spawning functionality.
+
+
+## [2.29.0] - 2026-01-24
+
+### Features
+- Added SSE auto-sync to Dashboard
+
+### Bug Fixes
+- Removed unused SSEEvent import in Dashboard
+
+
+## [2.28.0] - 2026-01-24
+
+### Features
+- Return cached context immediately if available in hooks
+
+### Bug Fixes
+- Use workerId in error logs and fix worker linking
+
+### Improvements
+- Merge branch 'main' into fix/164-162-unused-code (multiple times)
+
+
+## [2.27.0] - 2026-01-24
+
+### Features
+- Implemented task cancellation using `AbortController` in the worker module.
+
+
+## [2.26.0] - 2026-01-24
+
+### Features
+- Implemented latency tracking in WorkerHub to monitor and measure performance metrics.
+
+
+## [2.25.0] - 2026-01-24
+
+### Features
+- Added Server-Sent Events (SSE) for task progress updates in the backend.
+
+### Improvements
+- Merged feature branch `feat/173-task-progress` into `main`.
+
+
+## [2.24.0] - 2026-01-24
+
+### Features
+- Added secret detection and redaction functionality to shared components.
+
+### Improvements
+- Merged multiple branches to integrate secret detection and redaction features into the main branch.
+
+
 ## [2.23.0] - 2026-01-24
 
 ### Features

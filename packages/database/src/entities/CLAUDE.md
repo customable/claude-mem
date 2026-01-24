@@ -28,8 +28,8 @@
 ## Key Insights
 
 - Repository tracking fields (`repo_path`, `is_worktree`, `branch`) were added to the `Session` entity, enabling better context tracking for sessions.
-- The `Observation` entity was enhanced with an indexed `repo_path` field to complement the existing `cwd` field, improving query performance.
-- Multiple entity structures (`Session`, `Observation`, `Document`, `Summary`) were reviewed, indicating a focus on understanding the data model.
-- Recent work involved migrating the MCP server to `McpServer`, resolving merge conflicts, and updating dependencies (Vite, Zod).
-- Next steps include merging resolved PRs (e.g., #150, #170, #172) into main and verifying build stability.
+- The `Observation` entity was enhanced with an indexed `repo_path` field to improve querying performance.
+- Multiple sessions focused on analyzing entity structures (`Session`, `Observation`, `Document`, `Summary`), indicating a phase of architectural review.
+- Recent summaries highlight successful MCP server migration to `McpServer`, dependency updates (Vite, Zod), and resolution of merge conflicts.
+- Next steps include merging resolved PRs (e.g., #150, #170, #172) into `main` and verifying build stability.
 </claude-mem-context>

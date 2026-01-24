@@ -28,8 +28,14 @@ export interface ObservationData {
 export async function handleSummarizeTask(
   agent: Agent,
   payload: SummarizeTaskPayload,
-  observations: ObservationData[]
+  observations: ObservationData[],
+  signal?: AbortSignal
 ): Promise<SummarizeTask['result']> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
   logger.debug(`Summarizing session ${payload.sessionId} with ${observations.length} observations`);
 
   if (observations.length === 0) {
@@ -53,6 +59,7 @@ export async function handleSummarizeTask(
     messages: [{ role: 'user', content: userPrompt }],
     maxTokens: 1024,
     temperature: 0.3,
+    signal,
   });
 
   // Parse the response

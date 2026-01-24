@@ -39,6 +39,7 @@ export class WorkerHub {
   public onWorkerDisconnected?: (workerId: string) => void;
   public onTaskComplete?: (workerId: string, taskId: string, result: unknown) => void;
   public onTaskError?: (workerId: string, taskId: string, error: string) => void;
+  public onTaskProgress?: (workerId: string, taskId: string, progress: number, message?: string) => void;
   public onWorkerReadyForTermination?: (workerId: string) => void;
 
   constructor(options: WorkerHubOptions = {}) {
@@ -228,7 +229,21 @@ export class WorkerHub {
       currentTaskId: null,
       currentTaskType: null,
       metadata: registerMsg.metadata,
+      latencyHistory: [],
     };
+
+    // Setup ping/pong for latency tracking
+    socket.on('pong', () => {
+      if (worker.lastPingTime) {
+        const latency = Date.now() - worker.lastPingTime;
+        worker.latencyHistory.push(latency);
+        // Keep only last 10 measurements
+        if (worker.latencyHistory.length > 10) {
+          worker.latencyHistory.shift();
+        }
+        worker.lastPingTime = undefined;
+      }
+    });
 
     this.workers.set(workerId, worker);
 
@@ -303,7 +318,7 @@ export class WorkerHub {
     message: WorkerToBackendMessage & { type: 'task:progress' }
   ): void {
     logger.debug(`Task ${message.taskId} progress from ${workerId}: ${message.progress}%`);
-    // Could emit event for progress tracking
+    this.onTaskProgress?.(workerId, message.taskId, message.progress, message.message);
   }
 
   /**
@@ -332,6 +347,12 @@ export class WorkerHub {
     for (const [workerId, worker] of this.workers) {
       if (now - worker.lastHeartbeat > this.heartbeatTimeoutMs) {
         staleWorkers.push(workerId);
+      } else {
+        // Send WebSocket ping for latency measurement
+        if (worker.socket.readyState === WebSocket.OPEN) {
+          worker.lastPingTime = Date.now();
+          worker.socket.ping();
+        }
       }
     }
 
@@ -435,10 +456,24 @@ export class WorkerHub {
       }
     }
 
+    // Calculate average latency across all workers
+    let totalLatency = 0;
+    let latencyCount = 0;
+
+    for (const worker of this.workers.values()) {
+      if (worker.latencyHistory.length > 0) {
+        const workerAvg = worker.latencyHistory.reduce((a, b) => a + b, 0) / worker.latencyHistory.length;
+        totalLatency += workerAvg;
+        latencyCount++;
+      }
+    }
+
+    const averageLatency = latencyCount > 0 ? Math.round(totalLatency / latencyCount) : 0;
+
     return {
       totalConnected: this.workers.size,
       byCapability: byCapability as Record<WorkerCapability, number>,
-      averageLatency: 0, // TODO: Track latency
+      averageLatency,
     };
   }
 

@@ -646,6 +646,106 @@ export interface IClaudeMdRepository {
 }
 
 // ============================================
+// Code Snippet Repository
+// ============================================
+
+/**
+ * Code snippet record from database
+ */
+export interface CodeSnippetRecord {
+  id: number;
+  observation_id: number;
+  memory_session_id: string;
+  project: string;
+  language: string | null;
+  code: string;
+  file_path: string | null;
+  line_start: number | null;
+  line_end: number | null;
+  context: string | null;
+  created_at_epoch: number;
+}
+
+/**
+ * Input for creating code snippets
+ */
+export interface CreateCodeSnippetInput {
+  observationId: number;
+  memorySessionId: string;
+  project: string;
+  language?: string;
+  code: string;
+  filePath?: string;
+  lineStart?: number;
+  lineEnd?: number;
+  context?: string;
+}
+
+/**
+ * Code snippet query filters
+ */
+export interface CodeSnippetQueryFilters {
+  project?: string;
+  language?: string;
+  sessionId?: string;
+}
+
+/**
+ * Code Snippet Repository Interface
+ */
+export interface ICodeSnippetRepository {
+  /**
+   * Create a new code snippet
+   */
+  create(input: CreateCodeSnippetInput): Promise<CodeSnippetRecord>;
+
+  /**
+   * Create multiple code snippets
+   */
+  createMany(inputs: CreateCodeSnippetInput[]): Promise<CodeSnippetRecord[]>;
+
+  /**
+   * Find snippet by ID
+   */
+  findById(id: number): Promise<CodeSnippetRecord | null>;
+
+  /**
+   * Find snippets by observation ID
+   */
+  findByObservationId(observationId: number): Promise<CodeSnippetRecord[]>;
+
+  /**
+   * List snippets with optional filters
+   */
+  list(filters?: CodeSnippetQueryFilters, options?: QueryOptions): Promise<CodeSnippetRecord[]>;
+
+  /**
+   * Full-text search code snippets
+   */
+  search(query: string, filters?: CodeSnippetQueryFilters, options?: QueryOptions): Promise<CodeSnippetRecord[]>;
+
+  /**
+   * Delete a snippet
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Delete all snippets for an observation
+   */
+  deleteByObservationId(observationId: number): Promise<number>;
+
+  /**
+   * Count snippets matching filters
+   */
+  count(filters?: CodeSnippetQueryFilters): Promise<number>;
+
+  /**
+   * Get distinct languages used in snippets
+   */
+  getDistinctLanguages(project?: string): Promise<string[]>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -661,6 +761,7 @@ export interface IUnitOfWork {
   userPrompts: IUserPromptRepository;
   taskQueue: ITaskQueueRepository;
   claudemd: IClaudeMdRepository;
+  codeSnippets: ICodeSnippetRepository;
 
   /**
    * Start a transaction

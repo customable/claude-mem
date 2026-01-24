@@ -7,36 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #13055 | 5:59 PM | 🟠 | Added Git Utilities export to shared package | ~986 |
+| #13054 | 5:58 PM | 🔵 | Shared utilities package structure | ~799 |
+| #13053 | 5:58 PM | 🟠 | Created git-utils.ts for repository detection | ~4421 |
+| #13023 | 5:49 PM | 🔵 | Deprecated path configuration in shared module | ~1439 |
+| #13009 | 5:47 PM | 🔄 | Remove merge conflict markers from settings.ts | ~4888 |
+| #13007 | 5:47 PM | 🔵 | Merge conflict detected in settings.ts | ~830 |
+| #13006 | 5:47 PM | 🔄 | Remove merge conflict markers from settings.ts | ~4939 |
+| #13005 | 5:47 PM | 🔵 | Examining Settings Management System | ~4914 |
+| #12697 | 11:36 AM | 🔄 | Remove auth token generation functions | ~5751 |
+| #12696 | 11:36 AM | 🔄 | Removed resetSettings and createSettingsManager | ~5693 |
+| #12695 | 11:35 AM | 🔄 | Removed reload() method from SettingsManager | ~5266 |
+| #12694 | 11:35 AM | 🔄 | Remove duplicate getDefault method | ~5401 |
+| #12693 | 11:35 AM | 🔵 | Settings Manager Implementation Analysis | ~1724 |
+| #12688 | 11:34 AM | 🔵 | Identified key settings management functions | ~876 |
+| #12590 | 11:20 AM | 🔄 | Removed unused constants from shared constants | ~3876 |
+| #12587 | 11:20 AM | 🔄 | Simplified paths.ts by removing deprecated | ~5171 |
+| #12584 | 11:20 AM | 🔵 | Shared constants and configuration values | ~2048 |
+| #12573 | 11:17 AM | 🔵 | Shared utilities structure in claude-mem | ~856 |
+| #12572 | 11:17 AM | 🔵 | Identified key directory constants in settings | ~1026 |
+| #12570 | 11:17 AM | 🔵 | Path configuration structure and env vars | ~2521 |
+| #12338 | 10:45 AM | 🔄 | Removed auth token generation functions | ~5711 |
+| #12337 | 10:44 AM | 🔄 | Remove redundant exported functions | ~5369 |
+| #12336 | 10:44 AM | 🔄 | Removed unused reload() method | ~5193 |
+| #12335 | 10:44 AM | 🔄 | Remove redundant getDefault method | ~5364 |
+| #12334 | 10:44 AM | 🔵 | Settings management implementation details | ~1716 |
+| #12305 | 10:40 AM | 🔄 | Removed unused constants from shared constants | ~3837 |
+| #12300 | 10:40 AM | 🔵 | Exploring shared constants in claude-mem | ~1994 |
 | #12294 | 10:38 AM | 🔄 | Simplified paths.ts module | ~5157 |
-| #12285 | 10:37 AM | 🔵 | Path configuration structure | ~2555 |
-
-### Jan 23, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #12087 | 11:32 PM | 🟣 | Version updated to 2.17.0 | ~2033 |
-| #12086 | 11:32 PM | 🔵 | Shared constants file structure | ~1980 |
-| #12080 | 11:31 PM | 🔵 | Found VERSION constant | ~907 |
-| #12024 | 11:07 PM | 🔵 | Settings management structure | ~2402 |
-| #11981 | 11:02 PM | 🟠 | Added CLAUDE.md settings | ~5779 |
-| #11980 | 11:02 PM | 🟠 | CLAUDE.md config options | ~5421 |
-| #11979 | 11:02 PM | 🟠 | CLAUDE.md timeout/subdir limits | ~5567 |
-| #11978 | 11:02 PM | 🔵 | Default settings structure | ~2073 |
-| #11893 | 10:42 PM | 🔵 | Number-type settings keys | ~1017 |
-| #11890 | 10:42 PM | 🟠 | Added CLAUDEMD_OBSERVATION_INTERVAL | ~5547 |
-| #11889 | 10:41 PM | 🟠 | CLAUDEMD_OBSERVATION_INTERVAL setting | ~5184 |
-| #11888 | 10:41 PM | 🔵 | Default settings config | ~1737 |
-| #11887 | 10:41 PM | 🟠 | CLAUDEMD_OBSERVATION_INTERVAL | ~5136 |
-| #11886 | 10:41 PM | 🔵 | Settings management structure | ~1797 |
-| #11876 | 10:38 PM | 🔵 | Settings management system | ~5014 |
-| #11864 | 10:37 PM | 🔵 | Logger module structure | ~2823 |
-| #11828 | 10:28 PM | 🔵 | Logger module structure | ~2842 |
+| #12285 | 10:37 AM | 🔵 | Path configuration structure and env-based setup | ~2555 |
+| #12087 | 11:32 PM | 🟣 | Version updated from 0.1.0 to 2.17.0 | ~2033 |
 
 ## Key Insights
 
-- **Major Version Jump**: Version updated from 0.1.0 to 2.17.0, indicating significant project evolution.
-- **CLAUDE.md Enhancements**: Multiple features added for CLAUDE.md generation (timeouts, subdirectory limits, observation intervals).
-- **Configuration Focus**: Extensive work on settings management, including type-safe configurations and environment variable support.
-- **Code Simplification**: Paths module was significantly refactored to remove redundant functionality.
-- **Logging Infrastructure**: Logger module provides structured logging with multiple transports and log levels.
+- **Git Utilities Added**: New `git-utils.ts` module introduced for repository detection and worktree support, exported via shared package.
+- **Settings Refactoring**: Multiple redundant methods removed from `SettingsManager` (e.g., `reload()`, `getDefault()`), simplifying the API.
+- **Merge Conflict Resolution**: Resolved conflicts in `settings.ts` and other files, improving code stability.
+- **Deprecated Code Cleanup**: Removed unused constants, deprecated path configurations, and redundant functions across shared modules.
+- **Version Jump**: Significant version update (0.1.0 → 2.17.0) suggests major changes or additions to the project.
 </claude-mem-context>

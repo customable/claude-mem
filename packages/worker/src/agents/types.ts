@@ -43,6 +43,8 @@ export interface AgentQueryOptions {
   temperature?: number;
   /** Stop sequences */
   stopSequences?: string[];
+  /** Abort signal for cancellation */
+  signal?: AbortSignal;
 }
 
 /**

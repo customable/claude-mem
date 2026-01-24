@@ -122,14 +122,10 @@ export class BackendService {
       });
       this.workerHub.attach(this.server, '/ws');
 
-      // Wire up worker hub events to SSE broadcaster
+      // Initialize SSE broadcaster (TaskDispatcher will wire up worker events)
       this.sseBroadcaster = new SSEBroadcaster();
-      this.workerHub.onWorkerConnected = (worker) => {
-        this.sseBroadcaster?.broadcastWorkerConnected(worker.id, worker.capabilities);
-      };
-      this.workerHub.onWorkerDisconnected = (workerId) => {
-        this.sseBroadcaster?.broadcastWorkerDisconnected(workerId);
-      };
+
+      // Handle worker ready for termination (not overridden by TaskDispatcher)
       this.workerHub.onWorkerReadyForTermination = (workerId) => {
         // Execute pending termination when worker finishes its task
         this.workerProcessManager?.executePendingTermination(workerId).catch((err) => {
@@ -275,6 +271,10 @@ export class BackendService {
           documents: this.unitOfWork.documents,
           taskService: this.taskService,
           claudemd: this.unitOfWork.claudemd,
+          codeSnippets: this.unitOfWork.codeSnippets,
+          onWorkerLinked: (spawnedId, hubWorkerId) => {
+            this.workerProcessManager?.linkToHubWorker(spawnedId, hubWorkerId);
+          },
         }
       );
       this.taskDispatcher.start();
@@ -308,6 +308,7 @@ export class BackendService {
     this.app.use('/api/hooks', new HooksRouter({
       sessionService: this.sessionService!,
       taskService: this.taskService!,
+      claudemd: this.unitOfWork!.claudemd,
     }).router);
 
     // Data routes
@@ -319,6 +320,7 @@ export class BackendService {
       sessions: this.unitOfWork!.sessions,
       documents: this.unitOfWork!.documents,
       userPrompts: this.unitOfWork!.userPrompts,
+      codeSnippets: this.unitOfWork!.codeSnippets,
     }).router);
 
     // Search routes

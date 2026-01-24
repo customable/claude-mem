@@ -15,8 +15,14 @@ const logger = createLogger('embedding-handler');
  * Handle an embedding task
  */
 export async function handleEmbeddingTask(
-  payload: EmbeddingTaskPayload
+  payload: EmbeddingTaskPayload,
+  signal?: AbortSignal
 ): Promise<EmbeddingTask['result']> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
   const texts = payload.texts || [];
 
   if (texts.length === 0) {
