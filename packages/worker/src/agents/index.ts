@@ -2,15 +2,15 @@
  * Agent Registry
  *
  * Central registry for AI agents. Provides:
- * - Agent factory functions
- * - Provider selection based on settings
+ * - Dynamic provider registration
+ * - Configurable fallback order
  * - Easy extensibility for new providers
  */
 
 import { loadSettings } from '@claude-mem/shared';
-import type { Agent } from './types.js';
-import { AnthropicAgent, createAnthropicAgent } from './anthropic-agent.js';
-import { MistralAgent, createMistralAgent } from './mistral-agent.js';
+import type { Agent, AgentProviderDefinition } from './types.js';
+import { createAnthropicAgent } from './anthropic-agent.js';
+import { createMistralAgent } from './mistral-agent.js';
 
 // Re-export types and agents
 export * from './types.js';
@@ -18,46 +18,66 @@ export { AnthropicAgent, createAnthropicAgent } from './anthropic-agent.js';
 export { MistralAgent, createMistralAgent } from './mistral-agent.js';
 
 /**
- * Supported AI providers
+ * Provider registry - stores provider definitions
  */
-export type AIProvider = 'anthropic' | 'mistral' | 'gemini' | 'openai' | 'openrouter';
+const providerRegistry = new Map<string, AgentProviderDefinition>();
 
 /**
- * Agent registry - maps provider names to agent instances
+ * Agent instance cache - stores created agents
  */
-const agentRegistry = new Map<AIProvider, Agent>();
+const agentCache = new Map<string, Agent>();
+
+/**
+ * Register a provider
+ */
+export function registerProvider(definition: AgentProviderDefinition): void {
+  providerRegistry.set(definition.name, definition);
+}
+
+/**
+ * Unregister a provider
+ */
+export function unregisterProvider(name: string): void {
+  providerRegistry.delete(name);
+  agentCache.delete(name);
+}
+
+/**
+ * Get all registered providers
+ */
+export function getRegisteredProviders(): AgentProviderDefinition[] {
+  return [...providerRegistry.values()];
+}
+
+/**
+ * Get available providers (those with credentials configured)
+ */
+export function getAvailableProviders(): AgentProviderDefinition[] {
+  return getRegisteredProviders()
+    .filter((p) => p.isAvailable())
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+}
 
 /**
  * Get or create an agent for the specified provider
  */
-export function getAgent(provider: AIProvider): Agent {
-  // Check registry first
-  const existing = agentRegistry.get(provider);
-  if (existing) {
-    return existing;
+export function getAgent(providerName: string): Agent {
+  // Check cache first
+  const cached = agentCache.get(providerName);
+  if (cached) {
+    return cached;
   }
 
-  // Create new agent based on provider
-  let agent: Agent;
-
-  switch (provider) {
-    case 'anthropic':
-      agent = createAnthropicAgent();
-      break;
-    case 'mistral':
-      agent = createMistralAgent();
-      break;
-    case 'gemini':
-    case 'openai':
-    case 'openrouter':
-      // TODO: Add these providers when needed
-      throw new Error(`Provider '${provider}' not yet implemented. Pull requests welcome!`);
-    default:
-      throw new Error(`Unknown provider: ${provider}`);
+  // Get provider definition
+  const definition = providerRegistry.get(providerName);
+  if (!definition) {
+    const available = getRegisteredProviders().map((p) => p.name).join(', ');
+    throw new Error(`Unknown provider: ${providerName}. Available: ${available}`);
   }
 
-  // Cache and return
-  agentRegistry.set(provider, agent);
+  // Create agent
+  const agent = definition.create();
+  agentCache.set(providerName, agent);
   return agent;
 }
 
@@ -66,24 +86,33 @@ export function getAgent(provider: AIProvider): Agent {
  */
 export function getDefaultAgent(): Agent {
   const settings = loadSettings();
-  const provider = settings.AI_PROVIDER as AIProvider;
+  const configuredProvider = settings.AI_PROVIDER as string;
 
   // Try configured provider first
-  try {
-    const agent = getAgent(provider);
-    if (agent.isAvailable()) {
-      return agent;
+  if (configuredProvider && providerRegistry.has(configuredProvider)) {
+    try {
+      const agent = getAgent(configuredProvider);
+      if (agent.isAvailable()) {
+        return agent;
+      }
+    } catch {
+      // Fall through to fallback
     }
-  } catch {
-    // Fall through to fallback
   }
 
-  // Fallback chain: mistral -> anthropic
-  const fallbackOrder: AIProvider[] = ['mistral', 'anthropic'];
+  // Use settings-based fallback order, or default to priority-based
+  const fallbackOrder = settings.AI_PROVIDER_FALLBACK as string[] | undefined;
 
-  for (const fallbackProvider of fallbackOrder) {
+  const providersToTry = fallbackOrder && fallbackOrder.length > 0
+    ? fallbackOrder
+    : getAvailableProviders().map((p) => p.name);
+
+  for (const providerName of providersToTry) {
+    if (!providerRegistry.has(providerName)) {
+      continue;
+    }
     try {
-      const agent = getAgent(fallbackProvider);
+      const agent = getAgent(providerName);
       if (agent.isAvailable()) {
         return agent;
       }
@@ -96,16 +125,61 @@ export function getDefaultAgent(): Agent {
 }
 
 /**
- * Clear the agent registry (for testing)
+ * Clear the agent cache (for testing)
  */
-export function clearAgentRegistry(): void {
-  agentRegistry.clear();
+export function clearAgentCache(): void {
+  agentCache.clear();
 }
 
 /**
- * Register a custom agent
- * This allows external code to add new providers without modifying this file
+ * Clear both registry and cache (for testing)
  */
-export function registerAgent(provider: AIProvider, agent: Agent): void {
-  agentRegistry.set(provider, agent);
+export function clearAgentRegistry(): void {
+  providerRegistry.clear();
+  agentCache.clear();
 }
+
+/**
+ * Register a custom agent (legacy compatibility)
+ * @deprecated Use registerProvider instead
+ */
+export function registerAgent(provider: string, agent: Agent): void {
+  agentCache.set(provider, agent);
+}
+
+// =============================================================================
+// Built-in Provider Registrations
+// =============================================================================
+
+// Mistral - higher priority (cheaper, good quality)
+registerProvider({
+  name: 'mistral',
+  displayName: 'Mistral AI',
+  envKey: 'MISTRAL_API_KEY',
+  isAvailable: () => !!process.env.MISTRAL_API_KEY,
+  create: createMistralAgent,
+  priority: 20,
+});
+
+// Anthropic - lower priority (more expensive)
+registerProvider({
+  name: 'anthropic',
+  displayName: 'Anthropic Claude',
+  envKey: 'ANTHROPIC_API_KEY',
+  isAvailable: () => !!process.env.ANTHROPIC_API_KEY,
+  create: createAnthropicAgent,
+  priority: 10,
+});
+
+// Placeholder for future providers
+// registerProvider({
+//   name: 'openai',
+//   displayName: 'OpenAI',
+//   envKey: 'OPENAI_API_KEY',
+//   isAvailable: () => !!process.env.OPENAI_API_KEY,
+//   create: () => { throw new Error('OpenAI not yet implemented'); },
+//   priority: 15,
+// });
+
+// Legacy type export for backwards compatibility
+export type AIProvider = 'anthropic' | 'mistral' | 'gemini' | 'openai' | 'openrouter';
