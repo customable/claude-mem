@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.39.0] - 2026-01-24
+
+### Features
+- Implemented in-process worker architecture
+
+
 ## [2.38.0] - 2026-01-24
 
 ### Features
