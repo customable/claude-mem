@@ -164,6 +164,7 @@ function spawnSseWriter(input: HookInput): void {
     ], {
       detached: true,
       stdio: ['ignore', logFd, logFd],
+      windowsHide: true,
     });
 
     // Close file descriptor in parent - child keeps it open
