@@ -4,8 +4,9 @@
  * Display and manage vector database documents.
  */
 
-import { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { api, type Document, type DocumentType } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 
@@ -203,6 +204,116 @@ export function DocumentsView() {
   );
 }
 
+/**
+ * Sanitize markdown content for preview
+ * - Truncate at given length
+ * - Close any unclosed code blocks
+ * - Ensure valid markdown structure
+ */
+function sanitizeMarkdownPreview(content: string | undefined, maxLength: number): string {
+  if (!content) return '(empty)';
+
+  let preview = content.slice(0, maxLength);
+
+  // Count code block fences (``` or ~~~)
+  const codeBlockMatches = preview.match(/^```|^~~~/gm) || [];
+  const isUnclosed = codeBlockMatches.length % 2 !== 0;
+
+  // If we have an unclosed code block, close it
+  if (isUnclosed) {
+    // Find the last fence type used
+    const lastFenceMatch = preview.match(/(```|~~~)[^\n]*\n(?![\s\S]*\1)/);
+    const fenceType = lastFenceMatch ? '```' : '```';
+    preview = preview + '\n' + fenceType;
+  }
+
+  return preview;
+}
+
+/**
+ * Custom markdown components for better rendering
+ */
+const markdownComponents = {
+  // Headings with distinct styling
+  h1: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h1 className="text-base font-bold mt-4 mb-2 text-primary" {...props}>{children}</h1>
+  ),
+  h2: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h2 className="text-sm font-bold mt-3 mb-1.5 text-secondary border-b border-base-300 pb-1" {...props}>{children}</h2>
+  ),
+  h3: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h3 className="text-sm font-semibold mt-2 mb-1 text-accent" {...props}>{children}</h3>
+  ),
+  h4: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h4 className="text-xs font-semibold mt-2 mb-1" {...props}>{children}</h4>
+  ),
+  // Better code block rendering
+  pre: ({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) => (
+    <pre className="bg-base-300 p-2 rounded text-xs overflow-x-auto my-2 border border-base-content/10" {...props}>
+      {children}
+    </pre>
+  ),
+  code: ({ children, className, ...props }: React.HTMLAttributes<HTMLElement> & { className?: string }) => {
+    // Check if it's a code block (has language class) or inline code
+    const isBlock = className?.includes('language-');
+    if (isBlock) {
+      return (
+        <code className="text-xs" {...props}>
+          {children}
+        </code>
+      );
+    }
+    return (
+      <code className="bg-base-300 px-1 py-0.5 rounded text-xs font-mono" {...props}>
+        {children}
+      </code>
+    );
+  },
+  // Lists
+  ul: ({ children, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
+    <ul className="list-disc list-inside my-1 space-y-0.5" {...props}>{children}</ul>
+  ),
+  ol: ({ children, ...props }: React.HTMLAttributes<HTMLOListElement>) => (
+    <ol className="list-decimal list-inside my-1 space-y-0.5" {...props}>{children}</ol>
+  ),
+  li: ({ children, ...props }: React.HTMLAttributes<HTMLLIElement>) => (
+    <li className="text-xs" {...props}>{children}</li>
+  ),
+  // Paragraphs
+  p: ({ children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
+    <p className="my-1 text-xs" {...props}>{children}</p>
+  ),
+  // Links
+  a: ({ children, href, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} className="text-info hover:underline" target="_blank" rel="noopener noreferrer" {...props}>{children}</a>
+  ),
+  // Strong/bold
+  strong: ({ children, ...props }: React.HTMLAttributes<HTMLElement>) => (
+    <strong className="font-semibold text-base-content" {...props}>{children}</strong>
+  ),
+  // Horizontal rule for section separators
+  hr: () => <hr className="my-3 border-base-300" />,
+  // Blockquotes
+  blockquote: ({ children, ...props }: React.HTMLAttributes<HTMLQuoteElement>) => (
+    <blockquote className="border-l-2 border-primary pl-2 my-2 text-base-content/70 italic" {...props}>{children}</blockquote>
+  ),
+  // Tables (GFM)
+  table: ({ children, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
+    <div className="overflow-x-auto my-2">
+      <table className="table table-xs table-zebra" {...props}>{children}</table>
+    </div>
+  ),
+  thead: ({ children, ...props }: React.HTMLAttributes<HTMLTableSectionElement>) => (
+    <thead className="bg-base-300" {...props}>{children}</thead>
+  ),
+  th: ({ children, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
+    <th className="text-xs font-semibold px-2 py-1" {...props}>{children}</th>
+  ),
+  td: ({ children, ...props }: React.HTMLAttributes<HTMLTableCellElement>) => (
+    <td className="text-xs px-2 py-1" {...props}>{children}</td>
+  ),
+};
+
 function DocumentCard({
   document,
   expanded,
@@ -301,8 +412,8 @@ function DocumentCard({
                 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5
                 prose-code:text-xs prose-code:bg-base-300 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
                 prose-pre:bg-base-300 prose-pre:p-2 prose-pre:text-xs prose-pre:overflow-x-auto">
-                <Markdown>
-                  {document.content?.slice(0, 3000) || '(empty)'}
+                <Markdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                  {sanitizeMarkdownPreview(document.content, 3000)}
                 </Markdown>
                 {document.content && document.content.length > 3000 && (
                   <div className="text-base-content/40 mt-2 pt-2 border-t border-base-300 text-center">
