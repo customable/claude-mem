@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.41.2] - 2026-01-24
+
+### Bug Fixes
+- Fixed backend to convert `null` to `undefined` for `workingDirectory` to ensure proper handling.
+
+
 ## [2.41.1] - 2026-01-24
 
 ### Bug Fixes
