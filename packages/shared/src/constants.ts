@@ -5,7 +5,7 @@
 /**
  * Version of claude-mem
  */
-export const VERSION = '2.17.3';
+export const VERSION = '2.19.9';
 
 /**
  * Hook timeouts in milliseconds
@@ -30,57 +30,6 @@ export const HOOK_TIMEOUTS = {
 } as const;
 
 /**
- * Hook exit codes per Claude Code documentation
- *
- * - 0: Success. For SessionStart/UserPromptSubmit, stdout added to context.
- * - 2: Blocking error. For SessionStart, stderr shown to user only.
- * - Other non-zero: stderr shown in verbose mode only.
- */
-export const HOOK_EXIT_CODES = {
-  SUCCESS: 0,
-  FAILURE: 1,
-  /** Blocking error - for SessionStart, shows stderr to user only */
-  BLOCKING_ERROR: 2,
-  /** User message only - shows message to user without injecting into Claude context */
-  USER_MESSAGE_ONLY: 3,
-} as const;
-
-/**
- * Default ports
- */
-export const PORTS = {
-  /** Backend REST API port */
-  BACKEND_REST: 37777,
-  /** Backend WebSocket port (for workers) */
-  BACKEND_WS: 37778,
-  /** Default UI standalone port */
-  UI_STANDALONE: 3000,
-} as const;
-
-/**
- * API endpoints (relative)
- */
-export const API_ENDPOINTS = {
-  HEALTH: '/api/health',
-  READINESS: '/api/readiness',
-  VERSION: '/api/version',
-  SESSIONS: '/api/sessions',
-  OBSERVATIONS: '/api/observations',
-  SUMMARIES: '/api/summaries',
-  SEARCH: '/api/search',
-  TIMELINE: '/api/timeline',
-  SETTINGS: '/api/settings',
-  WORKERS: '/api/workers',
-  QUEUE: '/api/queue',
-  STREAM: '/stream',
-  // Hook endpoints
-  HOOK_OBSERVATION: '/api/hooks/observation',
-  HOOK_SUMMARIZE: '/api/hooks/summarize',
-  HOOK_CONTEXT: '/api/hooks/context',
-  HOOK_SESSION_INIT: '/api/hooks/session-init',
-} as const;
-
-/**
  * Get adjusted timeout for the current platform
  */
 export function getTimeout(baseTimeout: number): number {
@@ -88,18 +37,6 @@ export function getTimeout(baseTimeout: number): number {
     ? Math.round(baseTimeout * HOOK_TIMEOUTS.WINDOWS_MULTIPLIER)
     : baseTimeout;
 }
-
-/**
- * Task queue constants
- */
-export const TASK_QUEUE = {
-  /** Default max retries for failed tasks */
-  DEFAULT_MAX_RETRIES: 3,
-  /** Default task timeout (5 minutes) */
-  DEFAULT_TIMEOUT: 300_000,
-  /** Cleanup tasks older than (24 hours) */
-  CLEANUP_AGE: 24 * 60 * 60 * 1000,
-} as const;
 
 /**
  * Worker constants

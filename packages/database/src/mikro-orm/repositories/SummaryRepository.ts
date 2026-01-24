@@ -51,7 +51,8 @@ export class MikroOrmSummaryRepository implements ISummaryRepository {
       created_at_epoch: now.getTime(),
     });
 
-    await this.em.persistAndFlush(entity);
+    this.em.persist(entity);
+    await this.em.flush();
     return toRecord(entity);
   }
 
@@ -139,7 +140,8 @@ export class MikroOrmSummaryRepository implements ISummaryRepository {
   async delete(id: number): Promise<boolean> {
     const entity = await this.em.findOne(Summary, { id });
     if (!entity) return false;
-    await this.em.removeAndFlush(entity);
+    this.em.remove(entity);
+    await this.em.flush();
     return true;
   }
 }

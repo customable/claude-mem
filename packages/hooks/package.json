@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/hooks",
-  "version": "2.17.3",
+  "version": "2.19.9",
   "description": "Claude Code hooks for claude-mem",
   "type": "module",
   "main": "dist/index.js",
@@ -21,6 +21,6 @@
   "devDependencies": {
     "@types/eventsource": "^1.1.15",
     "@types/node": "^22.10.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.9.3"
   }
 }
