@@ -28,6 +28,7 @@ export type SSEEventType =
   | 'task:assigned'
   | 'task:completed'
   | 'task:failed'
+  | 'task:progress'
   | 'claudemd:ready';
 
 /**
@@ -239,6 +240,16 @@ export class SSEBroadcaster {
     this.broadcast({
       type: 'task:completed',
       data: { taskId },
+    });
+  }
+
+  /**
+   * Broadcast task progress
+   */
+  broadcastTaskProgress(taskId: string, workerId: string, progress: number, message?: string): void {
+    this.broadcast({
+      type: 'task:progress',
+      data: { taskId, workerId, progress, message },
     });
   }
 
