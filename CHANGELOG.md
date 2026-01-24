@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.17.3] - 2026-01-24
+
+### Bug Fixes
+- Removed unused exports from `database.ts` to clean up the codebase.
+
+
 ## [2.17.2] - 2026-01-23
 
 ### Bug Fixes
