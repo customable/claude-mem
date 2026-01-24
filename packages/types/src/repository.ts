@@ -51,6 +51,63 @@ export interface DateRangeFilter {
 }
 
 // ============================================
+// Search Types (Issue #211)
+// ============================================
+
+/**
+ * Highlighted text with context
+ */
+export interface SearchHighlight {
+  field: string;
+  snippet: string;
+}
+
+/**
+ * Search result wrapper with ranking and highlighting
+ */
+export interface SearchResult<T> {
+  /** The matched item */
+  item: T;
+  /** BM25 relevance score (lower = more relevant) */
+  score: number;
+  /** Snippets with highlighted matches */
+  highlights: SearchHighlight[];
+}
+
+/**
+ * Search facet counts
+ */
+export interface SearchFacets {
+  /** Count by observation type */
+  types?: Record<string, number>;
+  /** Count by project */
+  projects?: Record<string, number>;
+  /** Count by memory tier */
+  tiers?: Record<string, number>;
+}
+
+/**
+ * Search response with results and metadata
+ */
+export interface SearchResponse<T> {
+  /** Search results with scores and highlights */
+  results: SearchResult<T>[];
+  /** Total count of matches */
+  total: number;
+  /** Facet counts for filtering */
+  facets?: SearchFacets;
+  /** Query metadata */
+  query: {
+    /** Original query */
+    original: string;
+    /** Parsed/normalized query */
+    parsed: string;
+    /** Search duration in ms */
+    took: number;
+  };
+}
+
+// ============================================
 // Session Repository
 // ============================================
 
@@ -237,6 +294,23 @@ export interface IObservationRepository {
    * Full-text search observations
    */
   search(query: string, filters?: ObservationQueryFilters, options?: QueryOptions): Promise<ObservationRecord[]>;
+
+  /**
+   * Search with BM25 ranking, snippets and highlighting (Issue #211)
+   */
+  searchWithRanking(
+    query: string,
+    filters?: ObservationQueryFilters,
+    options?: QueryOptions & { snippetLength?: number }
+  ): Promise<{ results: SearchResult<ObservationRecord>[]; total: number }>;
+
+  /**
+   * Get search facets for filtering (Issue #211)
+   */
+  getSearchFacets(
+    query: string,
+    filters?: ObservationQueryFilters
+  ): Promise<{ types: Record<string, number>; projects: Record<string, number>; tiers: Record<string, number> }>;
 
   /**
    * Get observations for a session

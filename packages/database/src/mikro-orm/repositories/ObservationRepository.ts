@@ -176,17 +176,38 @@ export class MikroOrmObservationRepository implements IObservationRepository {
   }
 
   /**
-   * Sanitize query for FTS5
+   * Parse and sanitize FTS5 query with support for extended syntax (Issue #211)
+   * Supports: phrase search ("..."), OR, NOT (-), prefix (*)
    */
-  private sanitizeFts5Query(query: string): string {
-    const specialChars = /[-+*:()^"]/;
-    const words = query.split(/\s+/).filter(Boolean);
-    return words.map(word => {
-      if (specialChars.test(word)) {
-        const escaped = word.replace(/"/g, '""');
-        return `"${escaped}"`;
+  private parseFts5Query(query: string): string {
+    // Handle quoted phrases first - preserve them
+    const phrases: string[] = [];
+    let processed = query.replace(/"([^"]+)"/g, (_, phrase) => {
+      phrases.push(`"${phrase}"`);
+      return `__PHRASE_${phrases.length - 1}__`;
+    });
+
+    // Convert -term to NOT term
+    processed = processed.replace(/\s-(\w+)/g, ' NOT $1');
+    processed = processed.replace(/^-(\w+)/, 'NOT $1');
+
+    // Restore phrases
+    phrases.forEach((phrase, i) => {
+      processed = processed.replace(`__PHRASE_${i}__`, phrase);
+    });
+
+    // Escape any remaining special characters in individual terms (except allowed operators)
+    const terms = processed.split(/\s+/).filter(Boolean);
+    return terms.map(term => {
+      // Allow: OR, NOT, quoted phrases, prefix wildcards
+      if (term === 'OR' || term === 'NOT' || term.startsWith('"') || term.endsWith('*')) {
+        return term;
       }
-      return word;
+      // Escape special FTS5 characters in regular terms
+      if (/[():^]/.test(term)) {
+        return `"${term.replace(/"/g, '""')}"`;
+      }
+      return term;
     }).join(' ');
   }
 
@@ -196,12 +217,12 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     options?: QueryOptions
   ): Promise<ObservationRecord[]> {
     // FTS5 requires raw SQL - MikroORM doesn't support virtual tables
-    const sanitizedQuery = this.sanitizeFts5Query(query);
+    const parsedQuery = this.parseFts5Query(query);
     const knex = this.em.getKnex();
 
     let sql = knex('observations as o')
       .join(knex.raw('observations_fts fts ON o.id = fts.rowid'))
-      .whereRaw('observations_fts MATCH ?', [sanitizedQuery])
+      .whereRaw('observations_fts MATCH ?', [parsedQuery])
       .select('o.*');
 
     if (filters?.project) {
@@ -226,6 +247,151 @@ export class MikroOrmObservationRepository implements IObservationRepository {
 
     const rows = await sql;
     return rows as ObservationRecord[];
+  }
+
+  /**
+   * Search with BM25 ranking, snippets and highlighting (Issue #211)
+   */
+  async searchWithRanking(
+    query: string,
+    filters?: ObservationQueryFilters,
+    options?: QueryOptions & { snippetLength?: number }
+  ): Promise<{ results: Array<{ item: ObservationRecord; score: number; highlights: Array<{ field: string; snippet: string }> }>; total: number }> {
+    const parsedQuery = this.parseFts5Query(query);
+    const knex = this.em.getKnex();
+    const snippetLen = options?.snippetLength || 64;
+
+    // Build main query with BM25 ranking and snippets
+    let sql = knex('observations as o')
+      .join(knex.raw('observations_fts fts ON o.id = fts.rowid'))
+      .whereRaw('observations_fts MATCH ?', [parsedQuery])
+      .select(
+        'o.*',
+        knex.raw('bm25(observations_fts, 1.0, 0.75, 0.5) as score'),
+        knex.raw(`snippet(observations_fts, 0, '<mark>', '</mark>', '...', ?) as title_snippet`, [snippetLen]),
+        knex.raw(`snippet(observations_fts, 1, '<mark>', '</mark>', '...', ?) as text_snippet`, [snippetLen]),
+        knex.raw(`snippet(observations_fts, 2, '<mark>', '</mark>', '...', ?) as concept_snippet`, [snippetLen])
+      );
+
+    if (filters?.project) {
+      sql = sql.andWhere('o.project', filters.project);
+    }
+    if (filters?.type) {
+      if (Array.isArray(filters.type)) {
+        sql = sql.whereIn('o.type', filters.type);
+      } else {
+        sql = sql.andWhere('o.type', filters.type);
+      }
+    }
+
+    // Always order by relevance (BM25 score - lower is better)
+    sql = sql.orderByRaw('score');
+
+    if (options?.limit) sql = sql.limit(options.limit);
+    if (options?.offset) sql = sql.offset(options.offset);
+
+    const rows = await sql;
+
+    // Get total count
+    const countSql = knex('observations as o')
+      .join(knex.raw('observations_fts fts ON o.id = fts.rowid'))
+      .whereRaw('observations_fts MATCH ?', [parsedQuery]);
+
+    if (filters?.project) {
+      countSql.andWhere('o.project', filters.project);
+    }
+    if (filters?.type) {
+      if (Array.isArray(filters.type)) {
+        countSql.whereIn('o.type', filters.type);
+      } else {
+        countSql.andWhere('o.type', filters.type);
+      }
+    }
+
+    const [{ count }] = await countSql.count('* as count');
+    const total = typeof count === 'number' ? count : parseInt(count as string, 10);
+
+    // Transform results
+    const results = rows.map((row: Record<string, unknown>) => {
+      const { score, title_snippet, text_snippet, concept_snippet, ...item } = row;
+      const highlights: Array<{ field: string; snippet: string }> = [];
+
+      if (title_snippet && (title_snippet as string).includes('<mark>')) {
+        highlights.push({ field: 'title', snippet: title_snippet as string });
+      }
+      if (text_snippet && (text_snippet as string).includes('<mark>')) {
+        highlights.push({ field: 'text', snippet: text_snippet as string });
+      }
+      if (concept_snippet && (concept_snippet as string).includes('<mark>')) {
+        highlights.push({ field: 'concept', snippet: concept_snippet as string });
+      }
+
+      return {
+        item: item as unknown as ObservationRecord,
+        score: score as number,
+        highlights,
+      };
+    });
+
+    return { results, total };
+  }
+
+  /**
+   * Get search facets for filtering (Issue #211)
+   */
+  async getSearchFacets(
+    query: string,
+    filters?: ObservationQueryFilters
+  ): Promise<{ types: Record<string, number>; projects: Record<string, number>; tiers: Record<string, number> }> {
+    const parsedQuery = this.parseFts5Query(query);
+    const knex = this.em.getKnex();
+
+    let baseQuery = knex('observations as o')
+      .join(knex.raw('observations_fts fts ON o.id = fts.rowid'))
+      .whereRaw('observations_fts MATCH ?', [parsedQuery]);
+
+    if (filters?.project) {
+      baseQuery = baseQuery.andWhere('o.project', filters.project);
+    }
+
+    // Get type counts
+    const typeRows = await baseQuery.clone()
+      .select('o.type')
+      .count('* as count')
+      .groupBy('o.type');
+
+    // Get project counts
+    const projectRows = await baseQuery.clone()
+      .select('o.project')
+      .count('* as count')
+      .groupBy('o.project');
+
+    // Get tier counts
+    const tierRows = await baseQuery.clone()
+      .select('o.memory_tier')
+      .count('* as count')
+      .groupBy('o.memory_tier');
+
+    const types: Record<string, number> = {};
+    const projects: Record<string, number> = {};
+    const tiers: Record<string, number> = {};
+
+    for (const row of typeRows) {
+      const r = row as { type: string; count: number | string };
+      types[r.type] = typeof r.count === 'number' ? r.count : parseInt(r.count, 10);
+    }
+    for (const row of projectRows) {
+      const r = row as { project: string; count: number | string };
+      projects[r.project] = typeof r.count === 'number' ? r.count : parseInt(r.count, 10);
+    }
+    for (const row of tierRows) {
+      const r = row as { memory_tier: string; count: number | string };
+      if (r.memory_tier) {
+        tiers[r.memory_tier] = typeof r.count === 'number' ? r.count : parseInt(r.count, 10);
+      }
+    }
+
+    return { types, projects, tiers };
   }
 
   async getBySessionId(memorySessionId: string, options?: QueryOptions): Promise<ObservationRecord[]> {
@@ -434,7 +600,7 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     limit?: number;
   }): Promise<ObservationRecord[]> {
     // Use FTS5 to find semantically similar decisions
-    const sanitizedQuery = this.sanitizeFts5Query(params.text);
+    const sanitizedQuery = this.parseFts5Query(params.text);
     const knex = this.em.getKnex();
 
     let sql = knex('observations as o')
