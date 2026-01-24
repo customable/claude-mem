@@ -7,16 +7,19 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14149 | 9:43 PM | 🟠 | Added ObservationLinkRepository export | ~1282 |
+| #14148 | 9:42 PM | 🔵 | MikroORM Repository Structure | ~1184 |
+| #14146 | 9:42 PM | 🟠 | Created ObservationLinkRepository | ~3808 |
 | #14113 | 9:36 PM | 🟠 | Added importance scoring methods | ~6152 |
 | #14112 | 9:36 PM | 🟠 | Added importance scoring fields | ~5550 |
 | #14111 | 9:36 PM | 🔵 | Exploring MikroORM Observation Repository | ~5502 |
 | #13936 | 9:10 PM | 🟠 | Added memory tier management methods | ~6732 |
 | #13933 | 9:10 PM | 🔵 | Observation history traversal logic | ~1196 |
 | #13931 | 9:09 PM | 🟠 | Add memory tiering fields | ~5570 |
-| #13929 | 9:09 PM | 🔵 | MikroORM uses raw SQL for FTS5 | ~1446 |
+| #13929 | 9:09 PM | 🔵 | ObservationRepository uses raw SQL | ~1446 |
 | #13928 | 9:09 PM | 🟣 | Added MemoryTier import | ~5451 |
 | #13907 | 9:05 PM | 🔵 | Decision history traversal | ~1252 |
-| #13905 | 9:05 PM | 🔄 | Improved variable naming | ~5825 |
+| #13905 | 9:05 PM | 🔄 | Improve variable naming | ~5825 |
 | #13890 | 9:02 PM | 🟠 | Added decision tracking methods | ~6601 |
 | #13889 | 9:02 PM | 🟣 | Added DecisionCategory import | ~5426 |
 | #13888 | 9:02 PM | 🟠 | Add decision_category field | ~5756 |
@@ -26,23 +29,20 @@
 | #13830 | 8:52 PM | 🟠 | Implemented RawMessageRepository | ~5443 |
 | #13827 | 8:51 PM | 🔵 | DailyStatsRepository logic | ~2963 |
 | #13822 | 8:51 PM | 🔵 | MikroORM repository exports | ~1166 |
-| #13781 | 8:38 PM | 🟠 | Added getTimelineStats method | ~3996 |
+| #13781 | 8:38 PM | 🟠 | Added getTimelineStats to SessionRepo | ~3996 |
 | #13778 | 8:37 PM | 🔵 | Reading SessionRepository.ts | ~777 |
-| #13774 | 8:37 PM | 🟠 | Added getTimelineStats method | ~5812 |
+| #13774 | 8:37 PM | 🟠 | Added getTimelineStats to ObsRepo | ~5812 |
 | #13768 | 8:33 PM | 🔵 | Found getInsightsSummary method | ~961 |
-| #13763 | 8:32 PM | 🟠 | Added totalTokens to insights | ~4729 |
-| #13762 | 8:32 PM | 🟠 | Added token count to query | ~4931 |
+| #13763 | 8:32 PM | 🟠 | Add totalTokens to insights | ~4729 |
+| #13762 | 8:32 PM | 🟠 | Add token count to query | ~4931 |
 | #13749 | 8:29 PM | 🟠 | Added getInsightsSummary method | ~6511 |
 | #13746 | 8:28 PM | 🔵 | Exploring MikroORM Repository | ~3163 |
-| #13742 | 8:27 PM | 🔵 | ObservationRepository count method | ~743 |
-| #13741 | 8:27 PM | 🔵 | DailyStatsRepository logic | ~2978 |
-| #13696 | 8:11 PM | 🔴 | Resolved merge conflict | ~1823 |
 
 ## Key Insights
 
-- **Memory Tiering System**: Implemented memory tiering with fields like `memory_tier`, `access_count`, and `consolidation_score` to manage observation prioritization and retention.
-- **Decision Tracking**: Enhanced decision tracking with bidirectional traversal (`supersedes`, `superseded_by`) and conflict detection using FTS5.
-- **Analytics Expansion**: Added `getInsightsSummary` and `getTimelineStats` methods for comprehensive analytics, including token counts and time-series data.
-- **Repository Enhancements**: Extended `ObservationRepository` with importance scoring (`pinned`, `importance_boost`) and memory tier management methods.
-- **Raw SQL Usage**: MikroORM repositories rely on raw SQL for FTS5 queries due to ORM limitations, impacting search functionality.
+- **Memory Tiering System**: Added comprehensive memory tier management with fields (memory_tier, access_count, etc.), consolidation logic via SleepAgentService, and API endpoints. Supports core/working/archive/ephemeral tiers.
+- **Decision Tracking**: Enhanced ObservationRepository with decision_category fields, conflict detection using FTS5, and bidirectional history traversal via supersedes/superseded_by relationships.
+- **Analytics Expansion**: Added timeline statistics (daily/weekly/monthly), insights summary (total observations, sessions, tokens), and importance scoring (pinned/importance_boost fields).
+- **Repository Growth**: New repositories added (ObservationLinkRepository, RawMessageRepository) and existing ones expanded with raw SQL for FTS5 (unsupported by MikroORM natively).
+- **Worker Architecture**: Implemented in-process worker mode with file-based mutex locks, lifecycle management, and hybrid spawn/in-process support, integrated into hooks package.
 </claude-mem-context>

@@ -7,6 +7,9 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14135 | 9:41 PM | 🟠 | Add new migration export for ObservationLinksTable | ~1950 |
+| #14134 | 9:41 PM | 🔵 | Database migration structure discovered | ~1521 |
+| #14131 | 9:40 PM | 🟠 | Create observation_links table migration | ~1745 |
 | #14110 | 9:35 PM | 🔵 | Database migration structure discovered | ~1360 |
 | #14109 | 9:35 PM | 🟠 | Add new migration export for importance scoring | ~1885 |
 | #14108 | 9:35 PM | 🟠 | Add importance scoring fields to observations table | ~1381 |
@@ -34,15 +37,12 @@
 | #13058 | 5:59 PM | 🔵 | Migration files structure discovered | ~1060 |
 | #13057 | 5:59 PM | 🟠 | Add Git Worktree Support Migration | ~2061 |
 | #13056 | 5:59 PM | 🔵 | Migration adds working_directory to sdk_sessions table | ~1017 |
-| #12636 | 11:28 AM | 🔄 | Remove migration list export from index file | ~2127 |
-| #12632 | 11:28 AM | 🔵 | Database migration structure discovered | ~1203 |
-| #12444 | 11:01 AM | 🔄 | Remove migration array export from index file | ~2127 |
 
 ## Key Insights
 
-- **Database Evolution**: The project uses MikroORM with 10+ migrations, showing rapid schema development including memory tiering, decision tracking, and importance scoring features.
-- **Memory Tiering**: New fields (`memory_tier`, `access_count`, etc.) and SleepAgentService were added for memory consolidation across core/working/archive/ephemeral tiers.
-- **Conflict Resolution**: Multiple merge conflicts in migration files were resolved, particularly around CreateInsightsTables and CreateCodeSnippetsTable migrations.
-- **New Features**: Added support for Git worktree tracking, raw messages storage, code snippets with FTS, and learning insights dashboard tables.
-- **Refactoring**: Migration index file was simplified by removing redundant `mikroOrmMigrations` array exports while maintaining individual migration exports.
+- **Database Evolution**: Significant database schema changes including new tables (observation_links, raw_messages, code_snippets, insights tables) and features (memory tiering, importance scoring, decision tracking, Git worktree support).
+- **Memory Tiering**: New system with tiers (core, working, archive, ephemeral) and SleepAgentService for consolidation.
+- **Merge Conflicts**: Multiple merge conflicts in migration files were detected and resolved.
+- **Worker Architecture**: Implemented in-process worker architecture with file-based mutex locks and lifecycle management.
+- **Learning Insights**: Added tables for daily_stats, technology_usage, and achievements to support learning insights dashboard.
 </claude-mem-context>

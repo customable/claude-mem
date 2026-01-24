@@ -14,3 +14,4 @@ export { MikroOrmDailyStatsRepository } from './DailyStatsRepository.js';
 export { MikroOrmTechnologyUsageRepository } from './TechnologyUsageRepository.js';
 export { MikroOrmAchievementRepository } from './AchievementRepository.js';
 export { MikroOrmRawMessageRepository } from './RawMessageRepository.js';
+export { MikroOrmObservationLinkRepository } from './ObservationLinkRepository.js';

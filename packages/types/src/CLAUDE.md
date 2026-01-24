@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #14147 | 9:42 PM | 🟠 | Added Observation Link Repository Interface | ~5707 |
+| #14144 | 9:42 PM | 🟠 | Add observationLinks repository interface | ~5103 |
+| #14143 | 9:42 PM | 🔵 | Repository interfaces and Unit of Work pattern discovered | ~1147 |
+| #14142 | 9:42 PM | 🔵 | Repository interface methods and Unit of Work pattern discovered | ~1373 |
+| #14138 | 9:41 PM | 🟠 | Add ObservationLinkRecord and ObservationLinkType to repository imports | ~5229 |
+| #14137 | 9:41 PM | 🟠 | Added observation link types and database record | ~3208 |
+| #14122 | 9:38 PM | 🔵 | Exploring ObservationRecord interface structure | ~1245 |
+| #14119 | 9:37 PM | 🟠 | Added importance scoring methods to IObservationRepository | ~5526 |
+| #14114 | 9:37 PM | 🔵 | Repository Pattern Architecture | ~5237 |
 | #14107 | 9:35 PM | 🔵 | Database model types for claude-mem | ~1707 |
-| #14103 | 9:35 PM | 🟠 | Added importance scoring fields | ~2658 |
-| #14100 | 9:34 PM | 🔵 | Database schema for memory tracking | ~1146 |
-| #14062 | 9:28 PM | 🟠 | Added WorkerMode type | ~1749 |
+| #14103 | 9:35 PM | 🟠 | Added importance scoring fields to ObservationRecord | ~2658 |
+| #14100 | 9:34 PM | 🔵 | Database schema for memory and session tracking | ~1146 |
+| #14062 | 9:28 PM | 🟠 | Added WorkerMode type for task processing modes | ~1749 |
 | #14047 | 9:24 PM | 🔵 | Worker Capabilities System Overview | ~1341 |
 | #14039 | 9:23 PM | 🔵 | Worker Capabilities System Overview | ~1349 |
-| #14038 | 9:23 PM | 🔵 | Exploring shared TypeScript types | ~1047 |
-| #14036 | 9:23 PM | 🔵 | WebSocket Protocol Types | ~1869 |
-| #14027 | 9:22 PM | 🔵 | No TypeScript type files found | ~726 |
-| #13996 | 9:20 PM | 🔵 | WebSocket Protocol Types | ~1893 |
-| #13989 | 9:20 PM | 🔵 | Discovered WebSocket message types | ~722 |
-| #13935 | 9:10 PM | 🟠 | Add MemoryTier import | ~5202 |
-| #13934 | 9:10 PM | 🔵 | Repository interface for decisions | ~1227 |
-| #13932 | 9:10 PM | 🟠 | Added Memory Tier Methods | ~5632 |
-| #13930 | 9:09 PM | 🟠 | Added memory tiering fields | ~2762 |
-| #13927 | 9:09 PM | 🟠 | Added MemoryTier type | ~2453 |
-| #13925 | 9:09 PM | 🔵 | Database model types | ~1853 |
-| #13887 | 9:02 PM | 🔵 | Database model types | ~2053 |
-| #13885 | 9:01 PM | 🟠 | Add decision tracking fields | ~3047 |
-| #13884 | 9:01 PM | 🔵 | Repository Pattern Implementation | ~5250 |
-| #13882 | 9:01 PM | 🟠 | Added decision tracking methods | ~5585 |
-| #13881 | 9:01 PM | 🟠 | Add decisionCategory field | ~5330 |
-| #13880 | 9:01 PM | 🟠 | Add DecisionCategory import | ~5240 |
-| #13878 | 9:00 PM | 🟠 | Added decision tracking types export | ~1070 |
-| #13877 | 9:00 PM | 🟠 | Added decision tracking types | ~1890 |
-| #13876 | 9:00 PM | 🔵 | Exploring shared TypeScript types | ~1018 |
-| #13829 | 8:51 PM | 🟠 | Added rawMessages repository | ~5301 |
-| #13828 | 8:51 PM | 🟠 | Added Raw Message Repository | ~6010 |
-| #13826 | 8:51 PM | 🔵 | Repository interfaces discovered | ~2073 |
-| #13825 | 8:51 PM | 🔵 | Repository Pattern Implementation | ~1435 |
+| #14038 | 9:23 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1047 |
+| #14036 | 9:23 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Communication | ~1869 |
+| #14027 | 9:22 PM | 🔵 | No TypeScript type files found in types package | ~726 |
+| #13996 | 9:20 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Communication | ~1893 |
+| #13989 | 9:20 PM | 🔵 | Discovered WebSocket message types in types package | ~722 |
+| #13935 | 9:10 PM | 🟠 | Add MemoryTier import to repository types | ~5202 |
+| #13934 | 9:10 PM | 🔵 | Repository interface for decision management discovered | ~1227 |
+| #13932 | 9:10 PM | 🟠 | Added Memory Tier Methods to Observation Repository | ~5632 |
+| #13930 | 9:09 PM | 🟠 | Added memory tiering fields to ObservationRecord | ~2762 |
+| #13927 | 9:09 PM | 🟠 | Added MemoryTier type for Sleep Agent | ~2453 |
+| #13925 | 9:09 PM | 🔵 | Database model types for claude-mem | ~1853 |
+| #13887 | 9:02 PM | 🔵 | Database model types for claude-mem | ~2053 |
+| #13885 | 9:01 PM | 🟠 | Add decision tracking fields to ObservationRecord | ~3047 |
+| #13884 | 9:01 PM | 🔵 | Repository Pattern Implementation in claude-mem | ~5250 |
+| #13882 | 9:01 PM | 🟠 | Added decision tracking methods to IObservationRepository | ~5585 |
 
 ## Key Insights
 
-- **Memory Tiering System**: Added comprehensive memory tiering support with four tiers (core, working, archive, ephemeral) and related database fields, repository methods, and Sleep Agent functionality.
-- **Decision Tracking**: Implemented robust decision tracking with conflict detection, versioning, and history management through new repository methods and database fields.
-- **Worker Architecture**: Discovered WebSocket-based worker communication protocol and added WorkerMode type supporting spawn, in-process, and hybrid modes.
-- **Repository Pattern**: Expanded repository interfaces for raw messages, decisions, and memory tiers while maintaining database backend flexibility.
-- **Type System**: Enhanced shared TypeScript types with new exports for decisions, memory tiers, and worker capabilities.
+- **Observation Linking System**: New `IObservationLinkRepository` interface and `ObservationLinkRecord` type added, supporting 8 relationship types (related, depends_on, blocks, etc.) for tracking observation relationships.
+- **Memory Tiering**: Implemented memory tiering with four tiers (core, working, archive, ephemeral) and methods for tier management, access tracking, and consolidation scoring.
+- **Importance Scoring**: Added importance scoring functionality with pinned observations and importance boost fields, plus repository methods for managing observation priority.
+- **Decision Tracking**: Enhanced decision management with new fields (decision_category, superseded_by) and methods for conflict detection and versioning.
+- **Worker Architecture**: Discovered WebSocket-based worker communication, capability-based task assignment, and added WorkerMode type supporting spawn/in-process/hybrid modes.
 </claude-mem-context>

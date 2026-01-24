@@ -7,26 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14117 | 9:37 PM | 🟠 | Added observation pinning/importance endpoints | ~6066 |
-| #14116 | 9:37 PM | 🟠 | Added observation pinning/importance API routes | ~5423 |
-| #14115 | 9:37 PM | 🔵 | Examined Data Router Implementation | ~5059 |
-| #13945 | 9:13 PM | 🟠 | Added SleepAgentRouter exports | ~1452 |
-| #13944 | 9:12 PM | 🟠 | Created Sleep Agent Router | ~3163 |
-| #13912 | 9:07 PM | 🔄 | Changed setupRoutes visibility | ~2328 |
-| #13896 | 9:03 PM | 🟠 | Added DecisionsRouter exports | ~1543 |
-| #13895 | 9:03 PM | 🔵 | Discovered backend routes module | ~1233 |
-| #13894 | 9:03 PM | 🟠 | Created Decisions Router | ~3173 |
-| #13779 | 8:37 PM | 🔄 | Optimized analytics timeline | ~6216 |
-| #13767 | 8:33 PM | 🟣 | Increased data fetch limit | ~5176 |
-| #13623 | 7:34 PM | 🔵 | Discovered backend route structure | ~1155 |
-| #13622 | 7:34 PM | 🟠 | Added InsightsRouter exports | ~1462 |
-| #13614 | 7:33 PM | 🟠 | Created Insights Router | ~3459 |
+| #14159 | 9:44 PM | 🟠 | Added observation link management endpoints | ~6003 |
+| #14158 | 9:44 PM | 🟠 | Added Observation Links API endpoints | ~5059 |
+| #14157 | 9:44 PM | 🔵 | API endpoints for observations, summaries, and tasks | ~1303 |
+| #14156 | 9:44 PM | 🟠 | Add observationLinks to DataRouterDeps interface | ~5147 |
+| #14154 | 9:44 PM | 🟠 | Added ObservationLinkRepository and ObservationLinkType imports | ~5088 |
+| #14117 | 9:37 PM | 🟠 | Added observation pinning and importance management endpoints | ~6066 |
+| #14116 | 9:37 PM | 🟠 | Added observation pinning and importance features to API routes | ~5423 |
+| #14115 | 9:37 PM | 🔵 | Examining Data Router Implementation | ~5059 |
+| #13945 | 9:13 PM | 🟠 | Added SleepAgentRouter exports to routes index | ~1452 |
+| #13944 | 9:12 PM | 🟠 | Created Sleep Agent Router with tier management endpoints | ~3163 |
+| #13912 | 9:07 PM | 🔄 | Change setupRoutes visibility from private to protected | ~2328 |
+| #13911 | 9:07 PM | 🔵 | Identified setupRoutes method in base-router.ts | ~730 |
+| #13896 | 9:03 PM | 🟠 | Added DecisionsRouter exports to routes module | ~1543 |
+| #13895 | 9:03 PM | 🔵 | Backend routes module structure discovered | ~1233 |
+| #13894 | 9:03 PM | 🟠 | Created Decisions Router with conflict detection and management endpoints | ~3173 |
+| #13850 | 8:55 PM | 🔵 | Insights Router Structure and API Endpoints | ~2171 |
+| #13843 | 8:55 PM | 🟠 | Added LazyRouter exports to routes module | ~1497 |
+| #13842 | 8:55 PM | 🔵 | Backend routes module structure discovered | ~1208 |
+| #13841 | 8:54 PM | 🟠 | Created LazyRouter for lazy processing mode | ~3048 |
+| #13779 | 8:37 PM | 🔄 | Optimize analytics timeline with SQL aggregation | ~6216 |
+| #13775 | 8:37 PM | 🔵 | Analytics timeline endpoint implementation | ~1535 |
+| #13767 | 8:33 PM | 🟣 | Increased data fetch limit from 10,000 to 100,000 | ~5176 |
+| #13765 | 8:33 PM | 🔵 | Analytics API endpoints for timeline, types, and projects | ~2026 |
+| #13761 | 8:32 PM | 🔵 | Analytics endpoints found in data.ts | ~2174 |
+| #13757 | 8:32 PM | 🔵 | Analytics-related code found in backend routes | ~755 |
+| #13738 | 8:27 PM | 🔵 | Insights Router Structure and Endpoints | ~2170 |
+| #13623 | 7:34 PM | 🔵 | Discovered backend route structure and available routers | ~1155 |
+| #13622 | 7:34 PM | 🟠 | Added InsightsRouter exports to routes module | ~1462 |
+| #13614 | 7:33 PM | 🟠 | Created Insights Router for learning insights dashboard | ~3459 |
+| #13612 | 7:33 PM | 🔵 | Exploring Data Router Structure | ~1475 |
 
 ## Key Insights
 
-- **Memory Tiering System**: Implemented comprehensive memory tiering with Sleep Agent service, new database fields, and API endpoints for consolidation and tier management.
-- **Observation Management**: Added pinning and importance features with five new API endpoints for enhanced observation organization.
-- **Performance Optimization**: Refactored analytics timeline to use SQL aggregation, significantly improving performance by reducing memory processing.
-- **Router Architecture**: Discovered and expanded modular router system with new routers (SleepAgent, Decisions, Insights) following established patterns.
-- **Data Handling**: Increased fetch limits (10,000→100,000) and added code snippet management endpoints, expanding backend capabilities.
+- **Observation Management Expansion**: Significant work on observation features including link management, pinning, and importance scoring, suggesting enhanced knowledge organization capabilities.
+- **Memory Tiering System**: Implementation of Sleep Agent with memory tiering (core/working/archive/ephemeral) and consolidation logic for memory management.
+- **Analytics Optimization**: Performance improvements through SQL aggregation and increased data fetch limits (10x increase to 100,000 records).
+- **Router Architecture Growth**: Multiple new routers added (Decisions, Lazy, SleepAgent, Insights) following modular design patterns.
+- **Design Pattern Refinement**: Refactoring of router setup methods from private to protected visibility, indicating architectural maturity.
 </claude-mem-context>

@@ -15,6 +15,8 @@ import type {
   DocumentType,
   SessionStatus,
   MemoryTier,
+  ObservationLinkRecord,
+  ObservationLinkType,
 } from './database.js';
 
 import type { DecisionCategory } from './decisions.js';
@@ -1003,6 +1005,84 @@ export interface IRawMessageRepository {
 }
 
 // ============================================
+// Observation Link Repository
+// ============================================
+
+/**
+ * Observation link creation input
+ */
+export interface CreateObservationLinkInput {
+  sourceId: number;
+  targetId: number;
+  linkType: ObservationLinkType;
+  description?: string;
+}
+
+/**
+ * Observation link query filters
+ */
+export interface ObservationLinkQueryFilters {
+  sourceId?: number;
+  targetId?: number;
+  linkType?: ObservationLinkType | ObservationLinkType[];
+}
+
+/**
+ * Observation Link Repository Interface
+ */
+export interface IObservationLinkRepository {
+  /**
+   * Create a new link between observations
+   */
+  create(input: CreateObservationLinkInput): Promise<ObservationLinkRecord>;
+
+  /**
+   * Find link by ID
+   */
+  findById(id: number): Promise<ObservationLinkRecord | null>;
+
+  /**
+   * Get all links from a source observation
+   */
+  getLinksFrom(sourceId: number, linkType?: ObservationLinkType): Promise<ObservationLinkRecord[]>;
+
+  /**
+   * Get all links to a target observation
+   */
+  getLinksTo(targetId: number, linkType?: ObservationLinkType): Promise<ObservationLinkRecord[]>;
+
+  /**
+   * Get all links for an observation (both directions)
+   */
+  getAllLinks(observationId: number): Promise<ObservationLinkRecord[]>;
+
+  /**
+   * Check if a link exists
+   */
+  linkExists(sourceId: number, targetId: number, linkType: ObservationLinkType): Promise<boolean>;
+
+  /**
+   * Delete a link
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Delete all links for an observation
+   */
+  deleteByObservationId(observationId: number): Promise<number>;
+
+  /**
+   * List links with optional filters
+   */
+  list(filters?: ObservationLinkQueryFilters, options?: QueryOptions): Promise<ObservationLinkRecord[]>;
+
+  /**
+   * Count links matching filters
+   */
+  count(filters?: ObservationLinkQueryFilters): Promise<number>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -1026,6 +1106,7 @@ export interface IUnitOfWork {
   taskQueue: ITaskQueueRepository;
   claudemd: IClaudeMdRepository;
   codeSnippets: ICodeSnippetRepository;
+  observationLinks: IObservationLinkRepository;
   // Learning insights repositories
   dailyStats: IDailyStatsRepository;
   technologyUsage: ITechnologyUsageRepository;

@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -37,6 +37,7 @@ export interface DataRouterDeps {
   documents: IDocumentRepository;
   userPrompts: IUserPromptRepository;
   codeSnippets: ICodeSnippetRepository;
+  observationLinks: IObservationLinkRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -62,6 +63,11 @@ export class DataRouter extends BaseRouter {
     this.router.post('/observations/:id/importance-boost', this.asyncHandler(this.setImportanceBoost.bind(this)));
     this.router.delete('/observations', this.asyncHandler(this.bulkDeleteObservations.bind(this)));
     this.router.get('/sessions/:sessionId/observations', this.asyncHandler(this.getSessionObservations.bind(this)));
+
+    // Observation Links
+    this.router.post('/observations/:id/links', this.asyncHandler(this.createObservationLink.bind(this)));
+    this.router.get('/observations/:id/links', this.asyncHandler(this.getObservationLinks.bind(this)));
+    this.router.delete('/links/:id', this.asyncHandler(this.deleteObservationLink.bind(this)));
 
     // Summaries
     this.router.get('/sessions/:sessionId/summaries', this.asyncHandler(this.getSessionSummaries.bind(this)));
@@ -454,6 +460,73 @@ export class DataRouter extends BaseRouter {
     });
 
     this.success(res, { data: observations });
+  }
+
+  /**
+   * POST /api/data/observations/:id/links
+   * Create a link from this observation to another
+   */
+  private async createObservationLink(req: Request, res: Response): Promise<void> {
+    const sourceId = this.parseIntParam(getString(req.params.id), 'id');
+    const { targetId, linkType, description } = req.body;
+
+    if (!targetId) {
+      this.badRequest('Missing required field: targetId');
+    }
+
+    // Validate link type
+    const validLinkTypes = ['related', 'depends_on', 'blocks', 'references', 'supersedes', 'similar', 'contradicts', 'extends'];
+    const type = linkType || 'related';
+    if (!validLinkTypes.includes(type)) {
+      this.badRequest(`Invalid link type. Must be one of: ${validLinkTypes.join(', ')}`);
+    }
+
+    // Prevent self-links
+    if (sourceId === targetId) {
+      this.badRequest('Cannot link an observation to itself');
+    }
+
+    // Check if link already exists
+    const exists = await this.deps.observationLinks.linkExists(sourceId, targetId, type as ObservationLinkType);
+    if (exists) {
+      this.badRequest('Link already exists');
+    }
+
+    const link = await this.deps.observationLinks.create({
+      sourceId,
+      targetId,
+      linkType: type as ObservationLinkType,
+      description,
+    });
+
+    this.success(res, link);
+  }
+
+  /**
+   * GET /api/data/observations/:id/links
+   * Get all links for an observation (both directions)
+   */
+  private async getObservationLinks(req: Request, res: Response): Promise<void> {
+    const observationId = this.parseIntParam(getString(req.params.id), 'id');
+
+    const links = await this.deps.observationLinks.getAllLinks(observationId);
+
+    this.success(res, { data: links });
+  }
+
+  /**
+   * DELETE /api/data/links/:id
+   * Delete a link
+   */
+  private async deleteObservationLink(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const deleted = await this.deps.observationLinks.delete(id);
+    if (!deleted) {
+      this.notFound(`Link not found: ${id}`);
+    }
+
+    this.noContent(res);
   }
 
   /**

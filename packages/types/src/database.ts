@@ -129,6 +129,32 @@ export interface ObservationRecord {
 }
 
 /**
+ * Link types for observation relationships
+ */
+export type ObservationLinkType =
+  | 'related'      // General relationship
+  | 'depends_on'   // This observation depends on another
+  | 'blocks'       // This observation blocks another
+  | 'references'   // References another observation
+  | 'supersedes'   // Newer version of an observation
+  | 'similar'      // Similar content or topic
+  | 'contradicts'  // Contradicting information
+  | 'extends';     // Extends or builds upon another
+
+/**
+ * Observation link database record
+ */
+export interface ObservationLinkRecord {
+  id: number;
+  source_id: number;
+  target_id: number;
+  link_type: ObservationLinkType;
+  description?: string;
+  created_at: string;
+  created_at_epoch: number;
+}
+
+/**
  * Session Summary database record
  */
 export interface SessionSummaryRecord {

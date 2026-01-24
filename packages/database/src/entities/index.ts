@@ -15,6 +15,7 @@ export { DailyStats } from './DailyStats.js';
 export { TechnologyUsage } from './TechnologyUsage.js';
 export { Achievement } from './Achievement.js';
 export { RawMessage } from './RawMessage.js';
+export { ObservationLink } from './ObservationLink.js';
 
 // Re-export types
 export type { SessionStatus } from './Session.js';

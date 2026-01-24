@@ -14,3 +14,4 @@ export { Migration20260124000004_CreateRawMessagesTable } from './Migration20260
 export { Migration20260124000005_AddDecisionTracking } from './Migration20260124000005_AddDecisionTracking.js';
 export { Migration20260124000006_AddMemoryTiering } from './Migration20260124000006_AddMemoryTiering.js';
 export { Migration20260124000007_AddImportanceScoring } from './Migration20260124000007_AddImportanceScoring.js';
+export { Migration20260124000008_CreateObservationLinksTable } from './Migration20260124000008_CreateObservationLinksTable.js';
