@@ -37,3 +37,5 @@ export { PluginsRouter } from './plugins.js';
 export type { PluginsRouterDeps } from './plugins.js';
 export { ShareRouter } from './share.js';
 export type { ShareRouterDeps } from './share.js';
+export { CleanupRouter } from './cleanup.js';
+export type { CleanupRouterDeps } from './cleanup.js';

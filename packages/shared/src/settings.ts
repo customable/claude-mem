@@ -114,6 +114,12 @@ export interface Settings {
   WORKER_MODE: 'spawn' | 'in-process' | 'hybrid';
   IN_PROCESS_WORKER_TIMEOUT: number; // minutes - max runtime for in-process worker
   IN_PROCESS_WORKER_IDLE_EXIT: number; // seconds - exit after idle
+
+  // Cleanup Service (Issue #101)
+  CLEANUP_AUTO_ENABLED: boolean; // Enable automatic periodic cleanup
+  CLEANUP_INTERVAL_MS: number; // Cleanup interval in milliseconds
+  CLEANUP_STALE_TIMEOUT_MS: number; // Sessions inactive for this duration are completed
+  CLEANUP_TASK_AGE_MS: number; // Completed/failed tasks older than this are removed
 }
 
 // ============================================
@@ -220,6 +226,12 @@ export const DEFAULTS: Settings = {
   WORKER_MODE: 'spawn', // 'spawn' | 'in-process' | 'hybrid'
   IN_PROCESS_WORKER_TIMEOUT: 30, // 30 minutes max runtime
   IN_PROCESS_WORKER_IDLE_EXIT: 120, // 2 minutes idle timeout
+
+  // Cleanup Service (Issue #101)
+  CLEANUP_AUTO_ENABLED: true, // Auto cleanup enabled by default
+  CLEANUP_INTERVAL_MS: 30 * 60 * 1000, // 30 minutes
+  CLEANUP_STALE_TIMEOUT_MS: 4 * 60 * 60 * 1000, // 4 hours
+  CLEANUP_TASK_AGE_MS: 24 * 60 * 60 * 1000, // 24 hours
 };
 
 // ============================================
@@ -242,6 +254,7 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'CLAUDEMD_ENABLED',
   'SECRET_DETECTION_ENABLED',
   'LAZY_PROCESS_ON_SEARCH',
+  'CLEANUP_AUTO_ENABLED',
 ];
 
 /**
@@ -263,6 +276,9 @@ const NUMBER_KEYS: SettingKey[] = [
   'LAZY_BATCH_INTERVAL',
   'IN_PROCESS_WORKER_TIMEOUT',
   'IN_PROCESS_WORKER_IDLE_EXIT',
+  'CLEANUP_INTERVAL_MS',
+  'CLEANUP_STALE_TIMEOUT_MS',
+  'CLEANUP_TASK_AGE_MS',
 ];
 
 // ============================================

@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14337 | 10:08 PM | 🟠 | Added PluginsRouter to backend service | ~5102 |
-| #14336 | 10:08 PM | 🟠 | Adding PluginsRouter to backend imports | ~4893 |
+| #14563 | 10:37 PM | 🟠 | Added cleanup API route | ~5164 |
+| #14555 | 10:37 PM | 🔴 | Added cleanup service shutdown | ~5035 |
+| #14552 | 10:37 PM | 🔵 | Backend Service Architecture | ~5003 |
+| #14546 | 10:36 PM | 🟠 | Added automatic cleanup service | ~5346 |
+| #14544 | 10:36 PM | 🟠 | Added cleanup service | ~5159 |
+| #14542 | 10:36 PM | 🟠 | Added CleanupService to BackendService | ~5003 |
+| #14539 | 10:36 PM | 🟠 | Adding CleanupService imports | ~4916 |
+| #14538 | 10:36 PM | 🟠 | Added CleanupRouter imports | ~5086 |
+| #14397 | 10:14 PM | 🟠 | Added ShareService to BackendService | ~4908 |
+| #14394 | 10:14 PM | 🟠 | Added ShareRouter to backend | ~5080 |
+| #14393 | 10:13 PM | 🟠 | Adding ShareService imports | ~5031 |
+| #14392 | 10:13 PM | 🔵 | Backend routes and UI serving | ~1336 |
+| #14391 | 10:13 PM | 🟠 | Added ShareService initialization | ~5129 |
+| #14390 | 10:13 PM | 🔵 | Backend service initialization | ~1771 |
+| #14389 | 10:13 PM | 🟠 | Added ShareRouter import | ~4879 |
+| #14388 | 10:13 PM | 🔵 | Backend Service Architecture | ~1916 |
+| #14340 | 10:09 PM | 🟠 | Add PluginManager to BackendService | ~5029 |
+| #14337 | 10:08 PM | 🟠 | Added PluginsRouter to backend | ~5102 |
+| #14336 | 10:08 PM | 🟠 | Adding PluginsRouter imports | ~4893 |
 | #14335 | 10:08 PM | 🟠 | Added plugin manager initialization | ~5055 |
 | #14334 | 10:08 PM | 🟠 | Adding PluginManager imports | ~4933 |
-| #14333 | 10:08 PM | 🔵 | Backend Service Architecture Overview | ~5000 |
-| #14319 | 10:05 PM | 🔵 | Backend API routes structure discovered | ~1111 |
-| #14312 | 10:04 PM | 🟠 | Added SuggestionsRouter to backend | ~5185 |
+| #14333 | 10:08 PM | 🔵 | Backend Service Architecture | ~5000 |
+| #14319 | 10:05 PM | 🔵 | Backend API routes structure | ~1111 |
+| #14312 | 10:04 PM | 🟠 | Added SuggestionsRouter | ~5185 |
 | #14304 | 10:04 PM | 🟠 | Initialize SuggestionService | ~5097 |
-| #14302 | 10:04 PM | 🔵 | Backend Service Initialization Process | ~1377 |
-| #14301 | 10:04 PM | 🟠 | Add SuggestionService to BackendService | ~5042 |
+| #14302 | 10:04 PM | 🔵 | Backend Service Initialization | ~1377 |
+| #14301 | 10:04 PM | 🟠 | Add SuggestionService | ~5042 |
 | #14300 | 10:03 PM | 🟠 | Added SuggestionService import | ~5082 |
-| #14299 | 10:03 PM | 🟠 | Added SuggestionsRouter to imports | ~4898 |
-| #14227 | 9:57 PM | 🔵 | Backend Service Architecture Overview | ~5037 |
-| #14225 | 9:57 PM | 🟠 | Added projectSettings to DataRouter | ~5166 |
-| #14192 | 9:51 PM | 🟠 | Added observationTemplates to DataRouter | ~4955 |
-| #14162 | 9:45 PM | 🔵 | Backend API routes structure discovered | ~1164 |
-| #14161 | 9:44 PM | 🟠 | Added observationLinks to DataRouter | ~5156 |
-| #14041 | 9:23 PM | 🔵 | Backend Service Architecture Overview | ~5109 |
-| #13997 | 9:20 PM | 🔵 | Backend Service Architecture Overview | ~2373 |
-| #13980 | 9:20 PM | 🔵 | Backend Service Architecture Overview | ~5089 |
-| #13953 | 9:14 PM | 🟠 | Added Sleep Agent API routes | ~5149 |
-| #13952 | 9:14 PM | 🟠 | Add SleepAgentService to BackendService | ~5131 |
-| #13951 | 9:14 PM | 🟠 | Added SleepAgentService initialization | ~5103 |
-| #13950 | 9:14 PM | 🟠 | Added SleepAgentService to imports | ~4978 |
-| #13949 | 9:14 PM | 🟠 | Added SleepAgentRouter import | ~5109 |
-| #13948 | 9:14 PM | 🔵 | Backend Service Architecture Overview | ~5099 |
-| #13947 | 9:13 PM | 🔵 | Backend Service Architecture Overview | ~1789 |
-| #13902 | 9:04 PM | 🔵 | Backend Service Architecture Overview | ~5175 |
-| #13901 | 9:04 PM | 🟠 | Adding DecisionsRouter to imports | ~5127 |
-| #13900 | 9:04 PM | 🟠 | Added DecisionService initialization | ~5085 |
+| #14299 | 10:03 PM | 🟠 | Added SuggestionsRouter imports | ~4898 |
+| #14227 | 9:57 PM | 🔵 | Backend Service Architecture | ~5037 |
 
 ## Key Insights
 
-- **Plugin System Integration**: New plugin management functionality added via `PluginsRouter` and `PluginManager`, enabling modular extensions to the backend.
-- **Suggestion Service**: Implemented AI-powered memory suggestions with `SuggestionsRouter` and `SuggestionService`, integrating with the observations repository.
-- **Sleep Agent Feature**: Added memory consolidation via `SleepAgentService` and corresponding API routes, enhancing backend functionality.
-- **Architecture Patterns**: Consistent use of modular routers, dependency injection, and MikroORM for database operations across new features.
-- **Feature Expansion**: Multiple new features (project settings, observation templates/links) added to `DataRouter`, extending data management capabilities.
+- **Memory Leak Prevention**: Added comprehensive cleanup service with API route (`/api/cleanup`), automatic integration, and proper shutdown handling to address memory leaks (Issue #101).
+- **New Features**: Implemented memory sharing (`ShareService`), plugin system (`PluginManager`), and AI-powered suggestions (`SuggestionService`), significantly expanding functionality.
+- **Architecture**: Backend service acts as main orchestrator with Express routing, MikroORM database operations, and WebSocket communication, supporting multiple database types.
+- **Critical Fixes**: Resolved CJS/ESM compatibility issues, null handling in workflows, and hook path expansion bugs.
+- **Next Steps**: Address remaining TypeScript errors in `share-service.ts`, resolve CSS `@property` warnings, and test new features in production-like environments.
 </claude-mem-context>

@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService, CleanupService, createCleanupService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -35,6 +35,7 @@ import {
   SuggestionsRouter,
   PluginsRouter,
   ShareRouter,
+  CleanupRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -87,6 +88,7 @@ export class BackendService {
   private suggestionService: SuggestionService | null = null;
   private pluginManager: PluginManager | null = null;
   private shareService: ShareService | null = null;
+  private cleanupService: CleanupService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -318,6 +320,13 @@ export class BackendService {
         sessions: this.unitOfWork.sessions,
       });
 
+      // Initialize cleanup service for process/memory leak prevention (Issue #101)
+      this.cleanupService = createCleanupService({
+        sessions: this.unitOfWork.sessions,
+        taskQueue: this.unitOfWork.taskQueue,
+        workerProcessManager: this.workerProcessManager!,
+      });
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -440,6 +449,11 @@ export class BackendService {
       shareService: this.shareService!,
     }).router);
 
+    // Cleanup routes (process/memory leak prevention - Issue #101)
+    this.app.use('/api/cleanup', new CleanupRouter({
+      cleanupService: this.cleanupService!,
+    }).router);
+
     // Finalize app (error handlers)
     finalizeApp(this.app);
   }
@@ -487,7 +501,12 @@ export class BackendService {
    * Start periodic cleanup tasks
    */
   private startPeriodicCleanup(): void {
-    // Cleanup old tasks every 5 minutes
+    // Start automatic cleanup service (handles stale sessions, orphaned workers - Issue #101)
+    if (this.cleanupService) {
+      this.cleanupService.startAutoCleanup();
+    }
+
+    // Task-specific cleanup every 5 minutes
     setInterval(async () => {
       try {
         if (this.taskService) {
@@ -560,6 +579,11 @@ export class BackendService {
    */
   async stop(): Promise<void> {
     logger.info('Stopping backend service...');
+
+    // Stop cleanup service
+    if (this.cleanupService) {
+      this.cleanupService.stopAutoCleanup();
+    }
 
     // Stop task dispatcher
     if (this.taskDispatcher) {

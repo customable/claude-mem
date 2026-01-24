@@ -216,4 +216,24 @@ export class MikroOrmSessionRepository implements ISessionRepository {
       sessions: Number(r.sessions),
     }));
   }
+
+  async completeStale(staleTimeoutMs: number): Promise<number> {
+    const now = Date.now();
+    const staleThreshold = now - staleTimeoutMs;
+    const knex = this.em.getKnex();
+
+    // Mark sessions as completed where:
+    // - status is 'active'
+    // - started_at_epoch is older than threshold (no recent activity)
+    const result = await knex('sdk_sessions')
+      .where('status', 'active')
+      .andWhere('started_at_epoch', '<', staleThreshold)
+      .update({
+        status: 'completed',
+        completed_at: new Date(now).toISOString(),
+        completed_at_epoch: now,
+      });
+
+    return result;
+  }
 }

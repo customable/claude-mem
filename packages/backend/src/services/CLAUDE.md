@@ -7,42 +7,43 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #14412 | 10:16 PM | 🔵 | Privacy handling in share-service.ts | ~1231 |
-| #14409 | 10:15 PM | 🔴 | Fix null handling in processSessionForSharing | ~5228 |
-| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservationForSharing | ~5486 |
-| #14405 | 10:15 PM | 🔴 | Filter out null/undefined session IDs in fetchSessions | ~5141 |
-| #14403 | 10:15 PM | 🔵 | Privacy handling in share-service.ts | ~1735 |
-| #14400 | 10:15 PM | 🔵 | SDKSessionRecord type usage in share-service.ts | ~766 |
+| #14626 | 10:45 PM | 🔵 | SSE Broadcaster Service Implementation | ~2177 |
+| #14623 | 10:45 PM | 🔵 | SSE Broadcaster Service Structure | ~1619 |
+| #14621 | 10:45 PM | 🟠 | Add 'session:pre-compact' event type | ~3486 |
+| #14620 | 10:44 PM | 🟠 | Add broadcastPreCompact method | ~3555 |
+| #14617 | 10:44 PM | 🔄 | Simplified pre-compact event handling | ~4797 |
+| #14615 | 10:44 PM | 🟠 | Added recordPreCompact method | ~4786 |
+| #14610 | 10:43 PM | 🔵 | Session Service Architecture Review | ~3603 |
+| #14529 | 10:35 PM | 🟠 | Added CleanupService exports | ~1503 |
+| #14528 | 10:35 PM | 🟠 | Created Cleanup Service | ~4417 |
+| #14526 | 10:34 PM | 🔵 | Backend services index overview | ~1294 |
+| #14524 | 10:34 PM | 🔵 | Worker Process Manager Review | ~4144 |
+| #14500 | 10:33 PM | 🔵 | Session Service Architecture | ~3630 |
+| #14418 | 10:17 PM | 🔴 | Fix null/undefined text handling | ~4987 |
+| #14412 | 10:16 PM | 🔵 | Privacy handling in share-service | ~1231 |
+| #14409 | 10:15 PM | 🔴 | Fix null handling in processSession | ~5228 |
+| #14406 | 10:15 PM | 🔴 | Fix null handling in processObservation | ~5486 |
+| #14405 | 10:15 PM | 🔴 | Filter null/undefined session IDs | ~5141 |
+| #14403 | 10:15 PM | 🔵 | Privacy handling in share-service | ~1735 |
+| #14400 | 10:15 PM | 🔵 | SDKSessionRecord type usage | ~766 |
 | #14398 | 10:14 PM | 🔄 | Rename SDKSessionRecord to SdkSessionRecord | ~4879 |
-| #14386 | 10:13 PM | 🟠 | Added ShareService exports to services index | ~1369 |
-| #14381 | 10:12 PM | 🟠 | Created Share Service for memory sharing functionality | ~6893 |
-| #14376 | 10:11 PM | 🔵 | Session Service Structure and User Prompt Handling | ~2247 |
-| #14342 | 10:09 PM | 🔄 | Update import from getDataDir to DATA_DIR in plugin-manager | ~3673 |
-| #14341 | 10:09 PM | 🔄 | Replace getDataDir() with DATA_DIR constant | ~3579 |
-| #14329 | 10:07 PM | 🟠 | Added PluginManager exports to services index | ~1400 |
-| #14328 | 10:06 PM | 🟠 | Implemented Plugin Manager Service | ~5468 |
-| #14297 | 10:03 PM | 🟠 | Added SuggestionService exports to services index | ~1480 |
-| #14296 | 10:03 PM | 🔵 | Backend services structure overview | ~1169 |
-| #14292 | 10:02 PM | 🟠 | Created Suggestion Service for AI-powered memory suggestions | ~6045 |
-| #14040 | 9:23 PM | 🔵 | Worker Process Manager Architecture Review | ~4286 |
-| #14007 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~2170 |
-| #13981 | 9:20 PM | 🔵 | Worker Process Manager Architecture | ~4183 |
-| #13954 | 9:14 PM | 🔵 | Sleep Agent Service for Memory Consolidation | ~3632 |
-| #13946 | 9:13 PM | 🟠 | Added SleepAgentService exports to services index | ~1486 |
-| #13943 | 9:12 PM | 🔵 | Backend services structure overview | ~956 |
-| #13937 | 9:11 PM | 🟠 | Created Sleep Agent Service for memory consolidation | ~5853 |
-| #13893 | 9:03 PM | 🟠 | Added DecisionService exports to services index | ~1294 |
-| #13892 | 9:03 PM | 🔵 | Backend services structure overview | ~984 |
-| #13891 | 9:02 PM | 🟠 | Created Decision Service for conflict detection and decision tracking | ~3762 |
-| #13859 | 8:57 PM | 🔴 | Fix error logging in lazy-processing-service | ~3277 |
-| #13855 | 8:57 PM | 🔴 | Fix logger.error call to use structured error object | ~3286 |
-| #13854 | 8:57 PM | 🔴 | Fix error logging in scheduled batch processing | ~3273 |
+| #14386 | 10:13 PM | 🟠 | Added ShareService exports | ~1369 |
+| #14381 | 10:12 PM | 🟠 | Created Share Service | ~6893 |
+| #14376 | 10:11 PM | 🔵 | Session Service Structure | ~2247 |
+| #14342 | 10:09 PM | 🔄 | Update import from getDataDir | ~3673 |
+| #14341 | 10:09 PM | 🔄 | Replace getDataDir() with DATA_DIR | ~3579 |
+| #14329 | 10:07 PM | 🟠 | Added PluginManager exports | ~1400 |
+| #14328 | 10:06 PM | 🟠 | Implemented Plugin Manager | ~5468 |
+| #14297 | 10:03 PM | 🟠 | Added SuggestionService exports | ~1480 |
+| #14296 | 10:03 PM | 🔵 | Backend services structure | ~1169 |
+| #14292 | 10:02 PM | 🟠 | Created Suggestion Service | ~6045 |
 
 ## Key Insights
 
-- **Memory Sharing & Privacy**: ShareService was created with robust privacy controls (privacyLevel handling) and null safety improvements across multiple methods.
-- **Plugin System**: New PluginManager service enables custom observation processing with lifecycle management (load/unload).
-- **AI Suggestions**: SuggestionService introduced for context-aware memory recommendations using multiple matching strategies.
-- **Architecture**: Multiple backend services added (SleepAgent, DecisionService) with consistent export patterns in services index.
-- **Error Handling**: Systematic fixes for null safety and error logging across services (lazy-processing, session handling).
+- **SSE Broadcaster Enhancements**: Added real-time event broadcasting for session pre-compaction events, improving UI responsiveness and system monitoring.
+- **Cleanup Service**: New service handles stale sessions, old tasks, and long-running workers, addressing maintenance needs.
+- **Memory Sharing**: Implemented ShareService with privacy controls, enabling secure collaboration features.
+- **Plugin System**: Created PluginManager for custom observation processing with lifecycle hooks.
+- **Bug Fixes**: Multiple critical null-handling fixes in sharing functionality and session management.
+- **Refactoring**: Improved code consistency through naming conventions (e.g., SDKSessionRecord → SdkSessionRecord) and constant usage (DATA_DIR).
 </claude-mem-context>

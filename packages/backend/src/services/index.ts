@@ -31,3 +31,6 @@ export { PluginManager, createPluginManager } from './plugin-manager.js';
 
 export { ShareService, createShareService } from './share-service.js';
 export type { ShareServiceDeps } from './share-service.js';
+
+export { CleanupService, createCleanupService } from './cleanup-service.js';
+export type { CleanupServiceDeps, CleanupResult, CleanupConfig } from './cleanup-service.js';

@@ -154,6 +154,13 @@ export interface ISessionRepository {
     period: 'day' | 'week' | 'month';
     project?: string;
   }): Promise<Array<{ date: string; sessions: number }>>;
+
+  /**
+   * Complete stale active sessions (no activity for given timeout)
+   * @param staleTimeoutMs - Sessions inactive for longer than this are marked completed
+   * @returns Number of sessions marked as completed
+   */
+  completeStale(staleTimeoutMs: number): Promise<number>;
 }
 
 // ============================================
