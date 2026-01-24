@@ -6,93 +6,77 @@ on:
   pull_request:
     branches: [main]
 
-# Separate concurrency group from release workflow
-# Don't cancel - let CI finish even if new commits come in
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true  # Cancel old runs on new push
 
 jobs:
-  # Check if we should skip CI (e.g., release commits)
-  check:
+  build:
     runs-on: [docker, light]
     container:
       image: catthehacker/ubuntu:act-latest
-    outputs:
-      skip: ${{ steps.check.outputs.skip }}
     steps:
-      - name: Check commit message
+      - name: Check if skip
         id: check
         run: |
           COMMIT_MSG="${{ github.event.head_commit.message }}"
           if [[ "$COMMIT_MSG" =~ ^chore\(release\): ]]; then
             echo "Skipping CI for release commit"
             echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-  build:
-    needs: check
-    if: needs.check.outputs.skip != 'true'
-    runs-on: [docker, light]
-    container:
-      image: catthehacker/ubuntu:act-latest
-    steps:
       - name: Checkout
+        if: steps.check.outputs.skip != 'true'
         uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Cache Node.js
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/cache@v4
         with:
-          bun-version: latest
+          path: /opt/hostedtoolcache/node
+          key: node-20
 
       - name: Setup pnpm
-        run: npm install -g pnpm
+        if: steps.check.outputs.skip != 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache pnpm store
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-
 
       - name: Install dependencies
-        run: pnpm install
+        if: steps.check.outputs.skip != 'true'
+        run: pnpm install --frozen-lockfile
 
       - name: Build
+        if: steps.check.outputs.skip != 'true'
         run: pnpm run build
 
       - name: Type check
+        if: steps.check.outputs.skip != 'true'
         run: pnpm run typecheck
         continue-on-error: true
 
-  validate-plugin:
-    runs-on: [docker, light]
-    container:
-      image: catthehacker/ubuntu:act-latest
-    needs: [check, build]
-    if: needs.check.outputs.skip != 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Setup pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build packages
-        run: pnpm run build
-
       - name: Build plugin
+        if: steps.check.outputs.skip != 'true'
         run: node scripts/build-plugin.mjs
 
       - name: Validate plugin structure
+        if: steps.check.outputs.skip != 'true'
         run: |
-          # Check required files exist
           test -f plugin/.claude-plugin/plugin.json
           test -d plugin/hooks
           test -f plugin/scripts/mcp-server.cjs
           test -f plugin/scripts/worker-service.cjs
           test -f plugin/scripts/smart-install.js
-          echo "Plugin structure validated"
+          echo "✅ Plugin structure validated"
