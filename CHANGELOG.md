@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.9] - 2026-01-24
+
+### Bug Fixes
+- Removed unused `api.ts` file to clean up the codebase.
+
+### Improvements
+- Refactored type definitions to eliminate redundant files.
+
+
 ## [2.19.8] - 2026-01-24
 
 ### Bug Fixes
