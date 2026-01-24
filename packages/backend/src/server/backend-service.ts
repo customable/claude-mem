@@ -498,16 +498,6 @@ export class BackendService {
   }
 
   /**
-   * Get initialization status
-   */
-  getStatus(): { coreReady: boolean; fullyInitialized: boolean } {
-    return {
-      coreReady: this.coreReady,
-      fullyInitialized: this.fullyInitialized,
-    };
-  }
-
-  /**
    * Restart the backend service
    * Stops cleanly and exits with code 0 for process manager to restart
    */
