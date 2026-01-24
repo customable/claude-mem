@@ -75,6 +75,12 @@ const EVENT_CONFIG: Record<string, { icon: string; color: string; label: string;
     bgColor: 'bg-error/10',
     label: 'Worker Disconnected'
   },
+  'claudemd:ready': {
+    icon: 'ph--file-text',
+    color: 'text-accent',
+    bgColor: 'bg-accent/10',
+    label: 'CLAUDE.md Updated'
+  },
 };
 
 const DEFAULT_CONFIG = {
@@ -242,6 +248,19 @@ export function LiveView() {
           <div className="flex items-center gap-2 text-xs">
             <span className="badge badge-sm badge-primary">
               #{data.observationId as number}
+            </span>
+          </div>
+        );
+
+      case 'claudemd:ready':
+        return (
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className="badge badge-sm badge-ghost">
+              <span className="iconify ph--folder size-3 mr-1" />
+              {data.project as string}
+            </span>
+            <span className="text-base-content/50 truncate max-w-xs">
+              {data.workingDirectory as string}
             </span>
           </div>
         );
