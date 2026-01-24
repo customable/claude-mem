@@ -420,6 +420,7 @@ export class WorkerHub {
     for (const worker of this.workers.values()) {
       if (
         !worker.currentTaskId &&
+        !worker.pendingTermination &&
         worker.capabilities.includes(capability)
       ) {
         return worker;
@@ -433,7 +434,7 @@ export class WorkerHub {
    */
   findAvailableWorkerForAny(capabilities: WorkerCapability[]): ConnectedWorker | null {
     for (const worker of this.workers.values()) {
-      if (!worker.currentTaskId) {
+      if (!worker.currentTaskId && !worker.pendingTermination) {
         for (const cap of capabilities) {
           if (worker.capabilities.includes(cap)) {
             return worker;
