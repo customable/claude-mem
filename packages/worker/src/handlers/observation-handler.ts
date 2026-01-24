@@ -29,8 +29,14 @@ export interface ObservationResult {
  */
 export async function handleObservationTask(
   agent: Agent,
-  payload: ObservationTaskPayload
+  payload: ObservationTaskPayload,
+  signal?: AbortSignal
 ): Promise<ObservationTask['result']> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
   logger.debug(`Processing observation for session ${payload.sessionId}, tool: ${payload.toolName}`);
 
   // Build the prompt
@@ -42,6 +48,7 @@ export async function handleObservationTask(
     messages: [{ role: 'user', content: userPrompt }],
     maxTokens: 2048,
     temperature: 0.3,
+    signal,
   });
 
   // Parse the response

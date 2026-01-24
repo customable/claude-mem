@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.27.0] - 2026-01-24
+
+### Features
+- Implemented task cancellation using `AbortController` in the worker module.
+
+
 ## [2.26.0] - 2026-01-24
 
 ### Features

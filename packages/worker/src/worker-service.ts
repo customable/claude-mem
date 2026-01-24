@@ -42,6 +42,7 @@ export class WorkerService {
   private readonly agent: Agent;
   private isRunning = false;
   private currentTaskId: string | null = null;
+  private currentAbortController: AbortController | null = null;
 
   constructor(config: WorkerServiceConfig = {}) {
     const settings = loadSettings();
@@ -195,12 +196,19 @@ export class WorkerService {
     }
 
     this.currentTaskId = taskId;
+    this.currentAbortController = new AbortController();
     const startTime = Date.now();
 
     try {
       logger.info(`Processing task ${taskId} (${taskType})`);
 
-      const result = await this.processTask(taskType as TaskType, payload);
+      const result = await this.processTask(taskType as TaskType, payload, this.currentAbortController.signal);
+
+      // Check if task was cancelled during processing
+      if (this.currentAbortController.signal.aborted) {
+        logger.info(`Task ${taskId} was cancelled during processing`);
+        return;
+      }
 
       const processingTime = Date.now() - startTime;
       this.client.sendTaskComplete(taskId, result, processingTime);
@@ -208,6 +216,13 @@ export class WorkerService {
       logger.info(`Task ${taskId} completed in ${processingTime}ms`);
     } catch (error) {
       const err = error as Error;
+
+      // Don't report error if task was cancelled
+      if (this.currentAbortController?.signal.aborted) {
+        logger.info(`Task ${taskId} aborted: ${err.message}`);
+        return;
+      }
+
       logger.error(`Task ${taskId} failed:`, { message: err.message });
 
       // Determine if error is retryable
@@ -215,35 +230,42 @@ export class WorkerService {
       this.client.sendTaskError(taskId, err.message, retryable);
     } finally {
       this.currentTaskId = null;
+      this.currentAbortController = null;
     }
   }
 
   /**
    * Process a task based on its type
    */
-  private async processTask(taskType: TaskType, payload: unknown): Promise<unknown> {
+  private async processTask(taskType: TaskType, payload: unknown, signal?: AbortSignal): Promise<unknown> {
+    // Check for cancellation before starting
+    if (signal?.aborted) {
+      throw new Error('Task cancelled before processing');
+    }
+
     switch (taskType) {
       case 'observation':
-        return handleObservationTask(this.agent, payload as Parameters<typeof handleObservationTask>[1]);
+        return handleObservationTask(this.agent, payload as Parameters<typeof handleObservationTask>[1], signal);
 
       case 'summarize': {
         const summarizePayload = payload as SummarizeTaskPayload;
         const observations = summarizePayload.observations || [];
-        return handleSummarizeTask(this.agent, summarizePayload, observations);
+        return handleSummarizeTask(this.agent, summarizePayload, observations, signal);
       }
 
       case 'embedding':
-        return handleEmbeddingTask(payload as EmbeddingTaskPayload);
+        return handleEmbeddingTask(payload as EmbeddingTaskPayload, signal);
 
       case 'qdrant-sync':
-        return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload);
+        return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload, signal);
 
       case 'context-generate': {
         const contextPayload = payload as import('@claude-mem/types').ContextGenerateTaskPayload;
         return handleContextTask(
           this.agent,
           contextPayload,
-          contextPayload.observations || []
+          contextPayload.observations || [],
+          signal
         );
       }
 
@@ -270,7 +292,8 @@ export class WorkerService {
           this.agent,
           claudeMdPayload,
           claudeMdPayload.observations || [],
-          claudeMdPayload.summaries || []
+          claudeMdPayload.summaries || [],
+          signal
         );
       }
 
@@ -304,9 +327,15 @@ export class WorkerService {
    */
   private handleTaskCancelled(taskId: string, reason?: string): void {
     if (this.currentTaskId === taskId) {
-      logger.info(`Task ${taskId} was cancelled: ${reason || 'No reason'}`);
-      // TODO: Implement task cancellation (abort controller, etc.)
-      this.currentTaskId = null;
+      logger.info(`Cancelling task ${taskId}: ${reason || 'No reason'}`);
+
+      // Abort the current task
+      if (this.currentAbortController) {
+        this.currentAbortController.abort(reason || 'Task cancelled');
+      }
+
+      // Note: currentTaskId and currentAbortController will be cleaned up
+      // in the finally block of handleTaskAssigned
     }
   }
 
