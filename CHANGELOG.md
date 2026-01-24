@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.46.0] - 2026-01-24
+
+### Features
+- Enhanced markdown rendering in document preview
+
+### Bug Fixes
+*(No bug fixes in this update)*
+
+### Improvements
+*(No improvements in this update)*
+
+
 ## [2.45.0] - 2026-01-24
 
 ### Features
