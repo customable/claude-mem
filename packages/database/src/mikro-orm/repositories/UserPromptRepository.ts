@@ -54,7 +54,8 @@ export class MikroOrmUserPromptRepository implements IUserPromptRepository {
       created_at_epoch: now.getTime(),
     });
 
-    await this.em.persistAndFlush(entity);
+    this.em.persist(entity);
+    await this.em.flush();
     return toRecord(entity);
   }
 

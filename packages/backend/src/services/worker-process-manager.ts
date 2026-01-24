@@ -192,6 +192,7 @@ export class WorkerProcessManager extends EventEmitter {
       env,
       stdio: ['ignore', 'pipe', 'pipe'],
       detached: false,
+      windowsHide: true,
     });
 
     if (!child.pid) {
