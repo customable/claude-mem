@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.19] - 2026-01-24
+
+### Improvements
+- Removed unused `api.ts` file to streamline the codebase.
+
+
 ## [2.19.18] - 2026-01-24
 
 ### Improvements
