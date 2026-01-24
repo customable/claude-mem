@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.34.0] - 2026-01-24
+
+### Features
+- Added 70+ achievements across multiple categories
+
+### Bug Fixes
+- Fixed dashboard stats and improved SQL aggregation
+
+
 ## [2.33.1] - 2026-01-24
 
 ### Bug Fixes
