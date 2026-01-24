@@ -348,7 +348,21 @@ export class WorkerService {
 }
 
 // CLI entry point
-if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
+// Check if running directly (works in both ESM and bundled CJS)
+const isMain = (() => {
+  try {
+    // ESM check
+    if (typeof import.meta?.url === 'string' && process.argv[1]) {
+      return import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'));
+    }
+  } catch {
+    // import.meta not available in CJS
+  }
+  // CJS/bundled check - look for specific CLI arguments
+  return process.argv.includes('--daemon') || process.argv.includes('start');
+})();
+
+if (isMain) {
   const worker = new WorkerService();
   worker.start();
 }
