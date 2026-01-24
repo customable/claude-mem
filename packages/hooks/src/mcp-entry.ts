@@ -11,6 +11,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
+import { loadSettings } from '@claude-mem/shared';
 
 // Version injected at build time
 declare const __PLUGIN_VERSION__: string;
@@ -24,10 +25,24 @@ console.log = (...args: unknown[]) => {
 
 /**
  * Backend configuration
+ * Supports both local and remote backend via settings
  */
-const BACKEND_HOST = process.env.CLAUDE_MEM_BACKEND_HOST || 'localhost';
-const BACKEND_PORT = process.env.CLAUDE_MEM_BACKEND_PORT || '37777';
-const BACKEND_BASE_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}`;
+const settings = loadSettings();
+
+let BACKEND_BASE_URL: string;
+let AUTH_TOKEN: string;
+
+if (settings.REMOTE_MODE && settings.REMOTE_URL) {
+  // Remote mode: use configured remote URL
+  BACKEND_BASE_URL = settings.REMOTE_URL;
+  AUTH_TOKEN = settings.REMOTE_TOKEN || '';
+} else {
+  // Local mode: use localhost with optional env overrides
+  const host = process.env.CLAUDE_MEM_BACKEND_HOST || settings.BACKEND_HOST || '127.0.0.1';
+  const port = process.env.CLAUDE_MEM_BACKEND_PORT || settings.BACKEND_PORT || 37777;
+  BACKEND_BASE_URL = `http://${host}:${port}`;
+  AUTH_TOKEN = '';
+}
 
 /**
  * Call backend API
@@ -45,7 +60,11 @@ async function callBackendAPI(
     }
 
     const url = `${BACKEND_BASE_URL}${endpoint}?${searchParams}`;
-    const response = await fetch(url);
+    const headers: Record<string, string> = {};
+    if (AUTH_TOKEN) {
+      headers['Authorization'] = `Bearer ${AUTH_TOKEN}`;
+    }
+    const response = await fetch(url, { headers });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -140,6 +159,20 @@ const TOOLS = [
       required: ['text'],
     },
   },
+  {
+    name: 'search_documents',
+    description: 'Search cached documentation from Context7 and WebFetch. Use this to recall previously fetched library docs without re-querying external sources.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        query: { type: 'string', description: 'Search query for documentation content' },
+        project: { type: 'string', description: 'Filter by project (optional)' },
+        type: { type: 'string', description: 'Filter by document type: library-docs, api-docs, etc. (optional)' },
+        limit: { type: 'number', description: 'Max results (default 10)' },
+      },
+      required: ['query'],
+    },
+  },
 ];
 
 /**
@@ -180,9 +213,13 @@ async function main(): Promise<void> {
       case 'save_memory':
         // POST request for saving
         try {
+          const postHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (AUTH_TOKEN) {
+            postHeaders['Authorization'] = `Bearer ${AUTH_TOKEN}`;
+          }
           const response = await fetch(`${BACKEND_BASE_URL}/api/data/observations`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: postHeaders,
             body: JSON.stringify(args),
           });
           const data = await response.json();
@@ -198,6 +235,18 @@ async function main(): Promise<void> {
             isError: true,
           };
         }
+
+      case 'search_documents': {
+        const params = args as Record<string, unknown>;
+        // Map 'query' to 'q' for backend API
+        const backendParams: Record<string, unknown> = {
+          q: params.query,
+          project: params.project,
+          type: params.type,
+          limit: params.limit ?? 10,
+        };
+        return callBackendAPI('/api/data/documents/search', backendParams);
+      }
 
       default:
         return {
