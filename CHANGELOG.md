@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.18.0] - 2026-01-24
+
+### Features
+- Added `search_documents` MCP tool for searching cached documentation.
+
+
 ## [2.17.3] - 2026-01-24
 
 ### Bug Fixes
