@@ -4,35 +4,13 @@ on:
   push:
     branches: [main]
 
-# Don't cancel running releases - let them finish
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  # Check if we should skip (e.g., release commits)
-  check:
-    runs-on: [docker, light]
-    container:
-      image: catthehacker/ubuntu:act-latest
-    outputs:
-      skip: ${{ steps.check.outputs.skip }}
-    steps:
-      - name: Check commit message
-        id: check
-        run: |
-          COMMIT_MSG="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MSG" =~ ^chore\(release\): ]]; then
-            echo "Skipping release workflow for release commit"
-            echo "skip=true" >> $GITHUB_OUTPUT
-          else
-            echo "skip=false" >> $GITHUB_OUTPUT
-          fi
-
   release:
     name: Create Release
-    needs: check
-    if: needs.check.outputs.skip != 'true'
     runs-on: [docker, light]
     container:
       image: catthehacker/ubuntu:act-latest
@@ -42,478 +20,245 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
 
     steps:
+      - name: Check if skip
+        id: skip
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" =~ ^chore\(release\): ]]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout
+        if: steps.skip.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Setup pnpm
-        run: npm install -g pnpm
-
       - name: Detect version from commits
+        if: steps.skip.outputs.skip != 'true'
         id: version
         run: |
-          # Get last tag
           LAST_TAG=$(git tag -l "v*" --sort=-v:refname | head -n1 || echo "")
 
           if [ -z "$LAST_TAG" ]; then
-            # No previous tag - initial release
             NEW_VERSION="1.0.0"
-            echo "No previous tag found, starting with v1.0.0"
             echo "Initial release" > /tmp/commits.txt
           else
             CURRENT_VERSION="${LAST_TAG#v}"
-            echo "Current version: $CURRENT_VERSION"
-
-            # Get commits since last tag
             COMMITS=$(git log --pretty=format:"%s" "$LAST_TAG"..HEAD 2>/dev/null || echo "")
 
             if [ -z "$COMMITS" ]; then
-              echo "No commits since last tag"
               echo "skip=true" >> $GITHUB_OUTPUT
               exit 0
             fi
 
-            # Save commits for changelog
             git log --pretty=format:"- %s" "$LAST_TAG"..HEAD > /tmp/commits.txt
 
-            # Analyze commits for version bump
-            # feat! / BREAKING CHANGE → major
-            # feat → minor
-            # fix, refactor, perf → patch
-            # docs, style, test, chore, ci → no release
-            MAJOR=0
-            MINOR=0
-            PATCH=0
-
+            MAJOR=0 MINOR=0 PATCH=0
             while IFS= read -r commit; do
-              if [[ "$commit" =~ ^feat.*!: ]] || [[ "$commit" =~ BREAKING.CHANGE ]]; then
-                MAJOR=1
-                echo "  MAJOR: $commit"
-              elif [[ "$commit" =~ ^feat ]]; then
-                MINOR=1
-                echo "  MINOR: $commit"
-              elif [[ "$commit" =~ ^fix ]] || [[ "$commit" =~ ^refactor ]] || [[ "$commit" =~ ^perf ]]; then
-                PATCH=1
-                echo "  PATCH: $commit"
-              else
-                echo "  SKIP: $commit"
+              if [[ "$commit" =~ ^feat.*!: ]] || [[ "$commit" =~ BREAKING.CHANGE ]]; then MAJOR=1
+              elif [[ "$commit" =~ ^feat ]]; then MINOR=1
+              elif [[ "$commit" =~ ^fix|^refactor|^perf ]]; then PATCH=1
               fi
             done <<< "$COMMITS"
 
-            # Calculate new version
             IFS='.' read -r v_major v_minor v_patch <<< "$CURRENT_VERSION"
-            v_major=${v_major:-0}
-            v_minor=${v_minor:-0}
-            v_patch=${v_patch:-0}
-
             if [ $MAJOR -eq 1 ]; then
-              v_major=$((v_major + 1))
-              v_minor=0
-              v_patch=0
-              NEW_VERSION="${v_major}.${v_minor}.${v_patch}"
+              NEW_VERSION="$((v_major+1)).0.0"
             elif [ $MINOR -eq 1 ]; then
-              v_minor=$((v_minor + 1))
-              v_patch=0
-              NEW_VERSION="${v_major}.${v_minor}.${v_patch}"
+              NEW_VERSION="${v_major}.$((v_minor+1)).0"
             elif [ $PATCH -eq 1 ]; then
-              v_patch=$((v_patch + 1))
-              NEW_VERSION="${v_major}.${v_minor}.${v_patch}"
+              NEW_VERSION="${v_major}.${v_minor}.$((v_patch+1))"
             else
-              echo "No releasable commits (only docs/style/test/chore/ci)"
               echo "skip=true" >> $GITHUB_OUTPUT
               exit 0
             fi
           fi
 
-          SHORT_SHA=$(git rev-parse --short HEAD)
-
-          echo "New version: $NEW_VERSION"
-          echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
-          echo "tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
-          echo "sha=${SHORT_SHA}" >> $GITHUB_OUTPUT
-          echo "skip=false" >> $GITHUB_OUTPUT
-
-      - name: Check if release exists
-        id: check
-        if: steps.version.outputs.skip != 'true'
-        run: |
-          TAG="${{ steps.version.outputs.tag }}"
-          if git rev-parse "$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists"
-            echo "exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
+          if git rev-parse "v${NEW_VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${NEW_VERSION} exists"
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-      - name: Generate changelog with Devstral
-        id: changelog
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+          echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
         run: |
           COMMITS=$(cat /tmp/commits.txt)
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Call Devstral via native Mistral API
           RESPONSE=$(curl -s -X POST "https://api.mistral.ai/v1/chat/completions" \
             -H "Authorization: Bearer $MISTRAL_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n \
-              --arg commits "$COMMITS" \
-              --arg version "$VERSION" \
-              '{
-                model: "devstral-small-latest",
-                messages: [
-                  {
-                    role: "system",
-                    content: "You are a release note writer. Generate a concise changelog in markdown. Group changes by type (### Features, ### Bug Fixes, ### Improvements). Be brief. IMPORTANT: Output raw markdown only - do NOT wrap your response in code blocks. Do NOT include version headers or dates - start directly with ### section headers."
-                  },
-                  {
-                    role: "user",
-                    content: ("Summarize these commits into a changelog (no version/date header, just grouped changes):\n\n" + $commits)
-                  }
-                ],
-                max_tokens: 1000
-              }')")
+            -d "$(jq -n --arg commits "$COMMITS" '{
+              model: "devstral-small-latest",
+              messages: [{role: "system", content: "Generate a concise changelog in markdown. Group by type (### Features, ### Bug Fixes, ### Improvements). No code blocks, no version headers."}, {role: "user", content: $commits}],
+              max_tokens: 1000
+            }')")
+          CHANGELOG=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty' | sed '/^```/d')
+          echo "${CHANGELOG:-$COMMITS}" > /tmp/changelog.md
 
-          # Extract the changelog content
-          CHANGELOG=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')
-
-          if [ -z "$CHANGELOG" ]; then
-            echo "Devstral failed, using commit list as fallback"
-            CHANGELOG="$COMMITS"
-          fi
-
-          # Strip any code block wrappers (```markdown ... ```)
-          CHANGELOG=$(echo "$CHANGELOG" | sed '/^```/d')
-
-          # Save changelog
-          echo "$CHANGELOG" > /tmp/changelog.md
-          echo "Changelog generated:"
-          cat /tmp/changelog.md
-
-      - name: Update version in package.json
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Update package.json
-          jq --arg v "$VERSION" '.version = $v' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-          echo "Updated package.json to version $VERSION"
-
-      - name: Update version in plugin.json
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Update plugin/.claude-plugin/plugin.json
-          jq --arg v "$VERSION" '.version = $v' plugin/.claude-plugin/plugin.json > plugin.json.tmp
-          mv plugin.json.tmp plugin/.claude-plugin/plugin.json
-
-          echo "Updated plugin.json to version $VERSION"
-
-      - name: Update version in plugin/package.json
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Update plugin/package.json
-          jq --arg v "$VERSION" '.version = $v' plugin/package.json > plugin-package.json.tmp
-          mv plugin-package.json.tmp plugin/package.json
-
-          echo "Updated plugin/package.json to version $VERSION"
-
-      - name: Update version in all workspace packages
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Update all packages/*/package.json
-          for pkg in packages/*/package.json; do
-            jq --arg v "$VERSION" '.version = $v' "$pkg" > "$pkg.tmp"
-            mv "$pkg.tmp" "$pkg"
-            echo "Updated $pkg to version $VERSION"
-          done
-
-      - name: Update VERSION in constants.ts
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Update VERSION constant in packages/shared/src/constants.ts
-          sed -i "s/export const VERSION = '[^']*'/export const VERSION = '${VERSION}'/" packages/shared/src/constants.ts
-          echo "Updated packages/shared/src/constants.ts to version $VERSION"
-
-      - name: Update CHANGELOG.md
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+      - name: Update all versions
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           DATE=$(date +%Y-%m-%d)
 
-          # Create new changelog entry file
-          echo "## [${VERSION}] - ${DATE}" > /tmp/new_entry.md
-          echo "" >> /tmp/new_entry.md
-          cat /tmp/changelog.md >> /tmp/new_entry.md
-          echo "" >> /tmp/new_entry.md
+          # Update package.json files
+          for f in package.json plugin/package.json plugin/.claude-plugin/plugin.json packages/*/package.json; do
+            [ -f "$f" ] && jq --arg v "$VERSION" '.version = $v' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+          done
 
-          # Prepend to CHANGELOG.md (or create if doesn't exist)
+          # Update constants.ts
+          sed -i "s/export const VERSION = '[^']*'/export const VERSION = '${VERSION}'/" packages/shared/src/constants.ts
+
+          # Update README badge
+          [ -f README.md ] && sed -i "s/version-[0-9]*\.[0-9]*\.[0-9]*/version-${VERSION}/" README.md
+
+          # Update CHANGELOG.md
+          {
+            echo "## [${VERSION}] - ${DATE}"
+            echo ""
+            cat /tmp/changelog.md
+            echo ""
+          } > /tmp/new_entry.md
+
           if [ -f CHANGELOG.md ]; then
             if head -1 CHANGELOG.md | grep -q "^# "; then
-              head -1 CHANGELOG.md > /tmp/changelog_new.md
-              echo "" >> /tmp/changelog_new.md
-              cat /tmp/new_entry.md >> /tmp/changelog_new.md
-              tail -n +2 CHANGELOG.md >> /tmp/changelog_new.md
+              { head -1 CHANGELOG.md; echo ""; cat /tmp/new_entry.md; tail -n +2 CHANGELOG.md; } > /tmp/cl.md
             else
-              cat /tmp/new_entry.md > /tmp/changelog_new.md
-              cat CHANGELOG.md >> /tmp/changelog_new.md
+              { cat /tmp/new_entry.md; cat CHANGELOG.md; } > /tmp/cl.md
             fi
-            mv /tmp/changelog_new.md CHANGELOG.md
+            mv /tmp/cl.md CHANGELOG.md
           else
-            echo "# Changelog" > CHANGELOG.md
-            echo "" >> CHANGELOG.md
-            cat /tmp/new_entry.md >> CHANGELOG.md
+            { echo "# Changelog"; echo ""; cat /tmp/new_entry.md; } > CHANGELOG.md
           fi
 
-          echo "Updated CHANGELOG.md"
-
-      - name: Update version in README.md
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Update version badge in README.md (if exists)
-          if [ -f README.md ]; then
-            sed -i "s/version-[0-9]*\.[0-9]*\.[0-9]*/version-${VERSION}/" README.md
-            echo "Updated README.md version badge"
-          else
-            echo "README.md not found, skipping"
-          fi
-
-      - name: Commit version updates
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          git config user.name "Release Bot"
-          git config user.email "release@customable.de"
-
-          git add package.json plugin/.claude-plugin/plugin.json plugin/package.json CHANGELOG.md
-          git add packages/*/package.json
-          git add packages/shared/src/constants.ts
-          git add README.md 2>/dev/null || true
-          git commit -m "chore(release): bump version to ${VERSION}" || echo "No changes to commit"
-          git push origin main
-
-      - name: Create Git Tag
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          git config user.name "Release Bot"
-          git config user.email "release@customable.de"
-          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.version }}"
-          git push origin "${{ steps.version.outputs.tag }}"
-
-      - name: Create Release
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        run: |
-          CHANGELOG=$(cat /tmp/changelog.md)
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="${{ steps.version.outputs.tag }}"
-          BACKTICKS='```'
-
-          # Build release body
-          {
-            echo "## Installation"
-            echo ""
-            echo "$BACKTICKS"
-            echo "> /plugin marketplace add https://git.customable.host/customable/claude-plugins.git"
-            echo "> /plugin install claude-mem"
-            echo "$BACKTICKS"
-            echo ""
-            echo "## Changes"
-            echo ""
-            echo "$CHANGELOG"
-            echo ""
-            echo "---"
-            echo "Built from commit ${{ steps.version.outputs.sha }}"
-          } > /tmp/release_body.md
-
-          BODY=$(cat /tmp/release_body.md)
-
-          # Create release via API
-          REPO="${{ github.repository }}"
-          if [ -z "$REPO" ]; then
-            REPO="customable/claude-mem"
-          fi
-
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "$(jq -n \
-              --arg tag "$TAG" \
-              --arg name "Release $TAG" \
-              --arg body "$BODY" \
-              '{tag_name: $tag, name: $name, body: $body}')" \
-            "https://git.customable.host/api/v1/repos/${REPO}/releases")
-
-          echo "Release $TAG created!"
-          echo "$RESPONSE" | jq .
-
-      - name: Sync release to GitHub
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG="${{ steps.version.outputs.tag }}"
-          CHANGELOG=$(cat /tmp/changelog.md)
-          BACKTICKS='```'
-
-          # Build GitHub release body
-          {
-            echo "## Installation"
-            echo ""
-            echo "### From Customable Marketplace (recommended)"
-            echo "$BACKTICKS"
-            echo "> /plugin marketplace add https://git.customable.host/customable/claude-plugins.git"
-            echo "> /plugin install claude-mem"
-            echo "$BACKTICKS"
-            echo ""
-            echo "### From GitHub"
-            echo "$BACKTICKS"
-            echo "> /plugin install https://github.com/customable/claude-mem.git"
-            echo "$BACKTICKS"
-            echo ""
-            echo "## Changes"
-            echo ""
-            echo "$CHANGELOG"
-            echo ""
-            echo "---"
-            echo "Built from commit ${{ steps.version.outputs.sha }}"
-          } > /tmp/github_release_body.md
-
-          BODY=$(cat /tmp/github_release_body.md)
-
-          # Create release on GitHub via API (code is synced via mirror)
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: token ${GH_TOKEN}" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            -d "$(jq -n \
-              --arg tag "$TAG" \
-              --arg name "Release $TAG" \
-              --arg body "$BODY" \
-              '{tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false}')" \
-            "https://api.github.com/repos/customable/claude-mem/releases")
-
-          if echo "$RESPONSE" | jq -e '.id' > /dev/null 2>&1; then
-            echo "GitHub release $TAG created!"
-            echo "$RESPONSE" | jq '{id, html_url, tag_name}'
-          else
-            echo "GitHub release failed or already exists:"
-            echo "$RESPONSE" | jq .
-          fi
-
-      - name: Update marketplace version
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          # Clone marketplace repo with auth
-          git clone "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-plugins.git" /tmp/claude-plugins
-          cd /tmp/claude-plugins
-
-          # Update version in marketplace.json
-          jq --arg v "$VERSION" '.plugins[0].version = $v' .claude-plugin/marketplace.json > marketplace.json.tmp
-          mv marketplace.json.tmp .claude-plugin/marketplace.json
-
-          # Commit and push
-          git config user.name "Release Bot"
-          git config user.email "release@customable.de"
-          git add .claude-plugin/marketplace.json
-          git commit -m "chore: update claude-mem to v${VERSION}"
-          git push origin main
-
-          echo "Marketplace updated to v${VERSION}"
-
-      - name: Sync plugin to separate repo
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
-        env:
-          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: Commit, tag and release
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           TAG="${{ steps.version.outputs.tag }}"
 
-          # Clone plugin repo (or create if doesn't exist)
-          git clone "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-mem-plugin.git" /tmp/claude-mem-plugin || {
-            mkdir -p /tmp/claude-mem-plugin
-            cd /tmp/claude-mem-plugin
-            git init
-            git remote add origin "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-mem-plugin.git"
-          }
-
-          cd /tmp/claude-mem-plugin
-
-          # Remove old files (except .git)
-          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-
-          # Copy plugin directory contents
-          cp -r ${GITHUB_WORKSPACE}/plugin/* .
-          cp -r ${GITHUB_WORKSPACE}/plugin/.* . 2>/dev/null || true
-
-          # Commit and push
           git config user.name "Release Bot"
           git config user.email "release@customable.de"
           git add -A
-          git commit -m "chore(release): sync plugin v${VERSION}" || echo "No changes"
+          git commit -m "chore(release): bump version to ${VERSION}"
           git push origin main
+          git tag -a "$TAG" -m "Release $VERSION"
+          git push origin "$TAG"
 
-          # Create tag
-          git tag -a "$TAG" -m "Release $VERSION" || true
-          git push origin "$TAG" || true
+          # Create Forgejo release
+          BODY=$(cat <<EOF
+          ## Installation
+          \`\`\`
+          > /plugin marketplace add https://git.customable.host/customable/claude-plugins.git
+          > /plugin install claude-mem
+          \`\`\`
 
-          echo "Plugin repo synced to v${VERSION}"
+          ## Changes
+          $(cat /tmp/changelog.md)
 
-      - name: Set release output
-        id: released
-        if: steps.version.outputs.skip != 'true' && steps.check.outputs.exists == 'false'
+          ---
+          Built from commit ${{ steps.version.outputs.sha }}
+          EOF
+          )
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.RELEASE_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg tag "$TAG" --arg body "$BODY" '{tag_name: $tag, name: ("Release " + $tag), body: $body}')" \
+            "https://git.customable.host/api/v1/repos/customable/claude-mem/releases"
+
+      - name: Sync to GitHub
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "released=true" >> $GITHUB_OUTPUT
+          TAG="${{ steps.version.outputs.tag }}"
+          BODY=$(cat <<EOF
+          ## Installation
+          \`\`\`
+          > /plugin install https://github.com/customable/claude-mem.git
+          \`\`\`
 
-  # Build and push Docker images (only after successful release)
+          ## Changes
+          $(cat /tmp/changelog.md)
+          EOF
+          )
+          curl -s -X POST \
+            -H "Authorization: token ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -d "$(jq -n --arg tag "$TAG" --arg body "$BODY" '{tag_name: $tag, name: ("Release " + $tag), body: $body}')" \
+            "https://api.github.com/repos/customable/claude-mem/releases" || true
+
+      - name: Update marketplace
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git clone "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-plugins.git" /tmp/mp
+          cd /tmp/mp
+          jq --arg v "$VERSION" '.plugins[0].version = $v' .claude-plugin/marketplace.json > tmp && mv tmp .claude-plugin/marketplace.json
+          git config user.name "Release Bot"
+          git config user.email "release@customable.de"
+          git add -A && git commit -m "chore: update claude-mem to v${VERSION}" && git push
+
+      - name: Sync plugin repo
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          git clone "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-mem-plugin.git" /tmp/plug || {
+            mkdir -p /tmp/plug && cd /tmp/plug && git init
+            git remote add origin "https://release-bot:${RELEASE_TOKEN}@git.customable.host/customable/claude-mem-plugin.git"
+          }
+          cd /tmp/plug
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -r ${GITHUB_WORKSPACE}/plugin/* . 2>/dev/null || true
+          cp -r ${GITHUB_WORKSPACE}/plugin/.* . 2>/dev/null || true
+          git config user.name "Release Bot"
+          git config user.email "release@customable.de"
+          git add -A && git commit -m "chore(release): sync plugin v${VERSION}" || true
+          git push origin main || true
+          git tag -a "$TAG" -m "Release $VERSION" 2>/dev/null || true
+          git push origin "$TAG" 2>/dev/null || true
+
+      - name: Set output
+        if: steps.skip.outputs.skip != 'true' && steps.version.outputs.skip != 'true'
+        id: released
+        run: echo "released=true" >> $GITHUB_OUTPUT
+
   docker:
     name: Build Docker Images
     runs-on: [docker, light]
     needs: release
     if: needs.release.outputs.released == 'true'
-    continue-on-error: true  # Don't fail release if Docker build fails
+    continue-on-error: true
     container:
       image: catthehacker/ubuntu:act-latest
       options: --volume /var/run/docker.sock:/var/run/docker.sock
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          ref: main  # Checkout latest main with version bump
+          ref: main
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v3
 
-      - name: Login to Forgejo Container Registry
-        uses: docker/login-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: git.customable.host
           username: ${{ github.actor }}
           password: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Build and push Backend image
-        uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.backend
@@ -524,8 +269,7 @@ jobs:
           cache-from: type=registry,ref=git.customable.host/customable/claude-mem/backend:buildcache
           cache-to: type=registry,ref=git.customable.host/customable/claude-mem/backend:buildcache,mode=max
 
-      - name: Build and push Worker image
-        uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v6
         with:
           context: .
           file: Dockerfile.worker
