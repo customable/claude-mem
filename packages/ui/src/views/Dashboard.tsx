@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../api/client';
+import { useSSE, type SSEEvent } from '../hooks/useSSE';
 
 interface Stats {
   observations: number;
@@ -20,33 +21,83 @@ export function DashboardView() {
   const [recentObservations, setRecentObservations] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // SSE for real-time updates
+  const { lastEvent, workerCount, status: sseStatus } = useSSE();
+
+  // Handle SSE events
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const [statsRes, healthRes, obsRes] = await Promise.all([
-          api.getStats(),
-          api.getHealth(),
-          api.getObservations({ limit: 5 }),
-        ]);
+    if (!lastEvent) return;
 
-        setStats(statsRes);
-        setWorkerStatus({
-          status: healthRes.coreReady ? 'online' : 'offline',
-          connected: healthRes.workers?.connected || 0,
-          version: healthRes.version,
-        });
-        setRecentObservations(obsRes.items || []);
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-      } finally {
-        setIsLoading(false);
-      }
+    switch (lastEvent.type) {
+      case 'observation:created':
+        // Increment observation count
+        setStats((prev) => prev ? { ...prev, observations: prev.observations + 1 } : prev);
+        // Add to recent observations if data is provided
+        if (lastEvent.data && typeof lastEvent.data === 'object') {
+          setRecentObservations((prev) => {
+            const newObs = lastEvent.data as any;
+            // Add to beginning, keep only 5
+            return [newObs, ...prev].slice(0, 5);
+          });
+        }
+        break;
+
+      case 'summary:created':
+        setStats((prev) => prev ? { ...prev, summaries: prev.summaries + 1 } : prev);
+        break;
+
+      case 'session:started':
+        setStats((prev) => prev ? { ...prev, sessions: prev.sessions + 1 } : prev);
+        break;
+
+      case 'worker:connected':
+      case 'worker:disconnected':
+        // Update worker count from SSE state
+        setWorkerStatus((prev) => prev ? { ...prev, connected: workerCount } : prev);
+        break;
     }
+  }, [lastEvent, workerCount]);
 
-    fetchData();
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
+  // Update worker status when SSE status changes
+  useEffect(() => {
+    setWorkerStatus((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        status: sseStatus === 'connected' ? 'online' : sseStatus === 'error' ? 'offline' : prev.status,
+        connected: workerCount,
+      };
+    });
+  }, [sseStatus, workerCount]);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const [statsRes, healthRes, obsRes] = await Promise.all([
+        api.getStats(),
+        api.getHealth(),
+        api.getObservations({ limit: 5 }),
+      ]);
+
+      setStats(statsRes);
+      setWorkerStatus({
+        status: healthRes.coreReady ? 'online' : 'offline',
+        connected: healthRes.workers?.connected || 0,
+        version: healthRes.version,
+      });
+      setRecentObservations(obsRes.items || []);
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    // Reduce polling interval since we have SSE updates (fallback only)
+    const interval = setInterval(fetchData, 60000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   if (isLoading) {
     return (
