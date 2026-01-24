@@ -10,7 +10,7 @@ import { BadRequestError, NotFoundError } from '../middleware/error-handler.js';
 export abstract class BaseRouter {
   public readonly router: Router;
 
-  constructor() {
+  protected constructor() {
     this.router = Router();
     this.setupRoutes();
   }

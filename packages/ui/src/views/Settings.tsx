@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import * as React from "react";
 
 type SettingsTab = 'general' | 'provider' | 'context' | 'workers' | 'advanced';
 
