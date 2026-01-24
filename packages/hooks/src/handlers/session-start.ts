@@ -232,14 +232,14 @@ export async function handleSessionStart(input: HookInput): Promise<HookResult> 
     // Determine project identifier - use repo path for consistent grouping across worktrees
     const projectId = repoInfo?.repoPath ?? input.project;
 
+    // Build query params - only include defined values
+    const queryParams: Record<string, string> = { project: projectId };
+    if (repoInfo?.repoPath) queryParams.repoPath = repoInfo.repoPath;
+    if (repoInfo?.branch) queryParams.branch = repoInfo.branch;
+    if (repoInfo?.isWorktree !== undefined) queryParams.isWorktree = String(repoInfo.isWorktree);
+
     // Get context for this project
-    const response = await client.get<ContextResponse>('/api/hooks/context', {
-      project: projectId,
-      // Include worktree info for potential branch-specific context
-      repoPath: repoInfo?.repoPath,
-      branch: repoInfo?.branch,
-      isWorktree: repoInfo?.isWorktree,
-    });
+    const response = await client.get<ContextResponse>('/api/hooks/context', queryParams);
 
     if (!response.context || response.observationCount === 0) {
       logger.debug('No context available for project');
