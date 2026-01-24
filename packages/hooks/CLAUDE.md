@@ -40,9 +40,9 @@
 
 ## Key Insights
 
-- **Pre-compact Hook Implementation**: A significant feature addition with multiple components (event mapping, handler, type definitions) to support memory compaction events (Issue #73).
-- **Event System Architecture**: Discovered the EVENT_MAP that translates between fork-style and monorepo event names, crucial for plugin compatibility.
-- **Hook System Structure**: Comprehensive exploration of the hook system including handlers registry, runner implementation, and backend client integration.
-- **Bug Fix**: Critical fix for hook registration path (hooks.json vs settings.json) resolving issue #231.
-- **Installation Process**: Smart install script handles dependency management and hook registration with version checking.
+- **Pre-compact Hook Implementation**: A major feature addition with multiple components: event mapping (#14640, #14635), handler implementation (#14600), type definitions (#14593), and registry updates (#14606). This addresses Issue #73 for context preservation before memory compaction.
+- **Hook System Architecture**: Comprehensive discovery of the event-driven architecture with EVENT_MAP translations (#14634), handler registry (#14604), and lifecycle events (session-start, user-prompt-submit, etc.).
+- **Critical Bug Fix**: Hook registration corrected to use `hooks.json` instead of `settings.json` (#14435), resolving path expansion issues in plugin installation.
+- **Backend Integration**: The system relies on a backend client for health checks, authentication, and context management (#14490, #14374), with SSE support for real-time updates.
+- **Extensibility**: The plugin system supports custom handlers alongside defaults (#14466), with a clear export structure for hooks (#14364).
 </claude-mem-context>

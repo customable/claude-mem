@@ -14,7 +14,7 @@
 | #14634 | 10:46 PM | 🔵 | EVENT_MAP maps fork-style events to monorepo events | ~1357 |
 | #14631 | 10:45 PM | 🔵 | Discovered plugin entry point structure and CLI commands | ~1607 |
 | #14612 | 10:43 PM | 🔵 | Understanding the stop hook handler functionality | ~1735 |
-| #14606 | 10:43 PM | 🟠 | Added 'pre-compact' handler to default handlers registry | ~1698 |
+| #14606 | 10:42 PM | 🟠 | Added 'pre-compact' handler to default handlers registry | ~1698 |
 | #14604 | 10:42 PM | 🔵 | Hook handlers registry structure discovered | ~1403 |
 | #14603 | 10:42 PM | 🟠 | Added handlePreCompact import to handlers index | ~1798 |
 | #14602 | 10:42 PM | 🟠 | Add handlePreCompact handler export | ~1654 |
@@ -40,9 +40,9 @@
 
 ## Key Insights
 
-- **Pre-compact Hook Implementation**: A major feature addition with multiple components: new event type (`pre-compact`), handler implementation, EVENT_MAP integration, and documentation. This addresses Issue #73 for memory compaction.
-- **Hook System Architecture**: Comprehensive discovery of the event-driven architecture with session lifecycle events, handler registry, and backend integration.
-- **Critical Bug Fix**: Hook registration now correctly uses `hooks.json` instead of `settings.json`, resolving path expansion issues.
-- **Backend Integration**: The system relies heavily on backend communication for session management, secret detection, and context preservation.
-- **Installation Improvements**: Smart install script handles dependency management and hook registration with version checking.
+- **Pre-compact Event Implementation**: A major feature addition with multiple components: new event type, handler implementation, registry updates, and documentation. This addresses Issue #73 for memory compaction.
+- **Hook System Architecture**: Comprehensive discovery of the event-driven architecture with EVENT_MAP translating between fork-style and monorepo events, and a well-structured handler registry.
+- **Critical Bug Fix**: Fixed hook registration path (hooks.json vs settings.json) resolving issue #231 with incorrect path expansion.
+- **Backend Integration**: The pre-compact handler integrates with backend services for context preservation before compaction operations.
+- **Installation Improvements**: Smart install script enhancements for dependency management and hook registration.
 </claude-mem-context>
