@@ -6,7 +6,6 @@
     ":automergeMinor",
     "group:allNonMajor"
   ],
-  "platform": "forgejo",
   "labels": ["dependencies"],
   "rangeStrategy": "bump",
   "lockFileMaintenance": {
