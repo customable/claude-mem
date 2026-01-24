@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.17] - 2026-01-24
+
+### Improvements
+- Removed unused `logger` and `isReady` from `client.ts` to streamline the codebase.
+
+
 ## [2.19.16] - 2026-01-24
 
 ### Bug Fixes
