@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../api/client';
-import { useSSE, type SSEEvent } from '../hooks/useSSE';
+import { useSSE } from '../hooks/useSSE';
 
 interface Stats {
   observations: number;
