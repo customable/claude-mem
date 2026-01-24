@@ -266,8 +266,8 @@ jobs:
           tags: |
             git.customable.host/customable/claude-mem/backend:latest
             git.customable.host/customable/claude-mem/backend:${{ needs.release.outputs.version }}
-          cache-from: type=registry,ref=git.customable.host/customable/claude-mem/backend:buildcache
-          cache-to: type=registry,ref=git.customable.host/customable/claude-mem/backend:buildcache,mode=max
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
 
       - uses: docker/build-push-action@v6
         with:
@@ -277,5 +277,5 @@ jobs:
           tags: |
             git.customable.host/customable/claude-mem/worker:latest
             git.customable.host/customable/claude-mem/worker:${{ needs.release.outputs.version }}
-          cache-from: type=registry,ref=git.customable.host/customable/claude-mem/worker:buildcache
-          cache-to: type=registry,ref=git.customable.host/customable/claude-mem/worker:buildcache,mode=max
+          cache-from: type=gha,scope=worker
+          cache-to: type=gha,scope=worker,mode=max
