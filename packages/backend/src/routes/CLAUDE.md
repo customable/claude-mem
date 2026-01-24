@@ -7,12 +7,27 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #13087 | 6:04 PM | 🔵 | Exploring Hooks Router Implementation | ~2409 |
+| #13076 | 6:03 PM | 🟠 | Added Git worktree support to session start | ~3333 |
+| #12750 | 11:49 AM | 🔵 | Exploring Data Routes Structure | ~973 |
+| #12749 | 11:48 AM | 🔵 | ObservationQueryFilters type usage found | ~731 |
+| #12748 | 11:48 AM | 🟠 | Add ObservationQueryFilters to data route | ~5033 |
+| #12747 | 11:48 AM | 🔄 | Replace inline type with interface | ~4939 |
+| #12746 | 11:47 AM | 🔵 | Observation deletion logic in data.ts | ~1261 |
+| #12744 | 11:47 AM | 🔵 | Examining data deletion logic | ~989 |
+| #12743 | 11:47 AM | 🔴 | Fix date range filter property name | ~5085 |
+| #12205 | 10:26 AM | 🔴 | Added safety check for unconnected workers | ~4278 |
+| #12203 | 10:26 AM | 🔵 | Worker termination logic with busy state | ~1191 |
+| #12196 | 10:25 AM | 🔵 | Search API routes structure discovered | ~3314 |
+| #12182 | 10:23 AM | 🟠 | Added GDPR-compliant observation deletion | ~6088 |
+| #12180 | 10:22 AM | 🔵 | Found getObservation method in data.ts | ~1357 |
+| #12179 | 10:22 AM | 🔵 | API endpoint for observation retrieval | ~1061 |
 | #12178 | 10:22 AM | 🟠 | Added DELETE endpoints for observations | ~5116 |
 | #12177 | 10:22 AM | 🔵 | Backend API routes structure discovered | ~1513 |
-| #12171 | 10:21 AM | 🔵 | Discovered API endpoints for session/doc deletion | ~2527 |
+| #12171 | 10:21 AM | 🔵 | Discovered API endpoints for deletion | ~2527 |
 | #12170 | 10:21 AM | 🔵 | Discovered DELETE endpoints in data routes | ~971 |
-| #12169 | 10:21 AM | 🔵 | Found DELETE route handlers in backend routes | ~710 |
-| #12139 | 10:18 AM | 🔵 | Worker spawning mechanism found in routes | ~846 |
+| #12169 | 10:21 AM | 🔵 | Found DELETE route handlers in backend | ~710 |
+| #12139 | 10:18 AM | 🔵 | Worker spawning mechanism found | ~846 |
 | #12101 | 10:15 AM | 🔵 | Discovered searchDocuments endpoint | ~1367 |
 | #12100 | 10:15 AM | 🔵 | Found search endpoint implementation | ~1260 |
 
@@ -25,9 +40,9 @@
 
 ## Key Insights
 
-- **API Expansion**: Added DELETE endpoints for observations (single/bulk), extending data management capabilities.
-- **Search Functionality**: Discovered and documented the `searchDocuments` endpoint for full-text search.
-- **Architecture Understanding**: Mapped backend routes structure, including sessions, documents, and worker management.
-- **Critical Issues**: Identified process/memory leaks and Windows terminal popups as high-priority fixes.
-- **Next Steps**: Focus on Endless Mode implementation, Docker documentation, and MCP tool enhancements.
+- **API Expansion**: Added GDPR-compliant observation deletion endpoints and Git worktree support, enhancing data management and compliance.
+- **Code Quality**: Refactored inline types to use shared interfaces (e.g., `ObservationQueryFilters`), improving maintainability.
+- **Bug Fixes**: Resolved worker termination logic and date range filter inconsistencies for better stability.
+- **Discovery**: Mapped out backend API routes (sessions, observations, documents) and search endpoints (text/semantic).
+- **Next Steps**: Merge resolved PRs (e.g., MCP server migration, refactoring) and verify build stability post-dependency updates.
 </claude-mem-context>
