@@ -166,7 +166,7 @@ console.log(db.query('SELECT id, project, content_session_id FROM project_claude
 
 ## Forgejo Issues
 
-Repository: `thedotmack/claude-mem` auf der lokalen Forgejo-Instanz
+Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 <claude-mem-context>
 # Recent Activity
