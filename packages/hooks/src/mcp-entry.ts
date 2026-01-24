@@ -140,6 +140,20 @@ const TOOLS = [
       required: ['text'],
     },
   },
+  {
+    name: 'search_documents',
+    description: 'Search cached documentation from Context7 and WebFetch. Use this to recall previously fetched library docs without re-querying external sources.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        query: { type: 'string', description: 'Search query for documentation content' },
+        project: { type: 'string', description: 'Filter by project (optional)' },
+        type: { type: 'string', description: 'Filter by document type: library-docs, api-docs, etc. (optional)' },
+        limit: { type: 'number', description: 'Max results (default 10)' },
+      },
+      required: ['query'],
+    },
+  },
 ];
 
 /**
@@ -198,6 +212,18 @@ async function main(): Promise<void> {
             isError: true,
           };
         }
+
+      case 'search_documents': {
+        const params = args as Record<string, unknown>;
+        // Map 'query' to 'q' for backend API
+        const backendParams: Record<string, unknown> = {
+          q: params.query,
+          project: params.project,
+          type: params.type,
+          limit: params.limit ?? 10,
+        };
+        return callBackendAPI('/api/data/documents/search', backendParams);
+      }
 
       default:
         return {
