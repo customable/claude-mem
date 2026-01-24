@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -28,6 +28,7 @@ import {
   SearchRouter,
   ExportRouter,
   ImportRouter,
+  InsightsRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -73,6 +74,7 @@ export class BackendService {
   private taskService: TaskService | null = null;
   private sessionService: SessionService | null = null;
   private workerProcessManager: WorkerProcessManager | null = null;
+  private insightsService: InsightsService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -259,6 +261,13 @@ export class BackendService {
         this.taskService
       );
 
+      this.insightsService = new InsightsService(
+        this.unitOfWork.dailyStats,
+        this.unitOfWork.technologyUsage,
+        this.unitOfWork.achievements,
+        this.unitOfWork.observations
+      );
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -339,6 +348,11 @@ export class BackendService {
       observations: this.unitOfWork!.observations,
       summaries: this.unitOfWork!.summaries,
       sessions: this.unitOfWork!.sessions,
+    }).router);
+
+    // Insights routes
+    this.app.use('/api/insights', new InsightsRouter({
+      insightsService: this.insightsService!,
     }).router);
 
     // Finalize app (error handlers)

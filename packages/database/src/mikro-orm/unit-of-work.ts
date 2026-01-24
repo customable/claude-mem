@@ -13,6 +13,9 @@ import { MikroOrmDocumentRepository } from './repositories/DocumentRepository.js
 import { MikroOrmUserPromptRepository } from './repositories/UserPromptRepository.js';
 import { MikroOrmTaskRepository } from './repositories/TaskRepository.js';
 import { MikroOrmClaudeMdRepository } from './repositories/ClaudeMdRepository.js';
+import { MikroOrmDailyStatsRepository } from './repositories/DailyStatsRepository.js';
+import { MikroOrmTechnologyUsageRepository } from './repositories/TechnologyUsageRepository.js';
+import { MikroOrmAchievementRepository } from './repositories/AchievementRepository.js';
 
 /**
  * MikroORM implementation of IUnitOfWork
@@ -25,6 +28,9 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
   public userPrompts: MikroOrmUserPromptRepository;
   public taskQueue: MikroOrmTaskRepository;
   public claudemd: MikroOrmClaudeMdRepository;
+  public dailyStats: MikroOrmDailyStatsRepository;
+  public technologyUsage: MikroOrmTechnologyUsageRepository;
+  public achievements: MikroOrmAchievementRepository;
 
   private transactionEm: SqlEntityManager | null = null;
 
@@ -36,6 +42,9 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.userPrompts = new MikroOrmUserPromptRepository(em);
     this.taskQueue = new MikroOrmTaskRepository(em);
     this.claudemd = new MikroOrmClaudeMdRepository(em);
+    this.dailyStats = new MikroOrmDailyStatsRepository(em);
+    this.technologyUsage = new MikroOrmTechnologyUsageRepository(em);
+    this.achievements = new MikroOrmAchievementRepository(em);
   }
 
   async beginTransaction(): Promise<void> {
@@ -84,5 +93,8 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.userPrompts = new MikroOrmUserPromptRepository(em);
     this.taskQueue = new MikroOrmTaskRepository(em);
     this.claudemd = new MikroOrmClaudeMdRepository(em);
+    this.dailyStats = new MikroOrmDailyStatsRepository(em);
+    this.technologyUsage = new MikroOrmTechnologyUsageRepository(em);
+    this.achievements = new MikroOrmAchievementRepository(em);
   }
 }

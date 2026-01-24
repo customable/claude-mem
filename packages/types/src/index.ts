@@ -18,3 +18,6 @@ export * from './tasks.js';
 
 // Repository pattern (for extensibility: SQLite, PostgreSQL, etc.)
 export * from './repository.js';
+
+// Learning insights types
+export * from './insights.js';

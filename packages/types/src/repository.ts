@@ -649,6 +649,13 @@ export interface IClaudeMdRepository {
 // Unit of Work Pattern
 // ============================================
 
+// Import insights repository interfaces
+import type {
+  IDailyStatsRepository,
+  ITechnologyUsageRepository,
+  IAchievementRepository,
+} from './insights.js';
+
 /**
  * Unit of Work - provides access to all repositories
  * with transaction support
@@ -661,6 +668,10 @@ export interface IUnitOfWork {
   userPrompts: IUserPromptRepository;
   taskQueue: ITaskQueueRepository;
   claudemd: IClaudeMdRepository;
+  // Learning insights repositories
+  dailyStats: IDailyStatsRepository;
+  technologyUsage: ITechnologyUsageRepository;
+  achievements: IAchievementRepository;
 
   /**
    * Start a transaction

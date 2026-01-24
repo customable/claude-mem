@@ -23,3 +23,5 @@ export { ExportRouter } from './export.js';
 export type { ExportRouterDeps } from './export.js';
 export { ImportRouter } from './import.js';
 export type { ImportRouterDeps } from './import.js';
+export { InsightsRouter } from './insights.js';
+export type { InsightsRouterDeps } from './insights.js';
