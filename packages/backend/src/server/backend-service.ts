@@ -36,6 +36,7 @@ import {
   PluginsRouter,
   ShareRouter,
   CleanupRouter,
+  MetricsRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -452,6 +453,12 @@ export class BackendService {
     // Cleanup routes (process/memory leak prevention - Issue #101)
     this.app.use('/api/cleanup', new CleanupRouter({
       cleanupService: this.cleanupService!,
+    }).router);
+
+    // Metrics endpoint (Issue #209)
+    this.app.use('/metrics', new MetricsRouter({
+      unitOfWork: this.unitOfWork!,
+      workerHub: this.workerHub!,
     }).router);
 
     // Finalize app (error handlers)

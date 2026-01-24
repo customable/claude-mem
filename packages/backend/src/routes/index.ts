@@ -39,3 +39,5 @@ export { ShareRouter } from './share.js';
 export type { ShareRouterDeps } from './share.js';
 export { CleanupRouter } from './cleanup.js';
 export type { CleanupRouterDeps } from './cleanup.js';
+export { MetricsRouter } from './metrics.js';
+export type { MetricsRouterOptions } from './metrics.js';

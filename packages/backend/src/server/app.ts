@@ -12,6 +12,9 @@ import {
   errorHandler,
   notFoundHandler,
   createAuthMiddleware,
+  requestIdMiddleware,
+  requestLoggerMiddleware,
+  metricsMiddleware,
 } from '../middleware/index.js';
 
 const logger = createLogger('app');
@@ -49,27 +52,14 @@ export function createApp(options: AppOptions = {}): Application {
     }));
   }
 
-  // Request logging
-  app.use((req, res, next) => {
-    // Skip logging for health checks and static assets
-    if (
-      req.path === '/api/health' ||
-      req.path === '/api/core-ready' ||
-      req.path.startsWith('/static/')
-    ) {
-      return next();
-    }
+  // Request ID and tracing (Issue #208)
+  app.use(requestIdMiddleware);
 
-    const start = Date.now();
-    logger.debug(`→ ${req.method} ${req.path}`);
+  // Structured request logging (Issue #208)
+  app.use(requestLoggerMiddleware);
 
-    res.on('finish', () => {
-      const duration = Date.now() - start;
-      logger.debug(`← ${res.statusCode} ${req.path} (${duration}ms)`);
-    });
-
-    next();
-  });
+  // Prometheus metrics collection (Issue #209)
+  app.use(metricsMiddleware);
 
   // Authentication (applied to all /api routes)
   if (options.authToken) {

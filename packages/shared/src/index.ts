@@ -24,3 +24,6 @@ export * from './secret-detector.js';
 
 // Worker Lock
 export * from './worker-lock.js';
+
+// Tracing
+export * from './tracing.js';
