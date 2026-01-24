@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.31.1] - 2026-01-24
+
+### Bug Fixes
+- Filter out empty/null project names in analytics
+
+
 ## [2.31.0] - 2026-01-24
 
 ### Features
