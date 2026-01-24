@@ -27,3 +27,5 @@ export { InsightsRouter } from './insights.js';
 export type { InsightsRouterDeps } from './insights.js';
 export { LazyRouter } from './lazy.js';
 export type { LazyRouterDeps } from './lazy.js';
+export { DecisionsRouter } from './decisions.js';
+export type { DecisionsRouterDeps } from './decisions.js';

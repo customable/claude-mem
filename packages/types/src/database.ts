@@ -106,6 +106,11 @@ export interface ObservationRecord {
   discovery_tokens?: number;
   // Git worktree support
   repo_path?: string;
+  // Decision tracking
+  decision_category?: string;
+  superseded_by?: number;
+  supersedes?: number;
+  superseded_at?: string;
 }
 
 /**

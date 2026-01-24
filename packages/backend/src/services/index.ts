@@ -17,3 +17,6 @@ export type { LazyProcessingStatus, ProcessBatchResult, LazyProcessingServiceDep
 
 export { WorkerProcessManager } from './worker-process-manager.js';
 export type { SpawnedWorker, SpawnedWorkerInfo } from './worker-process-manager.js';
+
+export { DecisionService, createDecisionService } from './decision-service.js';
+export type { DecisionServiceDeps } from './decision-service.js';

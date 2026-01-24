@@ -11,3 +11,4 @@ export { Migration20260124000001_GitWorktreeSupport } from './Migration202601240
 export { Migration20260124000002_CreateCodeSnippetsTable } from './Migration20260124000002_CreateCodeSnippetsTable.js';
 export { Migration20260124000003_CreateInsightsTables } from './Migration20260124000003_CreateInsightsTables.js';
 export { Migration20260124000004_CreateRawMessagesTable } from './Migration20260124000004_CreateRawMessagesTable.js';
+export { Migration20260124000005_AddDecisionTracking } from './Migration20260124000005_AddDecisionTracking.js';

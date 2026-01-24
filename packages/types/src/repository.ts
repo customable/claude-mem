@@ -16,6 +16,8 @@ import type {
   SessionStatus,
 } from './database.js';
 
+import type { DecisionCategory } from './decisions.js';
+
 // ============================================
 // Query Types
 // ============================================
@@ -174,6 +176,8 @@ export interface CreateObservationInput {
   cwd?: string;
   // Git worktree support
   repoPath?: string;
+  // Decision tracking
+  decisionCategory?: DecisionCategory;
 }
 
 /**
@@ -265,6 +269,37 @@ export interface IObservationRepository {
     period: 'day' | 'week' | 'month';
     project?: string;
   }): Promise<Array<{ date: string; observations: number; tokens: number }>>;
+
+  // Decision tracking methods
+
+  /**
+   * Get decisions for a project with optional category filter
+   */
+  getDecisions(project: string, options?: {
+    category?: DecisionCategory;
+    includeSuperseded?: boolean;
+    limit?: number;
+  }): Promise<ObservationRecord[]>;
+
+  /**
+   * Find potentially conflicting decisions
+   */
+  findConflictingDecisions(params: {
+    project: string;
+    text: string;
+    category?: DecisionCategory;
+    limit?: number;
+  }): Promise<ObservationRecord[]>;
+
+  /**
+   * Mark a decision as superseded
+   */
+  supersede(id: number, supersededBy: number): Promise<ObservationRecord | null>;
+
+  /**
+   * Get decision history (including supersession chain)
+   */
+  getDecisionHistory(id: number): Promise<ObservationRecord[]>;
 }
 
 // ============================================

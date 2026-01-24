@@ -11,6 +11,7 @@ import type {
   ObservationQueryFilters,
   QueryOptions,
   ObservationRecord,
+  DecisionCategory,
 } from '@claude-mem/types';
 import { Observation } from '../../entities/Observation.js';
 
@@ -39,6 +40,11 @@ function toRecord(entity: Observation): ObservationRecord {
     cwd: entity.cwd,
     prompt_number: entity.prompt_number,
     discovery_tokens: entity.discovery_tokens,
+    // Decision tracking
+    decision_category: entity.decision_category,
+    superseded_by: entity.superseded_by,
+    supersedes: entity.supersedes,
+    superseded_at: entity.superseded_at,
   };
 }
 
@@ -65,6 +71,8 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       cwd: input.cwd,
       created_at: now.toISOString(),
       created_at_epoch: now.getTime(),
+      // Decision tracking
+      decision_category: input.decisionCategory,
     });
 
     this.em.persist(entity);
@@ -378,5 +386,111 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       observations: Number(r.observations),
       tokens: Number(r.tokens),
     }));
+  }
+
+  // Decision tracking methods
+
+  async getDecisions(project: string, options?: {
+    category?: string;
+    includeSuperseded?: boolean;
+    limit?: number;
+  }): Promise<ObservationRecord[]> {
+    const qb = this.em.createQueryBuilder(Observation, 'o')
+      .where({ project, type: 'decision' });
+
+    if (options?.category) {
+      qb.andWhere({ decision_category: options.category });
+    }
+
+    if (!options?.includeSuperseded) {
+      qb.andWhere({ superseded_by: null });
+    }
+
+    qb.orderBy({ created_at_epoch: 'DESC' });
+
+    if (options?.limit) {
+      qb.limit(options.limit);
+    }
+
+    const entities = await qb.getResult();
+    return entities.map(toRecord);
+  }
+
+  async findConflictingDecisions(params: {
+    project: string;
+    text: string;
+    category?: string;
+    limit?: number;
+  }): Promise<ObservationRecord[]> {
+    // Use FTS5 to find semantically similar decisions
+    const sanitizedQuery = this.sanitizeFts5Query(params.text);
+    const knex = this.em.getKnex();
+
+    let sql = knex('observations as o')
+      .join(knex.raw('observations_fts fts ON o.id = fts.rowid'))
+      .whereRaw('observations_fts MATCH ?', [sanitizedQuery])
+      .andWhere('o.project', params.project)
+      .andWhere('o.type', 'decision')
+      .whereNull('o.superseded_by')
+      .select('o.*')
+      .orderByRaw('rank');
+
+    if (params.category) {
+      sql = sql.andWhere('o.decision_category', params.category);
+    }
+
+    if (params.limit) {
+      sql = sql.limit(params.limit);
+    } else {
+      sql = sql.limit(10);
+    }
+
+    const rows = await sql;
+    return rows as ObservationRecord[];
+  }
+
+  async supersede(id: number, supersededBy: number): Promise<ObservationRecord | null> {
+    const entity = await this.em.findOne(Observation, { id });
+    if (!entity) return null;
+
+    entity.superseded_by = supersededBy;
+    entity.superseded_at = new Date().toISOString();
+
+    // Also update the superseding observation to track what it supersedes
+    const supersedingEntity = await this.em.findOne(Observation, { id: supersededBy });
+    if (supersedingEntity) {
+      supersedingEntity.supersedes = id;
+    }
+
+    await this.em.flush();
+    return toRecord(entity);
+  }
+
+  async getDecisionHistory(id: number): Promise<ObservationRecord[]> {
+    const history: ObservationRecord[] = [];
+    const visited = new Set<number>();
+
+    // Traverse backwards to find older decisions
+    let currentId: number | undefined = id;
+    while (currentId && !visited.has(currentId)) {
+      visited.add(currentId);
+      const foundEntity: Observation | null = await this.em.findOne(Observation, { id: currentId });
+      if (!foundEntity) break;
+      history.unshift(toRecord(foundEntity));
+      currentId = foundEntity.supersedes;
+    }
+
+    // Traverse forwards to find newer decisions
+    const startEntity = await this.em.findOne(Observation, { id });
+    currentId = startEntity?.superseded_by;
+    while (currentId && !visited.has(currentId)) {
+      visited.add(currentId);
+      const nextEntity: Observation | null = await this.em.findOne(Observation, { id: currentId });
+      if (!nextEntity) break;
+      history.push(toRecord(nextEntity));
+      currentId = nextEntity.superseded_by;
+    }
+
+    return history;
   }
 }

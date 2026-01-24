@@ -76,4 +76,17 @@ export class Observation {
   @Property()
   @Index()
   created_at_epoch!: number;
+
+  // Decision tracking (for conflict detection)
+  @Property({ nullable: true })
+  decision_category?: string;
+
+  @Property({ nullable: true })
+  superseded_by?: number;
+
+  @Property({ nullable: true })
+  supersedes?: number;
+
+  @Property({ nullable: true })
+  superseded_at?: string;
 }

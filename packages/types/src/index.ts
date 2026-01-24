@@ -21,3 +21,6 @@ export * from './repository.js';
 
 // Learning insights types
 export * from './insights.js';
+
+// Decision tracking types
+export * from './decisions.js';

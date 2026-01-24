@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -30,6 +30,7 @@ import {
   ImportRouter,
   InsightsRouter,
   LazyRouter,
+  DecisionsRouter,
 } from '../routes/index.js';
 
 const logger = createLogger('backend');
@@ -77,6 +78,7 @@ export class BackendService {
   private workerProcessManager: WorkerProcessManager | null = null;
   private insightsService: InsightsService | null = null;
   private lazyProcessingService: LazyProcessingService | null = null;
+  private decisionService: DecisionService | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -270,6 +272,11 @@ export class BackendService {
         this.unitOfWork.observations
       );
 
+      // Initialize decision service for conflict detection
+      this.decisionService = new DecisionService({
+        uow: this.unitOfWork,
+      });
+
       // Initialize lazy processing service
       this.lazyProcessingService = new LazyProcessingService({
         uow: this.unitOfWork,
@@ -371,6 +378,11 @@ export class BackendService {
     // Lazy mode routes
     this.app.use('/api/lazy', new LazyRouter({
       lazyService: this.lazyProcessingService!,
+    }).router);
+
+    // Decisions routes (conflict detection)
+    this.app.use('/api/decisions', new DecisionsRouter({
+      decisionService: this.decisionService!,
     }).router);
 
     // Finalize app (error handlers)
