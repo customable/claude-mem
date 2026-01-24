@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.15] - 2026-01-24
+
+### Improvements
+- Removed unused `getStatus` method from `BackendService` to streamline the backend code.
+
+
 ## [2.19.14] - 2026-01-24
 
 ### Improvements
