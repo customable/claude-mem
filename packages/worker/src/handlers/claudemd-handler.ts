@@ -42,8 +42,14 @@ export async function handleClaudeMdTask(
   agent: Agent,
   payload: ClaudeMdTaskPayload,
   observations: ObservationData[],
-  summaries: SummaryData[]
+  summaries: SummaryData[],
+  signal?: AbortSignal
 ): Promise<ClaudeMdTask['result']> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
   logger.debug(
     `Generating CLAUDE.md for ${payload.project} with ${observations.length} observations`
   );
@@ -73,6 +79,7 @@ export async function handleClaudeMdTask(
     messages: [{ role: 'user', content: userPrompt }],
     maxTokens: 2048,
     temperature: 0.3,
+    signal,
   });
 
   // Extract content between <claude-mem-context> tags

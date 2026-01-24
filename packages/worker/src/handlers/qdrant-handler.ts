@@ -62,8 +62,14 @@ export interface DataProvider {
 export async function handleQdrantSyncTask(
   qdrantService: QdrantService,
   payload: QdrantSyncTaskPayload,
+  signal?: AbortSignal,
   dataProvider?: DataProvider
 ): Promise<QdrantSyncResult> {
+  // Check for cancellation
+  if (signal?.aborted) {
+    throw new Error('Task cancelled');
+  }
+
   const startTime = Date.now();
 
   // Initialize Qdrant service (loads embedding model, ensures collection)
