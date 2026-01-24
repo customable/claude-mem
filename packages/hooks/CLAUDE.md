@@ -7,47 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #12423 | 10:57 AM | 🔄 | Refactor MCP server implementation | ~6580 |
-| #12421 | 10:57 AM | 🔵 | API Endpoints and Error Handling | ~1338 |
-| #12417 | 10:56 AM | 🔵 | MCP Server Implementation Analysis | ~2534 |
-| #12410 | 10:55 AM | 🔵 | Backend Client Implementation | ~2206 |
-| #12409 | 10:55 AM | 🔄 | Remove duplicate isReady method | ~2505 |
-| #12408 | 10:55 AM | 🔄 | Removed unused logger import | ~2322 |
-| #12405 | 10:54 AM | 🔵 | Logging and readiness checks | ~1875 |
-| #12397 | 10:53 AM | 🔵 | Post-tool-use handler analysis | ~1992 |
-| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory call | ~2229 |
-| #12395 | 10:53 AM | 🔄 | Remove unused parameter | ~2269 |
-| #12243 | 10:31 AM | 🔴 | Add auth header to save_memory | ~3594 |
-| #12242 | 10:31 AM | 🔵 | MCP Server Implementation | ~2985 |
-| #12241 | 10:30 AM | 🟠 | Add JWT authentication | ~3826 |
-| #12240 | 10:30 AM | 🟠 | Add remote backend support | ~4625 |
-| #12239 | 10:30 AM | 🔵 | MCP Server Overview | ~1521 |
-| #12193 | 10:24 AM | 🔵 | MCP entry tools definition | ~1001 |
-| #12142 | 10:18 AM | 🔵 | SSE writer process spawning | ~1151 |
-| #12140 | 10:18 AM | 🔴 | Windows compatibility fix | ~3395 |
-| #12135 | 10:18 AM | 🔵 | SSE Writer Process Analysis | ~1266 |
-| #12128 | 10:17 AM | 🔵 | Stop hook handler analysis | ~1771 |
-| #12112 | 10:16 AM | 🔵 | Session completion handling | ~698 |
-| #12104 | 10:15 AM | 🟠 | Added search_documents tool | ~4254 |
-| #12102 | 10:15 AM | 🟠 | Added search_documents tool | ~4242 |
-| #12096 | 10:14 AM | 🔵 | MCP Server Analysis | ~2816 |
-
-### Jan 23
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #12037 | 11:09 PM | 🔵 | Post-tool-use handler analysis | ~2068 |
-| #12033 | 11:08 PM | 🔵 | Hook system types discovered | ~1379 |
-| #12029 | 11:08 PM | 🔵 | Post-tool-use handler analysis | ~2065 |
-| #12026 | 11:08 PM | 🔵 | User prompt submission handler | ~1236 |
-| #12023 | 11:07 PM | 🔵 | SSE Writer Component Analysis | ~1725 |
-| #12022 | 11:07 PM | 🔵 | Hook Runner Implementation | ~1596 |
+| #13045 | 5:54 PM | 🟣 | Building hooks package | ~698 |
+| #13042 | 5:54 PM | 🔄 | Migrate MCP server tool registration to use Zod validation | ~7090 |
+| #13040 | 5:53 PM | 🔵 | MCP Server Implementation for Memory Search | ~3021 |
+| #13036 | 5:52 PM | 🔵 | MCP Server Implementation Analysis | ~3355 |
+| #13032 | 5:51 PM | 🔄 | Migrate MCP server from deprecated Server to McpServer | ~7171 |
+| #13029 | 5:50 PM | 🔵 | MCP Server Migration in Progress | ~4239 |
+| #12805 | 12:01 PM | 🔄 | Remove Bun dependency and switch to npm for installation | ~6315 |
+| #12792 | 12:00 PM | 🔄 | Remove uv (Python package manager) support from smart-install.js | ~7702 |
+| #12789 | 11:59 AM | 🔵 | Smart Install Script for claude-mem | ~4720 |
+| #12661 | 11:31 AM | 🔵 | Found extractTargetDirectory function in post-tool-use handler | ~2018 |
+| #12657 | 11:30 AM | 🔴 | Fix extractTargetDirectory call by removing redundant toolName parameter | ~2241 |
+| #12656 | 11:30 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2253 |
+| #12653 | 11:30 AM | 🔵 | Understanding target directory extraction logic | ~1055 |
+| #12649 | 11:29 AM | 🔄 | Removed unused logger import from BackendClient | ~2322 |
+| #12645 | 11:29 AM | 🔄 | Remove duplicate isReady method from BackendClient | ~2498 |
+| #12644 | 11:29 AM | 🔵 | Backend Client Implementation Analysis | ~2174 |
+| #12643 | 11:29 AM | 🔵 | Logging and readiness checks in hooks package | ~2188 |
+| #12423 | 10:57 AM | 🔄 | Refactor MCP server implementation to use new SDK API | ~6580 |
+| #12421 | 10:57 AM | 🔵 | API Endpoints and Error Handling in MCP Entry | ~1338 |
+| #12417 | 10:56 AM | 🔵 | MCP Server Implementation for Memory Search Tools | ~2534 |
+| #12410 | 10:55 AM | 🔵 | Backend Client Implementation Analysis | ~2206 |
+| #12409 | 10:55 AM | 🔄 | Remove duplicate isReady method from BackendClient | ~2505 |
+| #12408 | 10:55 AM | 🔄 | Removed unused logger import from BackendClient | ~2322 |
+| #12405 | 10:54 AM | 🔵 | Logging and readiness checks in hooks package | ~1875 |
+| #12397 | 10:53 AM | 🔵 | Post-tool-use handler sends observations to backend | ~1992 |
+| #12396 | 10:53 AM | 🔴 | Fix extractTargetDirectory function call | ~2229 |
+| #12395 | 10:53 AM | 🔄 | Remove unused parameter from extractTargetDirectory | ~2269 |
+| #12243 | 10:31 AM | 🔴 | Add authentication header to save_memory API call | ~3594 |
+| #12242 | 10:30 AM | 🔵 | MCP Server Implementation Analysis | ~2985 |
+| #12241 | 10:30 AM | 🟠 | Add JWT authentication to backend API calls | ~3826 |
 
 ## Key Insights
 
-- **MCP Server Refactoring**: Major refactoring of the MCP server to use the new `McpServer` class and SDK API, improving maintainability and reducing deprecated code usage.
-- **Authentication Enhancements**: Added JWT authentication support for backend API calls, ensuring secure communication with remote services.
-- **Remote Backend Support**: Integrated settings system to support both local and remote backend configurations, enhancing flexibility.
-- **Code Cleanup**: Removed redundant methods (e.g., `isReady`), unused imports, and parameters, improving code clarity and reducing technical debt.
-- **New Features**: Added `search_documents` tool for searching cached documentation, expanding the MCP server's functionality.
+- **MCP Server Migration**: Successfully migrated from deprecated `Server` to `McpServer` and integrated Zod validation for tool registration, improving type safety and input validation.
+- **Dependency Cleanup**: Removed Bun and uv dependencies from `smart-install.js`, simplifying the installation process and reducing external dependencies.
+- **Code Refactoring**: Cleaned up unused imports, parameters, and duplicate methods (e.g., `isReady` in `BackendClient`), improving maintainability.
+- **Authentication Enhancements**: Added JWT authentication support to backend API calls, ensuring secure communication with remote services.
+- **Merge Conflict Resolution**: Resolved multiple merge conflicts in PR branches (e.g., settings.ts, database.ts), ensuring smooth integration into the main branch.
 </claude-mem-context>

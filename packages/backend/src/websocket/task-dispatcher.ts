@@ -76,6 +76,7 @@ export class TaskDispatcher {
     // Wire up hub events
     this.hub.onTaskComplete = this.handleTaskComplete.bind(this);
     this.hub.onTaskError = this.handleTaskError.bind(this);
+    this.hub.onTaskProgress = this.handleTaskProgress.bind(this);
     this.hub.onWorkerConnected = this.handleWorkerConnected.bind(this);
     this.hub.onWorkerDisconnected = this.handleWorkerDisconnected.bind(this);
   }
@@ -417,6 +418,19 @@ export class TaskDispatcher {
       const e = err as Error;
       logger.error(`Error handling task error for ${taskId}:`, { message: e.message });
     }
+  }
+
+  /**
+   * Handle task progress update
+   */
+  private handleTaskProgress(
+    workerId: string,
+    taskId: string,
+    progress: number,
+    message?: string
+  ): void {
+    logger.debug(`Task ${taskId} progress: ${progress}%${message ? ` - ${message}` : ''}`);
+    this.sseBroadcaster?.broadcastTaskProgress(taskId, workerId, progress, message);
   }
 
   /**

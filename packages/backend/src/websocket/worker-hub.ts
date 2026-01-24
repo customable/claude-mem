@@ -39,6 +39,7 @@ export class WorkerHub {
   public onWorkerDisconnected?: (workerId: string) => void;
   public onTaskComplete?: (workerId: string, taskId: string, result: unknown) => void;
   public onTaskError?: (workerId: string, taskId: string, error: string) => void;
+  public onTaskProgress?: (workerId: string, taskId: string, progress: number, message?: string) => void;
   public onWorkerReadyForTermination?: (workerId: string) => void;
 
   constructor(options: WorkerHubOptions = {}) {
@@ -303,7 +304,7 @@ export class WorkerHub {
     message: WorkerToBackendMessage & { type: 'task:progress' }
   ): void {
     logger.debug(`Task ${message.taskId} progress from ${workerId}: ${message.progress}%`);
-    // Could emit event for progress tracking
+    this.onTaskProgress?.(workerId, message.taskId, message.progress, message.message);
   }
 
   /**
