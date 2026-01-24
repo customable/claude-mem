@@ -7,42 +7,43 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #13087 | 6:04 PM | 🔵 | Exploring Hooks Router Implementation | ~2409 |
-| #13076 | 6:03 PM | 🟠 | Added Git worktree support to session start | ~3333 |
-| #12750 | 11:49 AM | 🔵 | Exploring Data Routes Structure | ~973 |
-| #12749 | 11:48 AM | 🔵 | ObservationQueryFilters type usage found | ~731 |
-| #12748 | 11:48 AM | 🟠 | Add ObservationQueryFilters to data route | ~5033 |
-| #12747 | 11:48 AM | 🔄 | Replace inline type with interface | ~4939 |
-| #12746 | 11:47 AM | 🔵 | Observation deletion logic in data.ts | ~1261 |
-| #12744 | 11:47 AM | 🔵 | Examining data deletion logic | ~989 |
-| #12743 | 11:47 AM | 🔴 | Fix date range filter property name | ~5085 |
-| #12205 | 10:26 AM | 🔴 | Added safety check for unconnected workers | ~4278 |
-| #12203 | 10:26 AM | 🔵 | Worker termination logic with busy state | ~1191 |
-| #12196 | 10:25 AM | 🔵 | Search API routes structure discovered | ~3314 |
-| #12182 | 10:23 AM | 🟠 | Added GDPR-compliant observation deletion | ~6088 |
-| #12180 | 10:22 AM | 🔵 | Found getObservation method in data.ts | ~1357 |
-| #12179 | 10:22 AM | 🔵 | API endpoint for observation retrieval | ~1061 |
-| #12178 | 10:22 AM | 🟠 | Added DELETE endpoints for observations | ~5116 |
-| #12177 | 10:22 AM | 🔵 | Backend API routes structure discovered | ~1513 |
-| #12171 | 10:21 AM | 🔵 | Discovered API endpoints for deletion | ~2527 |
-| #12170 | 10:21 AM | 🔵 | Discovered DELETE endpoints in data routes | ~971 |
-| #12169 | 10:21 AM | 🔵 | Found DELETE route handlers in backend | ~710 |
-| #12139 | 10:18 AM | 🔵 | Worker spawning mechanism found | ~846 |
-| #12101 | 10:15 AM | 🔵 | Discovered searchDocuments endpoint | ~1367 |
-| #12100 | 10:15 AM | 🔵 | Found search endpoint implementation | ~1260 |
-
-### Jan 23, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #12021 | 11:07 PM | 🔵 | Examining Data Router Structure | ~1949 |
-| #12011 | 11:07 PM | 🔵 | Examining Hooks Router Implementation | ~1761 |
+| #13779 | 8:37 PM | 🔄 | Optimize analytics timeline with SQL aggregation | ~6216 |
+| #13775 | 8:37 PM | 🔵 | Analytics timeline endpoint implementation | ~1535 |
+| #13767 | 8:33 PM | 🟣 | Increased data fetch limit from 10,000 to 100,000 | ~5176 |
+| #13765 | 8:33 PM | 🔵 | Analytics API endpoints for timeline, types, and projects | ~2026 |
+| #13761 | 8:32 PM | 🔵 | Analytics endpoints found in data.ts | ~2174 |
+| #13757 | 8:32 PM | 🔵 | Analytics-related code found in backend routes | ~755 |
+| #13738 | 8:27 PM | 🔵 | Insights Router Structure and Endpoints | ~2170 |
+| #13623 | 7:34 PM | 🔵 | Discovered backend route structure and available routers | ~1155 |
+| #13622 | 7:34 PM | 🟠 | Added InsightsRouter exports to routes module | ~1462 |
+| #13614 | 7:33 PM | 🟠 | Created Insights Router for learning insights dashboard | ~3459 |
+| #13612 | 7:33 PM | 🔵 | Exploring Data Router Structure | ~1475 |
+| #13519 | 7:21 PM | 🔵 | Document search and deletion endpoints discovered | ~1184 |
+| #13513 | 7:21 PM | 🟠 | Added code snippet endpoints to data routes | ~6296 |
+| #13510 | 7:20 PM | 🟠 | Added ICodeSnippetRepository to data route imports | ~5009 |
+| #13509 | 7:20 PM | 🟠 | Added code snippets API endpoints to data routes | ~5392 |
+| #13508 | 7:20 PM | 🔵 | Backend API routes for data endpoints discovered | ~1247 |
+| #13507 | 7:20 PM | 🟠 | Added codeSnippets repository to DataRouterDeps interface | ~5087 |
+| #13506 | 7:20 PM | 🔵 | Exploring Data Router Structure and API Endpoints | ~1778 |
+| #13390 | 7:01 PM | 🟠 | Implemented cached context retrieval in getContext endpoint | ~3610 |
+| #13385 | 7:00 PM | 🟠 | Add IClaudeMdRepository dependency to HooksRouter | ~3013 |
+| #13378 | 6:58 PM | 🔵 | Exploring Hooks Router Implementation | ~2446 |
+| #13230 | 6:30 PM | 🔵 | Analytics endpoint implementation for project statistics | ~1334 |
+| #13224 | 6:29 PM | 🔴 | Filter out empty/null project names in analytics | ~5146 |
+| #13222 | 6:29 PM | 🔵 | Found '/projects' route in data.ts | ~729 |
+| #13221 | 6:29 PM | 🔴 | Filter out empty/null project names in listProjects | ~5155 |
+| #13220 | 6:29 PM | 🔵 | Discovered project listing endpoint in data routes | ~864 |
+| #13219 | 6:29 PM | 🔵 | Discovered listProjects endpoint implementation | ~1317 |
+| #13218 | 6:29 PM | 🔵 | API endpoint for listing observations discovered | ~1224 |
+| #13216 | 6:29 PM | 🔵 | Found analytics projects endpoint in data routes | ~828 |
+| #13118 | 6:11 PM | 🔵 | Examining Data Router Implementation | ~5057 |
 
 ## Key Insights
 
-- **API Expansion**: Added GDPR-compliant observation deletion endpoints and Git worktree support, enhancing data management and compliance.
-- **Code Quality**: Refactored inline types to use shared interfaces (e.g., `ObservationQueryFilters`), improving maintainability.
-- **Bug Fixes**: Resolved worker termination logic and date range filter inconsistencies for better stability.
-- **Discovery**: Mapped out backend API routes (sessions, observations, documents) and search endpoints (text/semantic).
-- **Next Steps**: Merge resolved PRs (e.g., MCP server migration, refactoring) and verify build stability post-dependency updates.
+- **Analytics Optimization**: Refactored `getAnalyticsTimeline` to use SQL aggregation, improving performance by offloading processing to the database.
+- **Data Fetch Limits**: Increased API fetch limits from 10,000 to 100,000 records to support larger datasets.
+- **Insights Dashboard**: Added a new `InsightsRouter` for learning analytics, including summary stats, activity tracking, and heatmap visualizations.
+- **Code Snippets**: Expanded API with CRUD endpoints for code snippet management, integrating `ICodeSnippetRepository`.
+- **Bug Fixes**: Resolved issues with empty/null project names in analytics and fixed a duplicate `observation_id` bug in `CodeSnippet` entity.
+- **Real-Time Updates**: Identified gaps in SSE integration for insights; next steps include implementing real-time broadcasting.
 </claude-mem-context>

@@ -85,7 +85,7 @@ export interface AchievementDefinition {
   name: string;
   description: string;
   icon: string;
-  category: 'activity' | 'learning' | 'milestone' | 'streak';
+  category: 'activity' | 'learning' | 'milestone' | 'streak' | 'special';
   threshold?: number; // For progress-based achievements
 }
 
