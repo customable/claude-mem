@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.20] - 2026-01-24
+
+### Bug Fixes
+- Removed unused functions from `settings.ts`
+
+### Improvements
+- Updated `vite` dependency to `^7.3.1`
+
+
 ## [2.19.19] - 2026-01-24
 
 ### Improvements
