@@ -307,6 +307,7 @@ export class BackendService {
     this.app.use('/api/hooks', new HooksRouter({
       sessionService: this.sessionService!,
       taskService: this.taskService!,
+      claudemd: this.unitOfWork!.claudemd,
     }).router);
 
     // Data routes
