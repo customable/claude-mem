@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.47.0] - 2026-01-24
+
+### Features
+- Enhanced worker capability display
+- Added configurable worker capability profiles
+- Improved FTS5 search with BM25 ranking and highlighting
+- Implemented SubagentStart and SubagentStop hooks
+- Added Watchtower auto-update support
+
+### Bug Fixes
+- Excluded pendingTermination workers from task assignment
+
+### Improvements
+- Decoupled abstract capabilities from providers
+
+
 ## [2.46.0] - 2026-01-24
 
 ### Features
