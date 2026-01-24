@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.40.1] - 2026-01-24
+
+### Bug Fixes
+- Handle undefined `head_commit.message` in workflows
+- Handle `import.meta.url` being undefined in bundled CJS
+
+
 ## [2.40.0] - 2026-01-24
 
 ### Features
