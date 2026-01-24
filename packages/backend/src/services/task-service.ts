@@ -325,7 +325,7 @@ export class TaskService {
     types?: string[];
     minScore?: number;
     timeoutMs?: number;
-  }): Promise<SemanticSearchTask['result']> {
+  }): Promise<NonNullable<SemanticSearchTask['result']>> {
     const timeoutMs = params.timeoutMs ?? 30000; // 30 second default timeout
 
     const task = await this.taskQueue.create<SemanticSearchTask>({
