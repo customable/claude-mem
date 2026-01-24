@@ -32,7 +32,7 @@ export class MikroOrmDatabase {
     this.orm = await MikroORM.init(config as Parameters<typeof MikroORM.init>[0]);
 
     // Run pending migrations
-    const migrator = this.orm.getMigrator();
+    const migrator = this.orm.migrator;
     const pendingMigrations = await migrator.getPendingMigrations();
 
     if (pendingMigrations.length > 0) {
@@ -52,13 +52,6 @@ export class MikroOrmDatabase {
   }
 
   /**
-   * Check if database is connected
-   */
-  async isConnected(): Promise<boolean> {
-    return this.orm !== null && await this.orm.isConnected();
-  }
-
-  /**
    * Get the UnitOfWork instance
    */
   get unitOfWork(): MikroOrmUnitOfWork {
@@ -66,26 +59,6 @@ export class MikroOrmDatabase {
       throw new Error('Database not initialized. Call initialize() first.');
     }
     return this._unitOfWork;
-  }
-
-  /**
-   * Get a fresh EntityManager (forked for request isolation)
-   */
-  getEntityManager(): SqlEntityManager {
-    if (!this.orm) {
-      throw new Error('Database not initialized. Call initialize() first.');
-    }
-    return this.orm.em.fork() as SqlEntityManager;
-  }
-
-  /**
-   * Get the underlying MikroORM instance
-   */
-  getOrm(): MikroORM {
-    if (!this.orm) {
-      throw new Error('Database not initialized. Call initialize() first.');
-    }
-    return this.orm;
   }
 
   /**
@@ -98,51 +71,6 @@ export class MikroOrmDatabase {
       this._unitOfWork = null;
       logger.info('MikroORM connection closed');
     }
-  }
-
-  /**
-   * Run a function within a transaction
-   */
-  async transaction<T>(fn: (em: SqlEntityManager) => Promise<T>): Promise<T> {
-    if (!this.orm) {
-      throw new Error('Database not initialized. Call initialize() first.');
-    }
-
-    const em = this.orm.em.fork() as SqlEntityManager;
-    return em.transactional(fn);
-  }
-
-  /**
-   * Check and run migrations if needed
-   */
-  async runMigrations(): Promise<void> {
-    if (!this.orm) {
-      throw new Error('Database not initialized. Call initialize() first.');
-    }
-
-    const migrator = this.orm.getMigrator();
-    await migrator.up();
-  }
-
-  /**
-   * Get migration status
-   */
-  async getMigrationStatus(): Promise<{
-    executed: string[];
-    pending: string[];
-  }> {
-    if (!this.orm) {
-      throw new Error('Database not initialized. Call initialize() first.');
-    }
-
-    const migrator = this.orm.getMigrator();
-    const executed = await migrator.getExecutedMigrations();
-    const pending = await migrator.getPendingMigrations();
-
-    return {
-      executed: executed.map(m => m.name),
-      pending: pending.map(m => m.name),
-    };
   }
 }
 
