@@ -7,9 +7,6 @@
 // Database types
 export * from './database.js';
 
-// API types
-export * from './api.js';
-
 // WebSocket protocol types
 export * from './websocket.js';
 

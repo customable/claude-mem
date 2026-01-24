@@ -34,8 +34,8 @@ RUN pnpm --filter @claude-mem/database build
 RUN pnpm --filter @claude-mem/backend build
 RUN pnpm --filter @claude-mem/ui build
 
-# Production image - use bun for runtime (faster)
-FROM oven/bun:1-slim
+# Production image
+FROM node:22-slim
 
 WORKDIR /app
 
@@ -74,7 +74,7 @@ EXPOSE 37777
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-  CMD bun -e "fetch('http://localhost:37777/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+  CMD node -e "fetch('http://localhost:37777/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 
 # Run backend
-CMD ["bun", "packages/backend/dist/backend-service.js", "start"]
+CMD ["node", "packages/backend/dist/backend-service.js", "start"]

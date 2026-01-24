@@ -56,10 +56,10 @@ interface ObservationResponse {
 }
 
 /**
- * Extract target directory from tool input based on tool type.
+ * Extract target directory from tool input.
  * Returns the directory where the tool operated (not the cwd).
  */
-function extractTargetDirectory(toolName: string, toolInput: string): string | undefined {
+function extractTargetDirectory(toolInput: string): string | undefined {
   try {
     const input = JSON.parse(toolInput);
 
@@ -124,7 +124,7 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
     const gitBranch = getGitBranch(input.cwd);
 
     // Extract target directory from tool input (for subdirectory CLAUDE.md)
-    const targetDirectory = extractTargetDirectory(input.toolName, input.toolInput || '');
+    const targetDirectory = extractTargetDirectory(input.toolInput || '');
 
     // Send observation
     const response = await client.post<ObservationResponse>('/api/hooks/observation', {

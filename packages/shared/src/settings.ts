@@ -374,13 +374,6 @@ export class SettingsManager {
   }
 
   /**
-   * Get default value for a setting
-   */
-  getDefault<K extends SettingKey>(key: K): SettingValue<K> {
-    return DEFAULTS[key];
-  }
-
-  /**
    * Update settings (in memory only)
    */
   set<K extends SettingKey>(key: K, value: SettingValue<K>): void {
@@ -407,12 +400,6 @@ export class SettingsManager {
     }
   }
 
-  /**
-   * Reload settings from file
-   */
-  reload(): void {
-    this.settings = this.loadSettings();
-  }
 }
 
 // ============================================
@@ -429,20 +416,6 @@ export function getSettings(): SettingsManager {
     _instance = new SettingsManager();
   }
   return _instance;
-}
-
-/**
- * Reset the global settings instance (for testing)
- */
-export function resetSettings(): void {
-  _instance = null;
-}
-
-/**
- * Create a new settings manager with custom path
- */
-export function createSettingsManager(settingsPath: string): SettingsManager {
-  return new SettingsManager(settingsPath);
 }
 
 /**
@@ -467,28 +440,3 @@ export function saveSettings(settings: Partial<Settings>): void {
   manager.save();
 }
 
-/**
- * Generate a random auth token
- */
-export function generateAuthToken(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < 32; i++) {
-    token += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return token;
-}
-
-/**
- * Ensure a worker auth token exists
- * Generates and saves one if not present
- */
-export function ensureWorkerAuthToken(): string {
-  const settings = loadSettings();
-  if (!settings.WORKER_AUTH_TOKEN) {
-    const token = generateAuthToken();
-    saveSettings({ WORKER_AUTH_TOKEN: token });
-    return token;
-  }
-  return settings.WORKER_AUTH_TOKEN;
-}

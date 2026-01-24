@@ -1,0 +1,45 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommits",
+    ":automergeMinor",
+    "group:allNonMajor"
+  ],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on monday"]
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    },
+    {
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["^@types/"],
+      "automerge": true
+    },
+    {
+      "matchPackagePatterns": ["eslint", "prettier", "typescript"],
+      "groupName": "linting & formatting"
+    },
+    {
+      "matchPackagePatterns": ["vite", "@vitejs/"],
+      "groupName": "vite"
+    },
+    {
+      "matchPackagePatterns": ["react", "react-dom", "@types/react"],
+      "groupName": "react"
+    }
+  ],
+  "schedule": ["before 6am"],
+  "timezone": "Europe/Berlin",
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 5
+}
