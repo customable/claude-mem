@@ -11,6 +11,7 @@ import { createLogger, getSettings } from '@claude-mem/shared';
 import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType } from '@claude-mem/types';
 import { createHash } from 'crypto';
 import type { WorkerHub } from './worker-hub.js';
+import type { ConnectedWorker } from './types.js';
 import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
 import type { TaskService } from '../services/task-service.js';
 
@@ -37,6 +38,8 @@ export interface TaskDispatcherOptions {
   taskService?: TaskService;
   /** CLAUDE.md repository for storing generated content */
   claudemd?: IClaudeMdRepository;
+  /** Callback to link spawned worker to hub worker */
+  onWorkerLinked?: (spawnedId: string, hubWorkerId: string) => void;
 }
 
 export class TaskDispatcher {
@@ -53,6 +56,7 @@ export class TaskDispatcher {
   private readonly documents?: IDocumentRepository;
   private readonly taskService?: TaskService;
   private readonly claudemd?: IClaudeMdRepository;
+  private readonly onWorkerLinked?: (spawnedId: string, hubWorkerId: string) => void;
 
   // Track observation counts per session for CLAUDE.md generation
   private sessionObservationCounts: Map<string, number> = new Map();
@@ -72,6 +76,7 @@ export class TaskDispatcher {
     this.documents = options.documents;
     this.taskService = options.taskService;
     this.claudemd = options.claudemd;
+    this.onWorkerLinked = options.onWorkerLinked;
 
     // Wire up hub events
     this.hub.onTaskComplete = this.handleTaskComplete.bind(this);
@@ -396,12 +401,12 @@ export class TaskDispatcher {
           error,
           retryCount: newRetryCount,
         });
-        logger.error(`Task ${taskId} failed after ${newRetryCount} retries: ${error}`);
+        logger.error(`Task ${taskId} from worker ${workerId} failed after ${newRetryCount} retries: ${error}`);
 
         // Broadcast failure event
         this.sseBroadcaster?.broadcast({
           type: 'task:failed',
-          data: { taskId, error, retries: newRetryCount },
+          data: { taskId, workerId, error, retries: newRetryCount },
         });
       } else {
         // Reset to pending for retry
@@ -409,7 +414,7 @@ export class TaskDispatcher {
           error,
           retryCount: newRetryCount,
         });
-        logger.warn(`Task ${taskId} failed (attempt ${newRetryCount}/${task.maxRetries}): ${error}`);
+        logger.warn(`Task ${taskId} from worker ${workerId} failed (attempt ${newRetryCount}/${task.maxRetries}): ${error}`);
       }
 
       // Trigger another dispatch cycle
@@ -540,10 +545,17 @@ export class TaskDispatcher {
   /**
    * Handle worker connection - dispatch any pending tasks
    */
-  private handleWorkerConnected(worker: { id: string; capabilities: string[] }): void {
+  private handleWorkerConnected(worker: ConnectedWorker): void {
     logger.debug('Worker connected, checking for pending tasks');
     // Broadcast SSE event
     this.sseBroadcaster?.broadcastWorkerConnected(worker.id, worker.capabilities);
+
+    // Link spawned worker to hub worker if spawnedId is in metadata
+    const spawnedId = worker.metadata?.spawnedId as string | undefined;
+    if (spawnedId && this.onWorkerLinked) {
+      this.onWorkerLinked(spawnedId, worker.id);
+    }
+
     this.dispatchPendingTasks();
   }
 

@@ -8,10 +8,12 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
+import type { IClaudeMdRepository } from '@claude-mem/types';
 
 export interface HooksRouterDeps {
   sessionService: SessionService;
   taskService: TaskService;
+  claudemd: IClaudeMdRepository;
 }
 
 export class HooksRouter extends BaseRouter {
@@ -147,15 +149,25 @@ export class HooksRouter extends BaseRouter {
       this.badRequest('Missing required query parameter: project');
     }
 
-    // Queue context generation task
+    // Check for cached context first
+    const cached = await this.deps.claudemd.getByProject(project);
+
+    if (cached) {
+      // Return cached context immediately
+      this.success(res, {
+        context: cached.content,
+        cached: true,
+        cachedAt: cached.generated_at,
+      });
+      return;
+    }
+
+    // No cached context - queue generation task
     const task = await this.deps.taskService.queueContextGenerate({ project });
 
-    // For now, return immediately - context will be generated async
-    // In the future, could wait for task completion or use cached context
     this.success(res, {
       taskId: task.id,
       message: 'Context generation queued',
-      // TODO: Return cached context if available
     });
   }
 
