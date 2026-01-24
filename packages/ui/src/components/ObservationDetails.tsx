@@ -14,6 +14,7 @@ import {
   shortenPath,
   extractDomain,
 } from '../utils/observation';
+import { CodeSnippets } from './CodeSnippets';
 
 type ViewMode = 'narrative' | 'facts';
 
@@ -222,6 +223,9 @@ export function ObservationDetails({
               <p className="text-sm text-base-content/70 whitespace-pre-wrap">{observation.text}</p>
             </div>
           )}
+
+          {/* Code Snippets */}
+          <CodeSnippets observationId={observation.id} project={observation.project} />
         </>
       )}
 
