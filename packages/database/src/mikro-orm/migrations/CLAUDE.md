@@ -5,25 +5,31 @@
 
 ### Jan 24, 2026
 
-| ID      | Time       | T    | Title                                      | Read      |
-|---------|------------|------|--------------------------------------------|-----------|
-| #12444  | 11:01 AM   | 🔄   | Remove migration array export              | ~2127     |
-| #12440  | 11:00 AM   | 🔵   | Database migration structure discovered    | ~1222     |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #13059 | 5:59 PM | 🟠 | Add Git worktree migration | ~1696 |
+| #13058 | 5:59 PM | 🔵 | Migration structure discovered | ~1060 |
+| #13057 | 5:59 PM | 🟠 | Git worktree DB support | ~2061 |
+| #13056 | 5:59 PM | 🔵 | working_directory column added | ~1017 |
+| #12636 | 11:28 AM | 🔄 | Remove migration list export | ~2127 |
+| #12632 | 11:28 AM | 🔵 | Database migration structure | ~1203 |
 
 ### Jan 23, 2026
 
-| ID      | Time       | T    | Title                                      | Read      |
-|---------|------------|------|--------------------------------------------|-----------|
-| #11928  | 10:50 PM   | 🟠   | Add documents table migration               | ~3016     |
-| #11927  | 10:50 PM   | 🟠   | Create documents table for caching         | ~1872     |
-| #11926  | 10:50 PM   | 🔵   | Database migration structure discovered    | ~1125     |
-| #11924  | 10:50 PM   | 🔵   | Migration adds session-request type        | ~1770     |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #12444 | 11:01 AM | 🔄 | Remove migration array export | ~2127 |
+| #12440 | 11:00 AM | 🔵 | Database migration structure | ~1222 |
+| #11928 | 10:50 PM | 🟠 | Add documents table migration | ~3016 |
+| #11927 | 10:50 PM | 🟠 | Create documents table | ~1872 |
+| #11926 | 10:50 PM | 🔵 | Migration structure discovered | ~1125 |
+| #11924 | 10:50 PM | 🔵 | Session-request type added | ~1770 |
 
 ## Key Insights
 
-- **Database Evolution**: The project uses MikroORM for migrations, with recent additions including a `documents` table for caching MCP documentation and enhancements to the `observations` table (e.g., `session-request` type and `cwd` field).
-- **Refactoring Focus**: Recent work emphasizes cleaning up deprecated MikroORM methods, removing unused exports, and reducing redundant code (e.g., migration array exports).
-- **Caching Strategy**: The new `documents` table suggests a shift toward caching MCP documentation, likely to improve performance or offline access.
-- **Session Tracking**: Enhancements to the `observations` table (e.g., `cwd` field) indicate improved tracking of working directories and session requests.
-- **Next Steps**: Prioritize merging refactored branches, reviewing pending PRs, and continuing to address architectural improvements and unused code.
+- **Git Worktree Support Added**: New migration introduces Git worktree functionality with repo_path, is_worktree, and branch columns in sdk_sessions and observations tables.
+- **Database Schema Evolution**: Multiple migrations show active schema development, including documents table for MCP documentation caching and session-request observation type.
+- **Migration Refactoring**: Cleanup of migration index file by removing redundant migration array exports while maintaining individual migration exports.
+- **MCP Server Migration**: Recent sessions show successful migration from deprecated `Server` to `McpServer` with Zod validation integration.
+- **Merge Conflict Resolution**: Multiple PR branches resolved and ready for merging into main after addressing merge conflicts in key files (settings.ts, database.ts).
 </claude-mem-context>
