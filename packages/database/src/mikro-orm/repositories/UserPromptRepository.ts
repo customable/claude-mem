@@ -21,6 +21,7 @@ function toRecord(entity: UserPrompt): UserPromptRecord {
     prompt_text: entity.prompt_text,
     created_at: entity.created_at,
     created_at_epoch: entity.created_at_epoch,
+    is_urgent: entity.is_urgent,
   };
 }
 
@@ -41,6 +42,9 @@ export class MikroOrmUserPromptRepository implements IUserPromptRepository {
       existing.prompt_text = input.promptText;
       existing.created_at = now.toISOString();
       existing.created_at_epoch = now.getTime();
+      if (input.isUrgent !== undefined) {
+        existing.is_urgent = input.isUrgent;
+      }
       await this.em.flush();
       return toRecord(existing);
     }
@@ -52,6 +56,7 @@ export class MikroOrmUserPromptRepository implements IUserPromptRepository {
       prompt_text: input.promptText,
       created_at: now.toISOString(),
       created_at_epoch: now.getTime(),
+      is_urgent: input.isUrgent ?? false,
     });
 
     this.em.persist(entity);

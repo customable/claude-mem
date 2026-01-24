@@ -28,4 +28,9 @@ export class UserPrompt {
   @Property()
   @Index()
   created_at_epoch!: number;
+
+  /** Whether this prompt was detected as urgent (CAPSLOCK) - Issue #233 */
+  @Property({ default: false })
+  @Index()
+  is_urgent: boolean = false;
 }

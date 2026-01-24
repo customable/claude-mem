@@ -54,7 +54,7 @@ export class HooksRouter extends BaseRouter {
       this.badRequest('Missing required fields: sessionId, project');
     }
 
-    const { project, userPrompt, prompt, cwd, repoPath, isWorktree, branch } = req.body;
+    const { project, userPrompt, prompt, cwd, repoPath, isWorktree, branch, isUrgent } = req.body;
 
     const session = await this.deps.sessionService.startSession({
       contentSessionId,
@@ -65,6 +65,8 @@ export class HooksRouter extends BaseRouter {
       repoPath,
       isWorktree,
       branch,
+      // CAPSLOCK/urgent detection (Issue #233)
+      isUrgent: isUrgent === true,
     });
 
     this.success(res, {

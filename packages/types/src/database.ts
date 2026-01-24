@@ -242,6 +242,8 @@ export interface UserPromptRecord {
   prompt_number: number;
   prompt_text: string;
   project?: string;
+  /** Whether this prompt was detected as urgent (CAPSLOCK) - Issue #233 */
+  is_urgent?: boolean;
   created_at: string;
   created_at_epoch: number;
 }

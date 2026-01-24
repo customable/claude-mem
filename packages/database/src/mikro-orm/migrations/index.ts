@@ -17,3 +17,4 @@ export { Migration20260124000007_AddImportanceScoring } from './Migration2026012
 export { Migration20260124000008_CreateObservationLinksTable } from './Migration20260124000008_CreateObservationLinksTable.js';
 export { Migration20260124000009_CreateTemplatesTable } from './Migration20260124000009_CreateTemplatesTable.js';
 export { Migration20260124000010_CreateProjectSettingsTable } from './Migration20260124000010_CreateProjectSettingsTable.js';
+export { Migration20260124000011_AddUrgentPromptField } from './Migration20260124000011_AddUrgentPromptField.js';

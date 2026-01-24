@@ -41,6 +41,7 @@ import { Migration20260124000007_AddImportanceScoring } from './mikro-orm/migrat
 import { Migration20260124000008_CreateObservationLinksTable } from './mikro-orm/migrations/Migration20260124000008_CreateObservationLinksTable.js';
 import { Migration20260124000009_CreateTemplatesTable } from './mikro-orm/migrations/Migration20260124000009_CreateTemplatesTable.js';
 import { Migration20260124000010_CreateProjectSettingsTable } from './mikro-orm/migrations/Migration20260124000010_CreateProjectSettingsTable.js';
+import { Migration20260124000011_AddUrgentPromptField } from './mikro-orm/migrations/Migration20260124000011_AddUrgentPromptField.js';
 
 /**
  * Database configuration options
@@ -100,6 +101,7 @@ export const migrationsList = [
   Migration20260124000008_CreateObservationLinksTable,
   Migration20260124000009_CreateTemplatesTable,
   Migration20260124000010_CreateProjectSettingsTable,
+  Migration20260124000011_AddUrgentPromptField,
 ];
 
 /**

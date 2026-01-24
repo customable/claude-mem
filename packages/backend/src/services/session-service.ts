@@ -64,6 +64,8 @@ export class SessionService {
     repoPath?: string;
     isWorktree?: boolean;
     branch?: string;
+    // CAPSLOCK/urgent detection (Issue #233)
+    isUrgent?: boolean;
   }): Promise<SdkSessionRecord> {
     // Check for existing session
     let session = await this.sessions.findByContentSessionId(params.contentSessionId);
@@ -94,6 +96,7 @@ export class SessionService {
           contentSessionId: params.contentSessionId,
           promptNumber: newCounter,
           promptText: cleanedPrompt!,
+          isUrgent: params.isUrgent,
         });
 
         this.sseBroadcaster.broadcastNewPrompt(
@@ -139,6 +142,7 @@ export class SessionService {
         contentSessionId: params.contentSessionId,
         promptNumber: 1,
         promptText: cleanedPrompt!,
+        isUrgent: params.isUrgent,
       });
     }
 

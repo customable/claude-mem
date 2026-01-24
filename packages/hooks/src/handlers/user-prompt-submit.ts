@@ -28,6 +28,26 @@ interface SessionInitResponse {
 }
 
 /**
+ * Detect if a prompt is "urgent" based on CAPSLOCK usage (Issue #233)
+ * Returns true if the prompt has a high ratio of uppercase letters
+ */
+function detectUrgentPrompt(prompt: string): boolean {
+  // Skip short prompts (e.g., "OK", "YES")
+  if (prompt.length < 10) return false;
+
+  // Extract only letters (ignore numbers, punctuation, whitespace)
+  const letters = prompt.replace(/[^a-zA-Z]/g, '');
+  if (letters.length < 5) return false;
+
+  // Count uppercase letters
+  const uppercase = letters.replace(/[^A-Z]/g, '').length;
+  const ratio = uppercase / letters.length;
+
+  // Threshold: 70% uppercase = urgent
+  return ratio >= 0.7;
+}
+
+/**
  * Handle user prompt submit
  */
 export async function handleUserPromptSubmit(input: HookInput): Promise<HookResult> {
@@ -78,12 +98,19 @@ export async function handleUserPromptSubmit(input: HookInput): Promise<HookResu
       }
     }
 
+    // Detect CAPSLOCK/urgent prompts (Issue #233)
+    const isUrgent = prompt ? detectUrgentPrompt(prompt) : false;
+    if (isUrgent) {
+      logger.debug('Detected urgent/CAPSLOCK prompt');
+    }
+
     // Initialize session with repo info
     const response = await client.post<SessionInitResponse>('/api/hooks/session-init', {
       sessionId: input.sessionId,
       project: input.project,
       cwd: input.cwd,
       prompt,
+      isUrgent,
       // Git worktree info
       repoPath: repoInfo?.repoPath,
       isWorktree: repoInfo?.isWorktree,

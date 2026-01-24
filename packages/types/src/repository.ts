@@ -573,6 +573,8 @@ export interface CreateUserPromptInput {
   contentSessionId: string;
   promptNumber: number;
   promptText: string;
+  /** Whether this prompt was detected as urgent (CAPSLOCK) - Issue #233 */
+  isUrgent?: boolean;
 }
 
 /**
