@@ -7,7 +7,13 @@
 
 import { execSync } from 'child_process';
 import * as path from 'path';
-import { createLogger } from '@claude-mem/shared';
+import {
+  createLogger,
+  loadSettings,
+  processSecrets,
+  createSecretsSummary,
+  type SecretDetectorConfig,
+} from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
@@ -126,13 +132,46 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
     // Extract target directory from tool input (for subdirectory CLAUDE.md)
     const targetDirectory = extractTargetDirectory(input.toolInput || '');
 
+    // Process tool input and output for secrets
+    const settings = loadSettings();
+    const secretConfig: SecretDetectorConfig = {
+      enabled: settings.SECRET_DETECTION_ENABLED,
+      mode: settings.SECRET_DETECTION_MODE,
+    };
+
+    let toolInput = input.toolInput || '';
+    let toolOutput = input.toolOutput || '';
+
+    if (secretConfig.enabled) {
+      const inputResult = processSecrets(toolInput, secretConfig);
+      const outputResult = processSecrets(toolOutput, secretConfig);
+
+      // Log if secrets were detected
+      if (inputResult.secretsFound) {
+        logger.warn(`Secrets detected in tool input: ${createSecretsSummary(inputResult.matches)}`);
+      }
+      if (outputResult.secretsFound) {
+        logger.warn(`Secrets detected in tool output: ${createSecretsSummary(outputResult.matches)}`);
+      }
+
+      // Handle based on mode
+      if (secretConfig.mode === 'skip' && (inputResult.secretsFound || outputResult.secretsFound)) {
+        logger.info('Skipping observation due to detected secrets');
+        return skip();
+      }
+
+      // Use processed (potentially redacted) text
+      toolInput = inputResult.text;
+      toolOutput = outputResult.text;
+    }
+
     // Send observation
     const response = await client.post<ObservationResponse>('/api/hooks/observation', {
       sessionId: input.sessionId,
       project: input.project,
       toolName: input.toolName,
-      toolInput: input.toolInput || '',
-      toolOutput: input.toolOutput || '',
+      toolInput,
+      toolOutput,
       gitBranch,
       cwd: input.cwd,
       targetDirectory,
