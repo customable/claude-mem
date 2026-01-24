@@ -18,3 +18,6 @@ export { createAuthMiddleware, requireLocalhost } from './auth.js';
 export { requestIdMiddleware } from './request-id.js';
 export { requestLoggerMiddleware } from './request-logger.js';
 export { metricsMiddleware } from './metrics.js';
+
+export { withCache, noCache, cacheHeaders } from './cache.js';
+export type { CacheMiddlewareOptions } from './cache.js';

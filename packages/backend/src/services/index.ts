@@ -34,3 +34,15 @@ export type { ShareServiceDeps } from './share-service.js';
 
 export { CleanupService, createCleanupService } from './cleanup-service.js';
 export type { CleanupServiceDeps, CleanupResult, CleanupConfig } from './cleanup-service.js';
+
+export {
+  ResponseCache,
+  CacheManager,
+  cacheManager,
+  projectCache,
+  analyticsCache,
+  searchCache,
+  statsCache,
+  createCacheKey,
+} from './cache-service.js';
+export type { CacheOptions, CacheStats } from './cache-service.js';

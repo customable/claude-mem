@@ -9,6 +9,13 @@ import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
 import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
+import {
+  cacheManager,
+  projectCache,
+  analyticsCache,
+  statsCache,
+  createCacheKey,
+} from '../services/cache-service.js';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -265,6 +272,9 @@ export class DataRouter extends BaseRouter {
       this.notFound(`Session not found: ${id}`);
     }
 
+    // Invalidate caches (Issue #203)
+    cacheManager.invalidateAll('');
+
     this.noContent(res);
   }
 
@@ -329,6 +339,9 @@ export class DataRouter extends BaseRouter {
       this.notFound(`Observation not found: ${id}`);
     }
 
+    // Invalidate caches (Issue #203)
+    cacheManager.invalidateAll('');
+
     this.noContent(res);
   }
 
@@ -377,6 +390,9 @@ export class DataRouter extends BaseRouter {
         if (deleted) deletedCount++;
       }
     }
+
+    // Invalidate caches (Issue #203)
+    cacheManager.invalidateAll('');
 
     this.success(res, { deleted: deletedCount });
   }
@@ -430,6 +446,9 @@ export class DataRouter extends BaseRouter {
     await this.deps.taskService.queueEmbedding({
       observationIds: [observation.id],
     });
+
+    // Invalidate caches (Issue #203)
+    cacheManager.onObservationCreated(observationProject);
 
     this.success(res, {
       id: observation.id,
@@ -779,36 +798,51 @@ export class DataRouter extends BaseRouter {
 
   /**
    * GET /api/data/stats
+   * Cached for 1 minute (Issue #203)
    */
   private async getStats(req: Request, res: Response): Promise<void> {
     const { project } = req.query;
     const projectFilter = getString(project);
+    const cacheKey = createCacheKey('stats:overview', { project: projectFilter });
 
-    const [sessionCount, observationCount, summaryCount, taskCounts, distinctProjects] = await Promise.all([
-      this.deps.sessionService.getSessionCount({ project: projectFilter }),
-      this.deps.observations.count({ project: projectFilter }),
-      this.deps.summaries.count({ project: projectFilter }),
-      this.deps.taskService.getQueueStatus(),
-      this.deps.sessions.getDistinctProjects(),
-    ]);
+    const result = await statsCache.getOrSet(cacheKey, async () => {
+      const [sessionCount, observationCount, summaryCount, taskCounts, distinctProjects] = await Promise.all([
+        this.deps.sessionService.getSessionCount({ project: projectFilter }),
+        this.deps.observations.count({ project: projectFilter }),
+        this.deps.summaries.count({ project: projectFilter }),
+        this.deps.taskService.getQueueStatus(),
+        this.deps.sessions.getDistinctProjects(),
+      ]);
 
-    this.success(res, {
-      sessions: sessionCount,
-      observations: observationCount,
-      summaries: summaryCount,
-      projects: distinctProjects.length,
-      tasks: taskCounts,
+      return {
+        sessions: sessionCount,
+        observations: observationCount,
+        summaries: summaryCount,
+        projects: distinctProjects.length,
+        tasks: taskCounts,
+      };
     });
+
+    res.set('X-Cache', statsCache.has(cacheKey) ? 'HIT' : 'MISS');
+    this.success(res, result);
   }
 
   /**
    * GET /api/data/projects
+   * Cached for 1 minute (Issue #203)
    */
   private async listProjects(_req: Request, res: Response): Promise<void> {
-    const allProjects = await this.deps.sessions.getDistinctProjects();
-    // Filter out empty/null project names
-    const projects = allProjects.filter((p) => p && p.trim() !== '');
-    this.success(res, { projects });
+    const cacheKey = createCacheKey('projects', {});
+
+    const result = await projectCache.getOrSet(cacheKey, async () => {
+      const allProjects = await this.deps.sessions.getDistinctProjects();
+      // Filter out empty/null project names
+      const projects = allProjects.filter((p) => p && p.trim() !== '');
+      return { projects };
+    });
+
+    res.set('X-Cache', projectCache.has(cacheKey) ? 'HIT' : 'MISS');
+    this.success(res, result);
   }
 
   /**
@@ -887,90 +921,112 @@ export class DataRouter extends BaseRouter {
    * GET /api/data/analytics/timeline
    * Returns observations/sessions/tokens grouped by day/week/month
    * Uses SQL aggregation for efficiency
+   * Cached for 5 minutes (Issue #203)
    */
   private async getAnalyticsTimeline(req: Request, res: Response): Promise<void> {
     const period = (getString(req.query.period) || 'day') as 'day' | 'week' | 'month';
     const project = getString(req.query.project);
     const days = this.parseOptionalIntParam(getString(req.query.days)) || 30;
+    const cacheKey = createCacheKey('analytics:timeline', { period, project, days });
 
-    const startEpoch = Date.now() - days * 24 * 60 * 60 * 1000;
+    const result = await analyticsCache.getOrSet(cacheKey, async () => {
+      const startEpoch = Date.now() - days * 24 * 60 * 60 * 1000;
 
-    // Use SQL aggregation instead of loading all records
-    const [obsStats, sessStats] = await Promise.all([
-      this.deps.observations.getTimelineStats({ startEpoch, period, project }),
-      this.deps.sessions.getTimelineStats({ startEpoch, period, project }),
-    ]);
+      // Use SQL aggregation instead of loading all records
+      const [obsStats, sessStats] = await Promise.all([
+        this.deps.observations.getTimelineStats({ startEpoch, period, project }),
+        this.deps.sessions.getTimelineStats({ startEpoch, period, project }),
+      ]);
 
-    // Merge observation and session stats
-    const timeline: Record<string, { observations: number; sessions: number; tokens: number }> = {};
+      // Merge observation and session stats
+      const timeline: Record<string, { observations: number; sessions: number; tokens: number }> = {};
 
-    for (const obs of obsStats) {
-      timeline[obs.date] = { observations: obs.observations, sessions: 0, tokens: obs.tokens };
-    }
-
-    for (const sess of sessStats) {
-      if (timeline[sess.date]) {
-        timeline[sess.date].sessions = sess.sessions;
-      } else {
-        timeline[sess.date] = { observations: 0, sessions: sess.sessions, tokens: 0 };
+      for (const obs of obsStats) {
+        timeline[obs.date] = { observations: obs.observations, sessions: 0, tokens: obs.tokens };
       }
-    }
 
-    const data = Object.entries(timeline)
-      .map(([date, stats]) => ({ date, ...stats }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+      for (const sess of sessStats) {
+        if (timeline[sess.date]) {
+          timeline[sess.date].sessions = sess.sessions;
+        } else {
+          timeline[sess.date] = { observations: 0, sessions: sess.sessions, tokens: 0 };
+        }
+      }
 
-    this.success(res, { data, period, days });
+      const data = Object.entries(timeline)
+        .map(([date, stats]) => ({ date, ...stats }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      return { data, period, days };
+    });
+
+    res.set('X-Cache', analyticsCache.has(cacheKey) ? 'HIT' : 'MISS');
+    this.success(res, result);
   }
 
   /**
    * GET /api/data/analytics/types
    * Returns observation count by type
+   * Cached for 5 minutes (Issue #203)
    */
   private async getAnalyticsTypes(req: Request, res: Response): Promise<void> {
     const project = getString(req.query.project);
+    const cacheKey = createCacheKey('analytics:types', { project });
 
-    const observations = await this.deps.observations.list({ project }, { limit: 100000 });
+    const result = await analyticsCache.getOrSet(cacheKey, async () => {
+      const observations = await this.deps.observations.list({ project }, { limit: 100000 });
 
-    const types: Record<string, number> = {};
-    for (const obs of observations) {
-      types[obs.type] = (types[obs.type] || 0) + 1;
-    }
+      const types: Record<string, number> = {};
+      for (const obs of observations) {
+        types[obs.type] = (types[obs.type] || 0) + 1;
+      }
 
-    const data = Object.entries(types)
-      .map(([type, count]) => ({ type, count }))
-      .sort((a, b) => b.count - a.count);
+      const data = Object.entries(types)
+        .map(([type, count]) => ({ type, count }))
+        .sort((a, b) => b.count - a.count);
 
-    this.success(res, { data });
+      return { data };
+    });
+
+    res.set('X-Cache', analyticsCache.has(cacheKey) ? 'HIT' : 'MISS');
+    this.success(res, result);
   }
 
   /**
    * GET /api/data/analytics/projects
    * Returns stats per project
+   * Cached for 5 minutes (Issue #203)
    */
   private async getAnalyticsProjects(_req: Request, res: Response): Promise<void> {
-    const allProjects = await this.deps.sessions.getDistinctProjects();
-    // Filter out empty/null project names
-    const projects = allProjects.filter((p) => p && p.trim() !== '');
+    const cacheKey = createCacheKey('analytics:projects', {});
 
-    const data = await Promise.all(
-      projects.map(async (project) => {
-        const [observationCount, sessionCount] = await Promise.all([
-          this.deps.observations.count({ project }),
-          this.deps.sessions.count({ project }),
-        ]);
+    const result = await analyticsCache.getOrSet(cacheKey, async () => {
+      const allProjects = await this.deps.sessions.getDistinctProjects();
+      // Filter out empty/null project names
+      const projects = allProjects.filter((p) => p && p.trim() !== '');
 
-        // Get token sum for a sample of observations
-        const observations = await this.deps.observations.list({ project }, { limit: 1000 });
-        const tokens = observations.reduce((sum, o) => sum + (o.discovery_tokens || 0), 0);
+      const data = await Promise.all(
+        projects.map(async (project) => {
+          const [observationCount, sessionCount] = await Promise.all([
+            this.deps.observations.count({ project }),
+            this.deps.sessions.count({ project }),
+          ]);
 
-        return { project, observations: observationCount, sessions: sessionCount, tokens };
-      })
-    );
+          // Get token sum for a sample of observations
+          const observations = await this.deps.observations.list({ project }, { limit: 1000 });
+          const tokens = observations.reduce((sum, o) => sum + (o.discovery_tokens || 0), 0);
 
-    this.success(res, {
-      data: data.sort((a, b) => b.observations - a.observations),
+          return { project, observations: observationCount, sessions: sessionCount, tokens };
+        })
+      );
+
+      return {
+        data: data.sort((a, b) => b.observations - a.observations),
+      };
     });
+
+    res.set('X-Cache', analyticsCache.has(cacheKey) ? 'HIT' : 'MISS');
+    this.success(res, result);
   }
 
   // ============================================

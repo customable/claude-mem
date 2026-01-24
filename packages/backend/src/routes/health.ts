@@ -9,6 +9,7 @@ import { VERSION } from '@claude-mem/shared';
 import { BaseRouter } from './base-router.js';
 import type { WorkerHub } from '../websocket/worker-hub.js';
 import type { ITaskQueueRepository } from '@claude-mem/types';
+import { cacheManager } from '../services/cache-service.js';
 
 export interface HealthRouterDeps {
   workerHub: WorkerHub;
@@ -41,6 +42,10 @@ export class HealthRouter extends BaseRouter {
 
     // Admin: Restart backend
     this.router.post('/admin/restart', this.asyncHandler(this.restart.bind(this)));
+
+    // Cache stats (Issue #203)
+    this.router.get('/cache/stats', this.asyncHandler(this.cacheStats.bind(this)));
+    this.router.post('/cache/clear', this.asyncHandler(this.cacheClear.bind(this)));
   }
 
   /**
@@ -139,5 +144,23 @@ export class HealthRouter extends BaseRouter {
     setTimeout(async () => {
       await this.deps.onRestart!();
     }, 100);
+  }
+
+  /**
+   * GET /api/cache/stats
+   * Get cache statistics (Issue #203)
+   */
+  private async cacheStats(_req: Request, res: Response): Promise<void> {
+    const stats = cacheManager.getAllStats();
+    this.success(res, { caches: stats });
+  }
+
+  /**
+   * POST /api/cache/clear
+   * Clear all caches (Issue #203)
+   */
+  private async cacheClear(_req: Request, res: Response): Promise<void> {
+    cacheManager.clearAll();
+    this.success(res, { message: 'All caches cleared' });
   }
 }
