@@ -1,9 +1,8 @@
 name: Auto-Merge
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  check_suite:
+  workflow_run:
+    workflows: ["CI"]
     types: [completed]
 
 jobs:
@@ -11,23 +10,29 @@ jobs:
     runs-on: [docker, light]
     container:
       image: catthehacker/ubuntu:act-latest
-    if: github.event.pull_request.draft == false
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
     steps:
       - name: Enable auto-merge
         env:
           GIT_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
-          if [ -z "$PR_NUMBER" ]; then
-            echo "No PR number, skipping"
+          # Get PR number from the workflow run
+          PR_NUMBER=$(curl -s -H "Authorization: token ${GIT_TOKEN}" \
+            "https://git.customable.host/api/v1/repos/${{ github.repository }}/pulls?state=open" | \
+            jq -r ".[] | select(.head.sha == \"${{ github.event.workflow_run.head_sha }}\") | .number")
+
+          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+            echo "No matching PR found for commit ${{ github.event.workflow_run.head_sha }}"
             exit 0
           fi
+
+          echo "Enabling auto-merge for PR #${PR_NUMBER}"
 
           # Enable auto-merge via API
           curl -s -X POST \
             -H "Authorization: token ${GIT_TOKEN}" \
             -H "Content-Type: application/json" \
             "https://git.customable.host/api/v1/repos/${{ github.repository }}/pulls/${PR_NUMBER}/merge" \
-            -d '{"Do":"merge","MergeAutoMerge":true}' || true
+            -d '{"Do":"merge","MergeAutoMerge":true}'
 
           echo "Auto-merge enabled for PR #${PR_NUMBER}"
