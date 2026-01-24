@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.7] - 2026-01-24
+
+### Bug Fixes
+- Removed unused functions from `settings.ts` to clean up the codebase.
+
+### Improvements
+- Streamlined the `settings.ts` file by eliminating redundant functions.
+
+
 ## [2.19.6] - 2026-01-24
 
 ### Bug Fixes
