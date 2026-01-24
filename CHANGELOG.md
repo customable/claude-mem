@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.19.6] - 2026-01-24
+
+### Bug Fixes
+- Reverted Docker cache to registry-based
+
+### Improvements
+- Removed unused constants from `constants.ts`
+- Removed Bun from backend Dockerfile, now using Node.js
+
+
 ## [2.19.5] - 2026-01-24
 
 ### Bug Fixes
