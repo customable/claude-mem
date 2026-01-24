@@ -93,6 +93,10 @@ export interface Settings {
   CLAUDEMD_OBSERVATION_INTERVAL: number; // Generate CLAUDE.md after every N observations
   CLAUDEMD_TASK_TIMEOUT: number; // Timeout for claude-md tasks in ms (default: 10 min)
   CLAUDEMD_MAX_SUBDIRS: number; // Max subdirectories to generate per trigger (default: 5)
+
+  // Secret Detection
+  SECRET_DETECTION_ENABLED: boolean;
+  SECRET_DETECTION_MODE: 'redact' | 'skip' | 'warn';
 }
 
 // ============================================
@@ -178,6 +182,10 @@ export const DEFAULTS: Settings = {
   CLAUDEMD_OBSERVATION_INTERVAL: 10, // Generate CLAUDE.md after every 10 observations
   CLAUDEMD_TASK_TIMEOUT: 600000, // 10 minutes (longer than default 5min for AI generation)
   CLAUDEMD_MAX_SUBDIRS: 5, // Max 5 subdirectories per generation trigger
+
+  // Secret Detection
+  SECRET_DETECTION_ENABLED: true, // Enabled by default for security
+  SECRET_DETECTION_MODE: 'redact', // Redact secrets by default
 };
 
 // ============================================
@@ -198,6 +206,7 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'REMOTE_MODE',
   'RETENTION_ENABLED',
   'CLAUDEMD_ENABLED',
+  'SECRET_DETECTION_ENABLED',
 ];
 
 /**

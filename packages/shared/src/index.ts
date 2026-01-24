@@ -18,3 +18,6 @@ export * from './settings.js';
 
 // Git Utilities
 export * from './git-utils.js';
+
+// Secret Detection
+export * from './secret-detector.js';
