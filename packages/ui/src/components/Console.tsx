@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import * as React from "react";
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 

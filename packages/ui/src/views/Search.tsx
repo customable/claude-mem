@@ -9,6 +9,7 @@ import { api, type Observation } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 import { TYPE_CONFIG, getTypeConfig } from '../utils/observation';
 import { ObservationDetails } from '../components/ObservationDetails';
+import * as React from "react";
 
 interface SearchFilters {
   type: string;

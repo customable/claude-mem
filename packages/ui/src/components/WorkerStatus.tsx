@@ -27,11 +27,7 @@ function matchTaskTypeToCapability(taskType: string, capability: string): boolea
     'claude-md': 'claudemd:generate',
   };
 
-  if (mappings[taskType] === capability) {
-    return true;
-  }
-
-  return false;
+  return mappings[taskType] === capability;
 }
 
 export function WorkerStatus() {
