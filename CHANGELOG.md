@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.37.0] - 2026-01-24
+
+### Features
+- Implemented Sleep Agent for memory tiering
+
+
 ## [2.36.0] - 2026-01-24
 
 ### Features
