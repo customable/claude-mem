@@ -5,9 +5,7 @@
  * Handles health checks, auth, and graceful degradation.
  */
 
-import { loadSettings, createLogger, HOOK_TIMEOUTS, getTimeout } from '@claude-mem/shared';
-
-const logger = createLogger('hooks-client');
+import { loadSettings, HOOK_TIMEOUTS, getTimeout } from '@claude-mem/shared';
 
 /**
  * Backend client configuration
@@ -55,18 +53,6 @@ export class BackendClient {
       return `[${host}]`;
     }
     return host;
-  }
-
-  /**
-   * Check if backend is ready
-   */
-  async isReady(timeout = getTimeout(HOOK_TIMEOUTS.HEALTH_CHECK)): Promise<boolean> {
-    try {
-      const response = await this.fetch('/api/readiness', { timeout });
-      return response.ok;
-    } catch {
-      return false;
-    }
   }
 
   /**
