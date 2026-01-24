@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.28.0] - 2026-01-24
+
+### Features
+- Return cached context immediately if available in hooks
+
+### Bug Fixes
+- Use workerId in error logs and fix worker linking
+
+### Improvements
+- Merge branch 'main' into fix/164-162-unused-code (multiple times)
+
+
 ## [2.27.0] - 2026-01-24
 
 ### Features
