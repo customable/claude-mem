@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.26.0] - 2026-01-24
+
+### Features
+- Implemented latency tracking in WorkerHub to monitor and measure performance metrics.
+
+
 ## [2.25.0] - 2026-01-24
 
 ### Features
