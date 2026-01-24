@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.45.0] - 2026-01-24
+
+### Features
+- Improved document metadata and content display
+
+### Bug Fixes
+*(No bug fixes in this update)*
+
+### Improvements
+*(No improvements in this update)*
+
+
 ## [2.44.0] - 2026-01-24
 
 ### Features
