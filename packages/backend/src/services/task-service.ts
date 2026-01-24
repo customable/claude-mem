@@ -194,7 +194,7 @@ export class TaskService {
         title: o.title || 'Untitled',
         text: o.text || '',
         type: o.type as string,
-        createdAt: typeof o.created_at === 'string' ? new Date(o.created_at).getTime() : o.created_at,
+        createdAt: new Date(o.created_at).getTime(),
       }));
     }
 
@@ -255,7 +255,7 @@ export class TaskService {
         title: o.title || 'Untitled',
         text: o.text || '',
         type: o.type as string,
-        createdAt: typeof o.created_at === 'string' ? new Date(o.created_at).getTime() : o.created_at,
+        createdAt: new Date(o.created_at).getTime(),
         tokens: o.discovery_tokens || undefined,
       }));
     }
