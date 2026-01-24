@@ -200,7 +200,12 @@ export function WorkerStatus() {
         }
       }
     }
-    return dist;
+    // Convert Sets to arrays for React compatibility
+    const result: Record<string, { count: number; providers: string[] }> = {};
+    for (const [type, data] of Object.entries(dist)) {
+      result[type] = { count: data.count, providers: [...data.providers] };
+    }
+    return result;
   }, [workers]);
 
   return (
@@ -276,12 +281,12 @@ export function WorkerStatus() {
                 <div
                   key={type}
                   className={`badge ${getCapabilityColor(type)} gap-1`}
-                  title={data.providers.size > 0 ? `Providers: ${[...data.providers].join(', ')}` : undefined}
+                  title={data.providers.length > 0 ? `Providers: ${data.providers.join(', ')}` : undefined}
                 >
                   <span className="font-medium">{type}</span>
                   <span className="badge badge-xs badge-neutral">{data.count}</span>
-                  {data.providers.size > 0 && (
-                    <span className="opacity-60 text-xs">({[...data.providers].join(', ')})</span>
+                  {data.providers.length > 0 && (
+                    <span className="opacity-60 text-xs">({data.providers.join(', ')})</span>
                   )}
                 </div>
               ))}
