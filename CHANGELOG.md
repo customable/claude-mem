@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.43.0] - 2026-01-24
+
+### Features
+- Implemented semantic search via Qdrant for enhanced search capabilities.
+
+
 ## [2.42.0] - 2026-01-24
 
 ### Features
