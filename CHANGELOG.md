@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.35.0] - 2026-01-24
+
+### Features
+- Implemented Lazy Mode for improved token efficiency.
+
+
 ## [2.34.1] - 2026-01-24
 
 ### Bug Fixes
