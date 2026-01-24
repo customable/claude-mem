@@ -399,7 +399,6 @@ export class SettingsManager {
       throw error;
     }
   }
-
 }
 
 // ============================================
@@ -439,4 +438,3 @@ export function saveSettings(settings: Partial<Settings>): void {
   }
   manager.save();
 }
-
