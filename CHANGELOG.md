@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.41.0] - 2026-01-24
+
+### Features
+- Implement PreCompact hook for context preservation
+- Show file details for read/modified counts in session view
+
+### Bug Fixes
+- Implement process/memory leak prevention
+
+### Improvements
+- Update hooks CLAUDE.md context files
+- Update CLAUDE.md context files
+
+
 ## [2.40.1] - 2026-01-24
 
 ### Bug Fixes
