@@ -67,6 +67,24 @@ export interface Agent {
 export type AgentFactory = () => Agent;
 
 /**
+ * Agent provider definition for the registry
+ */
+export interface AgentProviderDefinition {
+  /** Unique provider name (e.g., 'anthropic', 'mistral') */
+  name: string;
+  /** Display name for UI (e.g., 'Anthropic Claude') */
+  displayName: string;
+  /** Environment variable key for API credentials */
+  envKey: string;
+  /** Check if provider is available (has credentials) */
+  isAvailable: () => boolean;
+  /** Factory function to create the agent */
+  create: () => Agent;
+  /** Priority for fallback order (higher = preferred) */
+  priority?: number;
+}
+
+/**
  * Parsed observation from agent response
  */
 export interface ParsedObservation {

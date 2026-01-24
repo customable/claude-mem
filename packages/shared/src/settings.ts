@@ -36,6 +36,7 @@ export interface Settings {
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic';
+  AI_PROVIDER_FALLBACK: string[]; // Array of provider names for fallback order
   ENABLED_PROVIDERS: string; // Comma-separated list of enabled providers (e.g., "mistral,gemini")
   MISTRAL_API_KEY: string;
   MISTRAL_MODEL: string;
@@ -125,6 +126,7 @@ export const DEFAULTS: Settings = {
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral',
+  AI_PROVIDER_FALLBACK: [], // Empty = use priority-based fallback
   ENABLED_PROVIDERS: '', // Empty = all configured providers are enabled
   MISTRAL_API_KEY: '',
   MISTRAL_MODEL: 'mistral-small-latest',
