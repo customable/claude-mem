@@ -214,3 +214,62 @@ export interface TaskRequirements {
   /** Fallback capabilities if primary not available */
   fallbackCapabilities?: WorkerCapability[];
 }
+
+// ============================================
+// Worker Profiles (Issue #224)
+// ============================================
+
+/**
+ * Worker profile configuration
+ * Defines a group of workers with specific capabilities
+ */
+export interface WorkerProfile {
+  /** Profile name for identification */
+  name: string;
+  /** Capabilities this profile provides */
+  capabilities: AbstractCapability[];
+  /** Number of workers to spawn with this profile */
+  count: number;
+  /** Provider configuration */
+  providers: ProviderConfig;
+  /** Priority for task assignment (higher = prioritized) */
+  priority?: number;
+}
+
+/**
+ * Capability limits configuration
+ * Limits concurrent workers handling a specific capability
+ */
+export type CapabilityLimits = Partial<Record<AbstractCapability, number>>;
+
+/**
+ * Parse worker profiles from JSON string
+ */
+export function parseWorkerProfiles(json: string): WorkerProfile[] {
+  try {
+    const parsed = JSON.parse(json);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((p): p is WorkerProfile =>
+      typeof p === 'object' &&
+      p !== null &&
+      typeof p.name === 'string' &&
+      Array.isArray(p.capabilities) &&
+      typeof p.count === 'number'
+    );
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Parse capability limits from JSON string
+ */
+export function parseCapabilityLimits(json: string): CapabilityLimits {
+  try {
+    const parsed = JSON.parse(json);
+    if (typeof parsed !== 'object' || parsed === null) return {};
+    return parsed as CapabilityLimits;
+  } catch {
+    return {};
+  }
+}

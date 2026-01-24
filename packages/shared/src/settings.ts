@@ -134,6 +134,10 @@ export interface Settings {
   DEFAULT_LLM_PROVIDER: string; // Default LLM provider for new workers
   DEFAULT_EMBEDDING_PROVIDER: string; // Default embedding provider
   DEFAULT_VECTORDB_PROVIDER: string; // Default vector DB provider
+
+  // Worker Profiles and Limits (Issue #224)
+  WORKER_PROFILES: string; // JSON array of worker profiles (WorkerConfig[])
+  CAPABILITY_LIMITS: string; // JSON object of capability limits (Record<string, number>)
 }
 
 // ============================================
@@ -260,6 +264,10 @@ export const DEFAULTS: Settings = {
   DEFAULT_LLM_PROVIDER: 'mistral', // Default LLM for new workers
   DEFAULT_EMBEDDING_PROVIDER: 'local', // Default embedding provider
   DEFAULT_VECTORDB_PROVIDER: 'qdrant-local', // Default vector DB
+
+  // Worker Profiles and Limits (Issue #224)
+  WORKER_PROFILES: '[]', // Default: no profiles (use legacy behavior)
+  CAPABILITY_LIMITS: '{}', // Default: no limits
 };
 
 // ============================================
