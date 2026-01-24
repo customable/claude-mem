@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ObservationType, DocumentType, TaskStatus } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -270,12 +270,12 @@ export class DataRouter extends BaseRouter {
     }
     // Delete by project and/or date (requires listing first)
     else {
-      const filters: { project?: string; dateRange?: { before?: number } } = {};
+      const filters: ObservationQueryFilters = {};
       if (project) filters.project = getString(project);
       if (before) {
         const beforeDate = new Date(getString(before)!);
         if (!isNaN(beforeDate.getTime())) {
-          filters.dateRange = { before: beforeDate.getTime() };
+          filters.dateRange = { end: beforeDate.getTime() };
         }
       }
 
