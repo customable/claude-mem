@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.21.0] - 2026-01-24
+
+### Features
+- Added support for Git worktree functionality
+
+### Bug Fixes
+- Fixed type error in context query parameters
+
+### Improvements
+- Merged updates from main branch into Git worktree support feature branch
+
+
 ## [2.20.0] - 2026-01-24
 
 ### Features
