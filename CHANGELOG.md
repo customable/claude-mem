@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.41.1] - 2026-01-24
+
+### Bug Fixes
+- Fixed TypeScript errors in cleanup and hooks routes
+
+### Improvements
+- Updated CLAUDE.md context files
+
+
 ## [2.41.0] - 2026-01-24
 
 ### Features
