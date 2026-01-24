@@ -159,24 +159,6 @@ export function WorkerStatus() {
     }
   };
 
-  if (loading && workers.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-base-content/60">
-        <span className="loading loading-spinner loading-md mb-2" />
-        <span>Loading workers...</span>
-      </div>
-    );
-  }
-
-  if (error && workers.length === 0) {
-    return (
-      <div className="alert alert-error">
-        <span className="iconify ph--warning-circle size-5" />
-        <span>Failed to load workers</span>
-      </div>
-    );
-  }
-
   // Separate workers into permanent and spawned
   const permanentWorkers = workers.filter((w) => !w.metadata?.spawnedId);
   const spawnedWorkers = workers.filter((w) => !!w.metadata?.spawnedId);
@@ -186,6 +168,7 @@ export function WorkerStatus() {
   const idleCount = workers.length - busyCount;
 
   // Aggregate capability distribution (Issue #224, #226)
+  // NOTE: useMemo must be called before any early returns (Rules of Hooks)
   const capabilityDistribution = useMemo(() => {
     const dist: Record<string, { count: number; providers: Set<string> }> = {};
     for (const worker of workers) {
@@ -207,6 +190,24 @@ export function WorkerStatus() {
     }
     return result;
   }, [workers]);
+
+  if (loading && workers.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-base-content/60">
+        <span className="loading loading-spinner loading-md mb-2" />
+        <span>Loading workers...</span>
+      </div>
+    );
+  }
+
+  if (error && workers.length === 0) {
+    return (
+      <div className="alert alert-error">
+        <span className="iconify ph--warning-circle size-5" />
+        <span>Failed to load workers</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
