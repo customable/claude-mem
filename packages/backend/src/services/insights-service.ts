@@ -20,30 +20,110 @@ import type {
 
 const logger = createLogger('insights-service');
 
-// Re-import ACHIEVEMENT_DEFINITIONS as a value (not just type)
+// Achievement definitions
 const ACHIEVEMENTS: AchievementDefinition[] = [
-  // Activity achievements
+  // ========================================
+  // Activity Achievements - Observation Count
+  // ========================================
   { id: 'first-observation', name: 'First Memory', description: 'Create your first observation', icon: 'brain', category: 'activity' },
   { id: 'observations-10', name: 'Memory Keeper', description: 'Create 10 observations', icon: 'database', category: 'activity', threshold: 10 },
   { id: 'observations-100', name: 'Memory Master', description: 'Create 100 observations', icon: 'trophy', category: 'activity', threshold: 100 },
+  { id: 'observations-500', name: 'Memory Hoarder', description: 'Create 500 observations', icon: 'archive', category: 'activity', threshold: 500 },
   { id: 'observations-1000', name: 'Memory Legend', description: 'Create 1,000 observations', icon: 'crown', category: 'activity', threshold: 1000 },
+  { id: 'observations-5000', name: 'Memory Titan', description: 'Create 5,000 observations', icon: 'gem', category: 'activity', threshold: 5000 },
+  { id: 'observations-10000', name: 'Memory God', description: 'Create 10,000 observations', icon: 'sparkles', category: 'activity', threshold: 10000 },
 
-  // Learning achievements
+  // ========================================
+  // Session Achievements
+  // ========================================
+  { id: 'first-session', name: 'Hello World', description: 'Complete your first coding session', icon: 'play', category: 'activity' },
+  { id: 'sessions-10', name: 'Regular', description: 'Complete 10 coding sessions', icon: 'repeat', category: 'activity', threshold: 10 },
+  { id: 'sessions-50', name: 'Dedicated', description: 'Complete 50 coding sessions', icon: 'heart', category: 'activity', threshold: 50 },
+  { id: 'sessions-100', name: 'Committed', description: 'Complete 100 coding sessions', icon: 'medal', category: 'activity', threshold: 100 },
+  { id: 'sessions-500', name: 'Veteran', description: 'Complete 500 coding sessions', icon: 'award', category: 'activity', threshold: 500 },
+  { id: 'sessions-1000', name: 'Grandmaster', description: 'Complete 1,000 coding sessions', icon: 'crown', category: 'activity', threshold: 1000 },
+
+  // ========================================
+  // Token Achievements - AI Collaboration
+  // ========================================
+  { id: 'tokens-100k', name: 'Chatterbox', description: 'Use 100K tokens with AI', icon: 'message-circle', category: 'activity', threshold: 100000 },
+  { id: 'tokens-1m', name: 'Conversationalist', description: 'Use 1M tokens with AI', icon: 'messages-square', category: 'activity', threshold: 1000000 },
+  { id: 'tokens-10m', name: 'Deep Thinker', description: 'Use 10M tokens with AI', icon: 'brain', category: 'activity', threshold: 10000000 },
+  { id: 'tokens-50m', name: 'AI Whisperer', description: 'Use 50M tokens with AI', icon: 'bot', category: 'activity', threshold: 50000000 },
+  { id: 'tokens-100m', name: 'Token Billionaire', description: 'Use 100M tokens with AI', icon: 'coins', category: 'activity', threshold: 100000000 },
+  { id: 'tokens-500m', name: 'Infinite Context', description: 'Use 500M tokens with AI', icon: 'infinity', category: 'activity', threshold: 500000000 },
+
+  // ========================================
+  // Learning Achievements - Decisions
+  // ========================================
   { id: 'first-decision', name: 'Decision Maker', description: 'Record your first architectural decision', icon: 'git-branch', category: 'learning' },
+  { id: 'decisions-10', name: 'Architect', description: 'Make 10 architectural decisions', icon: 'layout', category: 'learning', threshold: 10 },
+  { id: 'decisions-50', name: 'Senior Architect', description: 'Make 50 architectural decisions', icon: 'building', category: 'learning', threshold: 50 },
+  { id: 'decisions-100', name: 'Chief Architect', description: 'Make 100 architectural decisions', icon: 'castle', category: 'learning', threshold: 100 },
+
+  // ========================================
+  // Learning Achievements - Bug Fixes
+  // ========================================
+  { id: 'first-bugfix', name: 'First Blood', description: 'Fix your first bug', icon: 'bug', category: 'learning' },
   { id: 'bug-hunter-10', name: 'Bug Hunter', description: 'Fix 10 bugs', icon: 'bug', category: 'learning', threshold: 10 },
   { id: 'bug-hunter-50', name: 'Bug Slayer', description: 'Fix 50 bugs', icon: 'shield', category: 'learning', threshold: 50 },
+  { id: 'bug-hunter-100', name: 'Exterminator', description: 'Fix 100 bugs', icon: 'zap', category: 'learning', threshold: 100 },
+  { id: 'bug-hunter-500', name: 'Bug Whisperer', description: 'Fix 500 bugs', icon: 'sparkles', category: 'learning', threshold: 500 },
+
+  // ========================================
+  // Learning Achievements - Discoveries
+  // ========================================
+  { id: 'first-discovery', name: 'Explorer', description: 'Make your first discovery', icon: 'compass', category: 'learning' },
+  { id: 'discoveries-10', name: 'Curious Mind', description: 'Make 10 discoveries', icon: 'lightbulb', category: 'learning', threshold: 10 },
+  { id: 'discoveries-50', name: 'Knowledge Seeker', description: 'Make 50 discoveries', icon: 'book-open', category: 'learning', threshold: 50 },
+  { id: 'discoveries-100', name: 'Enlightened', description: 'Make 100 discoveries', icon: 'sun', category: 'learning', threshold: 100 },
+  { id: 'discoveries-500', name: 'Sage', description: 'Make 500 discoveries', icon: 'scroll', category: 'learning', threshold: 500 },
+
+  // ========================================
+  // Learning Achievements - Languages
+  // ========================================
   { id: 'polyglot-3', name: 'Polyglot', description: 'Work with 3+ programming languages', icon: 'globe', category: 'learning', threshold: 3 },
   { id: 'polyglot-5', name: 'Language Master', description: 'Work with 5+ programming languages', icon: 'star', category: 'learning', threshold: 5 },
+  { id: 'polyglot-10', name: 'Universal Translator', description: 'Work with 10+ programming languages', icon: 'languages', category: 'learning', threshold: 10 },
 
-  // Milestone achievements
+  // ========================================
+  // Milestone Achievements - Projects
+  // ========================================
   { id: 'projects-3', name: 'Multi-tasker', description: 'Work on 3 different projects', icon: 'folder', category: 'milestone', threshold: 3 },
   { id: 'projects-10', name: 'Project Pro', description: 'Work on 10 different projects', icon: 'briefcase', category: 'milestone', threshold: 10 },
-  { id: 'deep-dive-100', name: 'Deep Diver', description: '100+ observations in one project', icon: 'target', category: 'milestone', threshold: 100 },
+  { id: 'projects-25', name: 'Portfolio Builder', description: 'Work on 25 different projects', icon: 'folders', category: 'milestone', threshold: 25 },
+  { id: 'projects-50', name: 'Project Mogul', description: 'Work on 50 different projects', icon: 'building-2', category: 'milestone', threshold: 50 },
 
-  // Streak achievements
+  // ========================================
+  // Milestone Achievements - Deep Dive
+  // ========================================
+  { id: 'deep-dive-100', name: 'Deep Diver', description: '100+ observations in one project', icon: 'target', category: 'milestone', threshold: 100 },
+  { id: 'deep-dive-500', name: 'Domain Expert', description: '500+ observations in one project', icon: 'microscope', category: 'milestone', threshold: 500 },
+  { id: 'deep-dive-1000', name: 'Project Guru', description: '1,000+ observations in one project', icon: 'graduation-cap', category: 'milestone', threshold: 1000 },
+  { id: 'deep-dive-5000', name: 'Living Documentation', description: '5,000+ observations in one project', icon: 'book', category: 'milestone', threshold: 5000 },
+
+  // ========================================
+  // Streak Achievements
+  // ========================================
   { id: 'streak-3', name: 'Getting Started', description: '3-day coding streak', icon: 'flame', category: 'streak', threshold: 3 },
   { id: 'streak-7', name: 'Week Warrior', description: '7-day coding streak', icon: 'fire', category: 'streak', threshold: 7 },
+  { id: 'streak-14', name: 'Fortnight Fighter', description: '14-day coding streak', icon: 'trending-up', category: 'streak', threshold: 14 },
   { id: 'streak-30', name: 'Month Champion', description: '30-day coding streak', icon: 'rocket', category: 'streak', threshold: 30 },
+  { id: 'streak-60', name: 'Unstoppable', description: '60-day coding streak', icon: 'zap', category: 'streak', threshold: 60 },
+  { id: 'streak-100', name: 'Century Coder', description: '100-day coding streak', icon: 'medal', category: 'streak', threshold: 100 },
+  { id: 'streak-365', name: 'Year of Code', description: '365-day coding streak', icon: 'calendar-check', category: 'streak', threshold: 365 },
+
+  // ========================================
+  // Special Achievements
+  // ========================================
+  { id: 'first-error', name: 'Learning Opportunity', description: 'Document your first error', icon: 'alert-triangle', category: 'learning' },
+  { id: 'night-owl', name: 'Night Owl', description: 'Code between midnight and 4 AM', icon: 'moon', category: 'special' },
+  { id: 'early-bird', name: 'Early Bird', description: 'Code between 5 AM and 7 AM', icon: 'sunrise', category: 'special' },
+  { id: 'weekend-warrior', name: 'Weekend Warrior', description: 'Code on 10 different weekends', icon: 'calendar', category: 'special', threshold: 10 },
+  { id: 'marathon', name: 'Marathon Session', description: 'Single session with 50+ observations', icon: 'timer', category: 'special', threshold: 50 },
+  { id: 'comeback', name: 'The Comeback', description: 'Return to coding after 7+ days break', icon: 'rotate-ccw', category: 'special' },
+  { id: 'perfectionist', name: 'Perfectionist', description: 'Have a session with 0 errors', icon: 'check-circle', category: 'special' },
+  { id: 'refactoring-hero', name: 'Refactoring Hero', description: 'Complete 10 refactoring sessions', icon: 'wand', category: 'special', threshold: 10 },
 ];
 
 export class InsightsService {
