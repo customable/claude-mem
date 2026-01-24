@@ -32,8 +32,6 @@ jobs:
       - name: Setup pnpm
         if: steps.check.outputs.skip != 'true'
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js with cache
         if: steps.check.outputs.skip != 'true'
