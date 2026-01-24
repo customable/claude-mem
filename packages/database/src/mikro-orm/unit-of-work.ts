@@ -19,6 +19,7 @@ import { MikroOrmTechnologyUsageRepository } from './repositories/TechnologyUsag
 import { MikroOrmAchievementRepository } from './repositories/AchievementRepository.js';
 import { MikroOrmRawMessageRepository } from './repositories/RawMessageRepository.js';
 import { MikroOrmObservationLinkRepository } from './repositories/ObservationLinkRepository.js';
+import { MikroOrmObservationTemplateRepository } from './repositories/ObservationTemplateRepository.js';
 
 /**
  * MikroORM implementation of IUnitOfWork
@@ -37,6 +38,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
   public achievements: MikroOrmAchievementRepository;
   public rawMessages: MikroOrmRawMessageRepository;
   public observationLinks: MikroOrmObservationLinkRepository;
+  public observationTemplates: MikroOrmObservationTemplateRepository;
 
   private transactionEm: SqlEntityManager | null = null;
 
@@ -54,6 +56,7 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.achievements = new MikroOrmAchievementRepository(em);
     this.rawMessages = new MikroOrmRawMessageRepository(em);
     this.observationLinks = new MikroOrmObservationLinkRepository(em);
+    this.observationTemplates = new MikroOrmObservationTemplateRepository(em);
   }
 
   async beginTransaction(): Promise<void> {
@@ -108,5 +111,6 @@ export class MikroOrmUnitOfWork implements IUnitOfWork {
     this.achievements = new MikroOrmAchievementRepository(em);
     this.rawMessages = new MikroOrmRawMessageRepository(em);
     this.observationLinks = new MikroOrmObservationLinkRepository(em);
+    this.observationTemplates = new MikroOrmObservationTemplateRepository(em);
   }
 }

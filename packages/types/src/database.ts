@@ -155,6 +155,31 @@ export interface ObservationLinkRecord {
 }
 
 /**
+ * Observation template database record
+ */
+export interface ObservationTemplateRecord {
+  id: number;
+  name: string;
+  description?: string;
+  type: ObservationType;
+  project?: string;
+  fields: string; // JSON string of template fields
+  is_default?: boolean;
+  is_system?: boolean;
+  created_at: string;
+  created_at_epoch: number;
+  updated_at?: string;
+  updated_at_epoch?: number;
+}
+
+/**
+ * Parsed template fields structure
+ */
+export interface TemplateFields {
+  [key: string]: string | string[] | boolean | number | undefined;
+}
+
+/**
  * Session Summary database record
  */
 export interface SessionSummaryRecord {

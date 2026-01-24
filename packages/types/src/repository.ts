@@ -17,6 +17,7 @@ import type {
   MemoryTier,
   ObservationLinkRecord,
   ObservationLinkType,
+  ObservationTemplateRecord,
 } from './database.js';
 
 import type { DecisionCategory } from './decisions.js';
@@ -1083,6 +1084,82 @@ export interface IObservationLinkRepository {
 }
 
 // ============================================
+// Observation Template Repository
+// ============================================
+
+/**
+ * Template creation input
+ */
+export interface CreateTemplateInput {
+  name: string;
+  description?: string;
+  type: ObservationType;
+  project?: string;
+  fields: string; // JSON string
+  isDefault?: boolean;
+}
+
+/**
+ * Template query filters
+ */
+export interface TemplateQueryFilters {
+  type?: ObservationType;
+  project?: string;
+  isDefault?: boolean;
+  isSystem?: boolean;
+}
+
+/**
+ * Observation Template Repository Interface
+ */
+export interface IObservationTemplateRepository {
+  /**
+   * Create a new template
+   */
+  create(input: CreateTemplateInput): Promise<ObservationTemplateRecord>;
+
+  /**
+   * Find template by ID
+   */
+  findById(id: number): Promise<ObservationTemplateRecord | null>;
+
+  /**
+   * Find template by name
+   */
+  findByName(name: string, project?: string): Promise<ObservationTemplateRecord | null>;
+
+  /**
+   * Update a template
+   */
+  update(id: number, input: Partial<CreateTemplateInput>): Promise<ObservationTemplateRecord | null>;
+
+  /**
+   * List templates with optional filters
+   */
+  list(filters?: TemplateQueryFilters, options?: QueryOptions): Promise<ObservationTemplateRecord[]>;
+
+  /**
+   * Get templates for a specific observation type
+   */
+  getByType(type: ObservationType, project?: string): Promise<ObservationTemplateRecord[]>;
+
+  /**
+   * Get default templates
+   */
+  getDefaults(project?: string): Promise<ObservationTemplateRecord[]>;
+
+  /**
+   * Delete a template (cannot delete system templates)
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Count templates matching filters
+   */
+  count(filters?: TemplateQueryFilters): Promise<number>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -1107,6 +1184,7 @@ export interface IUnitOfWork {
   claudemd: IClaudeMdRepository;
   codeSnippets: ICodeSnippetRepository;
   observationLinks: IObservationLinkRepository;
+  observationTemplates: IObservationTemplateRepository;
   // Learning insights repositories
   dailyStats: IDailyStatsRepository;
   technologyUsage: ITechnologyUsageRepository;

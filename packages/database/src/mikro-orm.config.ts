@@ -23,6 +23,7 @@ import {
   Achievement,
   RawMessage,
   ObservationLink,
+  ObservationTemplate,
 } from './entities/index.js';
 import { Migration20240101000001_InitialSchema } from './mikro-orm/migrations/Migration20240101000001_InitialSchema.js';
 import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migration20240101000002_FTS5Indexes.js';
@@ -37,6 +38,7 @@ import { Migration20260124000005_AddDecisionTracking } from './mikro-orm/migrati
 import { Migration20260124000006_AddMemoryTiering } from './mikro-orm/migrations/Migration20260124000006_AddMemoryTiering.js';
 import { Migration20260124000007_AddImportanceScoring } from './mikro-orm/migrations/Migration20260124000007_AddImportanceScoring.js';
 import { Migration20260124000008_CreateObservationLinksTable } from './mikro-orm/migrations/Migration20260124000008_CreateObservationLinksTable.js';
+import { Migration20260124000009_CreateTemplatesTable } from './mikro-orm/migrations/Migration20260124000009_CreateTemplatesTable.js';
 
 /**
  * Database configuration options
@@ -73,6 +75,7 @@ export const entities = [
   Achievement,
   RawMessage,
   ObservationLink,
+  ObservationTemplate,
 ];
 
 /**
@@ -92,6 +95,7 @@ export const migrationsList = [
   Migration20260124000006_AddMemoryTiering,
   Migration20260124000007_AddImportanceScoring,
   Migration20260124000008_CreateObservationLinksTable,
+  Migration20260124000009_CreateTemplatesTable,
 ];
 
 /**

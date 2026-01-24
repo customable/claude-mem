@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -38,6 +38,7 @@ export interface DataRouterDeps {
   userPrompts: IUserPromptRepository;
   codeSnippets: ICodeSnippetRepository;
   observationLinks: IObservationLinkRepository;
+  observationTemplates: IObservationTemplateRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -68,6 +69,13 @@ export class DataRouter extends BaseRouter {
     this.router.post('/observations/:id/links', this.asyncHandler(this.createObservationLink.bind(this)));
     this.router.get('/observations/:id/links', this.asyncHandler(this.getObservationLinks.bind(this)));
     this.router.delete('/links/:id', this.asyncHandler(this.deleteObservationLink.bind(this)));
+
+    // Observation Templates
+    this.router.get('/templates', this.asyncHandler(this.listTemplates.bind(this)));
+    this.router.post('/templates', this.asyncHandler(this.createTemplate.bind(this)));
+    this.router.get('/templates/:id', this.asyncHandler(this.getTemplate.bind(this)));
+    this.router.put('/templates/:id', this.asyncHandler(this.updateTemplate.bind(this)));
+    this.router.delete('/templates/:id', this.asyncHandler(this.deleteTemplate.bind(this)));
 
     // Summaries
     this.router.get('/sessions/:sessionId/summaries', this.asyncHandler(this.getSessionSummaries.bind(this)));
@@ -527,6 +535,123 @@ export class DataRouter extends BaseRouter {
     }
 
     this.noContent(res);
+  }
+
+  // ============================================
+  // Observation Templates
+  // ============================================
+
+  /**
+   * GET /api/data/templates
+   * List observation templates
+   */
+  private async listTemplates(req: Request, res: Response): Promise<void> {
+    const { type, project, isDefault } = req.query;
+
+    const templates = await this.deps.observationTemplates.list({
+      type: getString(type) as ObservationType | undefined,
+      project: getString(project),
+      isDefault: getString(isDefault) === 'true' ? true : undefined,
+    });
+
+    this.success(res, { data: templates });
+  }
+
+  /**
+   * POST /api/data/templates
+   * Create a new template
+   */
+  private async createTemplate(req: Request, res: Response): Promise<void> {
+    const { name, description, type, project, fields, isDefault } = req.body;
+
+    if (!name) {
+      this.badRequest('Missing required field: name');
+    }
+    if (!type) {
+      this.badRequest('Missing required field: type');
+    }
+    if (!fields) {
+      this.badRequest('Missing required field: fields');
+    }
+
+    const template = await this.deps.observationTemplates.create({
+      name,
+      description,
+      type,
+      project,
+      fields: typeof fields === 'string' ? fields : JSON.stringify(fields),
+      isDefault: isDefault ?? false,
+    });
+
+    this.success(res, template);
+  }
+
+  /**
+   * GET /api/data/templates/:id
+   * Get a template by ID
+   */
+  private async getTemplate(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const template = await this.deps.observationTemplates.findById(id);
+    if (!template) {
+      this.notFound(`Template not found: ${id}`);
+    }
+
+    this.success(res, template);
+  }
+
+  /**
+   * PUT /api/data/templates/:id
+   * Update a template
+   */
+  private async updateTemplate(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+    const { name, description, type, project, fields, isDefault } = req.body;
+
+    try {
+      const template = await this.deps.observationTemplates.update(id, {
+        name,
+        description,
+        type,
+        project,
+        fields: fields ? (typeof fields === 'string' ? fields : JSON.stringify(fields)) : undefined,
+        isDefault,
+      });
+
+      if (!template) {
+        this.notFound(`Template not found: ${id}`);
+      }
+
+      this.success(res, template);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('system')) {
+        this.badRequest('Cannot modify system templates');
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * DELETE /api/data/templates/:id
+   * Delete a template
+   */
+  private async deleteTemplate(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    try {
+      const deleted = await this.deps.observationTemplates.delete(id);
+      if (!deleted) {
+        this.notFound(`Template not found: ${id}`);
+      }
+
+      this.noContent(res);
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('system')) {
+        this.badRequest('Cannot delete system templates');
+      }
+      throw error;
+    }
   }
 
   /**
