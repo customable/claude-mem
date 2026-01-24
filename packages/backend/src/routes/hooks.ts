@@ -49,13 +49,17 @@ export class HooksRouter extends BaseRouter {
       this.badRequest('Missing required fields: sessionId, project');
     }
 
-    const { project, userPrompt, prompt, cwd } = req.body;
+    const { project, userPrompt, prompt, cwd, repoPath, isWorktree, branch } = req.body;
 
     const session = await this.deps.sessionService.startSession({
       contentSessionId,
       project,
       userPrompt: userPrompt || prompt,
       workingDirectory: cwd,
+      // Git worktree support
+      repoPath,
+      isWorktree,
+      branch,
     });
 
     this.success(res, {

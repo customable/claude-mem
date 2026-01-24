@@ -31,6 +31,10 @@ function toRecord(entity: Session): SdkSessionRecord {
     status: entity.status,
     worker_port: entity.worker_port,
     prompt_counter: entity.prompt_counter,
+    // Git worktree support
+    repo_path: entity.repo_path ?? null,
+    is_worktree: entity.is_worktree ?? false,
+    branch: entity.branch ?? null,
   };
 }
 
@@ -49,6 +53,10 @@ export class MikroOrmSessionRepository implements ISessionRepository {
       started_at_epoch: now.getTime(),
       status: 'active',
       prompt_counter: 0,
+      // Git worktree support
+      repo_path: input.repoPath,
+      is_worktree: input.isWorktree,
+      branch: input.branch,
     });
 
     this.em.persist(entity);
@@ -85,6 +93,10 @@ export class MikroOrmSessionRepository implements ISessionRepository {
     }
     if (input.promptCounter !== undefined) entity.prompt_counter = input.promptCounter;
     if (input.memorySessionId !== undefined) entity.memory_session_id = input.memorySessionId;
+    // Git worktree support
+    if (input.repoPath !== undefined) entity.repo_path = input.repoPath;
+    if (input.isWorktree !== undefined) entity.is_worktree = input.isWorktree;
+    if (input.branch !== undefined) entity.branch = input.branch;
 
     await this.em.flush();
     return toRecord(entity);

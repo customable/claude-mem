@@ -56,6 +56,10 @@ export interface CreateSessionInput {
   project: string;
   userPrompt?: string;
   workingDirectory?: string;
+  // Git worktree support
+  repoPath?: string;
+  isWorktree?: boolean;
+  branch?: string;
 }
 
 /**
@@ -66,6 +70,10 @@ export interface UpdateSessionInput {
   completedAt?: Date | number;
   promptCounter?: number;
   memorySessionId?: string;
+  // Git worktree support
+  repoPath?: string;
+  isWorktree?: boolean;
+  branch?: string;
 }
 
 /**
@@ -155,6 +163,8 @@ export interface CreateObservationInput {
   discoveryTokens?: number;
   gitBranch?: string;
   cwd?: string;
+  // Git worktree support
+  repoPath?: string;
 }
 
 /**

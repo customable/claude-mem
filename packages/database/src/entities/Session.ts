@@ -31,6 +31,16 @@ export class Session {
   @Property({ nullable: true })
   working_directory?: string;
 
+  @Property({ nullable: true })
+  @Index()
+  repo_path?: string;
+
+  @Property({ nullable: true, type: 'boolean', default: false })
+  is_worktree?: boolean;
+
+  @Property({ nullable: true })
+  branch?: string;
+
   @Property()
   started_at!: string;
 

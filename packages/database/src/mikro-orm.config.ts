@@ -23,6 +23,7 @@ import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migr
 import { Migration20260123000003_SessionWorkingDirectory } from './mikro-orm/migrations/Migration20260123000003_SessionWorkingDirectory.js';
 import { Migration20260123000004_AddSessionRequestType } from './mikro-orm/migrations/Migration20260123000004_AddSessionRequestType.js';
 import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
+import { Migration20260124000001_GitWorktreeSupport } from './mikro-orm/migrations/Migration20260124000001_GitWorktreeSupport.js';
 
 /**
  * Database configuration options
@@ -64,6 +65,7 @@ export const migrationsList = [
   Migration20260123000003_SessionWorkingDirectory,
   Migration20260123000004_AddSessionRequestType,
   Migration20260123000005_CreateDocumentsTable,
+  Migration20260124000001_GitWorktreeSupport,
 ];
 
 /**

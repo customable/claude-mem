@@ -10,7 +10,8 @@ import { spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { createLogger, loadSettings, HOOK_TIMEOUTS, getTimeout } from '@claude-mem/shared';
+import { createLogger, loadSettings, HOOK_TIMEOUTS, getTimeout, getRepoInfo } from '@claude-mem/shared';
+import type { RepoInfo } from '@claude-mem/shared';
 import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
@@ -85,9 +86,23 @@ function cleanupStalePidFiles(): void {
 }
 
 /**
+ * Get repository information for the working directory
+ */
+function getRepoInfoSafe(cwd: string | undefined): RepoInfo | null {
+  if (!cwd) return null;
+  try {
+    return getRepoInfo(cwd);
+  } catch (err) {
+    const error = err as Error;
+    logger.debug('Failed to get repo info:', { message: error.message });
+    return null;
+  }
+}
+
+/**
  * Spawn the SSE writer process for CLAUDE.md updates
  */
-function spawnSseWriter(input: HookInput): void {
+function spawnSseWriter(input: HookInput, repoInfo: RepoInfo | null): void {
   const settings = loadSettings();
 
   // Clean up any stale PID files first
@@ -161,6 +176,8 @@ function spawnSseWriter(input: HookInput): void {
       '--session', input.sessionId,
       '--project', input.project,
       '--dir', input.cwd,
+      ...(repoInfo ? ['--repo-path', repoInfo.repoPath] : []),
+      ...(repoInfo ? ['--branch', repoInfo.branch] : []),
     ], {
       detached: true,
       stdio: ['ignore', logFd, logFd],
@@ -190,6 +207,16 @@ function spawnSseWriter(input: HookInput): void {
 export async function handleSessionStart(input: HookInput): Promise<HookResult> {
   const client = getBackendClient();
 
+  // Get repository info for worktree support
+  const repoInfo = getRepoInfoSafe(input.cwd);
+  if (repoInfo) {
+    logger.debug('Detected git repository:', {
+      repoPath: repoInfo.repoPath,
+      isWorktree: repoInfo.isWorktree,
+      branch: repoInfo.branch,
+    });
+  }
+
   // Quick check if backend is available - use short timeout to not block Claude
   const quickTimeout = getTimeout(HOOK_TIMEOUTS.QUICK_CHECK);
   const ready = await client.isCoreReady(quickTimeout);
@@ -199,13 +226,20 @@ export async function handleSessionStart(input: HookInput): Promise<HookResult> 
   }
 
   // Spawn SSE writer for CLAUDE.md updates (non-blocking)
-  spawnSseWriter(input);
+  spawnSseWriter(input, repoInfo);
 
   try {
+    // Determine project identifier - use repo path for consistent grouping across worktrees
+    const projectId = repoInfo?.repoPath ?? input.project;
+
+    // Build query params - only include defined values
+    const queryParams: Record<string, string> = { project: projectId };
+    if (repoInfo?.repoPath) queryParams.repoPath = repoInfo.repoPath;
+    if (repoInfo?.branch) queryParams.branch = repoInfo.branch;
+    if (repoInfo?.isWorktree !== undefined) queryParams.isWorktree = String(repoInfo.isWorktree);
+
     // Get context for this project
-    const response = await client.get<ContextResponse>('/api/hooks/context', {
-      project: input.project,
-    });
+    const response = await client.get<ContextResponse>('/api/hooks/context', queryParams);
 
     if (!response.context || response.observationCount === 0) {
       logger.debug('No context available for project');

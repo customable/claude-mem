@@ -74,6 +74,10 @@ export interface SdkSessionRecord {
   status: SessionStatus;
   worker_port?: number;
   prompt_counter?: number;
+  // Git worktree support
+  repo_path?: string | null;
+  is_worktree?: boolean;
+  branch?: string | null;
 }
 
 /**
@@ -100,6 +104,8 @@ export interface ObservationRecord {
   cwd?: string;
   prompt_number?: number;
   discovery_tokens?: number;
+  // Git worktree support
+  repo_path?: string;
 }
 
 /**

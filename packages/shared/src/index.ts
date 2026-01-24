@@ -15,3 +15,6 @@ export * from './paths.js';
 
 // Settings
 export * from './settings.js';
+
+// Git Utilities
+export * from './git-utils.js';
