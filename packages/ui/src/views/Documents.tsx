@@ -5,6 +5,7 @@
  */
 
 import { useState, useMemo, useCallback } from 'react';
+import Markdown from 'react-markdown';
 import { api, type Document, type DocumentType } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 
@@ -285,22 +286,28 @@ function DocumentCard({
             </div>
 
             {/* Metadata */}
-            {metadata && (
+            {metadata && Object.keys(metadata).length > 0 && (
               <div className="text-sm">
                 <span className="text-base-content/60">Metadata:</span>
-                <div className="mt-1 p-2 bg-base-200 rounded text-xs font-mono overflow-x-auto">
-                  {JSON.stringify(metadata, null, 2)}
-                </div>
+                <MetadataDisplay metadata={metadata} />
               </div>
             )}
 
             {/* Content Preview */}
             <div className="text-sm">
               <span className="text-base-content/60">Content Preview:</span>
-              <div className="mt-1 p-2 bg-base-200 rounded text-xs font-mono max-h-48 overflow-y-auto whitespace-pre-wrap">
-                {document.content?.slice(0, 2000) || '(empty)'}
-                {document.content && document.content.length > 2000 && (
-                  <span className="text-base-content/40">... ({document.content.length - 2000} more characters)</span>
+              <div className="mt-1 p-3 bg-base-200 rounded text-xs max-h-64 overflow-y-auto prose prose-sm prose-neutral max-w-none
+                prose-headings:text-sm prose-headings:font-semibold prose-headings:mt-3 prose-headings:mb-1
+                prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5
+                prose-code:text-xs prose-code:bg-base-300 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                prose-pre:bg-base-300 prose-pre:p-2 prose-pre:text-xs prose-pre:overflow-x-auto">
+                <Markdown>
+                  {document.content?.slice(0, 3000) || '(empty)'}
+                </Markdown>
+                {document.content && document.content.length > 3000 && (
+                  <div className="text-base-content/40 mt-2 pt-2 border-t border-base-300 text-center">
+                    ... ({document.content.length - 3000} more characters)
+                  </div>
                 )}
               </div>
             </div>
@@ -321,6 +328,88 @@ function DocumentCard({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Display metadata in a user-friendly format
+ */
+function MetadataDisplay({ metadata }: { metadata: Record<string, unknown> }) {
+  // Define known metadata keys and their display labels
+  const keyLabels: Record<string, { label: string; icon: string }> = {
+    query: { label: 'Query', icon: 'ph--magnifying-glass' },
+    toolInput: { label: 'Tool Input', icon: 'ph--code' },
+    url: { label: 'URL', icon: 'ph--link' },
+    prompt: { label: 'Prompt', icon: 'ph--chat-text' },
+    bytes: { label: 'Size', icon: 'ph--file' },
+    code: { label: 'Status', icon: 'ph--check-circle' },
+    durationMs: { label: 'Duration', icon: 'ph--timer' },
+    libraryId: { label: 'Library', icon: 'ph--package' },
+  };
+
+  // Format value for display
+  const formatValue = (key: string, value: unknown): string => {
+    if (value === null || value === undefined) return '-';
+
+    if (key === 'bytes' && typeof value === 'number') {
+      return `${(value / 1024).toFixed(1)} KB`;
+    }
+    if (key === 'durationMs' && typeof value === 'number') {
+      return `${value} ms`;
+    }
+    if (key === 'code' && typeof value === 'number') {
+      return value === 200 ? '200 OK' : String(value);
+    }
+    if (typeof value === 'string') {
+      // If it's JSON, try to parse and format it
+      if (value.startsWith('{') || value.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(value);
+          // For toolInput, extract useful fields
+          if (key === 'toolInput' && typeof parsed === 'object') {
+            const parts: string[] = [];
+            if (parsed.url) parts.push(parsed.url);
+            if (parsed.libraryId) parts.push(parsed.libraryId);
+            if (parsed.query) parts.push(`"${parsed.query}"`);
+            if (parsed.prompt && !parsed.query) parts.push(`"${parsed.prompt.slice(0, 100)}${parsed.prompt.length > 100 ? '...' : ''}"`);
+            return parts.length > 0 ? parts.join(' ') : value.slice(0, 200);
+          }
+        } catch {
+          // Not valid JSON, use as-is
+        }
+      }
+      // Truncate long strings
+      return value.length > 200 ? value.slice(0, 200) + '...' : value;
+    }
+    return String(value);
+  };
+
+  // Filter and prepare entries
+  const entries = Object.entries(metadata)
+    .filter(([, v]) => v !== null && v !== undefined && v !== '')
+    .map(([key, value]) => ({
+      key,
+      config: keyLabels[key] || { label: key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1'), icon: 'ph--info' },
+      value: formatValue(key, value),
+      isLong: typeof value === 'string' && (value.length > 80 || value.includes('\n')),
+    }));
+
+  if (entries.length === 0) return null;
+
+  return (
+    <div className="mt-1 space-y-1.5">
+      {entries.map(({ key, config, value, isLong }) => (
+        <div key={key} className={`flex ${isLong ? 'flex-col' : 'items-center'} gap-1.5`}>
+          <div className="flex items-center gap-1.5 text-base-content/60 shrink-0">
+            <span className={`iconify ${config.icon} size-3.5`} />
+            <span className="text-xs font-medium">{config.label}:</span>
+          </div>
+          <div className={`text-xs ${isLong ? 'p-2 bg-base-200 rounded font-mono whitespace-pre-wrap break-all' : 'truncate'}`}>
+            {value}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
