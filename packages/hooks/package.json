@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/hooks",
-  "version": "2.19.10",
+  "version": "2.19.11",
   "description": "Claude Code hooks for claude-mem",
   "type": "module",
   "main": "dist/index.js",
