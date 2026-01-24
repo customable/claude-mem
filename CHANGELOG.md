@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.19.5] - 2026-01-24
+
+### Bug Fixes
+- Removed unused exports from `paths.ts` to clean up the codebase.
+
+### Improvements
+- Switched Docker builds to use GitHub Actions cache for improved build performance.
+
+
 ## [2.19.4] - 2026-01-24
 
 ### Bug Fixes
