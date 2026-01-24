@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.19.16] - 2026-01-24
+
+### Bug Fixes
+- Removed unused `toolName` parameter from `extractTargetDirectory` hook to clean up the codebase.
+
+
 ## [2.19.15] - 2026-01-24
 
 ### Improvements
