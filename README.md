@@ -2,7 +2,7 @@
 
 **Persistent memory system for Claude Code** - Transform your AI coding sessions from isolated conversations into continuous knowledge.
 
-[![Version](https://img.shields.io/badge/version-2.19.24-blue.svg)](https://git.customable.host/customable/claude-mem)
+[![Version](https://img.shields.io/badge/version-2.20.0-blue.svg)](https://git.customable.host/customable/claude-mem)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## What is claude-mem?
