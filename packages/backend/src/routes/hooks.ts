@@ -233,7 +233,7 @@ export class HooksRouter extends BaseRouter {
         project: session.project,
         contentSessionId,
         memorySessionId: session.memory_session_id || contentSessionId,
-        workingDirectory: session.working_directory,
+        workingDirectory: session.working_directory ?? undefined,
       });
     }
 
