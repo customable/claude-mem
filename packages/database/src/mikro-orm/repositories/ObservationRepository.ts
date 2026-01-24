@@ -12,6 +12,7 @@ import type {
   QueryOptions,
   ObservationRecord,
   DecisionCategory,
+  MemoryTier,
 } from '@claude-mem/types';
 import { Observation } from '../../entities/Observation.js';
 
@@ -45,6 +46,13 @@ function toRecord(entity: Observation): ObservationRecord {
     superseded_by: entity.superseded_by,
     supersedes: entity.supersedes,
     superseded_at: entity.superseded_at,
+    // Memory tiering
+    memory_tier: entity.memory_tier as MemoryTier | undefined,
+    tier_changed_at: entity.tier_changed_at,
+    access_count: entity.access_count,
+    last_accessed_at: entity.last_accessed_at,
+    last_accessed_at_epoch: entity.last_accessed_at_epoch,
+    consolidation_score: entity.consolidation_score,
   };
 }
 
@@ -492,5 +500,136 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     }
 
     return history;
+  }
+
+  // Memory tier methods (Sleep Agent)
+
+  async getByTier(tier: MemoryTier, options?: {
+    project?: string;
+    limit?: number;
+  }): Promise<ObservationRecord[]> {
+    const qb = this.em.createQueryBuilder(Observation, 'o')
+      .where({ memory_tier: tier });
+
+    if (options?.project) {
+      qb.andWhere({ project: options.project });
+    }
+
+    qb.orderBy({ created_at_epoch: 'DESC' });
+
+    if (options?.limit) {
+      qb.limit(options.limit);
+    }
+
+    const entities = await qb.getResult();
+    return entities.map(toRecord);
+  }
+
+  async updateTier(id: number, tier: MemoryTier): Promise<ObservationRecord | null> {
+    const entity = await this.em.findOne(Observation, { id });
+    if (!entity) return null;
+
+    entity.memory_tier = tier;
+    entity.tier_changed_at = new Date().toISOString();
+
+    await this.em.flush();
+    return toRecord(entity);
+  }
+
+  async recordAccess(id: number): Promise<ObservationRecord | null> {
+    const entity = await this.em.findOne(Observation, { id });
+    if (!entity) return null;
+
+    const now = new Date();
+    entity.access_count = (entity.access_count || 0) + 1;
+    entity.last_accessed_at = now.toISOString();
+    entity.last_accessed_at_epoch = now.getTime();
+
+    await this.em.flush();
+    return toRecord(entity);
+  }
+
+  async getTierCounts(project?: string): Promise<Record<MemoryTier, number>> {
+    const knex = this.em.getKnex();
+
+    let query = knex('observations')
+      .select('memory_tier')
+      .count('* as count')
+      .groupBy('memory_tier');
+
+    if (project) {
+      query = query.where('project', project);
+    }
+
+    const rows = await query;
+
+    // Initialize with zeros
+    const counts: Record<MemoryTier, number> = {
+      core: 0,
+      working: 0,
+      archive: 0,
+      ephemeral: 0,
+    };
+
+    for (const row of rows) {
+      const tier = (row.memory_tier || 'working') as MemoryTier;
+      counts[tier] = Number(row.count);
+    }
+
+    return counts;
+  }
+
+  async getForDemotion(params: {
+    olderThanDays: number;
+    maxAccessCount: number;
+    limit?: number;
+  }): Promise<ObservationRecord[]> {
+    const cutoffEpoch = Date.now() - (params.olderThanDays * 24 * 60 * 60 * 1000);
+
+    const qb = this.em.createQueryBuilder(Observation, 'o')
+      .where({ memory_tier: 'working' })
+      .andWhere({
+        $or: [
+          { last_accessed_at_epoch: { $lt: cutoffEpoch } },
+          { last_accessed_at_epoch: null },
+        ],
+      })
+      .andWhere({
+        $or: [
+          { access_count: { $lte: params.maxAccessCount } },
+          { access_count: null },
+        ],
+      })
+      .orderBy({ created_at_epoch: 'ASC' });
+
+    if (params.limit) {
+      qb.limit(params.limit);
+    }
+
+    const entities = await qb.getResult();
+    return entities.map(toRecord);
+  }
+
+  async getForPromotion(params: {
+    minAccessCount: number;
+    types?: string[];
+    limit?: number;
+  }): Promise<ObservationRecord[]> {
+    const qb = this.em.createQueryBuilder(Observation, 'o')
+      .where({ memory_tier: 'working' })
+      .andWhere({ access_count: { $gte: params.minAccessCount } });
+
+    if (params.types && params.types.length > 0) {
+      qb.andWhere({ type: { $in: params.types } });
+    }
+
+    qb.orderBy({ access_count: 'DESC' });
+
+    if (params.limit) {
+      qb.limit(params.limit);
+    }
+
+    const entities = await qb.getResult();
+    return entities.map(toRecord);
   }
 }
