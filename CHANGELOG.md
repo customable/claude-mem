@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.22.0] - 2026-01-24
+
+### Features
+- Added missing settings to the Settings UI
+
+### Improvements
+- Merged branch 'main' into feat/185-settings-ui
+
+
 ## [2.21.0] - 2026-01-24
 
 ### Features
