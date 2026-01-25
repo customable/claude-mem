@@ -17,6 +17,53 @@ import type { TaskService } from '../services/task-service.js';
 
 const logger = createLogger('task-dispatcher');
 
+// ============================================
+// Retry Configuration (Issue #206)
+// ============================================
+
+interface RetryConfig {
+  initialDelayMs: number;
+  maxDelayMs: number;
+  multiplier: number;
+  jitterFactor: number;
+}
+
+const defaultRetryConfig: RetryConfig = {
+  initialDelayMs: 1000,
+  maxDelayMs: 60000,
+  multiplier: 2,
+  jitterFactor: 0.2,
+};
+
+const taskRetryConfigs: Record<string, RetryConfig> = {
+  observation: { initialDelayMs: 500, maxDelayMs: 30000, multiplier: 2, jitterFactor: 0.1 },
+  embedding: { initialDelayMs: 2000, maxDelayMs: 120000, multiplier: 2, jitterFactor: 0.2 },
+  'qdrant-sync': { initialDelayMs: 5000, maxDelayMs: 300000, multiplier: 2, jitterFactor: 0.3 },
+  summarize: { initialDelayMs: 1000, maxDelayMs: 60000, multiplier: 2, jitterFactor: 0.1 },
+  'claude-md': { initialDelayMs: 1000, maxDelayMs: 60000, multiplier: 2, jitterFactor: 0.1 },
+  'context-generate': { initialDelayMs: 1000, maxDelayMs: 60000, multiplier: 2, jitterFactor: 0.1 },
+  'semantic-search': { initialDelayMs: 500, maxDelayMs: 30000, multiplier: 2, jitterFactor: 0.1 },
+};
+
+/**
+ * Calculate retry delay with exponential backoff and jitter
+ */
+function calculateRetryDelay(retryCount: number, taskType: string): number {
+  const config = taskRetryConfigs[taskType] || defaultRetryConfig;
+  const exponentialDelay = config.initialDelayMs * Math.pow(config.multiplier, retryCount);
+  const cappedDelay = Math.min(exponentialDelay, config.maxDelayMs);
+  const jitter = cappedDelay * config.jitterFactor * (Math.random() * 2 - 1);
+  return Math.max(0, Math.round(cappedDelay + jitter));
+}
+
+/**
+ * Calculate the retryAfter timestamp for a failed task
+ */
+function calculateRetryAfter(retryCount: number, taskType: string): number {
+  const delay = calculateRetryDelay(retryCount, taskType);
+  return Date.now() + delay;
+}
+
 export interface TaskDispatcherOptions {
   /** Interval to check for pending tasks (ms) */
   pollIntervalMs?: number;
@@ -488,15 +535,18 @@ export class TaskDispatcher {
           data: { taskId, workerId, error, retries: newRetryCount },
         });
       } else {
-        // Reset to pending for retry
+        // Reset to pending for retry with exponential backoff (Issue #206)
+        const retryAfter = calculateRetryAfter(newRetryCount, task.type);
+        const delayMs = retryAfter - Date.now();
         await this.taskQueue.updateStatus(taskId, 'pending', {
           error,
           retryCount: newRetryCount,
+          retryAfter,
         });
-        logger.warn(`Task ${taskId} from worker ${workerId} failed (attempt ${newRetryCount}/${task.maxRetries}): ${error}`);
+        logger.warn(`Task ${taskId} from worker ${workerId} failed (attempt ${newRetryCount}/${task.maxRetries}), retry in ${delayMs}ms: ${error}`);
       }
 
-      // Trigger another dispatch cycle
+      // Trigger another dispatch cycle (will skip tasks with future retryAfter)
       await this.dispatchPendingTasks();
     } catch (err) {
       const e = err as Error;

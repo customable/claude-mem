@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      ws:
-        specifier: 8.13.0
-        version: 8.13.0
     devDependencies:
       '@swc/core':
         specifier: ^1.15.10
