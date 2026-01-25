@@ -125,18 +125,10 @@ function installDeps(target) {
 
   console.log(`  Installing dependencies...`);
   try {
-    // Try bun first, fall back to npm
-    try {
-      execSync('bun install', {
-        cwd: target,
-        stdio: 'pipe',
-      });
-    } catch {
-      execSync('npm install', {
-        cwd: target,
-        stdio: 'pipe',
-      });
-    }
+    execSync('npm install', {
+      cwd: target,
+      stdio: 'pipe',
+    });
     return true;
   } catch (err) {
     console.error(`  Install failed: ${err.message}`);
