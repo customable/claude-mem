@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.49.6] - 2026-01-25
+
+### Bug Fixes
+- Fixed missing search endpoints and routing issues in MCP
+
+### Improvements
+- Updated Node.js to v24
+
+
 ## [2.49.5] - 2026-01-25
 
 ### Bug Fixes
