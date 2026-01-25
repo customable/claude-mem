@@ -8,6 +8,8 @@ import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
 import type { TaskStatus, TaskType } from '@claude-mem/types';
 
 @Entity({ tableName: 'tasks' })
+@Index({ properties: ['assigned_worker_id', 'status'] })
+@Index({ properties: ['required_capability', 'status', 'priority'] })
 export class Task {
   @PrimaryKey({ type: 'string' })
   id!: string;

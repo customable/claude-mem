@@ -9,6 +9,7 @@ import type { DocumentType } from '@claude-mem/types';
 import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'documents' })
+@Index({ properties: ['project', 'source'] })
 export class Document {
   @PrimaryKey()
   id!: number;

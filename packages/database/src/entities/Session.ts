@@ -9,6 +9,7 @@ import { Entity, PrimaryKey, Property, Unique, Index } from '@mikro-orm/core';
 export type SessionStatus = 'active' | 'completed' | 'failed';
 
 @Entity({ tableName: 'sessions' })
+@Index({ properties: ['project', 'started_at_epoch'] })
 export class Session {
   @PrimaryKey()
   id!: number;

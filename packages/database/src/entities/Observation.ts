@@ -11,6 +11,8 @@ import type { Document } from './Document.js';
 import type { ObservationLink } from './ObservationLink.js';
 
 @Entity({ tableName: 'observations' })
+@Index({ properties: ['project', 'created_at_epoch'] })
+@Index({ properties: ['working_directory'] })
 export class Observation {
   @PrimaryKey()
   id!: number;
