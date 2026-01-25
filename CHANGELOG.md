@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.2] - 2026-01-25
+
+### Bug Fixes
+- Fixed WebSocket server conflicts by using `noServer` mode.
+
+
 ## [3.0.1] - 2026-01-25
 
 ### Bug Fixes
