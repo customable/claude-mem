@@ -26,7 +26,19 @@ import { fileURLToPath } from 'url';
 import type { HookEvent } from './types.js';
 import { runHook } from './runner.js';
 import { getBackendClient } from './client.js';
-import { loadSettings } from '@claude-mem/shared';
+import { loadSettings, initFileLogging, getLogFilePath, createLogger } from '@claude-mem/shared';
+
+// Initialize file logging in dev/debug mode (Issue #252)
+// Enable if: CLAUDE_DEBUG=1, CLAUDE_MEM_DEBUG=1, or NODE_ENV=development
+const isDebugMode = process.env.CLAUDE_DEBUG === '1' ||
+                    process.env.CLAUDE_MEM_DEBUG === '1' ||
+                    process.env.NODE_ENV === 'development';
+
+if (isDebugMode) {
+  initFileLogging('plugin');
+}
+
+const logger = createLogger('plugin-entry');
 
 // Version injected at build time
 declare const __PLUGIN_VERSION__: string;
@@ -185,13 +197,28 @@ async function handleHook(args: string[]): Promise<number> {
   // Map event
   const event = EVENT_MAP[forkEvent];
   if (!event) {
+    logger.warn(`Unknown event: ${forkEvent}`, { adapter, validEvents: Object.keys(EVENT_MAP) });
     console.error(`Unknown event: ${forkEvent}`);
     console.error(`Valid events: ${Object.keys(EVENT_MAP).join(', ')}`);
     return 1;
   }
 
+  // Log hook execution in debug mode (Issue #252)
+  if (isDebugMode) {
+    logger.debug(`Executing hook: ${event}`, { forkEvent, adapter });
+  }
+
   // Run hook
+  const startTime = Date.now();
   const result = await runHook(event);
+
+  if (isDebugMode) {
+    logger.debug(`Hook completed: ${event}`, {
+      exitCode: result.exitCode,
+      durationMs: Date.now() - startTime,
+    });
+  }
+
   return result.exitCode;
 }
 
@@ -201,6 +228,17 @@ async function handleHook(args: string[]): Promise<number> {
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0];
+
+  // Log startup info in debug mode (Issue #252)
+  if (isDebugMode) {
+    const logPath = getLogFilePath();
+    logger.debug('Plugin started', {
+      version,
+      command,
+      args: args.slice(1),
+      logPath,
+    });
+  }
 
   // Version
   if (args.includes('--version') || args.includes('-v')) {
@@ -233,6 +271,10 @@ async function main(): Promise<void> {
       console.error(`Unknown command: ${command}`);
       printHelp();
       exitCode = 1;
+  }
+
+  if (isDebugMode) {
+    logger.debug('Plugin exiting', { exitCode });
   }
 
   process.exit(exitCode);

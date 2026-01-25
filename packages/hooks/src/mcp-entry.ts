@@ -7,12 +7,24 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { loadSettings } from '@claude-mem/shared';
+import { loadSettings, initFileLogging, createLogger } from '@claude-mem/shared';
 import { z } from 'zod';
 
 // Version injected at build time
 declare const __PLUGIN_VERSION__: string;
 const version = typeof __PLUGIN_VERSION__ !== 'undefined' ? __PLUGIN_VERSION__ : '0.0.0-dev';
+
+// Initialize file logging in dev/debug mode (Issue #252)
+// MCP servers can't use console.log (reserved for protocol), so file logging is essential
+const isDebugMode = process.env.CLAUDE_DEBUG === '1' ||
+                    process.env.CLAUDE_MEM_DEBUG === '1' ||
+                    process.env.NODE_ENV === 'development';
+
+if (isDebugMode) {
+  initFileLogging('mcp-search');
+}
+
+const logger = createLogger('mcp-search');
 
 // CRITICAL: Redirect console to stderr for MCP protocol
 const originalLog = console.log;
@@ -48,6 +60,13 @@ async function callBackendAPI(
   endpoint: string,
   params: Record<string, unknown>
 ): Promise<{ content: Array<{ type: 'text'; text: string }>; isError?: boolean }> {
+  const startTime = Date.now();
+
+  // Log API call in debug mode (Issue #252)
+  if (isDebugMode) {
+    logger.debug(`MCP API call: ${endpoint}`, { params });
+  }
+
   try {
     const searchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
@@ -65,10 +84,19 @@ async function callBackendAPI(
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Backend API error (${response.status}): ${errorText}`);
+      const error = new Error(`Backend API error (${response.status}): ${errorText}`);
+      if (isDebugMode) {
+        logger.error(`MCP API error: ${endpoint}`, { status: response.status, errorText });
+      }
+      throw error;
     }
 
     const data = await response.json() as Record<string, unknown>;
+
+    // Log success in debug mode
+    if (isDebugMode) {
+      logger.debug(`MCP API success: ${endpoint}`, { durationMs: Date.now() - startTime });
+    }
 
     // Format response
     return {
