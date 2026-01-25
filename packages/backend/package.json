@@ -18,6 +18,10 @@
     "dist",
     "README.md"
   ],
+  "publishConfig": {
+    "registry": "https://git.customable.host/api/packages/customable/npm/",
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js start",

@@ -66,6 +66,9 @@ importers:
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
+      commander:
+        specifier: ^14.0.2
+        version: 14.0.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -242,6 +245,9 @@ importers:
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
+      commander:
+        specifier: ^14.0.2
+        version: 14.0.2
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
