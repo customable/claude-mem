@@ -7,6 +7,10 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2950 | 7:37 PM | 🔵 | User Task Types and Repository Interface | ~2193 |
+| #2936 | 7:36 PM | 🔵 | Search for repository interfaces in database types | ~1043 |
+| #2931 | 7:35 PM | 🔵 | Discovered User Task Types and Repository Interface | ~2187 |
+| #2924 | 7:35 PM | 🔵 | Found ObservationLink interface in database.ts | ~1024 |
 | #2772 | 7:08 PM | 🟠 | Added channel types export for unified WebSocket | ~1687 |
 | #2764 | 7:08 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1469 |
 | #2746 | 7:02 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Communication | ~2206 |
@@ -33,16 +37,12 @@
 | #959 | 1:55 PM | 🔵 | Task type 'compression' related to Endless Mode (Issue #109) | ~1090 |
 | #958 | 1:55 PM | 🔵 | Discovered CreateTaskInput type and its usage in repository | ~1739 |
 | #951 | 1:52 PM | 🔵 | Worker Capabilities System Architecture | ~2722 |
-| #789 | 1:15 PM | 🔵 | Worker Capabilities System Architecture | ~3442 |
-| #740 | 1:04 PM | 🟠 | Add compression capability parsing in fromLegacyCapability | ~4117 |
-| #739 | 1:04 PM | 🟠 | Add compression capability to legacy capability conversion | ~3793 |
-| #738 | 1:03 PM | 🟠 | Add 'compression' capability for Endless Mode (Issue #109) | ~3891 |
 
 ## Key Insights
 
-- **WebSocket Protocol & Worker Communication**: Extensive exploration of WebSocket protocol types for backend-worker communication, including authentication, task management, and heartbeat mechanisms.
-- **User Task System**: New user task types and repository interfaces were added, supporting CLI tool integration and status lifecycle management.
-- **Compression Capability**: Added support for 'compression' capability in the worker system, tied to Endless Mode (Issue #109), including legacy capability parsing and conversion.
-- **TypeScript Types Expansion**: Multiple exports added to the shared TypeScript types index, enhancing modularity and reusability across the project.
-- **Repository Pattern**: Discovered and documented repository pattern implementations for data access, including search functionality with BM25 scoring and session management.
+- **WebSocket Protocol & Real-Time Communication**: Extensive exploration of WebSocket protocol types for backend-worker communication, including authentication, task management, and heartbeat mechanisms. Key progress in implementing channel-based subscriptions and migrating SSE-Writer to WebSocket.
+- **Task System Architecture**: Discovered a robust task system with 8 task types (e.g., observation, summarization, compression) and a priority-based queue with status tracking. The system supports worker capabilities and Endless Mode (Issue #109).
+- **Repository Pattern & Database Types**: Identified repository interfaces (e.g., `IObservationLinkRepository`, `IUserTaskRepository`) and database model types for observations, sessions, and projects. The `text` field in `CreateObservationInput` was made optional.
+- **TypeScript Types & Exports**: Added exports for user task types and channel types to the main types index, extending shared TypeScript types for the claude-mem system. Resolved type mismatches in `@claude-mem/types`.
+- **Next Steps**: Complete the migration of SSE-Writer to WebSocket, integrate `ChannelManager` with `WorkerHub`, and ensure all real-time events work seamlessly across clients. Test the unified WebSocket system end-to-end.
 </claude-mem-context>

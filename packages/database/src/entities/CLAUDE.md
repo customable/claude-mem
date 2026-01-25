@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2918 | 7:35 PM | 🔵 | ObservationLink Entity Structure | ~1475 |
 | #2427 | 6:14 PM | 🔵 | Exploring Observation Entity Structure | ~1819 |
 | #2423 | 6:14 PM | 🟠 | Add UserTask entity exports | ~1794 |
 | #2422 | 6:14 PM | 🔵 | Database entities structure discovered | ~1006 |
@@ -16,12 +17,12 @@
 | #2192 | 5:40 PM | 🟠 | Added composite indexes to RawMessage | ~1850 |
 | #2186 | 5:38 PM | 🔄 | Improved index documentation | ~1813 |
 | #2185 | 5:38 PM | 🟠 | Added composite index for session queries | ~1517 |
-| #2184 | 5:37 PM | 🔄 | Removed redundant entity-level indexes | ~1863 |
+| #2184 | 5:37 PM | 🔄 | Removed redundant entity indexes | ~1863 |
 | #2183 | 5:37 PM | 🔵 | Database entities use extensive indexing | ~5695 |
-| #2182 | 5:36 PM | 🔄 | Enhanced Session entity relations | ~2807 |
-| #2181 | 5:36 PM | 🟠 | Add Cascade import to Session entity | ~1724 |
+| #2182 | 5:37 PM | 🔄 | Enhanced Session entity relations | ~2807 |
+| #2181 | 5:36 PM | 🟠 | Add Cascade import to Session | ~1724 |
 | #2179 | 5:36 PM | 🔄 | Add cascade options to Observation | ~3759 |
-| #2178 | 5:36 PM | 🔵 | Observation Entity Structure Analysis | ~2137 |
+| #2178 | 5:36 PM | 🔵 | Observation Entity Structure | ~2137 |
 | #2176 | 5:36 PM | 🟠 | Add Cascade import to Observation | ~2237 |
 | #2175 | 5:35 PM | 🔄 | Refactor RawMessage observation relation | ~2098 |
 | #2174 | 5:35 PM | 🔄 | Refactor UserPrompt entity FK relation | ~2469 |
@@ -36,13 +37,12 @@
 | #2162 | 5:32 PM | 🔄 | Refactor RawMessage observation_id | ~1849 |
 | #2161 | 5:32 PM | 🟠 | Added relationship imports | ~1505 |
 | #2160 | 5:32 PM | 🔄 | Refactor UserPrompt Session relation | ~1664 |
-| #2159 | 5:32 PM | 🔄 | Convert ClaudeMd session IDs | ~1941 |
 
 ## Key Insights
 
-- **Database Optimization**: Extensive indexing and cascade operations added to improve query performance and data integrity.
-- **Entity Relationships**: Major refactoring to separate physical FK columns from ORM relations across multiple entities.
-- **Task Queue Issues**: Identified WebSocket failures causing task queue backlog and SSE writer process not running.
-- **Achievement System**: Discovered bugs in achievement progress calculation that only updates at threshold completion.
-- **API Endpoints**: Missing archived-outputs stats endpoint identified as a critical gap for monitoring.
+- **Database Optimization**: Extensive indexing and cascade operations were added to improve query performance and data integrity (e.g., composite indexes in `RawMessage`, `ArchivedOutput`, and `Summary` entities).
+- **Entity Relationships**: Major refactoring to separate foreign key columns from ORM relations (e.g., `RawMessage`, `UserPrompt`, `ClaudeMd`) and establish proper ManyToOne/OneToMany relationships.
+- **New Features**: Added `UserTask` entity exports and `rawMessages` relationship to `Observation` entity, expanding functionality for task management and message tracking.
+- **Discovery**: Detailed analysis of core entities (`Observation`, `Task`, `ArchivedOutput`) revealed the database schema for AI-generated observations, task queues, and Endless Mode outputs.
+- **Next Steps**: Complete WebSocket migration for SSE-Writer, integrate `ChannelManager` with `WorkerHub`, and resolve remaining type dependencies in the monorepo.
 </claude-mem-context>

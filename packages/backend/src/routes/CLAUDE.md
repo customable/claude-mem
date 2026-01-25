@@ -7,48 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2881 | 7:32 PM | 🔵 | Backend routes module structure discovered | ~1788 |
 | #2729 | 7:00 PM | 🔵 | SSE Stream Router Implementation | ~1584 |
 | #2706 | 6:58 PM | 🔵 | SSE Stream Implementation Analysis | ~1568 |
 | #2678 | 6:57 PM | 🔵 | SSE Stream Router Implementation | ~1589 |
-| #2335 | 6:02 PM | 🔵 | Backend API routes for project settings | ~1694 |
-| #2327 | 6:02 PM | 🔵 | Archived outputs depend on Endless Mode | ~1275 |
-| #2317 | 6:01 PM | 🔵 | Metrics Router Implementation | ~1938 |
-| #2313 | 6:00 PM | 🔵 | Found "archived-output" references | ~1125 |
-| #2087 | 5:17 PM | 🔄 | Standardize error handling | ~7328 |
-| #2086 | 5:17 PM | 🔵 | BaseRouter utilities discovered | ~1626 |
-| #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints | ~2072 |
-| #2080 | 5:15 PM | 🟠 | Added archived outputs API endpoints | ~6386 |
-| #2078 | 5:15 PM | 🟠 | Added Archived Outputs API | ~5296 |
-| #2077 | 5:15 PM | 🔵 | Project settings API endpoints | ~1201 |
-| #2076 | 5:15 PM | 🟠 | Added optional archivedOutputs repo | ~5043 |
-| #2071 | 5:14 PM | 🟠 | Add IArchivedOutputRepository | ~4942 |
-| #2069 | 5:14 PM | 🔵 | API routes and session handling | ~2148 |
-| #2068 | 5:14 PM | 🔵 | Backend routes structure | ~1420 |
-| #2067 | 5:14 PM | 🔵 | Data Router Structure | ~2089 |
-| #2065 | 5:13 PM | 🔵 | No "archived" references found | ~713 |
-| #1870 | 4:35 PM | 🔵 | Project parameter usage | ~2949 |
-| #1865 | 4:34 PM | 🔵 | Project deletion/archive/rename | ~712 |
-| #1845 | 4:31 PM | 🔵 | Subagent Stop Hook Endpoint | ~1025 |
-| #1843 | 4:30 PM | 🔵 | API hooks in backend routes | ~951 |
-| #1841 | 4:30 PM | 🟠 | Writer pause/resume endpoints | ~5328 |
-| #1840 | 4:29 PM | 🟠 | Writer control endpoints | ~3993 |
-| #1839 | 4:29 PM | 🟠 | Add SSEBroadcaster dependency | ~4149 |
-| #1838 | 4:29 PM | 🔵 | Hooks Router Structure | ~923 |
-| #1837 | 4:29 PM | 🔵 | No "sseBroadcaster" in hooks.ts | ~718 |
-| #1808 | 4:24 PM | 🔵 | Hooks Router Implementation | ~3495 |
-| #1797 | 4:23 PM | 🟠 | Add SSEBroadcaster dependency | ~4137 |
+| #2335 | 6:02 PM | 🔵 | Backend API routes for project settings and archived outputs | ~1694 |
+| #2327 | 6:02 PM | 🔵 | Archived outputs feature depends on Endless Mode | ~1275 |
+| #2317 | 6:01 PM | 🔵 | Metrics Router Implementation Analysis | ~1938 |
+| #2313 | 6:00 PM | 🔵 | Found references to "archived-output" in backend routes | ~1125 |
+| #2087 | 5:17 PM | 🔄 | Standardize error handling in archived outputs endpoints | ~7328 |
+| #2086 | 5:17 PM | 🔵 | BaseRouter class provides common route utilities | ~1626 |
+| #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints for Endless Mode | ~2072 |
+| #2080 | 5:15 PM | 🟠 | Added archived outputs API endpoints for endless mode | ~6386 |
+| #2078 | 5:15 PM | 🟠 | Added Archived Outputs API Endpoints for Endless Mode | ~5296 |
+| #2077 | 5:15 PM | 🔵 | Project settings API endpoints discovered | ~1201 |
+| #2076 | 5:15 PM | 🟠 | Added optional archivedOutputs repository to DataRouterDeps | ~5043 |
+| #2071 | 5:14 PM | 🟠 | Add IArchivedOutputRepository and CompressionStatus to imports | ~4942 |
+| #2069 | 5:14 PM | 🔵 | Examining API routes and session handling in data.ts | ~2148 |
+| #2068 | 5:14 PM | 🔵 | Backend routes structure overview | ~1420 |
+| #2067 | 5:14 PM | 🔵 | Exploring Data Router Structure | ~2089 |
+| #2065 | 5:13 PM | 🔵 | No files found with "archived" or "ArchivedOutput" in routes | ~713 |
+| #1870 | 4:35 PM | 🔵 | Project parameter usage in data routes | ~2949 |
+| #1865 | 4:34 PM | 🔵 | Found project deletion/archive/rename functionality in data routes | ~712 |
+| #1845 | 4:31 PM | 🔵 | Subagent Stop Hook Endpoint Implementation | ~1025 |
+| #1843 | 4:30 PM | 🔵 | Exploring API hooks in backend routes | ~951 |
+| #1841 | 4:30 PM | 🟠 | Added writer pause/resume endpoints for git operations | ~5328 |
+| #1840 | 4:29 PM | 🟠 | Added writer control endpoints for git operations | ~3993 |
+| #1839 | 4:29 PM | 🟠 | Add SSEBroadcaster dependency to HooksRouter | ~4149 |
+| #1838 | 4:29 PM | 🔵 | Exploring Hooks Router Structure | ~923 |
+| #1837 | 4:29 PM | 🔵 | Search for "sseBroadcaster" in hooks.ts yields no results | ~718 |
+| #1808 | 4:24 PM | 🔵 | Exploring Hooks Router Implementation | ~3495 |
 
 ## Key Insights
 
-- **SSE Implementation**: Multiple discoveries around Server-Sent Events (SSE) implementation, including StreamRouter class and SSEBroadcaster dependency additions.
-- **Archived Outputs**: New API endpoints for archived outputs functionality tied to "Endless Mode" (Issue #109), with standardized error handling.
-- **Backend Structure**: Well-organized modular router architecture with 20+ specialized routers and consistent BaseRouter utilities.
-- **Project Management**: Extensive use of project parameters across data routes and project lifecycle management endpoints.
-- **Real-time Features**: Writer pause/resume endpoints added for git operations, suggesting enhanced real-time control capabilities.
-
-## Next Steps
-- Implement and test new archived outputs functionality
-- Explore integration of SSE features with existing endpoints
-- Address any remaining API authentication issues
-- Consider performance optimizations for the modular router architecture
+- **Archived Outputs Feature**: Extensive work on implementing archived outputs API endpoints tied to "Endless Mode" (Issue #109), including standardized error handling and dependency injection.
+- **SSE Implementation**: Deep exploration of Server-Sent Events (SSE) functionality through StreamRouter, revealing real-time communication patterns and SSEBroadcaster usage.
+- **Backend Architecture**: Modular router structure discovered with 20+ specialized routers, showing well-organized separation of concerns in the backend.
+- **Writer Control**: New WebSocket-based writer pause/resume endpoints added for git operations, indicating migration from SSE to WebSocket for real-time features.
+- **Project Management**: API endpoints for project settings, deletion, and lifecycle management identified, showing comprehensive project handling capabilities.
 </claude-mem-context>
