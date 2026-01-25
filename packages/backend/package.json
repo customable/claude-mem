@@ -5,21 +5,35 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "claude-mem-backend": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://git.customable.host/api/packages/customable/npm/",
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/backend-service.js",
-    "dev": "node --watch dist/backend-service.js"
+    "start": "node dist/cli.js start",
+    "dev": "node --watch dist/cli.js start",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@claude-mem/database": "workspace:*",
     "@claude-mem/shared": "workspace:*",
     "@claude-mem/types": "workspace:*",
+    "better-sqlite3": "^11.8.1",
+    "commander": "^14.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "express": "^5.2.1",
@@ -30,6 +44,7 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",

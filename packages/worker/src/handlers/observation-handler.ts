@@ -22,6 +22,16 @@ export interface ObservationResult {
   text: string;
   type: string;
   tokens: number;
+  // Optional extracted fields
+  subtitle?: string;
+  narrative?: string;
+  facts?: string[];
+  concept?: string;
+  concepts?: string[];
+  filesRead?: string[];
+  filesModified?: string[];
+  gitBranch?: string;
+  decisionCategory?: string;
 }
 
 /**
@@ -78,9 +88,12 @@ export async function handleObservationTask(
     subtitle: observation.subtitle,
     narrative: observation.narrative,
     facts: observation.facts?.length ? observation.facts : undefined,
+    concept: observation.concept,
     concepts: observation.concepts?.length ? observation.concepts : undefined,
     filesRead: observation.filesRead?.length ? observation.filesRead : undefined,
     filesModified: observation.filesModified?.length ? observation.filesModified : undefined,
+    gitBranch: observation.gitBranch,
+    decisionCategory: observation.decisionCategory,
   };
 }
 

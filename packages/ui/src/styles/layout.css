@@ -1,0 +1,164 @@
+/** Layout CSS - Responsive Sidebar Pattern **/
+
+:root {
+  --layout-sidebar-width: 240px;
+}
+
+/* == Sidebar Menu Styles == */
+.sidebar-menu {
+  @apply flex flex-col bg-base-100 border-e border-base-300;
+  width: var(--layout-sidebar-width);
+  min-width: var(--layout-sidebar-width);
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+
+  .menu-label {
+    @apply text-base-content/60 text-xs font-semibold uppercase tracking-wider px-4 py-2;
+  }
+
+  .menu-item {
+    @apply flex h-10 items-center gap-3 px-4 text-sm rounded-lg mx-2 transition-colors;
+    min-height: 44px; /* Touch-friendly */
+  }
+
+  a.menu-item,
+  button.menu-item {
+    @apply cursor-pointer hover:bg-base-200;
+
+    &.active {
+      @apply bg-primary/10 text-primary font-medium;
+    }
+  }
+}
+
+/* == Layout Container == */
+#layout-container {
+  @apply flex min-h-screen;
+}
+
+/* == Sidebar Base == */
+#layout-sidebar {
+  @apply relative z-10 flex flex-col transition-all duration-300;
+  width: var(--layout-sidebar-width);
+  min-width: var(--layout-sidebar-width);
+}
+
+/* == Mobile/Tablet: Sidebar hidden by default == */
+@media (max-width: theme(--breakpoint-lg)) {
+  #layout-sidebar {
+    @apply fixed inset-y-0 start-0 z-[500];
+    margin-inline-start: calc(var(--layout-sidebar-width) * -1);
+    transition: margin 0.3s ease-in-out;
+  }
+
+  /* Show sidebar when checkbox is checked */
+  #layout-sidebar-toggle:checked ~ #layout-container #layout-sidebar {
+    margin-inline-start: 0;
+  }
+
+  /* Backdrop overlay */
+  #layout-sidebar-backdrop {
+    @apply fixed inset-0 z-[499] bg-black/0 pointer-events-none transition-colors duration-300;
+  }
+
+  #layout-sidebar-toggle:checked ~ #layout-sidebar-backdrop {
+    @apply bg-black/30 pointer-events-auto;
+  }
+}
+
+/* == Desktop: Sidebar always visible == */
+@media (min-width: theme(--breakpoint-lg)) {
+  #layout-sidebar {
+    margin-inline-start: 0 !important;
+  }
+
+  #layout-sidebar-backdrop {
+    @apply hidden;
+  }
+
+  /* Hide hamburger on desktop */
+  .hamburger-btn {
+    @apply hidden;
+  }
+}
+
+/* == Main Content Area == */
+#layout-main {
+  @apply flex-1 flex flex-col min-w-0;
+}
+
+/* == Topbar == */
+#layout-topbar {
+  @apply sticky top-0 z-10 bg-base-100 border-b border-base-300;
+}
+
+/* == Content == */
+#layout-content {
+  @apply flex-1 p-4 lg:p-6;
+}
+
+/* == Hamburger Button == */
+.hamburger-btn {
+  @apply btn btn-square btn-ghost btn-sm;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* == Responsive Stats Grid == */
+.stats-grid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: theme(--breakpoint-md)) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* == Responsive Tables == */
+.table-container {
+  @apply overflow-x-auto -mx-4 px-4;
+}
+
+@media (min-width: theme(--breakpoint-md)) {
+  .table-container {
+    @apply mx-0 px-0;
+  }
+}
+
+/* == Modal Responsive == */
+.modal-box {
+  @apply max-w-full mx-4;
+}
+
+@media (max-width: theme(--breakpoint-sm)) {
+  .modal-box {
+    @apply w-full h-full max-h-full rounded-none m-0;
+  }
+}
+
+/* == Touch-friendly minimum sizes == */
+button,
+a,
+[role="button"],
+.btn {
+  min-height: 44px;
+}
+
+/* Allow smaller buttons with explicit sm class */
+.btn-sm {
+  min-height: 36px;
+}
+
+.btn-xs {
+  min-height: 28px;
+}
+
+/* == Hide text on small screens, show icon only == */
+@media (max-width: theme(--breakpoint-sm)) {
+  .responsive-label {
+    @apply sr-only;
+  }
+}

@@ -17,3 +17,5 @@ export { MikroOrmRawMessageRepository } from './RawMessageRepository.js';
 export { MikroOrmObservationLinkRepository } from './ObservationLinkRepository.js';
 export { MikroOrmObservationTemplateRepository } from './ObservationTemplateRepository.js';
 export { MikroOrmProjectSettingsRepository } from './ProjectSettingsRepository.js';
+export { MikroOrmArchivedOutputRepository } from './ArchivedOutputRepository.js';
+export { MikroOrmUserTaskRepository } from './UserTaskRepository.js';

@@ -7,47 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15344 | 12:50 AM | 🔴 | Add backpressure check to queueContextGenerate | ~5141 |
-| #15343 | 12:50 AM | 🔴 | Add backpressure check to queueEmbedding method | ~5271 |
-| #15342 | 12:50 AM | 🔴 | Added backpressure check to queueSummarize method | ~5198 |
-| #15341 | 12:50 AM | 🟠 | Added backpressure mechanism to TaskService | ~5588 |
-| #15340 | 12:50 AM | 🔵 | Task Service Methods for Summarization, Embedding | ~2253 |
-| #15339 | 12:50 AM | 🔵 | Identified async queue methods in task-service.ts | ~815 |
-| #15338 | 12:50 AM | 🔴 | Added backpressure check to queueObservation method | ~5372 |
-| #15337 | 12:50 AM | 🟠 | Add maxPendingTasks option to TaskServiceOptions | ~5119 |
-| #15335 | 12:50 AM | 🔵 | Task Service Structure and Observation Queueing | ~1175 |
-| #15334 | 12:50 AM | 🔵 | Task Service Structure and Dependencies | ~1673 |
-| #15266 | 12:39 AM | 🔴 | Fix TypeScript generic type inconsistency in CacheManager | ~3470 |
-| #15265 | 12:39 AM | 🔴 | Fix TypeScript generic type in CacheManager | ~3082 |
-| #15264 | 12:38 AM | 🔄 | Restrict ResponseCache generic type to objects | ~3491 |
-| #15224 | 12:34 AM | 🟠 | Added cache service exports to backend services index | ~1862 |
-| #15220 | 12:33 AM | 🟠 | Implemented Response Cache Service with LRU and TTL | ~4951 |
-| #15217 | 12:33 AM | 🔵 | Backend services index structure | ~1352 |
-
-### Jan 24
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #14937 | 11:48 PM | 🔴 | Fix SSE event field name in subagent stop broadcast | ~4820 |
-| #14936 | 11:48 PM | 🟣 | Change SSE broadcast event field from 'event' to 'type' | ~4900 |
-| #14935 | 11:48 PM | 🟠 | Add subagent lifecycle events to SSE event types | ~3743 |
-| #14934 | 11:48 PM | 🔵 | SSE Broadcaster Service Overview | ~1060 |
-| #14933 | 11:48 PM | 🔵 | SSE Broadcaster Service Implementation | ~1482 |
-| #14932 | 11:47 PM | 🔵 | SSEEvent interface and broadcast method usage discovered | ~1016 |
-| #14930 | 11:47 PM | 🟠 | Added subagent event tracking methods | ~5953 |
-| #14929 | 11:47 PM | 🔵 | Session Service Architecture and Functionality | ~3839 |
-| #14770 | 11:20 PM | 🟠 | Add isUrgent parameter to startSession for CAPSLOCK detection | ~4215 |
-| #14769 | 11:20 PM | 🟠 | Add isUrgent flag to initial prompt recording | ~4199 |
-| #14768 | 11:20 PM | 🟠 | Add isUrgent flag to user prompt recording | ~4106 |
-| #14767 | 11:20 PM | 🔵 | Session service handles session creation and resumption | ~1814 |
-| #14765 | 11:20 PM | 🔵 | Examining startSession method implementation | ~1260 |
-| #14749 | 11:15 PM | 🔵 | Task Service Methods for Observation and Summarization | ~1629 |
+| #3578 | 9:06 PM | 🔵 | SSE Event Types and Structure | ~1586 |
+| #3515 | 8:56 PM | 🔵 | Worker Token Service Implementation Analysis | ~2124 |
+| #3451 | 8:45 PM | 🔵 | SSE Broadcaster Service Structure | ~1670 |
+| #3440 | 8:44 PM | 🔵 | SSE Event Type Definition and Usage | ~2338 |
+| #3385 | 8:30 PM | 🔵 | Hub registry service methods for filtering hubs | ~1674 |
+| #3377 | 8:30 PM | 🔵 | Worker token service methods for heartbeat and registration | ~1744 |
+| #3371 | 8:28 PM | 🔵 | Worker Token Service Implementation Details | ~2206 |
+| #3356 | 8:26 PM | 🔵 | EntityManager usage in backend services | ~1309 |
+| #3312 | 8:19 PM | 🟠 | Added WorkerTokenService and HubRegistry exports to services index | ~2234 |
+| #3303 | 8:19 PM | 🔵 | Backend services index file structure | ~1714 |
+| #3293 | 8:17 PM | 🔵 | Task Service Architecture Overview | ~1674 |
+| #2722 | 6:59 PM | 🔵 | SSE Broadcaster Service Implementation | ~2299 |
+| #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
+| #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
+| #2218 | 5:48 PM | 🔵 | Search for observation and vector-related code in task-service.ts | ~1087 |
+| #2217 | 5:48 PM | 🔵 | Semantic search task execution uses polling mechanism | ~2097 |
+| #2215 | 5:48 PM | 🔵 | No vector/semantic search references in session-service.ts | ~1066 |
+| #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
+| #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
+| #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
+| #1836 | 4:29 PM | 🟠 | Add writer pause/resume events to SSEBroadcaster | ~4144 |
+| #1835 | 4:29 PM | 🟠 | Added writer pause/resume events to SSEEventType | ~3881 |
+| #1833 | 4:29 PM | 🔵 | SSE Broadcaster Implements Pre-Compact Event | ~1012 |
+| #1831 | 4:28 PM | 🔵 | SSE Event Types Defined in Backend Service | ~1006 |
+| #1830 | 4:28 PM | 🔵 | Search for "writer:pause" in SSE broadcaster service | ~719 |
+| #1809 | 4:24 PM | 🟠 | Added writer:pause and writer:resume events to SSEEventType | ~3897 |
+| #1798 | 4:23 PM | 🟠 | Added writer pause/resume broadcast methods | ~4163 |
+| #1792 | 4:22 PM | 🔵 | SSE Broadcaster Service Implementation | ~2959 |
+| #1790 | 4:22 PM | 🔵 | SSE Broadcaster Service Implementation | ~2968 |
 
 ## Key Insights
 
-- **Backpressure Mechanism Implemented**: Added `maxPendingTasks` configuration and `checkBackpressure()` to TaskService to prevent queue overload across all task types (observation, summarization, embedding, context generation).
-- **Caching System Enhanced**: Implemented LRU cache with TTL support for expensive API endpoints (projects, analytics, stats) and fixed TypeScript generic type inconsistencies in CacheManager.
-- **Subagent Lifecycle Tracking**: Added SSE event broadcasting for subagent start/stop events and implemented urgency detection (CAPSLOCK) in session management.
-- **Type Safety Improvements**: Restricted ResponseCache to object types and fixed generic type inconsistencies in CacheManager.
-- **Observability Features**: Enhanced with tracing, structured logging, and Prometheus metrics integration.
+- **SSE Event System**: The project uses a robust SSE (Server-Sent Events) system for real-time updates, with events for session management, task tracking, and worker status. New events (`writer:pause`, `writer:resume`) were added to handle CLAUDE.md writing during git operations.
+- **Worker & Hub Management**: The `WorkerTokenService` and `HubRegistry` services manage worker authentication (SHA-256 tokens) and hub filtering (health, region, labels). These were recently exported for broader use.
+- **Task & Backpressure**: The `TaskService` implements a backpressure mechanism (Issue #205) and supports "Endless Mode" for archiving outputs. Semantic search uses polling with a 30-second timeout.
+- **Insights & Achievements**: The `insights-service` tracks daily stats and unlocks achievements based on user activity (e.g., first bugfix, discovery).
+- **Federation Progress**: Recent work focused on hub federation (Issue #263), including UI components, backend APIs, and a `worker-hub` CLI. Some TypeScript errors remain in `backend-service.ts`.
 </claude-mem-context>

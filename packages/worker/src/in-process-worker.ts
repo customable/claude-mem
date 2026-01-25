@@ -19,6 +19,7 @@ import type {
   SummarizeTaskPayload,
   EmbeddingTaskPayload,
   ClaudeMdTaskPayload,
+  CompressionTaskPayload,
 } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
@@ -28,7 +29,8 @@ import { handleEmbeddingTask } from './handlers/embedding-handler.js';
 import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
 import { handleClaudeMdTask } from './handlers/claudemd-handler.js';
-import { getQdrantService } from './services/qdrant-service.js';
+import { handleCompressionTask } from './handlers/compression-handler.js';
+import { getVectorDbProvider } from './vector-db/index.js';
 
 const logger = createLogger('in-process-worker');
 
@@ -79,11 +81,11 @@ export class InProcessWorker {
     this.maxRuntimeMs = (options.maxRuntimeMin ?? settings.IN_PROCESS_WORKER_TIMEOUT) * 60 * 1000;
     this.onExit = options.onExit;
 
-    // Initialize agent
+    // Initialize agent first (needed for detectCapabilities)
     this.agent = getDefaultAgent();
 
-    // Determine capabilities
-    const capabilities = options.capabilities || this.detectCapabilities();
+    // Determine capabilities using priority chain (Issue #265)
+    const capabilities = this.resolveCapabilities(options, settings);
 
     // Build metadata
     const metadata: Record<string, unknown> = {
@@ -113,6 +115,58 @@ export class InProcessWorker {
   }
 
   /**
+   * Resolve capabilities using priority chain (Issue #265)
+   *
+   * Priority (highest first):
+   * 1. Options argument (options.capabilities)
+   * 2. Environment variable (WORKER_CAPABILITIES)
+   * 3. Profile from settings (WORKER_PROFILE env var)
+   * 4. Auto-detection (fallback)
+   */
+  private resolveCapabilities(
+    options: InProcessWorkerOptions,
+    settings: ReturnType<typeof loadSettings>
+  ): WorkerCapability[] {
+    // 1. Options argument (highest priority)
+    if (options.capabilities?.length) {
+      logger.info(`Using provided capabilities: ${options.capabilities.join(', ')}`);
+      return options.capabilities;
+    }
+
+    // 2. Environment variable
+    const envCaps = process.env.WORKER_CAPABILITIES;
+    if (envCaps) {
+      const caps = envCaps.split(',').map(c => c.trim()) as WorkerCapability[];
+      logger.info(`Using env capabilities: ${caps.join(', ')}`);
+      return caps;
+    }
+
+    // 3. Profile from settings (via WORKER_PROFILE env var)
+    const profileName = process.env.WORKER_PROFILE;
+    if (profileName && settings.WORKER_PROFILES) {
+      try {
+        const profiles = JSON.parse(settings.WORKER_PROFILES);
+        if (Array.isArray(profiles)) {
+          const profile = profiles.find(
+            (p: { name?: string }) => p.name === profileName
+          );
+          if (profile?.capabilities?.length) {
+            logger.info(`Using profile "${profileName}": ${profile.capabilities.join(', ')}`);
+            return profile.capabilities as WorkerCapability[];
+          }
+        }
+      } catch {
+        logger.warn('Failed to parse WORKER_PROFILES setting');
+      }
+      logger.warn(`Profile "${profileName}" not found, using auto-detection`);
+    }
+
+    // 4. Auto-detection (fallback)
+    logger.info('Using auto-detected capabilities');
+    return this.detectCapabilities();
+  }
+
+  /**
    * Detect available capabilities based on configuration
    */
   private detectCapabilities(): WorkerCapability[] {
@@ -123,17 +177,26 @@ export class InProcessWorker {
       case 'mistral':
         capabilities.push('observation:mistral');
         capabilities.push('summarize:mistral');
+        capabilities.push('compression:mistral');
         break;
       case 'anthropic':
         capabilities.push('observation:sdk');
         capabilities.push('summarize:sdk');
+        capabilities.push('compression:anthropic');
         break;
       default:
         capabilities.push('observation:sdk');
         capabilities.push('summarize:sdk');
+        capabilities.push('compression:anthropic');
     }
 
-    capabilities.push('qdrant:sync');
+    // Add qdrant capabilities only if vector DB is enabled
+    const settings = loadSettings();
+    if (settings.VECTOR_DB === 'qdrant') {
+      capabilities.push('qdrant:sync');
+      capabilities.push('semantic:search');
+    }
+
     capabilities.push('context:generate');
     capabilities.push('claudemd:generate');
 
@@ -348,7 +411,7 @@ export class InProcessWorker {
         return handleEmbeddingTask(payload as EmbeddingTaskPayload, signal);
 
       case 'qdrant-sync':
-        return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload, signal);
+        return handleQdrantSyncTask(getVectorDbProvider(), payload as QdrantSyncTaskPayload, signal);
 
       case 'context-generate': {
         const contextPayload = payload as import('@claude-mem/types').ContextGenerateTaskPayload;
@@ -379,6 +442,24 @@ export class InProcessWorker {
           claudeMdPayload,
           claudeMdPayload.observations || [],
           claudeMdPayload.summaries || [],
+          signal
+        );
+      }
+
+      case 'compression': {
+        const compressionPayload = payload as CompressionTaskPayload & {
+          archivedOutput: {
+            id: number;
+            toolName: string;
+            toolInput: string;
+            toolOutput: string;
+            tokenCount?: number;
+          };
+        };
+        return handleCompressionTask(
+          this.agent,
+          compressionPayload,
+          compressionPayload.archivedOutput,
           signal
         );
       }

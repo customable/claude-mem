@@ -4,8 +4,8 @@
  * Represents a link between two observations.
  */
 
-import { Entity, PrimaryKey, Property, Index, ManyToOne } from '@mikro-orm/core';
-import { Observation } from './Observation.js';
+import { Entity, PrimaryKey, Property, Index, ManyToOne, type Rel } from '@mikro-orm/core';
+import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'observation_links' })
 export class ObservationLink {
@@ -34,9 +34,9 @@ export class ObservationLink {
   created_at_epoch!: number;
 
   // Relations (optional, for eager loading if needed)
-  @ManyToOne(() => Observation, { nullable: true, persist: false })
-  source?: Observation;
+  @ManyToOne('Observation', { nullable: true, persist: false })
+  source?: Rel<Observation>;
 
-  @ManyToOne(() => Observation, { nullable: true, persist: false })
-  target?: Observation;
+  @ManyToOne('Observation', { nullable: true, persist: false })
+  target?: Rel<Observation>;
 }

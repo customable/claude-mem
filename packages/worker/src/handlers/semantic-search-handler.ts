@@ -1,13 +1,14 @@
 /**
- * Semantic Search Handler
+ * Semantic Search Handler (Issue #112)
  *
- * Processes semantic search tasks using Qdrant vector database.
+ * Processes semantic search tasks using the vector database.
  * Returns similar observations/summaries based on embedding similarity.
+ * Uses the provider-agnostic VectorDatabase interface.
  */
 
 import { createLogger } from '@claude-mem/shared';
 import type { SemanticSearchTaskPayload, SemanticSearchTask } from '@claude-mem/types';
-import { QdrantService } from '../services/qdrant-service.js';
+import type { VectorDatabase } from '../vector-db/index.js';
 
 const logger = createLogger('semantic-search-handler');
 
@@ -18,9 +19,12 @@ export type SemanticSearchResult = NonNullable<SemanticSearchTask['result']>;
 
 /**
  * Handle a semantic search task
+ *
+ * Uses the provider-agnostic VectorDatabase interface to support
+ * multiple backends (Qdrant, sqlite-vec, etc.) via Issue #112.
  */
 export async function handleSemanticSearchTask(
-  qdrantService: QdrantService,
+  vectorDb: VectorDatabase,
   payload: SemanticSearchTaskPayload,
   signal?: AbortSignal
 ): Promise<SemanticSearchResult> {
@@ -37,8 +41,8 @@ export async function handleSemanticSearchTask(
     limit: payload.limit,
   });
 
-  // Initialize Qdrant service (loads embedding model, ensures collection)
-  await qdrantService.initialize();
+  // Initialize vector database (loads embedding model, ensures collection)
+  await vectorDb.initialize();
 
   // Build filter for search
   const filter: { type?: string; project?: string } = {};
@@ -52,7 +56,7 @@ export async function handleSemanticSearchTask(
   }
 
   // Perform vector similarity search
-  const searchResults = await qdrantService.search(payload.query, {
+  const searchResults = await vectorDb.search(payload.query, {
     limit: payload.limit || 20,
     filter: Object.keys(filter).length > 0 ? filter : undefined,
     scoreThreshold: payload.minScore || 0.5,

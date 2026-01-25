@@ -3,6 +3,9 @@
   "private": true,
   "description": "Persistent memory system for Claude Code - Modular architecture",
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "build": "pnpm -r build",
     "build:types": "pnpm --filter @claude-mem/types build",
     "build:shared": "pnpm --filter @claude-mem/shared build",
@@ -16,7 +19,6 @@
     "dev:ui": "pnpm --filter @claude-mem/ui dev",
     "dev:web": "pnpm --filter @claude-mem/web dev",
     "dev:restart": "node scripts/dev-restart.js",
-    "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "sync-marketplace": "node scripts/sync-marketplace.cjs",
@@ -26,8 +28,14 @@
     "docker:logs": "docker-compose logs -f"
   },
   "devDependencies": {
+    "@swc/core": "^1.15.10",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^3.2.2",
+    "esbuild": "^0.27.2",
+    "supertest": "^7.2.2",
     "typescript": "^5.9.3",
-    "esbuild": "^0.27.2"
+    "unplugin-swc": "^1.5.9",
+    "vitest": "^3.2.2"
   },
   "engines": {
     "node": ">=24.13.0",

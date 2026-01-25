@@ -407,4 +407,53 @@ export class SessionService {
 
     logger.info(`Subagent stopped: ${params.subagentId} (type: ${params.subagentType}) in session ${session.id}`);
   }
+
+  /**
+   * Enter plan mode for a session (Issue #317)
+   * Called when EnterPlanMode tool is used
+   */
+  async enterPlanMode(contentSessionId: string): Promise<void> {
+    const session = await this.sessions.findByContentSessionId(contentSessionId);
+    if (!session) {
+      logger.warn(`Session not found for plan mode enter: ${contentSessionId}`);
+      return;
+    }
+
+    // Update session with plan mode state
+    const now = Date.now();
+    await this.sessions.update(session.id, {
+      isInPlanMode: true,
+      planModeEnteredAt: now,
+      planModeCount: (session.plan_mode_count ?? 0) + 1,
+    });
+
+    logger.info(`Session ${session.id} entered plan mode (count: ${(session.plan_mode_count ?? 0) + 1})`);
+  }
+
+  /**
+   * Exit plan mode for a session (Issue #317)
+   * Called when ExitPlanMode tool is used
+   * Returns the duration in plan mode (ms)
+   */
+  async exitPlanMode(contentSessionId: string): Promise<number> {
+    const session = await this.sessions.findByContentSessionId(contentSessionId);
+    if (!session) {
+      logger.warn(`Session not found for plan mode exit: ${contentSessionId}`);
+      return 0;
+    }
+
+    // Calculate duration
+    const now = Date.now();
+    const enteredAt = session.plan_mode_entered_at ?? now;
+    const duration = now - enteredAt;
+
+    // Update session - exit plan mode
+    await this.sessions.update(session.id, {
+      isInPlanMode: false,
+      planModeEnteredAt: undefined,
+    });
+
+    logger.info(`Session ${session.id} exited plan mode after ${duration}ms`);
+    return duration;
+  }
 }

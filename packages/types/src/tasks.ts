@@ -29,7 +29,8 @@ export type TaskType =
   | 'qdrant-sync'
   | 'semantic-search'
   | 'context-generate'
-  | 'claude-md';
+  | 'claude-md'
+  | 'compression'; // Endless Mode (Issue #109)
 
 /**
  * Base task interface
@@ -50,6 +51,8 @@ export interface BaseTask {
   maxRetries: number;
   /** Unix timestamp (ms) for when the task can be retried (Issue #206) */
   retryAfter?: number;
+  /** Hash of type+payload for deduplication (Issue #207) */
+  deduplicationKey?: string;
 }
 
 /**
@@ -98,9 +101,12 @@ export interface ObservationTask extends BaseTask {
     subtitle?: string;
     narrative?: string;
     facts?: string[];
+    concept?: string;
     concepts?: string[];
     filesRead?: string[];
     filesModified?: string[];
+    gitBranch?: string;
+    decisionCategory?: string;
   };
 }
 
@@ -291,6 +297,43 @@ export interface ClaudeMdTask extends BaseTask {
 }
 
 /**
+ * Compression task payload (Endless Mode - Issue #109)
+ */
+export interface CompressionTaskPayload {
+  /** Archived output ID to compress */
+  archivedOutputId: number;
+  /** Session for context */
+  sessionId: string;
+  /** Project for context */
+  project: string;
+  /** Tool name for context */
+  toolName: string;
+  /** Original token count */
+  tokenCount?: number;
+}
+
+/**
+ * Compression task (Endless Mode - Issue #109)
+ *
+ * Compresses archived tool outputs to create observations
+ * with ~95% token reduction.
+ */
+export interface CompressionTask extends BaseTask {
+  type: 'compression';
+  payload: CompressionTaskPayload;
+  result?: {
+    /** Created observation ID */
+    observationId: number;
+    /** Original token count */
+    originalTokens: number;
+    /** Compressed token count */
+    compressedTokens: number;
+    /** Compression ratio achieved */
+    compressionRatio: number;
+  };
+}
+
+/**
  * Union of all task types
  */
 export type Task =
@@ -300,7 +343,8 @@ export type Task =
   | QdrantSyncTask
   | SemanticSearchTask
   | ContextGenerateTask
-  | ClaudeMdTask;
+  | ClaudeMdTask
+  | CompressionTask;
 
 /**
  * Task creation input (without system fields)

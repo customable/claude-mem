@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15476 | 1:23 AM | 🔵 | Exploring Data Router Structure | ~2090 |
-| #15475 | 1:23 AM | 🔴 | Add error handling for FTS5 query parsing in semantic search fallback | ~4303 |
-| #15474 | 1:23 AM | 🔴 | Add error handling for FTS5 query parsing in combinedSearch | ~4185 |
-| #15472 | 1:22 AM | 🔴 | Add error handling for FTS5 query parsing errors in search endpoint | ~5046 |
-| #15471 | 1:22 AM | 🔵 | Base Router Utility Class Structure | ~1655 |
-| #15470 | 1:22 AM | 🔵 | Identified files using search functionality | ~748 |
-| #15421 | 1:04 AM | 🔵 | Backend package.json structure and dependencies | ~1316 |
-| #15347 | 12:51 AM | 🔵 | Task service uses async queue methods | ~874 |
-| #15346 | 12:51 AM | 🔵 | TypeScript typecheck script requires workspace flag | ~787 |
-| #15345 | 12:50 AM | 🔴 | Add backpressure check to queueClaudeMd method | ~5350 |
-| #15344 | 12:50 AM | 🔴 | Add backpressure check to queueContextGenerate | ~5141 |
-| #15343 | 12:50 AM | 🔴 | Add backpressure check to queueEmbedding method | ~5271 |
-| #15342 | 12:50 AM | 🔴 | Added backpressure check to queueSummarize method | ~5198 |
-| #15341 | 12:50 AM | 🟠 | Added backpressure mechanism to TaskService | ~5588 |
-| #15340 | 12:50 AM | 🔵 | Task Service Methods for Summarization, Embedding, and Context Generation | ~2253 |
-| #15339 | 12:50 AM | 🔵 | Identified async queue methods in task-service.ts | ~815 |
-| #15338 | 12:50 AM | 🔴 | Added backpressure check to queueObservation method | ~5372 |
-| #15337 | 12:50 AM | 🟠 | Add maxPendingTasks option to TaskServiceOptions | ~5119 |
-| #15336 | 12:50 AM | 🟠 | Add rate limiter imports to backend service | ~5158 |
-| #15335 | 12:50 AM | 🔵 | Task Service Structure and Observation Queueing | ~1175 |
-| #15334 | 12:50 AM | 🔵 | Task Service Structure and Dependencies | ~1673 |
-| #15333 | 12:50 AM | 🟠 | Added rate limiting to expensive API routes | ~5260 |
-| #15332 | 12:49 AM | 🟠 | Import rate limiter middleware for API protection | ~1693 |
-| #15331 | 12:49 AM | 🔵 | Backend API routes and static UI serving | ~1833 |
-| #15330 | 12:49 AM | 🟠 | Added rate limiting middleware to API routes | ~1964 |
-| #15329 | 12:49 AM | 🔵 | Express app setup with middleware pipeline | ~1428 |
-| #15328 | 12:49 AM | 🔵 | Backend service initialization and API routes | ~2640 |
-| #15327 | 12:49 AM | 🔵 | Backend Service Architecture Overview | ~2889 |
-| #15326 | 12:48 AM | 🔵 | Backend Service CLI Structure and Commands | ~1596 |
-| #15325 | 12:48 AM | 🟠 | Added rate limiter exports to middleware index | ~1345 |
+| #3072 | 7:51 PM | 🔵 | Backend package.json analysis | ~1808 |
+| #3068 | 7:51 PM | 🟠 | Create migration module for legacy data import | ~1641 |
+| #3065 | 7:50 PM | 🟠 | Create SQLite backup utility for legacy migration | ~2520 |
+| #3064 | 7:49 PM | 🟠 | Create type mapper for legacy migration | ~2350 |
+| #3052 | 7:47 PM | 🔵 | Backend package.json structure and dependencies | ~1821 |
+| #3050 | 7:47 PM | 🔵 | Base Router Class Structure and Utilities | ~1984 |
+| #3000 | 7:43 PM | 🔵 | Backend Service CLI Structure and Commands | ~2027 |
+| #2881 | 7:32 PM | 🔵 | Backend routes module structure discovered | ~1788 |
+| #2819 | 7:17 PM | 🔵 | Backend service initializes WebSocket and SSE components | ~1528 |
+| #2818 | 7:17 PM | 🔵 | Discovered SSEBroadcaster and WorkerHub usage | ~1588 |
+| #2806 | 7:15 PM | 🔵 | Worker task assignment mechanism discovered | ~1484 |
+| #2804 | 7:15 PM | 🔵 | WorkerHub class methods for worker management | ~1974 |
+| #2785 | 7:10 PM | 🔵 | Worker message handling architecture discovered | ~1532 |
+| #2781 | 7:09 PM | 🔵 | WebSocket Server Implementation with Heartbeat | ~1979 |
+| #2775 | 7:09 PM | 🔵 | Worker Hub WebSocket Management Structure | ~1803 |
+| #2774 | 7:08 PM | 🟠 | Created SSE-Writer Client Type for WebSocket System | ~2887 |
+| #2767 | 7:08 PM | 🟠 | Added ChannelManager export to WebSocket module | ~1723 |
+| #2766 | 7:08 PM | 🔵 | WebSocket module exports identified | ~1163 |
+| #2736 | 7:00 PM | 🔵 | WebSocket Types Structure | ~1453 |
+| #2732 | 7:00 PM | 🔵 | SSE broadcast mechanism usage across backend | ~1863 |
+| #2731 | 7:00 PM | 🔵 | Backend Service CLI Structure and Commands | ~2029 |
+| #2729 | 7:00 PM | 🔵 | SSE Stream Router Implementation | ~1584 |
+| #2728 | 7:00 PM | 📝 | WebSocket module exports overview | ~1177 |
+| #2722 | 6:59 PM | 🔵 | SSE Broadcaster Service Implementation | ~2299 |
+| #2719 | 6:59 PM | 🔵 | No WebSocket route or subscription patterns found | ~1162 |
+| #2718 | 6:59 PM | 🔵 | SSE broadcasting methods for task and worker events | ~2232 |
+| #2714 | 6:59 PM | 🔵 | SSE broadcasting in task dispatcher | ~1448 |
+| #2706 | 6:58 PM | 🔵 | SSE Stream Implementation Analysis | ~1568 |
+| #2704 | 6:58 PM | 🔵 | Backend Service CLI Structure and Commands | ~1982 |
+| #2700 | 6:58 PM | 🔵 | Search for SSE broadcaster usage in task dispatcher | ~1116 |
 
 ## Key Insights
 
-- **Backpressure Mechanism Implemented**: Added `maxPendingTasks` configuration and `checkBackpressure()` method to TaskService to prevent queue overload (Issue #205).
-- **Rate Limiting Added**: Implemented rate limiting across API routes (standardLimiter, expensiveLimiter, etc.) to prevent abuse and ensure fair usage.
-- **Error Handling for FTS5 Queries**: Added try-catch blocks in search-related methods to handle FTS5 query parsing errors gracefully.
-- **Monorepo Structure**: TypeScript typecheck requires workspace flag, indicating a pnpm-based monorepo setup.
-- **Task Queue Architecture**: Discovered async queue methods (queueObservation, queueSummarize, etc.) and their consistent backpressure checks.
+- **Migration System Development**: Created comprehensive migration tools (backup utility, type mapper, migration module) for legacy data import, addressing Issue #198.
+- **WebSocket & SSE Architecture**: Discovered and documented the WebSocket (WorkerHub) and SSE (SSEBroadcaster) systems for real-time communication and task management.
+- **Backend Structure**: Analyzed backend components including CLI commands, router architecture, and service initialization patterns.
+- **Rebranding & Multi-tenancy Plans**: Established "remembr" as the new brand with PostgreSQL migration and column-based multi-tenancy strategy for MVP.
+- **Next Steps**: Focus on SQLite distribution fixes, PostgreSQL integration, and executing the rebranding plan while stabilizing core features.
 </claude-mem-context>

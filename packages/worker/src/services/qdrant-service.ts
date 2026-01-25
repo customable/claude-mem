@@ -2,19 +2,14 @@
  * Qdrant Vector Database Service
  *
  * Handles embedding generation and vector storage/retrieval.
+ * Uses pluggable embedding providers via the embedding registry (Issue #112).
  */
 
 import { QdrantClient } from '@qdrant/js-client-rest';
-import { pipeline, env } from '@xenova/transformers';
 import { createLogger, loadSettings } from '@claude-mem/shared';
-import path from 'path';
-import os from 'os';
+import { getEmbeddingProvider, type EmbeddingProvider } from '../embeddings/index.js';
 
 const logger = createLogger('qdrant');
-
-// Configure transformers.js cache
-env.cacheDir = path.join(os.homedir(), '.claude-mem', 'models');
-env.allowLocalModels = true;
 
 /**
  * Document to be embedded and stored
@@ -55,23 +50,18 @@ export interface QdrantServiceConfig {
 
 /**
  * Qdrant Vector Database Service
+ *
+ * Uses the embedding provider registry for flexible embedding generation.
  */
-// Feature extraction pipeline type from transformers.js
-type FeatureExtractionPipeline = (text: string, options?: { pooling?: string; normalize?: boolean }) => Promise<{ data: Float32Array }>;
-
 export class QdrantService {
   private client: QdrantClient | null = null;
-  private embedder: FeatureExtractionPipeline | null = null;
+  private embeddingProvider: EmbeddingProvider | null = null;
   private readonly collectionName: string;
-  private readonly embeddingModel: string;
-  private readonly embeddingDimension = 384; // MiniLM-L6-v2 dimension
+  private embeddingDimension: number = 384; // Default, updated after provider init
   private initialized = false;
 
   constructor(config: QdrantServiceConfig = {}) {
-    const settings = loadSettings();
-
     this.collectionName = config.collectionName || 'claude-mem';
-    this.embeddingModel = config.embeddingModel || settings.EMBEDDING_MODEL || 'Xenova/all-MiniLM-L6-v2';
 
     const url = config.url || process.env.QDRANT_URL || 'http://localhost:6333';
     const apiKey = config.apiKey || process.env.QDRANT_API_KEY;
@@ -83,20 +73,23 @@ export class QdrantService {
   }
 
   /**
-   * Initialize the service (load model, ensure collection exists)
+   * Initialize the service (load embedding provider, ensure collection exists)
    */
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
-    logger.info('Initializing Qdrant service...', { model: this.embeddingModel });
+    logger.info('Initializing Qdrant service...');
 
     try {
-      // Load embedding model
-      logger.debug('Loading embedding model...');
-      this.embedder = await pipeline('feature-extraction', this.embeddingModel, {
-        quantized: true, // Use quantized model for speed
-      }) as unknown as FeatureExtractionPipeline;
-      logger.info('Embedding model loaded');
+      // Get embedding provider from registry
+      this.embeddingProvider = getEmbeddingProvider();
+      await this.embeddingProvider.initialize();
+      this.embeddingDimension = this.embeddingProvider.dimension;
+
+      logger.info('Embedding provider initialized', {
+        provider: this.embeddingProvider.name,
+        dimension: this.embeddingDimension,
+      });
 
       // Ensure collection exists
       await this.ensureCollection();
@@ -149,29 +142,14 @@ export class QdrantService {
   }
 
   /**
-   * Generate embeddings for texts
+   * Generate embeddings for texts using the configured provider
    */
   async embed(texts: string[]): Promise<number[][]> {
-    if (!this.embedder) {
-      throw new Error('Embedder not initialized');
+    if (!this.embeddingProvider) {
+      throw new Error('Embedding provider not initialized');
     }
 
-    const embeddings: number[][] = [];
-
-    for (const text of texts) {
-      // Truncate long texts (model has max token limit)
-      const truncated = text.slice(0, 8000);
-
-      const output = await this.embedder(truncated, {
-        pooling: 'mean',
-        normalize: true,
-      });
-
-      // Convert to regular array
-      embeddings.push(Array.from(output.data as Float32Array));
-    }
-
-    return embeddings;
+    return this.embeddingProvider.embed(texts);
   }
 
   /**
@@ -341,8 +319,11 @@ export class QdrantService {
    * Close the service
    */
   async close(): Promise<void> {
+    if (this.embeddingProvider) {
+      await this.embeddingProvider.close();
+    }
     this.client = null;
-    this.embedder = null;
+    this.embeddingProvider = null;
     this.initialized = false;
   }
 }

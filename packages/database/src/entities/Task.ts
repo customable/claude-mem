@@ -7,7 +7,9 @@
 import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
 import type { TaskStatus, TaskType } from '@claude-mem/types';
 
-@Entity({ tableName: 'task_queue' })
+@Entity({ tableName: 'tasks' })
+@Index({ properties: ['assigned_worker_id', 'status'] })
+@Index({ properties: ['required_capability', 'status', 'priority'] })
 export class Task {
   @PrimaryKey({ type: 'string' })
   id!: string;
@@ -61,4 +63,8 @@ export class Task {
   @Property({ nullable: true })
   @Index()
   retry_after?: number; // epoch - when task can be retried (Issue #206)
+
+  @Property({ nullable: true })
+  @Index()
+  deduplication_key?: string; // Hash of type+payload for deduplication (Issue #207)
 }

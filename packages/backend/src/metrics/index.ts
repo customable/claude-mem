@@ -1,5 +1,5 @@
 /**
- * Prometheus Metrics (Issue #209)
+ * Prometheus Metrics (Issue #209, #258)
  *
  * Provides metrics for monitoring:
  * - HTTP request latency and counts
@@ -7,9 +7,74 @@
  * - Worker utilization
  * - Queue depth
  * - Database operations (optional)
+ *
+ * Refactored to use interface-based configuration (Issue #258).
  */
 
 import { Registry, Counter, Histogram, Gauge, collectDefaultMetrics } from 'prom-client';
+import type { MetricConfig } from '@claude-mem/types';
+import { METRICS_CONFIG, type MetricName } from './config.js';
+
+// Re-export config for external use
+export { METRICS_CONFIG, type MetricName } from './config.js';
+
+/**
+ * Metric instances type map
+ */
+type MetricInstance<T extends MetricConfig> =
+  T extends { type: 'histogram' } ? Histogram<string> :
+  T extends { type: 'counter' } ? Counter<string> :
+  T extends { type: 'gauge' } ? Gauge<string> :
+  never;
+
+type MetricInstances = {
+  [K in MetricName]: MetricInstance<typeof METRICS_CONFIG[K]>;
+};
+
+/**
+ * Create a metric instance from configuration
+ */
+function createMetric<T extends MetricConfig>(
+  config: T,
+  registry: Registry
+): MetricInstance<T> {
+  const baseConfig = {
+    name: config.name,
+    help: config.help,
+    labelNames: config.labelNames as string[] | undefined,
+    registers: [registry],
+  };
+
+  switch (config.type) {
+    case 'histogram':
+      return new Histogram({
+        ...baseConfig,
+        buckets: [...config.buckets],
+      }) as MetricInstance<T>;
+
+    case 'counter':
+      return new Counter(baseConfig) as MetricInstance<T>;
+
+    case 'gauge':
+      return new Gauge(baseConfig) as MetricInstance<T>;
+
+    default:
+      throw new Error(`Unknown metric type: ${(config as MetricConfig).type}`);
+  }
+}
+
+/**
+ * Create all metrics from configuration
+ */
+function createMetrics(registry: Registry): MetricInstances {
+  const metrics: Record<string, Histogram<string> | Counter<string> | Gauge<string>> = {};
+
+  for (const [name, config] of Object.entries(METRICS_CONFIG)) {
+    metrics[name] = createMetric(config, registry);
+  }
+
+  return metrics as MetricInstances;
+}
 
 // Create a custom registry
 export const registry = new Registry();
@@ -17,141 +82,26 @@ export const registry = new Registry();
 // Add default metrics (Node.js process metrics)
 collectDefaultMetrics({ register: registry });
 
-// ============================================
-// HTTP Request Metrics
-// ============================================
+// Create all metric instances
+const metricInstances = createMetrics(registry);
 
-export const httpRequestDuration = new Histogram({
-  name: 'claude_mem_http_request_duration_ms',
-  help: 'HTTP request duration in milliseconds',
-  labelNames: ['method', 'path', 'status'] as const,
-  buckets: [10, 50, 100, 200, 500, 1000, 2000, 5000],
-  registers: [registry],
-});
+// Export individual metrics for backward compatibility
+export const httpRequestDuration = metricInstances.httpRequestDuration;
+export const httpRequestTotal = metricInstances.httpRequestTotal;
+export const taskDuration = metricInstances.taskDuration;
+export const taskQueueDepth = metricInstances.taskQueueDepth;
+export const taskTotal = metricInstances.taskTotal;
+export const workerCount = metricInstances.workerCount;
+export const workerBusy = metricInstances.workerBusy;
+export const sessionCount = metricInstances.sessionCount;
+export const activeSessionCount = metricInstances.activeSessionCount;
+export const observationCount = metricInstances.observationCount;
+export const observationsByType = metricInstances.observationsByType;
+export const dbQueryDuration = metricInstances.dbQueryDuration;
+export const sseConnectionCount = metricInstances.sseConnectionCount;
 
-export const httpRequestTotal = new Counter({
-  name: 'claude_mem_http_request_total',
-  help: 'Total HTTP requests',
-  labelNames: ['method', 'path', 'status'] as const,
-  registers: [registry],
-});
-
-// ============================================
-// Task Metrics
-// ============================================
-
-export const taskDuration = new Histogram({
-  name: 'claude_mem_task_duration_ms',
-  help: 'Task processing duration in milliseconds',
-  labelNames: ['type', 'status'] as const,
-  buckets: [100, 500, 1000, 2000, 5000, 10000, 30000, 60000],
-  registers: [registry],
-});
-
-export const taskQueueDepth = new Gauge({
-  name: 'claude_mem_task_queue_depth',
-  help: 'Current number of tasks in queue',
-  labelNames: ['status'] as const,
-  registers: [registry],
-});
-
-export const taskTotal = new Counter({
-  name: 'claude_mem_task_total',
-  help: 'Total tasks processed',
-  labelNames: ['type', 'status'] as const,
-  registers: [registry],
-});
-
-// ============================================
-// Worker Metrics
-// ============================================
-
-export const workerCount = new Gauge({
-  name: 'claude_mem_worker_count',
-  help: 'Number of connected workers',
-  labelNames: ['type'] as const, // permanent, spawned
-  registers: [registry],
-});
-
-export const workerBusy = new Gauge({
-  name: 'claude_mem_worker_busy_count',
-  help: 'Number of workers currently processing tasks',
-  registers: [registry],
-});
-
-// ============================================
-// Session Metrics
-// ============================================
-
-export const sessionCount = new Gauge({
-  name: 'claude_mem_session_count',
-  help: 'Total number of sessions',
-  labelNames: ['status'] as const,
-  registers: [registry],
-});
-
-export const activeSessionCount = new Gauge({
-  name: 'claude_mem_active_session_count',
-  help: 'Number of currently active sessions',
-  registers: [registry],
-});
-
-// ============================================
-// Observation Metrics
-// ============================================
-
-export const observationCount = new Gauge({
-  name: 'claude_mem_observation_count',
-  help: 'Total number of observations',
-  registers: [registry],
-});
-
-export const observationsByType = new Gauge({
-  name: 'claude_mem_observations_by_type',
-  help: 'Number of observations by type',
-  labelNames: ['type'] as const,
-  registers: [registry],
-});
-
-// ============================================
-// Database Metrics
-// ============================================
-
-export const dbQueryDuration = new Histogram({
-  name: 'claude_mem_db_query_duration_ms',
-  help: 'Database query duration in milliseconds',
-  labelNames: ['operation', 'table'] as const,
-  buckets: [1, 5, 10, 25, 50, 100, 250, 500, 1000],
-  registers: [registry],
-});
-
-// ============================================
-// SSE Connection Metrics
-// ============================================
-
-export const sseConnectionCount = new Gauge({
-  name: 'claude_mem_sse_connection_count',
-  help: 'Number of active SSE connections',
-  registers: [registry],
-});
-
-// ============================================
-// Export all metrics
-// ============================================
-
+// Export all metrics object
 export const metrics = {
   registry,
-  httpRequestDuration,
-  httpRequestTotal,
-  taskDuration,
-  taskQueueDepth,
-  taskTotal,
-  workerCount,
-  workerBusy,
-  sessionCount,
-  activeSessionCount,
-  observationCount,
-  observationsByType,
-  dbQueryDuration,
-  sseConnectionCount,
+  ...metricInstances,
 };

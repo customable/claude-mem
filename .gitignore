@@ -42,3 +42,4 @@ temp/
 # Database (local dev copies)
 packages/database/claude-mem.db
 packages/database/src/migrations/.snapshot-claude-mem.db.json
+/.playwright-mcp/

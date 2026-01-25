@@ -7,7 +7,7 @@
  */
 
 import { createLogger, loadSettings, VERSION } from '@claude-mem/shared';
-import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload, ClaudeMdTaskPayload, SemanticSearchTaskPayload } from '@claude-mem/types';
+import type { WorkerCapability, TaskType, QdrantSyncTaskPayload, SummarizeTaskPayload, EmbeddingTaskPayload, ClaudeMdTaskPayload, SemanticSearchTaskPayload, CompressionTaskPayload } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
 import { handleObservationTask } from './handlers/observation-handler.js';
@@ -17,7 +17,8 @@ import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
 import { handleSemanticSearchTask } from './handlers/semantic-search-handler.js';
 import { handleClaudeMdTask } from './handlers/claudemd-handler.js';
-import { getQdrantService } from './services/qdrant-service.js';
+import { handleCompressionTask } from './handlers/compression-handler.js';
+import { getVectorDbProvider } from './vector-db/index.js';
 
 const logger = createLogger('worker-service');
 
@@ -48,11 +49,11 @@ export class WorkerService {
   constructor(config: WorkerServiceConfig = {}) {
     const settings = loadSettings();
 
-    // Determine capabilities
-    const capabilities = config.capabilities || this.detectCapabilities();
-
-    // Initialize agent
+    // Initialize agent first (needed for detectCapabilities)
     this.agent = getDefaultAgent();
+
+    // Determine capabilities using priority chain (Issue #265)
+    const capabilities = this.resolveCapabilities(config, settings);
 
     // Build metadata, including spawnedId if this worker was spawned by backend
     const metadata: Record<string, unknown> = {
@@ -85,6 +86,58 @@ export class WorkerService {
   }
 
   /**
+   * Resolve capabilities using priority chain (Issue #265)
+   *
+   * Priority (highest first):
+   * 1. CLI argument (config.capabilities)
+   * 2. Environment variable (WORKER_CAPABILITIES)
+   * 3. Profile from settings
+   * 4. Auto-detection (fallback)
+   */
+  private resolveCapabilities(
+    config: WorkerServiceConfig,
+    settings: ReturnType<typeof loadSettings>
+  ): WorkerCapability[] {
+    // 1. CLI argument (highest priority)
+    if (config.capabilities?.length) {
+      logger.info(`Using CLI capabilities: ${config.capabilities.join(', ')}`);
+      return config.capabilities;
+    }
+
+    // 2. Environment variable
+    const envCaps = process.env.WORKER_CAPABILITIES;
+    if (envCaps) {
+      const caps = envCaps.split(',').map(c => c.trim()) as WorkerCapability[];
+      logger.info(`Using env capabilities: ${caps.join(', ')}`);
+      return caps;
+    }
+
+    // 3. Profile from settings (via WORKER_PROFILE env var)
+    const profileName = process.env.WORKER_PROFILE;
+    if (profileName && settings.WORKER_PROFILES) {
+      try {
+        const profiles = JSON.parse(settings.WORKER_PROFILES);
+        if (Array.isArray(profiles)) {
+          const profile = profiles.find(
+            (p: { name?: string }) => p.name === profileName
+          );
+          if (profile?.capabilities?.length) {
+            logger.info(`Using profile "${profileName}": ${profile.capabilities.join(', ')}`);
+            return profile.capabilities as WorkerCapability[];
+          }
+        }
+      } catch {
+        logger.warn('Failed to parse WORKER_PROFILES setting');
+      }
+      logger.warn(`Profile "${profileName}" not found, using auto-detection`);
+    }
+
+    // 4. Auto-detection (fallback)
+    logger.info('Using auto-detected capabilities');
+    return this.detectCapabilities();
+  }
+
+  /**
    * Detect available capabilities based on configuration
    */
   private detectCapabilities(): WorkerCapability[] {
@@ -96,19 +149,25 @@ export class WorkerService {
       case 'mistral':
         capabilities.push('observation:mistral');
         capabilities.push('summarize:mistral');
+        capabilities.push('compression:mistral');
         break;
       case 'anthropic':
         capabilities.push('observation:sdk');
         capabilities.push('summarize:sdk');
+        capabilities.push('compression:anthropic');
         break;
       default:
         capabilities.push('observation:sdk');
         capabilities.push('summarize:sdk');
+        capabilities.push('compression:anthropic');
     }
 
-    // Add qdrant capability if available
-    capabilities.push('qdrant:sync');
-    capabilities.push('semantic:search');
+    // Add qdrant capabilities only if vector DB is enabled
+    const settings = loadSettings();
+    if (settings.VECTOR_DB === 'qdrant') {
+      capabilities.push('qdrant:sync');
+      capabilities.push('semantic:search');
+    }
 
     // Context generation capability
     capabilities.push('context:generate');
@@ -259,10 +318,10 @@ export class WorkerService {
         return handleEmbeddingTask(payload as EmbeddingTaskPayload, signal);
 
       case 'qdrant-sync':
-        return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload, signal);
+        return handleQdrantSyncTask(getVectorDbProvider(), payload as QdrantSyncTaskPayload, signal);
 
       case 'semantic-search':
-        return handleSemanticSearchTask(getQdrantService(), payload as SemanticSearchTaskPayload, signal);
+        return handleSemanticSearchTask(getVectorDbProvider(), payload as SemanticSearchTaskPayload, signal);
 
       case 'context-generate': {
         const contextPayload = payload as import('@claude-mem/types').ContextGenerateTaskPayload;
@@ -298,6 +357,25 @@ export class WorkerService {
           claudeMdPayload,
           claudeMdPayload.observations || [],
           claudeMdPayload.summaries || [],
+          signal
+        );
+      }
+
+      case 'compression': {
+        // Compression tasks include archived output data in the payload
+        const compressionPayload = payload as CompressionTaskPayload & {
+          archivedOutput: {
+            id: number;
+            toolName: string;
+            toolInput: string;
+            toolOutput: string;
+            tokenCount?: number;
+          };
+        };
+        return handleCompressionTask(
+          this.agent,
+          compressionPayload,
+          compressionPayload.archivedOutput,
           signal
         );
       }

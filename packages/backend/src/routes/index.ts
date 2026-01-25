@@ -41,3 +41,7 @@ export { CleanupRouter } from './cleanup.js';
 export type { CleanupRouterDeps } from './cleanup.js';
 export { MetricsRouter } from './metrics.js';
 export type { MetricsRouterOptions } from './metrics.js';
+export { WorkerTokensRouter } from './worker-tokens.js';
+export type { WorkerTokensRouterDeps } from './worker-tokens.js';
+export { HubsRouter } from './hubs.js';
+export type { HubsRouterDeps } from './hubs.js';

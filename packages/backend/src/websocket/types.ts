@@ -23,6 +23,9 @@ export interface ConnectedWorker {
   // Latency tracking
   lastPingTime?: number;
   latencyHistory: number[];
+  // Token-based auth (Issue #263)
+  tokenId?: string; // ID of the token used for authentication
+  systemId?: string; // Unique system identifier (hostname + pid)
 }
 
 /**

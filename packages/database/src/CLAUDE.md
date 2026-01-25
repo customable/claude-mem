@@ -7,47 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15392 | 12:57 AM | 🔄 | Update TaskRepository.updateStatus parameter type | ~3262 |
-| #15391 | 12:57 AM | 🟣 | Update TaskRepository import to use TaskUpdateExtras | ~3316 |
-| #15386 | 12:56 AM | 🔵 | Task status update logic with exponential backoff | ~1114 |
-| #15385 | 12:56 AM | 🔴 | Fix type annotation in TaskRepository.updateStatus | ~3367 |
-| #15384 | 12:56 AM | 🟠 | Added BaseTask import to TaskRepository | ~3289 |
-| #15383 | 12:56 AM | 🔵 | TaskRepository uses SQLite-specific JSON queries | ~957 |
-| #15378 | 12:55 AM | 🔵 | TaskRepository handles status updates and backoff | ~1222 |
-| #15375 | 12:55 AM | 🔵 | TaskRepository handles task updates and assignment | ~1118 |
-| #15373 | 12:55 AM | 🟠 | Add new migration for retry_after field | ~3496 |
-| #15372 | 12:54 AM | 🟠 | Add new migration for retry_after field | ~3562 |
-| #15371 | 12:53 AM | 🔵 | Database supports multiple database types | ~3012 |
-| #15370 | 12:53 AM | 🔵 | Database migration structure discovered | ~1738 |
-| #15368 | 12:53 AM | 🟠 | Add new migration export for AddRetryAfterField | ~2096 |
-| #15367 | 12:53 AM | 🟠 | Add retry_after field for exponential backoff | ~1447 |
-| #15361 | 12:53 AM | 🟠 | Added retryAfter support for exponential backoff | ~4112 |
-| #15359 | 12:53 AM | 🔴 | Add retry_after check to getNextPending query | ~4255 |
-| #15357 | 12:52 AM | 🟠 | Added retryAfter field to Task entity conversion | ~3933 |
-| #15355 | 12:52 AM | 🟠 | Add retry_after field to Task entity | ~1595 |
-| #15354 | 12:52 AM | 🔵 | Task Entity Structure Analysis | ~1293 |
-| #15304 | 12:45 AM | 🟠 | Added batchUpdateStatus method to TaskRepository | ~4013 |
-| #15302 | 12:45 AM | 🟠 | Added batchDelete method to ObservationRepository | ~5903 |
-| #15297 | 12:45 AM | 🔵 | MikroORM Task Repository Implementation | ~2721 |
-| #15296 | 12:45 AM | 🔵 | ObservationRepository's delete and analytics | ~1129 |
-| #15214 | 12:32 AM | 🔵 | MikroORM Observation Repository Implementation | ~5557 |
-| #15208 | 12:32 AM | 🔵 | UserPromptRepository implementation | ~1783 |
-| #14990 | 11:54 PM | 🔵 | Usage of sanitizeFts5Query in ObservationRepository | ~781 |
-| #14989 | 11:54 PM | 🔴 | Fix TypeScript type assertion in search results | ~6672 |
-| #14987 | 11:54 PM | 🔵 | ObservationRepository uses FTS5 for semantic search | ~1033 |
-| #14985 | 11:54 PM | 🔄 | Renamed method from sanitizeFts5Query to parseFts5Query | ~5431 |
-| #14983 | 11:54 PM | 🔵 | ObservationRepository implements search facets | ~1756 |
+| #3562 | 9:04 PM | 🔵 | Discovering SessionRepository usage | ~1182 |
+| #3557 | 9:03 PM | 📦 | Add plan mode tracking to sessions table | ~1896 |
+| #3550 | 9:03 PM | 🔵 | Discovered migration list usage | ~1423 |
+| #3549 | 9:03 PM | 🔵 | Session Entity Structure Analysis | ~1973 |
+| #3547 | 9:03 PM | 🔵 | Discovered MikroORM migration files | ~1407 |
+| #3545 | 9:03 PM | 📦 | Add new migration export | ~1884 |
+| #3541 | 9:02 PM | 🔵 | Located Session class | ~998 |
+| #3495 | 8:53 PM | 🔵 | Database entities include WorkerToken | ~1281 |
+| #3393 | 8:32 PM | 🔵 | MikroORM migration config structure | ~2002 |
+| #3392 | 8:32 PM | 📦 | Add new migration for worker federation | ~2377 |
+| #3390 | 8:31 PM | 🔵 | MikroORM migration files structure | ~1295 |
+| #3357 | 8:26 PM | 🟠 | Add SqlEntityManager type re-export | ~1913 |
+| #3353 | 8:26 PM | 🔵 | MikroORM database layer exports | ~1419 |
+| #3351 | 8:25 PM | 🔵 | MikroORM Database Initializer | ~1943 |
+| #3349 | 8:25 PM | 📝 | Database layer documentation | ~1396 |
+| #3348 | 8:25 PM | 🔵 | Database entities structure | ~1574 |
+| #3344 | 8:24 PM | 🔄 | Separate type import for Ref | ~1981 |
+| #3343 | 8:24 PM | 🔵 | WorkerRegistration Entity | ~1647 |
+| #3288 | 8:17 PM | 🟠 | Create Hub entity | ~2205 |
+| #3282 | 8:16 PM | 📦 | Migration for user_tasks table | ~2115 |
+| #3274 | 8:16 PM | 🟠 | Created WorkerToken entity | ~2226 |
+| #3270 | 8:15 PM | 🔵 | Database entities structure | ~1448 |
+| #3269 | 8:15 PM | 🟠 | Add new entity exports | ~2089 |
+| #3268 | 8:15 PM | 🟠 | Create WorkerRegistration entity | ~2140 |
+| #3265 | 8:15 PM | 🔵 | MikroORM Database Initializer | ~1939 |
+| #3263 | 8:14 PM | 🔵 | Task Entity Structure | ~1709 |
+| #3249 | 8:13 PM | 🔵 | Session Entity Structure | ~1944 |
+| #3244 | 8:12 PM | 🔵 | Database entities structure | ~1462 |
+| #3241 | 8:12 PM | 🔵 | Task Entity Structure | ~1719 |
+| #3166 | 8:05 PM | 🔵 | Database supports SQLite, PostgreSQL | ~1634 |
 
 ## Key Insights
 
-- **Exponential Backoff Implementation**: Added `retry_after` field to Task entity and implemented retry logic (Issue #206) to prevent thundering herd problems.
-- **Batch Operations**: Introduced `batchUpdateStatus` and `batchDelete` methods to optimize database queries (Issue #204).
-- **Type Safety Improvements**: Refactored `TaskRepository.updateStatus` parameter type from `Partial<BaseTask>` to `TaskUpdateExtras` for better type safety.
-- **Multi-Database Support**: Project supports SQLite, PostgreSQL, and MySQL with MikroORM, but contains SQLite-specific optimizations (e.g., `json_each()`).
-- **FTS5 Search**: ObservationRepository uses FTS5 for semantic search with query sanitization and faceted filtering.
-
-## Next Steps
-- Test exponential backoff and batch operations under load.
-- Verify TypeScript typecheck for remaining workspace projects.
-- Monitor performance improvements from caching and rate limiting.
+- **Worker Federation Implementation**: Added WorkerToken, WorkerRegistration, and Hub entities with migrations for token-based authentication and hub registry functionality.
+- **Database Architecture**: Uses MikroORM with explicit migration lists (7 migrations) supporting SQLite, PostgreSQL, and MySQL.
+- **Session Enhancements**: Added plan mode tracking columns (is_in_plan_mode, timestamps, counters) to sessions table.
+- **Type Safety Improvements**: Separated type imports (e.g., `import type`) and added SqlEntityManager re-exports for better developer experience.
+- **UI/Backend Integration**: Completed Workers View UI with tabbed interface and resolved TypeScript errors in backend services.
 </claude-mem-context>

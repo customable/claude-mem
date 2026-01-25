@@ -18,8 +18,93 @@ import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
 import { maybeTransitionToWorker } from '../worker-lifecycle.js';
+import { normalizeToDirectory } from '../utils/path-utils.js';
 
 const logger = createLogger('hook:post-tool-use');
+
+/**
+ * Claude Code task tools that should be captured (Issue #260)
+ */
+const TASK_TOOLS = new Set([
+  'TaskCreate',
+  'TaskUpdate',
+  'TaskList',
+  'TaskGet',
+]);
+
+/**
+ * Claude Code plan mode tools (Issue #317)
+ */
+const PLAN_MODE_TOOLS = new Set(['EnterPlanMode', 'ExitPlanMode']);
+
+/**
+ * TaskCreate tool input structure
+ */
+interface TaskCreateInput {
+  subject: string;
+  description: string;
+  activeForm?: string;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * TaskUpdate tool input structure
+ */
+interface TaskUpdateInput {
+  taskId: string;
+  status?: 'pending' | 'in_progress' | 'completed';
+  subject?: string;
+  description?: string;
+  activeForm?: string;
+  owner?: string;
+  addBlockedBy?: string[];
+  addBlocks?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Git commands that should pause the SSE-Writer (Issue #288)
+ * These commands modify staging area or start multi-step operations
+ */
+const GIT_PAUSE_COMMANDS = [
+  'git add',
+  'git stage',
+  'git rm',
+  'git mv',
+  'git reset',
+  'git rebase',
+  'git merge',
+  'git cherry-pick',
+  'git revert',
+];
+
+/**
+ * Git commands that should resume the SSE-Writer (Issue #288)
+ * These commands finalize operations
+ */
+const GIT_RESUME_COMMANDS = [
+  'git commit',
+  'git stash',
+  'git checkout',
+  'git switch',
+  'git restore',
+];
+
+/**
+ * Check if a bash command is a git pause command
+ */
+function isGitPauseCommand(command: string): boolean {
+  const trimmed = command.trim().toLowerCase();
+  return GIT_PAUSE_COMMANDS.some(cmd => trimmed.startsWith(cmd));
+}
+
+/**
+ * Check if a bash command is a git resume command
+ */
+function isGitResumeCommand(command: string): boolean {
+  const trimmed = command.trim().toLowerCase();
+  return GIT_RESUME_COMMANDS.some(cmd => trimmed.startsWith(cmd));
+}
 
 /**
  * Tools to ignore (pure routing/introspection, no actionable content)
@@ -76,8 +161,9 @@ function extractTargetDirectory(toolInput: string): string | undefined {
     }
 
     // Path-based tools: Glob, Grep
+    // Note: path could be a file path for these tools, so normalize (Issue #297)
     if (input.path) {
-      return input.path;
+      return normalizeToDirectory(input.path);
     }
 
     // Notebook tools
@@ -124,6 +210,117 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
   if (!ready) {
     logger.debug('Backend not ready, skipping observation');
     return skip();
+  }
+
+  // Handle git command writer control (Issue #288)
+  if (input.toolName === 'Bash' && input.toolInput) {
+    try {
+      const toolInput = JSON.parse(input.toolInput);
+      const command = toolInput.command || '';
+
+      if (isGitPauseCommand(command)) {
+        // Pause writer during git staging operations
+        await client.post('/api/hooks/writer/pause', {
+          sessionId: input.sessionId,
+          reason: 'git-staging',
+        });
+        logger.debug('Writer paused for git staging operation');
+      } else if (isGitResumeCommand(command)) {
+        // Resume writer after git finalizing operations
+        await client.post('/api/hooks/writer/resume', {
+          sessionId: input.sessionId,
+        });
+        logger.debug('Writer resumed after git operation');
+      }
+    } catch {
+      // Ignore JSON parse errors - not all Bash inputs are JSON
+    }
+  }
+
+  // Handle Claude Code task tools (Issue #260)
+  if (TASK_TOOLS.has(input.toolName) && input.toolInput) {
+    try {
+      const taskInput = JSON.parse(input.toolInput);
+      const gitBranch = getGitBranch(input.cwd);
+
+      if (input.toolName === 'TaskCreate') {
+        const createInput = taskInput as TaskCreateInput;
+        // Extract externalId from toolOutput (Issue #316)
+        let externalId: string | undefined;
+        try {
+          const output = JSON.parse(input.toolOutput || '{}');
+          externalId = output.taskId;
+        } catch {
+          // Ignore parse errors - toolOutput might not be JSON
+        }
+        await client.post('/api/hooks/user-task/create', {
+          sessionId: input.sessionId,
+          project: input.project,
+          externalId, // Link to Claude Code's taskId
+          title: createInput.subject,
+          description: createInput.description,
+          activeForm: createInput.activeForm,
+          workingDirectory: input.cwd,
+          gitBranch,
+          sourceMetadata: createInput.metadata,
+        });
+        logger.debug(`User task created: ${createInput.subject} (externalId: ${externalId})`);
+      } else if (input.toolName === 'TaskUpdate') {
+        const updateInput = taskInput as TaskUpdateInput;
+        await client.post('/api/hooks/user-task/update', {
+          sessionId: input.sessionId,
+          project: input.project,
+          externalId: updateInput.taskId,
+          title: updateInput.subject,
+          description: updateInput.description,
+          activeForm: updateInput.activeForm,
+          status: updateInput.status,
+          owner: updateInput.owner,
+          blockedBy: updateInput.addBlockedBy,
+          blocks: updateInput.addBlocks,
+          sourceMetadata: updateInput.metadata,
+        });
+        logger.debug(`User task updated: ${updateInput.taskId}`);
+      }
+      // TaskList and TaskGet are read-only, no need to capture
+    } catch (err) {
+      const error = err as Error;
+      logger.warn('Failed to capture user task:', { message: error.message });
+      // Don't block the tool flow
+    }
+  }
+
+  // Handle Claude Code plan mode tools (Issue #317)
+  if (PLAN_MODE_TOOLS.has(input.toolName)) {
+    try {
+      if (input.toolName === 'EnterPlanMode') {
+        await client.post('/api/hooks/plan-mode/enter', {
+          sessionId: input.sessionId,
+          project: input.project,
+        });
+        logger.debug('Session entered plan mode');
+      } else if (input.toolName === 'ExitPlanMode') {
+        // Parse toolInput for approval info
+        let allowedPrompts: unknown[] | undefined;
+        try {
+          const exitInput = JSON.parse(input.toolInput || '{}');
+          allowedPrompts = exitInput.allowedPrompts;
+        } catch {
+          // Ignore parse errors
+        }
+        await client.post('/api/hooks/plan-mode/exit', {
+          sessionId: input.sessionId,
+          project: input.project,
+          approved: true, // ExitPlanMode = User has approved
+          allowedPrompts,
+        });
+        logger.debug('Session exited plan mode');
+      }
+    } catch (err) {
+      const error = err as Error;
+      logger.warn('Failed to update plan mode:', { message: error.message });
+      // Don't block the tool flow
+    }
   }
 
   try {

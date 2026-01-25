@@ -62,6 +62,17 @@ export class MikroOrmDatabase {
   }
 
   /**
+   * Get a forked EntityManager for independent operations
+   * Used for services that need their own EntityManager instance
+   */
+  getForkedEntityManager(): SqlEntityManager {
+    if (!this.orm) {
+      throw new Error('Database not initialized. Call initialize() first.');
+    }
+    return this.orm.em.fork() as SqlEntityManager;
+  }
+
+  /**
    * Close the database connection
    */
   async close(): Promise<void> {

@@ -38,5 +38,9 @@
   "files": [
     "dist",
     "src"
-  ]
+  ],
+  "publishConfig": {
+    "registry": "https://git.customable.host/api/packages/customable/npm/",
+    "access": "public"
+  }
 }

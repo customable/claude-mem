@@ -38,7 +38,7 @@ function toRecord(entity: Observation): ObservationRecord {
     files_read: entity.files_read,
     files_modified: entity.files_modified,
     git_branch: entity.git_branch,
-    cwd: entity.cwd,
+    cwd: entity.working_directory,
     prompt_number: entity.prompt_number,
     discovery_tokens: entity.discovery_tokens,
     // Decision tracking
@@ -79,7 +79,7 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       prompt_number: input.promptNumber,
       discovery_tokens: input.discoveryTokens,
       git_branch: input.gitBranch,
-      cwd: input.cwd,
+      working_directory: input.cwd,
       created_at: now.toISOString(),
       created_at_epoch: now.getTime(),
       // Decision tracking
@@ -143,7 +143,7 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       qb.andWhere({ created_at_epoch: { $lte: epoch } });
     }
     if (filters?.cwdPrefix) {
-      qb.andWhere({ cwd: { $like: `${filters.cwdPrefix}%` } });
+      qb.andWhere({ working_directory: { $like: `${filters.cwdPrefix}%` } });
     }
 
     qb.orderBy({ [options?.orderBy || 'created_at_epoch']: options?.order || 'DESC' });
@@ -451,6 +451,95 @@ export class MikroOrmObservationRepository implements IObservationRepository {
 
   async getBySessionId(memorySessionId: string, options?: QueryOptions): Promise<ObservationRecord[]> {
     return this.list({ sessionId: memorySessionId }, options);
+  }
+
+  /**
+   * Get observation counts for multiple sessions (Issue #202)
+   * Single query with GROUP BY instead of N separate queries
+   */
+  async getCountsBySessionIds(memorySessionIds: string[]): Promise<Map<string, number>> {
+    const result = new Map<string, number>();
+    if (memorySessionIds.length === 0) return result;
+
+    const knex = this.em.getKnex();
+
+    // Chunk to avoid SQLite parameter limits
+    const chunkSize = 500;
+    for (let i = 0; i < memorySessionIds.length; i += chunkSize) {
+      const chunk = memorySessionIds.slice(i, i + chunkSize);
+      const rows = await knex('observations')
+        .whereIn('memory_session_id', chunk)
+        .select('memory_session_id')
+        .count('* as count')
+        .groupBy('memory_session_id');
+
+      for (const row of rows) {
+        const r = row as { memory_session_id: string; count: number | string };
+        result.set(r.memory_session_id, typeof r.count === 'number' ? r.count : parseInt(r.count, 10));
+      }
+    }
+
+    // Initialize missing session IDs with 0
+    for (const id of memorySessionIds) {
+      if (!result.has(id)) {
+        result.set(id, 0);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Get file statistics for multiple sessions (Issue #202)
+   * Returns aggregated files_read and files_modified per session
+   */
+  async getFileStatsBySessionIds(memorySessionIds: string[]): Promise<Map<string, { filesRead: string[]; filesModified: string[] }>> {
+    const result = new Map<string, { filesRead: string[]; filesModified: string[] }>();
+    if (memorySessionIds.length === 0) return result;
+
+    // Initialize all session IDs with empty arrays
+    for (const id of memorySessionIds) {
+      result.set(id, { filesRead: [], filesModified: [] });
+    }
+
+    const knex = this.em.getKnex();
+
+    // Chunk to avoid SQLite parameter limits
+    const chunkSize = 500;
+    for (let i = 0; i < memorySessionIds.length; i += chunkSize) {
+      const chunk = memorySessionIds.slice(i, i + chunkSize);
+      const rows = await knex('observations')
+        .whereIn('memory_session_id', chunk)
+        .andWhere(function() {
+          this.whereNotNull('files_read').orWhereNotNull('files_modified');
+        })
+        .select('memory_session_id', 'files_read', 'files_modified');
+
+      for (const row of rows) {
+        const r = row as { memory_session_id: string; files_read: string | null; files_modified: string | null };
+        const stats = result.get(r.memory_session_id)!;
+
+        if (r.files_read) {
+          try {
+            const files = JSON.parse(r.files_read) as string[];
+            for (const f of files) {
+              if (!stats.filesRead.includes(f)) stats.filesRead.push(f);
+            }
+          } catch { /* ignore parse errors */ }
+        }
+
+        if (r.files_modified) {
+          try {
+            const files = JSON.parse(r.files_modified) as string[];
+            for (const f of files) {
+              if (!stats.filesModified.includes(f)) stats.filesModified.push(f);
+            }
+          } catch { /* ignore parse errors */ }
+        }
+      }
+    }
+
+    return result;
   }
 
   async getForContext(project: string, limit: number): Promise<ObservationRecord[]> {

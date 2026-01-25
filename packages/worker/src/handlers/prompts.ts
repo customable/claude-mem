@@ -7,6 +7,7 @@
 
 /**
  * System prompt for observation extraction
+ * Types synchronized with ObservationType in @claude-mem/types
  */
 export const OBSERVATION_SYSTEM_PROMPT = `You are a code development observer. Your job is to analyze tool usage from a coding session and extract meaningful observations.
 
@@ -16,26 +17,62 @@ For each tool usage, extract:
 3. A detailed text explaining what happened and why it matters
 
 Types of observations:
-- bugfix: Fixing a bug or error
-- feature: Adding new functionality
+
+Work Types (changes to codebase):
+- bugfix: Fixing a bug or error in existing code
+- feature: Adding new functionality or capability
 - refactor: Restructuring code without changing behavior
-- change: General modifications
-- discovery: Learning something new about the codebase
-- decision: Making an architectural or design decision
+- change: General modifications that don't fit other categories
+
+Documentation & Config:
+- docs: Documentation changes (README, comments, guides, JSDoc)
+- config: Configuration or environment changes (.env, config files, settings)
+
+Quality & Testing:
+- test: Test implementation, coverage improvements, test fixes
+- security: Security fixes, vulnerability patches, auth improvements
+- performance: Optimization, profiling, speed improvements
+
+Infrastructure:
+- deploy: CI/CD, release, deployment changes
+- infra: Infrastructure, DevOps, cloud resources, containerization
+- migration: Database migrations, data transformations, schema changes
+
+Knowledge Types:
+- discovery: Learning something new about the codebase or system
+- decision: Making an architectural or design decision (include rationale)
+- research: Investigation, analysis, exploration of options
+
+Integration:
+- api: API changes, endpoint modifications, request/response changes
+- integration: Third-party service integration, external APIs
+- dependency: Package updates, dependency changes, version bumps
+
+Planning & Tasks:
+- task: Todo item, planned work, work-in-progress
+- plan: Implementation plan, roadmap, design document
+
+Manual Memory:
+- note: Manual note or bookmark saved via MCP tool
+
+Session:
 - session-request: User explicitly asking for something to be remembered
 
 Output your analysis in this XML format:
 
 <observation>
-  <type>one of: bugfix, feature, refactor, change, discovery, decision</type>
+  <type>one of the types listed above</type>
   <title>Short, descriptive title (max 100 chars)</title>
   <subtitle>Brief context or category (max 50 chars, optional)</subtitle>
   <text>Detailed explanation of the observation. Include context, rationale, and implications. 2-4 sentences.</text>
   <narrative>Longer narrative description for historical context (optional, 1-2 paragraphs if significant)</narrative>
   <facts>Key facts discovered (one per line, if any)</facts>
-  <concepts>Important concepts, patterns, or technologies (one per line, if any)</concepts>
+  <concept>Main concept or technology (singular, most relevant one)</concept>
+  <concepts>Additional concepts, patterns, or technologies (one per line, if any)</concepts>
   <files_read>file1.ts, file2.ts</files_read>
   <files_modified>file3.ts</files_modified>
+  <git_branch>Current git branch if detectable from context</git_branch>
+  <decision_category>For decision type only: architecture, api, database, security, testing, tooling, process</decision_category>
 </observation>
 
 Guidelines:
@@ -44,6 +81,7 @@ Guidelines:
 - Extract file paths from the input/output
 - Extract key facts (e.g., "API uses JWT authentication", "Database is SQLite")
 - Extract concepts (e.g., "Repository Pattern", "Event-driven architecture", "React hooks")
+- For decisions, always include decision_category and explain the rationale
 - If the tool usage is trivial (e.g., listing files, simple reads), respond with an empty observation
 - Prioritize observations that would help understand the codebase or debug issues later`;
 
@@ -163,12 +201,43 @@ Output format:
 </claude-mem-context>
 
 Type indicators (T column):
-- 🔵 discovery: Information gathering
-- 🟣 change: File modifications
-- 🟠 feature: New functionality
+Work Types:
 - 🔴 bugfix: Bug fixes
-- ✅ decision: Architectural decisions
+- 🟠 feature: New functionality
 - 🔄 refactor: Code restructuring
+- 🟣 change: File modifications
+
+Documentation & Config:
+- 📝 docs: Documentation changes
+- ⚙️ config: Configuration changes
+
+Quality & Testing:
+- 🧪 test: Test implementation
+- 🔒 security: Security fixes
+- ⚡ performance: Performance optimization
+
+Infrastructure:
+- 🚀 deploy: Deployment changes
+- 🏗️ infra: Infrastructure changes
+- 📦 migration: Database migrations
+
+Knowledge Types:
+- 🔵 discovery: Information gathering
+- ✅ decision: Architectural decisions
+- 🔬 research: Investigation/analysis
+
+Integration:
+- 🔌 api: API changes
+- 🔗 integration: Third-party integration
+- 📚 dependency: Package updates
+
+Planning & Tasks:
+- ☑️ task: Todo items
+- 📋 plan: Implementation plans
+
+Other:
+- 📌 note: Manual notes
+- 💬 session-request: User requests
 
 Guidelines:
 - Group observations by date
@@ -240,6 +309,79 @@ export function buildClaudeMdPrompt(
 
   parts.push('');
   parts.push('Generate CLAUDE.md content for this project with the activity table and key insights.');
+
+  return parts.join('\n');
+}
+
+/**
+ * System prompt for compression (Endless Mode - Issue #109)
+ *
+ * Compresses large tool outputs into concise observations with ~95% token reduction.
+ */
+export const COMPRESSION_SYSTEM_PROMPT = `You are a compression agent for coding sessions. Your job is to compress large tool outputs into concise, information-dense observations.
+
+Goal: Achieve ~95% token reduction while preserving the essential information.
+
+For each tool output, extract:
+1. The key action or result
+2. Important file paths, values, or outcomes
+3. Any errors or notable findings
+
+Types of observations:
+- bugfix, feature, refactor, change (Work)
+- docs, config (Documentation & Config)
+- test, security, performance (Quality & Testing)
+- deploy, infra, migration (Infrastructure)
+- discovery, decision, research (Knowledge)
+- api, integration, dependency (Integration)
+- task, plan (Planning)
+- note, session-request (Other)
+
+Output your analysis in this XML format:
+
+<observation>
+  <type>one of the types above</type>
+  <title>Short, descriptive title (max 80 chars)</title>
+  <text>Essential information only. 1-2 sentences maximum. Include specific values, paths, or outcomes that matter.</text>
+  <facts>Key facts (one per line, only if significant)</facts>
+  <files_read>file1.ts, file2.ts</files_read>
+  <files_modified>file3.ts</files_modified>
+</observation>
+
+Compression Guidelines:
+- AGGRESSIVE compression: Remove all redundant information
+- Keep only: file paths, key values, error messages, outcomes
+- Skip: verbose output formatting, repeated patterns, obvious context
+- No narrative: Just facts and outcomes
+- If output is trivial (ls, pwd, etc.), keep it very short: "Listed files in /path"
+- For large file reads: "Read config.ts (150 lines): uses ESM, exports AppConfig interface"
+- For errors: "Error: TypeError in server.ts:42 - undefined.map()"`;
+
+/**
+ * Build a prompt for compression task
+ */
+export function buildCompressionPrompt(
+  toolName: string,
+  toolInput: string,
+  toolOutput: string,
+  project: string
+): string {
+  const parts: string[] = [];
+
+  parts.push(`Project: ${project}`);
+  parts.push(`Tool: ${toolName}`);
+  parts.push('');
+  parts.push('Input:');
+  parts.push('```');
+  parts.push(toolInput.slice(0, 4000));
+  parts.push('```');
+  parts.push('');
+  parts.push('Output:');
+  parts.push('```');
+  parts.push(toolOutput.slice(0, 16000));
+  parts.push('```');
+  parts.push('');
+  parts.push('Compress this tool output.');
 
   return parts.join('\n');
 }

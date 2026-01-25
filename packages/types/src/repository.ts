@@ -11,6 +11,8 @@ import type {
   SessionSummaryRecord,
   UserPromptRecord,
   DocumentRecord,
+  ArchivedOutputRecord,
+  CompressionStatus,
   ObservationType,
   DocumentType,
   SessionStatus,
@@ -138,6 +140,10 @@ export interface UpdateSessionInput {
   repoPath?: string;
   isWorktree?: boolean;
   branch?: string;
+  // Plan mode tracking (Issue #317)
+  isInPlanMode?: boolean;
+  planModeEnteredAt?: number;
+  planModeCount?: number;
 }
 
 /**
@@ -230,7 +236,7 @@ export interface ISessionRepository {
 export interface CreateObservationInput {
   memorySessionId: string;
   project: string;
-  text: string;
+  text?: string;
   type: ObservationType;
   title?: string;
   subtitle?: string;
@@ -316,6 +322,18 @@ export interface IObservationRepository {
    * Get observations for a session
    */
   getBySessionId(memorySessionId: string, options?: QueryOptions): Promise<ObservationRecord[]>;
+
+  /**
+   * Get observation counts for multiple sessions (Issue #202)
+   * Efficient batch query to avoid N+1 problem
+   */
+  getCountsBySessionIds(memorySessionIds: string[]): Promise<Map<string, number>>;
+
+  /**
+   * Get file statistics for multiple sessions (Issue #202)
+   * Returns aggregated files_read and files_modified per session
+   */
+  getFileStatsBySessionIds(memorySessionIds: string[]): Promise<Map<string, { filesRead: string[]; filesModified: string[] }>>;
 
   /**
    * Get observations for context injection
@@ -716,6 +734,12 @@ export interface ITaskQueueRepository {
    * Create a new task
    */
   create<T extends Task>(input: CreateTaskInput<T>): Promise<T>;
+
+  /**
+   * Create a task only if no duplicate exists (Issue #207)
+   * Returns null if an active task with same deduplication key exists
+   */
+  createIfNotExists<T extends Task>(input: CreateTaskInput<T>): Promise<T | null>;
 
   /**
    * Find task by ID
@@ -1316,6 +1340,102 @@ export interface IProjectSettingsRepository {
 }
 
 // ============================================
+// Archived Output Repository (Endless Mode)
+// ============================================
+
+/**
+ * Archived output creation input
+ */
+export interface CreateArchivedOutputInput {
+  memorySessionId: string;
+  project: string;
+  toolName: string;
+  toolInput: string;
+  toolOutput: string;
+  tokenCount?: number;
+}
+
+/**
+ * Archived output query filters
+ */
+export interface ArchivedOutputQueryFilters {
+  project?: string;
+  sessionId?: string;
+  toolName?: string;
+  compressionStatus?: CompressionStatus | CompressionStatus[];
+  dateRange?: DateRangeFilter;
+}
+
+/**
+ * Archived Output Repository Interface (Endless Mode - Issue #109)
+ */
+export interface IArchivedOutputRepository {
+  /**
+   * Archive a tool output
+   */
+  create(input: CreateArchivedOutputInput): Promise<ArchivedOutputRecord>;
+
+  /**
+   * Find archived output by ID
+   */
+  findById(id: number): Promise<ArchivedOutputRecord | null>;
+
+  /**
+   * Get pending outputs for compression
+   */
+  getPendingCompression(limit?: number): Promise<ArchivedOutputRecord[]>;
+
+  /**
+   * Update compression status
+   */
+  updateCompressionStatus(
+    id: number,
+    status: CompressionStatus,
+    extra?: {
+      compressedObservationId?: number;
+      compressedTokenCount?: number;
+      errorMessage?: string;
+    }
+  ): Promise<ArchivedOutputRecord | null>;
+
+  /**
+   * List archived outputs with filters
+   */
+  list(filters?: ArchivedOutputQueryFilters, options?: QueryOptions): Promise<ArchivedOutputRecord[]>;
+
+  /**
+   * Get archived output by observation ID (for recall)
+   */
+  findByObservationId(observationId: number): Promise<ArchivedOutputRecord | null>;
+
+  /**
+   * Search archived outputs (for MCP recall)
+   */
+  search(query: string, filters?: ArchivedOutputQueryFilters, options?: QueryOptions): Promise<ArchivedOutputRecord[]>;
+
+  /**
+   * Get storage statistics
+   */
+  getStats(): Promise<{
+    totalCount: number;
+    pendingCount: number;
+    completedCount: number;
+    failedCount: number;
+    totalTokensSaved: number;
+  }>;
+
+  /**
+   * Delete an archived output
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Cleanup old compressed outputs
+   */
+  cleanup(olderThanDays: number): Promise<number>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -1325,6 +1445,9 @@ import type {
   ITechnologyUsageRepository,
   IAchievementRepository,
 } from './insights.js';
+
+// Import user task repository interface
+import type { IUserTaskRepository } from './user-task.js';
 
 /**
  * Unit of Work - provides access to all repositories
@@ -1348,6 +1471,10 @@ export interface IUnitOfWork {
   achievements: IAchievementRepository;
   // Lazy mode
   rawMessages: IRawMessageRepository;
+  // Endless Mode (Issue #109)
+  archivedOutputs: IArchivedOutputRepository;
+  // User Tasks from CLI tools (Issue #260)
+  userTasks: IUserTaskRepository;
 
   /**
    * Start a transaction

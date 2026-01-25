@@ -10,18 +10,19 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@claude-mem/shared": "workspace:*",
     "@claude-mem/types": "workspace:*",
     "@claude-mem/worker": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.25.3",
-    "eventsource": "^4.1.0"
+    "ws": "^8.18.1"
   },
   "devDependencies": {
-    "@types/eventsource": "^3.0.0",
     "@types/node": "^24.10.9",
+    "@types/ws": "^8.18.1",
     "typescript": "^5.9.3",
     "zod": "^4.3.6"
   }

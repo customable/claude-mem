@@ -7,7 +7,7 @@
 import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IUserTaskRepository } from '@claude-mem/types';
 
 /**
  * Helper to get string from query/params (handles string | string[])
@@ -50,6 +50,7 @@ export interface ExportRouterDeps {
   observations: IObservationRepository;
   summaries: ISummaryRepository;
   sessions: ISessionRepository;
+  userTasks: IUserTaskRepository;
 }
 
 export class ExportRouter extends BaseRouter {
@@ -69,6 +70,9 @@ export class ExportRouter extends BaseRouter {
 
     // Export single session with all related data
     this.router.get('/sessions/:id', this.asyncHandler(this.exportSession.bind(this)));
+
+    // Export user tasks (Issue #260)
+    this.router.get('/user-tasks', this.asyncHandler(this.exportUserTasks.bind(this)));
   }
 
   /**
@@ -206,5 +210,121 @@ export class ExportRouter extends BaseRouter {
         summaries: summaries.length,
       },
     });
+  }
+
+  /**
+   * GET /api/export/user-tasks
+   * Export user tasks (Issue #260)
+   * Query params: project, status, format (json|markdown|download)
+   */
+  private async exportUserTasks(req: Request, res: Response): Promise<void> {
+    const { project, status, format, limit } = req.query;
+    const projectFilter = getString(project);
+    const statusFilter = getString(status);
+    const formatType = getString(format) ?? 'json';
+    const limitNum = this.parseOptionalIntParam(getString(limit)) ?? 1000;
+
+    // Build status filter
+    let statusArray: string[] | undefined;
+    if (statusFilter) {
+      statusArray = statusFilter.includes(',') ? statusFilter.split(',') : [statusFilter];
+    }
+
+    const tasks = await this.deps.userTasks.list({
+      project: projectFilter,
+      status: statusArray as any,
+      limit: limitNum,
+    });
+
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      filters: {
+        project: projectFilter ?? 'all',
+        status: statusFilter ?? 'all',
+      },
+      count: tasks.length,
+      tasks,
+    };
+
+    // Markdown format
+    if (formatType === 'markdown') {
+      const lines: string[] = [
+        `# User Tasks Export`,
+        ``,
+        `Exported: ${exportData.exportedAt}`,
+        `Project: ${exportData.filters.project}`,
+        `Status: ${exportData.filters.status}`,
+        `Total: ${exportData.count} tasks`,
+        ``,
+        `---`,
+        ``,
+      ];
+
+      for (const task of tasks) {
+        const statusEmoji = {
+          pending: '⏳',
+          in_progress: '🔄',
+          blocked: '🚫',
+          more_info_needed: '❓',
+          ready_for_review: '👁️',
+          completed: '✅',
+          cancelled: '❌',
+        }[task.status] || '📋';
+
+        lines.push(`## ${statusEmoji} ${task.title}`);
+        lines.push(``);
+        lines.push(`- **ID:** ${task.id}`);
+        lines.push(`- **Status:** ${task.status}`);
+        lines.push(`- **Project:** ${task.project}`);
+        lines.push(`- **Source:** ${task.source}`);
+        if (task.priority) lines.push(`- **Priority:** ${task.priority}`);
+        if (task.owner) lines.push(`- **Owner:** ${task.owner}`);
+        if (task.gitBranch) lines.push(`- **Branch:** ${task.gitBranch}`);
+        lines.push(`- **Created:** ${new Date(task.createdAtEpoch).toISOString()}`);
+        if (task.completedAtEpoch) {
+          lines.push(`- **Completed:** ${new Date(task.completedAtEpoch).toISOString()}`);
+        }
+        lines.push(``);
+        if (task.description) {
+          lines.push(`### Description`);
+          lines.push(``);
+          lines.push(task.description);
+          lines.push(``);
+        }
+        if (task.affectedFiles && task.affectedFiles.length > 0) {
+          lines.push(`### Affected Files`);
+          lines.push(``);
+          for (const file of task.affectedFiles) {
+            lines.push(`- \`${file}\``);
+          }
+          lines.push(``);
+        }
+        lines.push(`---`);
+        lines.push(``);
+      }
+
+      const markdown = lines.join('\n');
+
+      if (formatType === 'markdown') {
+        res.setHeader('Content-Type', 'text/markdown');
+        res.send(markdown);
+        return;
+      }
+    }
+
+    // Download as file
+    if (formatType === 'download') {
+      const filename = projectFilter
+        ? `user-tasks-${projectFilter}-${Date.now()}.json`
+        : `user-tasks-${Date.now()}.json`;
+
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(JSON.stringify(exportData, null, 2));
+      return;
+    }
+
+    // Default: JSON response
+    this.success(res, exportData);
   }
 }

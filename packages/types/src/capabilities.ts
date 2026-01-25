@@ -28,7 +28,8 @@ export type AbstractCapability =
   | 'qdrant-sync'      // Sync to vector database
   | 'semantic-search'  // Semantic vector search
   | 'context-generate' // Generate context
-  | 'claudemd-generate'; // Generate CLAUDE.md content
+  | 'claudemd-generate' // Generate CLAUDE.md content
+  | 'compression';     // Compress tool outputs (Endless Mode - Issue #109)
 
 /**
  * LLM providers for AI tasks (observation, summarize, claudemd, context)
@@ -77,6 +78,7 @@ export const CAPABILITY_PROVIDER_MAP: Record<AbstractCapability, keyof ProviderC
   'summarize': 'llm',
   'claudemd-generate': 'llm',
   'context-generate': 'llm',
+  'compression': 'llm', // Endless Mode - uses LLM for compression
   'embedding': 'embedding',
   'qdrant-sync': 'vectordb',
   'semantic-search': 'vectordb',
@@ -117,6 +119,9 @@ export function toLegacyCapability(capability: AbstractCapability, providers: Pr
   if (capability === 'embedding' && providerType === 'embedding') {
     return `embedding:${provider}` as WorkerCapability;
   }
+  if (capability === 'compression' && providerType === 'llm') {
+    return `compression:${provider}` as WorkerCapability;
+  }
 
   return null;
 }
@@ -133,6 +138,9 @@ export function fromLegacyCapability(legacy: WorkerCapability): { capability: Ab
   }
   if (legacy.startsWith('embedding:')) {
     return { capability: 'embedding', provider: legacy.replace('embedding:', '') };
+  }
+  if (legacy.startsWith('compression:')) {
+    return { capability: 'compression', provider: legacy.replace('compression:', '') };
   }
   if (legacy === 'qdrant:sync') return { capability: 'qdrant-sync' };
   if (legacy === 'semantic:search') return { capability: 'semantic-search' };
@@ -175,7 +183,13 @@ export type WorkerCapability =
   // Context Generation
   | 'context:generate'
   // CLAUDE.md Generation
-  | 'claudemd:generate';
+  | 'claudemd:generate'
+  // Compression (Endless Mode - Issue #109)
+  | 'compression:mistral'
+  | 'compression:gemini'
+  | 'compression:openrouter'
+  | 'compression:openai'
+  | 'compression:anthropic';
 
 /**
  * Worker registration info

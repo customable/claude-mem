@@ -34,6 +34,9 @@ export interface Settings {
   AUTO_SPAWN_WORKER_COUNT: number;
   AUTO_SPAWN_PROVIDERS: string; // Comma-separated list of providers to cycle through
 
+  // Hub Federation (Issue #263)
+  HUB_TOKEN: string; // Token for external hubs to authenticate with backend
+
   // AI Provider Configuration
   AI_PROVIDER: 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic';
   AI_PROVIDER_FALLBACK: string[]; // Array of provider names for fallback order
@@ -64,6 +67,11 @@ export interface Settings {
   VECTOR_DB: 'none' | 'qdrant';
   VECTOR_DB_PATH: string;
   EMBEDDING_MODEL: string;
+
+  // Embedding Provider Configuration (Issue #112)
+  EMBEDDING_PROVIDER: 'local' | 'mistral' | 'openai';
+  MISTRAL_EMBEDDING_MODEL: string;
+  OPENAI_EMBEDDING_MODEL: string;
 
   // Context Configuration
   CONTEXT_OBSERVATION_LIMIT: number;
@@ -138,6 +146,14 @@ export interface Settings {
   // Worker Profiles and Limits (Issue #224)
   WORKER_PROFILES: string; // JSON array of worker profiles (WorkerConfig[])
   CAPABILITY_LIMITS: string; // JSON object of capability limits (Record<string, number>)
+
+  // Endless Mode (Issue #109) - Real-time context compression
+  ENDLESS_MODE_ENABLED: boolean; // Enable tool output archiving and compression
+  ENDLESS_MODE_COMPRESSION_MODEL: string; // Model for compression (e.g., 'claude-haiku-4-5')
+  ENDLESS_MODE_COMPRESSION_TIMEOUT: number; // Timeout for compression in ms (default: 90000)
+  ENDLESS_MODE_FALLBACK_ON_TIMEOUT: boolean; // Use full output if compression times out
+  ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS: boolean; // Skip compression for simple outputs
+  ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD: number; // Token threshold for "simple" outputs
 }
 
 // ============================================
@@ -163,6 +179,9 @@ export const DEFAULTS: Settings = {
   AUTO_SPAWN_WORKERS: false,
   AUTO_SPAWN_WORKER_COUNT: 2,
   AUTO_SPAWN_PROVIDERS: '', // Empty = use AI_PROVIDER for all
+
+  // Hub Federation (Issue #263)
+  HUB_TOKEN: '', // Empty = no authentication required for external hubs
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral',
@@ -194,6 +213,11 @@ export const DEFAULTS: Settings = {
   VECTOR_DB: 'none',
   VECTOR_DB_PATH: join(DEFAULT_DATA_DIR, 'vector-db'),
   EMBEDDING_MODEL: 'Xenova/all-MiniLM-L6-v2',
+
+  // Embedding Provider Configuration (Issue #112)
+  EMBEDDING_PROVIDER: 'local',
+  MISTRAL_EMBEDDING_MODEL: 'mistral-embed',
+  OPENAI_EMBEDDING_MODEL: 'text-embedding-3-small',
 
   // Context Configuration
   CONTEXT_OBSERVATION_LIMIT: 50,
@@ -268,6 +292,14 @@ export const DEFAULTS: Settings = {
   // Worker Profiles and Limits (Issue #224)
   WORKER_PROFILES: '[]', // Default: no profiles (use legacy behavior)
   CAPABILITY_LIMITS: '{}', // Default: no limits
+
+  // Endless Mode (Issue #109) - Real-time context compression
+  ENDLESS_MODE_ENABLED: false, // Disabled by default (experimental)
+  ENDLESS_MODE_COMPRESSION_MODEL: 'claude-haiku-4-5', // Fast model for compression
+  ENDLESS_MODE_COMPRESSION_TIMEOUT: 90000, // 90 seconds
+  ENDLESS_MODE_FALLBACK_ON_TIMEOUT: true, // Use full output if compression fails
+  ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS: true, // Skip small outputs
+  ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD: 1000, // Outputs under 1000 tokens skip compression
 };
 
 // ============================================
@@ -292,6 +324,9 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'LAZY_PROCESS_ON_SEARCH',
   'CLEANUP_AUTO_ENABLED',
   'DOCKER_AUTO_UPDATE_ENABLED',
+  'ENDLESS_MODE_ENABLED',
+  'ENDLESS_MODE_FALLBACK_ON_TIMEOUT',
+  'ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS',
 ];
 
 /**
@@ -319,6 +354,8 @@ const NUMBER_KEYS: SettingKey[] = [
   'WORKER_MAX_RESTARTS',
   'WORKER_RESTART_DELAY_MS',
   'WORKER_RESTART_BACKOFF_MULTIPLIER',
+  'ENDLESS_MODE_COMPRESSION_TIMEOUT',
+  'ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD',
 ];
 
 // ============================================
@@ -384,6 +421,11 @@ export class SettingsManager {
       if (envValue !== undefined) {
         (merged as Record<string, unknown>)[key] = this.parseValue(key, envValue);
       }
+    }
+
+    // Parse DATABASE_URL if set (Issue #262)
+    if (merged.DATABASE_URL) {
+      this.parseDatabaseUrl(merged);
     }
 
     return merged;
@@ -460,6 +502,30 @@ export class SettingsManager {
     }
 
     return migrated;
+  }
+
+  /**
+   * Parse DATABASE_URL connection string into individual settings (Issue #262)
+   *
+   * Supports: postgres://user:pass@host:port/dbname
+   */
+  private parseDatabaseUrl(settings: Settings): void {
+    const url = settings.DATABASE_URL;
+    if (!url) return;
+
+    try {
+      if (url.startsWith('postgres://') || url.startsWith('postgresql://')) {
+        const parsed = new URL(url);
+        settings.DATABASE_TYPE = 'postgres';
+        settings.DATABASE_HOST = parsed.hostname || 'localhost';
+        settings.DATABASE_PORT = parseInt(parsed.port || '5432', 10);
+        settings.DATABASE_USER = decodeURIComponent(parsed.username || '');
+        settings.DATABASE_PASSWORD = decodeURIComponent(parsed.password || '');
+        settings.DATABASE_NAME = parsed.pathname.slice(1) || 'claude_mem'; // Remove leading /
+      }
+    } catch {
+      console.warn('[Settings] Invalid DATABASE_URL format:', url);
+    }
   }
 
   /**

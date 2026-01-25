@@ -3,7 +3,12 @@
  *
  * Provides structured logging with different levels and contexts.
  * All loggers share a global buffer for API access.
+ * Supports file logging in dev mode (Issue #251).
  */
+
+import { appendFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { LOGS_DIR, ensureDir } from './paths.js';
 
 /**
  * Log levels
@@ -71,6 +76,82 @@ export class ConsoleTransport implements ILogTransport {
       default:
         console.log(message);
     }
+  }
+}
+
+/**
+ * File transport - writes logs to file (Issue #251)
+ */
+export class FileTransport implements ILogTransport {
+  private readonly logPath: string;
+  private static readonly MAX_LOG_FILES = 7; // Keep last 7 days
+  private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
+
+  constructor(component: string = 'backend') {
+    // Ensure logs directory exists
+    ensureDir(LOGS_DIR);
+
+    // Create log file with date
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    this.logPath = join(LOGS_DIR, `${component}-${date}.log`);
+
+    // Cleanup old log files
+    this.cleanup();
+  }
+
+  log(entry: LogEntry): void {
+    try {
+      const timestamp = entry.timestamp.toISOString();
+      let line = `${timestamp} [${entry.level.toUpperCase()}] [${entry.context}] ${entry.message}`;
+
+      if (entry.data && Object.keys(entry.data).length > 0) {
+        line += ` ${JSON.stringify(entry.data)}`;
+      }
+
+      if (entry.error) {
+        line += `\n  Error: ${entry.error.stack || entry.error.message}`;
+      }
+
+      appendFileSync(this.logPath, line + '\n');
+    } catch {
+      // Silently ignore file write errors to avoid log loops
+    }
+  }
+
+  /**
+   * Remove old log files (older than MAX_LOG_FILES days)
+   */
+  private cleanup(): void {
+    try {
+      if (!existsSync(LOGS_DIR)) return;
+
+      const files = readdirSync(LOGS_DIR)
+        .filter(f => f.endsWith('.log'))
+        .map(f => ({
+          name: f,
+          path: join(LOGS_DIR, f),
+          mtime: statSync(join(LOGS_DIR, f)).mtime,
+        }))
+        .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
+
+      // Keep only the most recent MAX_LOG_FILES
+      for (const file of files.slice(FileTransport.MAX_LOG_FILES)) {
+        try {
+          unlinkSync(file.path);
+        } catch {
+          // Ignore deletion errors
+        }
+      }
+    } catch {
+      // Ignore cleanup errors
+    }
+  }
+
+  /**
+   * Get the current log file path
+   */
+  getLogPath(): string {
+    return this.logPath;
   }
 }
 
@@ -173,6 +254,43 @@ export const logBuffer = new LogBufferTransport(2000);
 const consoleTransport = new ConsoleTransport();
 
 /**
+ * Global file transport instance (Issue #251)
+ * Only created in dev mode to avoid unnecessary file I/O in production.
+ */
+let fileTransport: FileTransport | null = null;
+
+/**
+ * Check if file logging is enabled
+ */
+function isFileLoggingEnabled(): boolean {
+  // Enable in dev mode or via explicit env var
+  return process.env.NODE_ENV !== 'production' ||
+         process.env.CLAUDE_MEM_FILE_LOGGING === 'true';
+}
+
+/**
+ * Initialize file transport if enabled
+ */
+export function initFileLogging(component: string = 'backend'): FileTransport | null {
+  if (!isFileLoggingEnabled()) return null;
+  if (fileTransport) return fileTransport;
+
+  fileTransport = new FileTransport(component);
+  // Add to default transports for new loggers
+  if (!defaultConfig.transports.includes(fileTransport)) {
+    defaultConfig.transports.push(fileTransport);
+  }
+  return fileTransport;
+}
+
+/**
+ * Get current log file path (if file logging is active)
+ */
+export function getLogFilePath(): string | null {
+  return fileTransport?.getLogPath() ?? null;
+}
+
+/**
  * Logger configuration
  */
 export interface LoggerConfig {
@@ -182,6 +300,7 @@ export interface LoggerConfig {
 
 /**
  * Default logger configuration - includes buffer for API access
+ * File logging is added via initFileLogging() in dev mode.
  */
 const defaultConfig: LoggerConfig = {
   minLevel: process.env.NODE_ENV === 'production' ? 'info' : 'debug',

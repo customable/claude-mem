@@ -1,8 +1,10 @@
 /**
  * Worker Hub
  *
- * Manages WebSocket connections from workers.
- * Handles authentication, heartbeats, and connection lifecycle.
+ * Manages WebSocket connections from workers, browsers, and SSE-writers.
+ * Handles authentication, heartbeats, channel subscriptions, and connection lifecycle.
+ *
+ * Issue #264: Extended to support unified WebSocket system with channels.
  */
 
 import { WebSocketServer, WebSocket } from 'ws';
@@ -12,8 +14,25 @@ import type {
   WorkerCapability,
   WorkerToBackendMessage,
   BackendToWorkerMessage,
+  ChannelEvent,
+  ChannelPattern,
+  WSClientType,
+  ClientPermission,
+  BrowserAuthMessage,
+  SSEWriterAuthMessage,
+  SubscribeMessage,
+  UnsubscribeMessage,
+  AuthSuccessMessage,
+  SubscribedMessage,
+  EventMessage,
+  ServerToClientMessage,
 } from '@claude-mem/types';
+import { DEFAULT_PERMISSIONS } from '@claude-mem/types';
 import type { ConnectedWorker, WorkerStats } from './types.js';
+import { ChannelManager } from './channel-manager.js';
+import type { SSEWriterClient } from './sse-writer-client.js';
+import { shouldDeliverToSSEWriter, SSE_WRITER_CHANNELS } from './sse-writer-client.js';
+import type { WorkerTokenService } from '../services/worker-token-service.js';
 
 const logger = createLogger('worker-hub');
 
@@ -21,6 +40,18 @@ export interface WorkerHubOptions {
   authToken?: string;
   heartbeatIntervalMs?: number;
   heartbeatTimeoutMs?: number;
+  /** Token service for database-backed auth (Issue #263) */
+  workerTokenService?: WorkerTokenService;
+}
+
+/**
+ * Browser client connection
+ */
+interface BrowserClient {
+  id: string;
+  socket: WebSocket;
+  connectedAt: number;
+  lastHeartbeat: number;
 }
 
 export class WorkerHub {
@@ -30,9 +61,19 @@ export class WorkerHub {
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private workerCounter = 0;
 
+  // Browser and SSE-Writer clients (Issue #264)
+  private browserClients: Map<string, BrowserClient> = new Map();
+  private sseWriterClients: Map<string, SSEWriterClient> = new Map();
+  private channelManager: ChannelManager = new ChannelManager();
+  private clientCounter = 0;
+
   private readonly authToken: string | undefined;
   private readonly heartbeatIntervalMs: number;
   private readonly heartbeatTimeoutMs: number;
+  private workerTokenService: WorkerTokenService | undefined;
+
+  // Pending auth state: stores token validation results before registration
+  private pendingTokenAuth: Map<string, { tokenId: string; systemId?: string }> = new Map();
 
   // Event callbacks
   public onWorkerConnected?: (worker: ConnectedWorker) => void;
@@ -46,6 +87,14 @@ export class WorkerHub {
     this.authToken = options.authToken;
     this.heartbeatIntervalMs = options.heartbeatIntervalMs ?? 30000;
     this.heartbeatTimeoutMs = options.heartbeatTimeoutMs ?? 60000;
+    this.workerTokenService = options.workerTokenService;
+  }
+
+  /**
+   * Set the worker token service (for late binding after DB init)
+   */
+  setWorkerTokenService(service: WorkerTokenService): void {
+    this.workerTokenService = service;
   }
 
   /**
@@ -74,7 +123,8 @@ export class WorkerHub {
    * Handle new WebSocket connection
    */
   private handleConnection(socket: WebSocket, request: { url?: string; socket?: { remoteAddress?: string } }): void {
-    const workerId = `worker-${++this.workerCounter}-${Date.now()}`;
+    // Generate a temporary pending ID - will be replaced with typed ID on auth
+    const pendingId = `pending-${++this.clientCounter}-${Date.now()}`;
 
     // Get remote address to determine if external
     const remoteAddress = request.socket?.remoteAddress || '';
@@ -83,90 +133,251 @@ export class WorkerHub {
                         remoteAddress === '::ffff:127.0.0.1' ||
                         remoteAddress === '';
 
-    logger.info(`New connection from potential worker: ${workerId} (${remoteAddress}, local: ${isLocalhost})`);
+    logger.debug(`New connection: ${pendingId} (${remoteAddress}, local: ${isLocalhost})`);
 
     // Store connection info for auth check
-    const connectionInfo = { isLocalhost, remoteAddress };
+    const connectionInfo = { isLocalhost, remoteAddress, pendingId };
 
     // Set up message handler
     socket.on('message', (data) => {
       try {
-        const message = JSON.parse(data.toString()) as WorkerToBackendMessage;
-        this.handleMessage(workerId, socket, message, connectionInfo);
+        const message = JSON.parse(data.toString());
+        this.handleMessage(connectionInfo.pendingId, socket, message, connectionInfo);
       } catch (error) {
         const err = error as Error;
-        logger.error(`Failed to parse message from ${workerId}:`, { message: err.message });
+        logger.error(`Failed to parse message from ${connectionInfo.pendingId}:`, { message: err.message });
         this.sendError(socket, 'Invalid message format');
       }
     });
 
     socket.on('close', () => {
-      this.handleDisconnect(workerId);
+      this.handleDisconnect(connectionInfo.pendingId);
     });
 
     socket.on('error', (error) => {
-      logger.error(`Socket error for ${workerId}:`, { message: error.message, stack: error.stack });
+      logger.error(`Socket error for ${connectionInfo.pendingId}:`, { message: error.message, stack: error.stack });
     });
 
     // External connections ALWAYS require auth, localhost only if token is set
     const requiresAuth = !isLocalhost || !!this.authToken;
 
-    // Send connection acknowledgment - worker must authenticate within timeout
+    // Send connection acknowledgment - client must authenticate within timeout
     this.send(socket, {
       type: 'connection:pending',
-      workerId,
+      clientId: pendingId,
       requiresAuth,
     });
   }
 
   /**
-   * Handle incoming message from worker
+   * Handle incoming message from any client type
    */
-  private handleMessage(
-    workerId: string,
+  private async handleMessage(
+    clientId: string,
     socket: WebSocket,
-    message: WorkerToBackendMessage,
-    connectionInfo: { isLocalhost: boolean; remoteAddress: string }
-  ): void {
+    message: WorkerToBackendMessage | SubscribeMessage | UnsubscribeMessage | { type: string },
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string; pendingId: string }
+  ): Promise<void> {
     switch (message.type) {
       case 'auth':
-        this.handleAuth(workerId, socket, message, connectionInfo);
+        await this.handleAuth(clientId, socket, message as WorkerToBackendMessage & { type: 'auth' }, connectionInfo);
         break;
 
       case 'register':
-        this.handleRegister(workerId, socket, message, connectionInfo);
+        await this.handleRegister(clientId, socket, message as WorkerToBackendMessage & { type: 'register' }, connectionInfo);
         break;
 
       case 'heartbeat':
-        this.handleHeartbeat(workerId);
+        this.handleHeartbeat(clientId);
+        break;
+
+      case 'subscribe':
+        this.handleSubscribe(clientId, socket, message as SubscribeMessage);
+        break;
+
+      case 'unsubscribe':
+        this.handleUnsubscribe(clientId, message as UnsubscribeMessage);
+        break;
+
+      case 'pong':
+        this.handlePong(clientId);
         break;
 
       case 'task:complete':
-        this.handleTaskComplete(workerId, message);
+        this.handleTaskComplete(clientId, message as WorkerToBackendMessage & { type: 'task:complete' });
         break;
 
       case 'task:error':
-        this.handleTaskError(workerId, message);
+        this.handleTaskError(clientId, message as WorkerToBackendMessage & { type: 'task:error' });
         break;
 
       case 'task:progress':
-        this.handleTaskProgress(workerId, message);
+        this.handleTaskProgress(clientId, message as WorkerToBackendMessage & { type: 'task:progress' });
         break;
 
       default:
-        logger.warn(`Unknown message type from ${workerId}: ${(message as { type: string }).type}`);
+        logger.warn(`Unknown message type from ${clientId}: ${(message as { type: string }).type}`);
     }
   }
 
   /**
-   * Handle authentication
+   * Detect client type from auth message
    */
-  private handleAuth(
+  private detectClientType(message: { type: 'auth'; clientType?: string; token?: string; capabilities?: unknown }): WSClientType {
+    // Explicit SSE-Writer
+    if (message.clientType === 'sse-writer') {
+      return 'sse-writer';
+    }
+    // Worker: has token or capabilities
+    if (message.token || message.capabilities) {
+      return 'worker';
+    }
+    // Default: browser
+    return 'browser';
+  }
+
+  /**
+   * Handle authentication - routes to client-type-specific handler
+   */
+  private async handleAuth(
+    clientId: string,
+    socket: WebSocket,
+    message: WorkerToBackendMessage & { type: 'auth' },
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string; pendingId: string }
+  ): Promise<void> {
+    const clientType = this.detectClientType(message as { type: 'auth'; clientType?: string; token?: string; capabilities?: unknown });
+
+    switch (clientType) {
+      case 'browser':
+        this.handleBrowserAuth(clientId, socket, connectionInfo);
+        break;
+      case 'sse-writer':
+        this.handleSSEWriterAuth(clientId, socket, message as unknown as SSEWriterAuthMessage, connectionInfo);
+        break;
+      case 'worker':
+        await this.handleWorkerAuth(clientId, socket, message, connectionInfo);
+        break;
+    }
+  }
+
+  /**
+   * Handle browser client authentication (no token required)
+   */
+  private handleBrowserAuth(
+    clientId: string,
+    socket: WebSocket,
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string; pendingId: string }
+  ): void {
+    // Generate final browser client ID
+    const browserId = `browser-${++this.clientCounter}-${Date.now().toString(36)}`;
+
+    // Update connection info to use new ID
+    connectionInfo.pendingId = browserId;
+
+    const client: BrowserClient = {
+      id: browserId,
+      socket,
+      connectedAt: Date.now(),
+      lastHeartbeat: Date.now(),
+    };
+
+    this.browserClients.set(browserId, client);
+
+    // Send auth success with permissions
+    const response: AuthSuccessMessage = {
+      type: 'auth:success',
+      clientId: browserId,
+      permissions: DEFAULT_PERMISSIONS.browser,
+    };
+    this.send(socket, response);
+
+    logger.info(`Browser client ${browserId} authenticated (localhost: ${connectionInfo.isLocalhost})`);
+  }
+
+  /**
+   * Handle SSE-Writer client authentication
+   */
+  private handleSSEWriterAuth(
+    clientId: string,
+    socket: WebSocket,
+    message: SSEWriterAuthMessage,
+    connectionInfo: { isLocalhost: boolean; remoteAddress: string; pendingId: string }
+  ): void {
+    // Generate final SSE-Writer client ID
+    const writerId = `sse-writer-${++this.clientCounter}-${Date.now().toString(36)}`;
+
+    // Update connection info to use new ID
+    connectionInfo.pendingId = writerId;
+
+    const client: SSEWriterClient = {
+      id: writerId,
+      socket,
+      sessionId: message.sessionId,
+      project: message.project,
+      workingDirectory: message.workingDirectory,
+      connectedAt: Date.now(),
+      lastHeartbeat: Date.now(),
+    };
+
+    this.sseWriterClients.set(writerId, client);
+
+    // Auto-subscribe to SSE-Writer channels
+    this.channelManager.subscribe(writerId, [...SSE_WRITER_CHANNELS]);
+
+    // Send auth success
+    const response: AuthSuccessMessage = {
+      type: 'auth:success',
+      clientId: writerId,
+      permissions: DEFAULT_PERMISSIONS['sse-writer'],
+    };
+    this.send(socket, response);
+
+    // Send subscription confirmation
+    const subscribed: SubscribedMessage = {
+      type: 'subscribed',
+      channels: [...SSE_WRITER_CHANNELS],
+    };
+    this.send(socket, subscribed);
+
+    logger.info(`SSE-Writer ${writerId} authenticated for session ${message.sessionId}, project ${message.project}`);
+  }
+
+  /**
+   * Handle worker authentication (with token validation)
+   * Supports both database-backed tokens (Issue #263) and config-based tokens
+   */
+  private async handleWorkerAuth(
     workerId: string,
     socket: WebSocket,
     message: WorkerToBackendMessage & { type: 'auth' },
     connectionInfo: { isLocalhost: boolean; remoteAddress: string }
-  ): void {
+  ): Promise<void> {
+    const token = message.token;
+    const systemId = (message as { systemId?: string }).systemId;
+
+    // Try database-backed token validation first (Issue #263)
+    if (this.workerTokenService && token) {
+      try {
+        const validatedToken = await this.workerTokenService.validateToken(token);
+        if (validatedToken) {
+          // Store pending auth state for registration
+          this.pendingTokenAuth.set(workerId, {
+            tokenId: validatedToken.id,
+            systemId,
+          });
+          this.authenticatedWorkers.add(workerId);
+          this.send(socket, { type: 'auth:success' });
+          logger.info(`Worker ${workerId} authenticated via DB token (${validatedToken.token_prefix}...)`);
+          return;
+        }
+      } catch (error) {
+        const err = error as Error;
+        logger.error(`DB token validation error for ${workerId}:`, { message: err.message });
+        // Fall through to config-based auth
+      }
+    }
+
+    // Fall back to config-based token validation
     // External connections ALWAYS require valid auth token
     if (!connectionInfo.isLocalhost) {
       if (!this.authToken) {
@@ -175,13 +386,13 @@ export class WorkerHub {
         socket.close(4001, 'Unauthorized');
         return;
       }
-      if (message.token !== this.authToken) {
+      if (token !== this.authToken) {
         logger.warn(`External worker ${workerId} rejected - invalid token`);
         this.send(socket, { type: 'auth:failed', reason: 'Invalid token' });
         socket.close(4001, 'Unauthorized');
         return;
       }
-    } else if (this.authToken && message.token !== this.authToken) {
+    } else if (this.authToken && token !== this.authToken) {
       // Localhost with token configured - still validate
       logger.warn(`Authentication failed for ${workerId}`);
       this.send(socket, { type: 'auth:failed', reason: 'Invalid token' });
@@ -189,21 +400,21 @@ export class WorkerHub {
       return;
     }
 
-    // Mark worker as authenticated
+    // Mark worker as authenticated (config-based)
     this.authenticatedWorkers.add(workerId);
     this.send(socket, { type: 'auth:success' });
-    logger.info(`Worker ${workerId} authenticated (localhost: ${connectionInfo.isLocalhost})`);
+    logger.info(`Worker ${workerId} authenticated via config token (localhost: ${connectionInfo.isLocalhost})`);
   }
 
   /**
    * Handle worker registration with capabilities
    */
-  private handleRegister(
+  private async handleRegister(
     workerId: string,
     socket: WebSocket,
     message: WorkerToBackendMessage & { type: 'register' },
     connectionInfo: { isLocalhost: boolean; remoteAddress: string }
-  ): void {
+  ): Promise<void> {
     // External connections MUST be authenticated
     if (!connectionInfo.isLocalhost && !this.authenticatedWorkers.has(workerId)) {
       this.send(socket, { type: 'error', message: 'External workers must authenticate before registering' });
@@ -218,8 +429,14 @@ export class WorkerHub {
     }
 
     // Extract capabilities from the register message
-    const registerMsg = message as { capabilities: WorkerCapability[]; metadata?: Record<string, unknown> };
+    const registerMsg = message as { capabilities: WorkerCapability[]; metadata?: Record<string, unknown>; hostname?: string };
     const capabilities = registerMsg.capabilities;
+
+    // Check for pending token auth (Issue #263)
+    const pendingAuth = this.pendingTokenAuth.get(workerId);
+    const tokenId = pendingAuth?.tokenId;
+    const systemId = pendingAuth?.systemId || workerId;
+
     const worker: ConnectedWorker = {
       id: workerId,
       socket,
@@ -230,6 +447,8 @@ export class WorkerHub {
       currentTaskType: null,
       metadata: registerMsg.metadata,
       latencyHistory: [],
+      tokenId,
+      systemId,
     };
 
     // Setup ping/pong for latency tracking
@@ -247,6 +466,26 @@ export class WorkerHub {
 
     this.workers.set(workerId, worker);
 
+    // Create worker registration in database if using token-based auth (Issue #263)
+    if (tokenId && this.workerTokenService) {
+      try {
+        await this.workerTokenService.registerWorker(tokenId, systemId, {
+          hostname: registerMsg.hostname,
+          workerId,
+          capabilities: capabilities as string[],
+          metadata: registerMsg.metadata,
+        });
+        logger.debug(`Created DB registration for worker ${workerId}`);
+      } catch (error) {
+        const err = error as Error;
+        logger.error(`Failed to create DB registration for ${workerId}:`, { message: err.message });
+        // Continue anyway - worker can still function
+      }
+    }
+
+    // Clean up pending auth state
+    this.pendingTokenAuth.delete(workerId);
+
     this.send(socket, {
       type: 'registered',
       workerId,
@@ -260,12 +499,68 @@ export class WorkerHub {
   /**
    * Handle heartbeat from worker
    */
-  private handleHeartbeat(workerId: string): void {
-    const worker = this.workers.get(workerId);
+  private handleHeartbeat(clientId: string): void {
+    // Check workers
+    const worker = this.workers.get(clientId);
     if (worker) {
       worker.lastHeartbeat = Date.now();
       this.send(worker.socket, { type: 'heartbeat:ack' });
+      return;
     }
+
+    // Check browser clients
+    const browser = this.browserClients.get(clientId);
+    if (browser) {
+      browser.lastHeartbeat = Date.now();
+      this.send(browser.socket, { type: 'heartbeat:ack' });
+      return;
+    }
+
+    // Check SSE-Writer clients
+    const sseWriter = this.sseWriterClients.get(clientId);
+    if (sseWriter) {
+      sseWriter.lastHeartbeat = Date.now();
+      this.send(sseWriter.socket, { type: 'heartbeat:ack' });
+    }
+  }
+
+  /**
+   * Handle pong response from client
+   */
+  private handlePong(clientId: string): void {
+    const browser = this.browserClients.get(clientId);
+    if (browser) {
+      browser.lastHeartbeat = Date.now();
+      return;
+    }
+
+    const sseWriter = this.sseWriterClients.get(clientId);
+    if (sseWriter) {
+      sseWriter.lastHeartbeat = Date.now();
+    }
+  }
+
+  /**
+   * Handle channel subscription
+   */
+  private handleSubscribe(clientId: string, socket: WebSocket, message: SubscribeMessage): void {
+    const subscribed = this.channelManager.subscribe(clientId, message.channels);
+
+    const response: SubscribedMessage = {
+      type: 'subscribed',
+      channels: subscribed,
+    };
+    this.send(socket, response);
+
+    logger.debug(`Client ${clientId} subscribed to: ${subscribed.join(', ')}`);
+  }
+
+  /**
+   * Handle channel unsubscription
+   */
+  private handleUnsubscribe(clientId: string, message: UnsubscribeMessage): void {
+    this.channelManager.unsubscribe(clientId, message.channels);
+    logger.debug(`Client ${clientId} unsubscribed from: ${message.channels.join(', ')}`);
   }
 
   /**
@@ -322,31 +617,64 @@ export class WorkerHub {
   }
 
   /**
-   * Handle worker disconnect
+   * Handle client disconnect (any type)
    */
-  private handleDisconnect(workerId: string): void {
-    const worker = this.workers.get(workerId);
+  private handleDisconnect(clientId: string): void {
+    // Check if it's a worker
+    const worker = this.workers.get(clientId);
     if (worker) {
-      this.workers.delete(workerId);
-      this.authenticatedWorkers.delete(workerId);
-      logger.info(`Worker ${workerId} disconnected`);
-      this.onWorkerDisconnected?.(workerId);
-    } else {
-      // Clean up auth state even if worker wasn't fully registered
-      this.authenticatedWorkers.delete(workerId);
+      this.workers.delete(clientId);
+      this.authenticatedWorkers.delete(clientId);
+      this.channelManager.removeClient(clientId);
+      this.pendingTokenAuth.delete(clientId);
+
+      // Update DB registration if using token-based auth (Issue #263)
+      if (worker.systemId && this.workerTokenService) {
+        this.workerTokenService.disconnectWorker(worker.systemId).catch((error) => {
+          const err = error as Error;
+          logger.error(`Failed to update DB registration for ${clientId}:`, { message: err.message });
+        });
+      }
+
+      logger.info(`Worker ${clientId} disconnected`);
+      this.onWorkerDisconnected?.(clientId);
+      return;
     }
+
+    // Check if it's a browser client
+    const browser = this.browserClients.get(clientId);
+    if (browser) {
+      this.browserClients.delete(clientId);
+      this.channelManager.removeClient(clientId);
+      logger.info(`Browser client ${clientId} disconnected`);
+      return;
+    }
+
+    // Check if it's an SSE-Writer client
+    const sseWriter = this.sseWriterClients.get(clientId);
+    if (sseWriter) {
+      this.sseWriterClients.delete(clientId);
+      this.channelManager.removeClient(clientId);
+      logger.info(`SSE-Writer ${clientId} disconnected (session: ${sseWriter.sessionId})`);
+      return;
+    }
+
+    // Clean up auth state for pending connections that never fully registered
+    this.authenticatedWorkers.delete(clientId);
+    this.pendingTokenAuth.delete(clientId);
   }
 
   /**
-   * Check heartbeats and disconnect stale workers
+   * Check heartbeats and disconnect stale clients
    */
   private checkHeartbeats(): void {
     const now = Date.now();
-    const staleWorkers: string[] = [];
+    const staleClients: Array<{ id: string; type: 'worker' | 'browser' | 'sse-writer'; socket: WebSocket }> = [];
 
+    // Check workers
     for (const [workerId, worker] of this.workers) {
       if (now - worker.lastHeartbeat > this.heartbeatTimeoutMs) {
-        staleWorkers.push(workerId);
+        staleClients.push({ id: workerId, type: 'worker', socket: worker.socket });
       } else {
         // Send WebSocket ping for latency measurement
         if (worker.socket.readyState === WebSocket.OPEN) {
@@ -356,13 +684,35 @@ export class WorkerHub {
       }
     }
 
-    for (const workerId of staleWorkers) {
-      const worker = this.workers.get(workerId);
-      if (worker) {
-        logger.warn(`Worker ${workerId} timed out, disconnecting`);
-        worker.socket.close(4002, 'Heartbeat timeout');
-        this.handleDisconnect(workerId);
+    // Check browser clients
+    for (const [clientId, client] of this.browserClients) {
+      if (now - client.lastHeartbeat > this.heartbeatTimeoutMs) {
+        staleClients.push({ id: clientId, type: 'browser', socket: client.socket });
+      } else {
+        // Send ping message for browser clients
+        if (client.socket.readyState === WebSocket.OPEN) {
+          this.send(client.socket, { type: 'ping' });
+        }
       }
+    }
+
+    // Check SSE-Writer clients
+    for (const [clientId, client] of this.sseWriterClients) {
+      if (now - client.lastHeartbeat > this.heartbeatTimeoutMs) {
+        staleClients.push({ id: clientId, type: 'sse-writer', socket: client.socket });
+      } else {
+        // Send ping message for SSE-Writer clients
+        if (client.socket.readyState === WebSocket.OPEN) {
+          this.send(client.socket, { type: 'ping' });
+        }
+      }
+    }
+
+    // Disconnect stale clients
+    for (const { id, type, socket } of staleClients) {
+      logger.warn(`${type} client ${id} timed out, disconnecting`);
+      socket.close(4002, 'Heartbeat timeout');
+      this.handleDisconnect(id);
     }
   }
 
@@ -384,8 +734,8 @@ export class WorkerHub {
         type: taskType,
         payload,
       },
-      capability: taskType, // Use taskType as capability hint
-    });
+      capability: taskType,
+    } as Record<string, unknown>);
 
     logger.info(`Assigned task ${taskId} (${taskType}) to worker ${workerId}`);
     return true;
@@ -500,9 +850,9 @@ export class WorkerHub {
   }
 
   /**
-   * Send message to worker
+   * Send message to any client
    */
-  private send(socket: WebSocket, message: BackendToWorkerMessage | Record<string, unknown>): void {
+  private send(socket: WebSocket, message: BackendToWorkerMessage | ServerToClientMessage | Record<string, unknown>): void {
     if (socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify(message));
     }
@@ -525,6 +875,94 @@ export class WorkerHub {
   }
 
   /**
+   * Publish an event to all subscribers of a channel
+   *
+   * This handles:
+   * - Finding all clients subscribed to matching patterns
+   * - Server-side filtering for SSE-Writer clients
+   * - Delivering the event message
+   */
+  publish(channel: ChannelEvent, data: unknown): void {
+    const subscribers = this.channelManager.getSubscribers(channel);
+
+    if (subscribers.size === 0) {
+      logger.debug(`No subscribers for channel ${channel}`);
+      return;
+    }
+
+    const eventMessage: EventMessage = {
+      type: 'event',
+      channel,
+      data,
+      timestamp: Date.now(),
+    };
+
+    let delivered = 0;
+    let filtered = 0;
+
+    for (const clientId of subscribers) {
+      // Get socket for this client
+      let socket: WebSocket | undefined;
+
+      // Check SSE-Writer clients (with filtering)
+      const sseWriter = this.sseWriterClients.get(clientId);
+      if (sseWriter) {
+        // Apply server-side filtering for SSE-Writers
+        if (!shouldDeliverToSSEWriter(sseWriter, channel, data)) {
+          filtered++;
+          continue;
+        }
+        socket = sseWriter.socket;
+      }
+
+      // Check browser clients
+      if (!socket) {
+        const browser = this.browserClients.get(clientId);
+        if (browser) {
+          socket = browser.socket;
+        }
+      }
+
+      // Check workers
+      if (!socket) {
+        const worker = this.workers.get(clientId);
+        if (worker) {
+          socket = worker.socket;
+        }
+      }
+
+      // Deliver if we found a socket
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        this.send(socket, eventMessage);
+        delivered++;
+      }
+    }
+
+    logger.debug(`Published ${channel}: ${delivered} delivered, ${filtered} filtered`);
+  }
+
+  /**
+   * Get channel manager statistics
+   */
+  getChannelStats(): { totalPatterns: number; totalClients: number; patternCounts: Record<string, number> } {
+    return this.channelManager.getStats();
+  }
+
+  /**
+   * Get count of connected browser clients
+   */
+  getBrowserClientCount(): number {
+    return this.browserClients.size;
+  }
+
+  /**
+   * Get count of connected SSE-Writer clients
+   */
+  getSSEWriterClientCount(): number {
+    return this.sseWriterClients.size;
+  }
+
+  /**
    * Shutdown the hub
    */
   async shutdown(): Promise<void> {
@@ -537,6 +975,18 @@ export class WorkerHub {
       worker.socket.close(1001, 'Server shutting down');
     }
     this.workers.clear();
+
+    // Close all browser client connections
+    for (const client of this.browserClients.values()) {
+      client.socket.close(1001, 'Server shutting down');
+    }
+    this.browserClients.clear();
+
+    // Close all SSE-Writer client connections
+    for (const client of this.sseWriterClients.values()) {
+      client.socket.close(1001, 'Server shutting down');
+    }
+    this.sseWriterClients.clear();
 
     // Close WebSocket server
     if (this.wss) {

@@ -4,11 +4,16 @@
  * Represents a Claude Code SDK session.
  */
 
-import { Entity, PrimaryKey, Property, Unique, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Unique, Index, OneToMany, Collection, Cascade } from '@mikro-orm/core';
+import type { UserPrompt } from './UserPrompt.js';
+import type { Summary } from './Summary.js';
+import type { ClaudeMd } from './ClaudeMd.js';
+import type { RawMessage } from './RawMessage.js';
 
 export type SessionStatus = 'active' | 'completed' | 'failed';
 
-@Entity({ tableName: 'sdk_sessions' })
+@Entity({ tableName: 'sessions' })
+@Index({ properties: ['project', 'started_at_epoch'] })
 export class Session {
   @PrimaryKey()
   id!: number;
@@ -63,4 +68,49 @@ export class Session {
 
   @Property({ default: 0 })
   prompt_counter!: number;
+
+  // Plan mode tracking (Issue #317)
+  /**
+   * Whether session is currently in plan mode
+   */
+  @Property({ default: false })
+  is_in_plan_mode!: boolean;
+
+  /**
+   * Timestamp when plan mode was entered (epoch ms)
+   */
+  @Property({ nullable: true, type: 'bigint' })
+  plan_mode_entered_at?: number;
+
+  /**
+   * Number of times plan mode was entered in this session
+   */
+  @Property({ default: 0 })
+  plan_mode_count!: number;
+
+  // Relations - Session as central hub (Issue #267 Phase 4)
+  // Note: These use virtual relations via string session IDs
+  @OneToMany('UserPrompt', 'session', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
+  prompts = new Collection<UserPrompt>(this);
+
+  @OneToMany('Summary', 'session', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
+  summaries = new Collection<Summary>(this);
+
+  @OneToMany('ClaudeMd', 'contentSession', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
+  claudeMdFiles = new Collection<ClaudeMd>(this);
+
+  @OneToMany('RawMessage', 'session', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
+  rawMessages = new Collection<RawMessage>(this);
 }

@@ -236,6 +236,46 @@ jobs:
         id: released
         run: echo "released=true" >> $GITHUB_OUTPUT
 
+  npm:
+    name: Publish NPM Packages
+    runs-on: [docker, light]
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    continue-on-error: true
+    container:
+      image: catthehacker/ubuntu:act-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: 'https://git.customable.host/api/packages/customable/npm/'
+
+      - name: Install and Build
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm run build
+
+      - name: Publish packages
+        env:
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          # Configure npm for Forgejo registry
+          echo "//git.customable.host/api/packages/customable/npm/:_authToken=${RELEASE_TOKEN}" >> ~/.npmrc
+
+          # Publish packages in order (types -> shared -> database -> backend/worker)
+          cd packages/types && pnpm publish --no-git-checks || true
+          cd ../shared && pnpm publish --no-git-checks || true
+          cd ../database && pnpm publish --no-git-checks || true
+          cd ../backend && pnpm publish --no-git-checks || true
+          cd ../worker && pnpm publish --no-git-checks || true
+
   docker:
     name: Build Docker Images
     runs-on: [docker, light]

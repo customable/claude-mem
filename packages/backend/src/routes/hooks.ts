@@ -8,12 +8,15 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IClaudeMdRepository } from '@claude-mem/types';
+import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
+import type { IClaudeMdRepository, IUserTaskRepository, UserTaskStatus } from '@claude-mem/types';
 
 export interface HooksRouterDeps {
   sessionService: SessionService;
   taskService: TaskService;
   claudemd: IClaudeMdRepository;
+  sseBroadcaster: SSEBroadcaster;
+  userTasks: IUserTaskRepository;
 }
 
 export class HooksRouter extends BaseRouter {
@@ -45,6 +48,18 @@ export class HooksRouter extends BaseRouter {
     // Subagent lifecycle hooks (Issue #232)
     this.router.post('/subagent/start', this.asyncHandler(this.subagentStart.bind(this)));
     this.router.post('/subagent/stop', this.asyncHandler(this.subagentStop.bind(this)));
+
+    // Writer control for git operations (Issue #288)
+    this.router.post('/writer/pause', this.asyncHandler(this.writerPause.bind(this)));
+    this.router.post('/writer/resume', this.asyncHandler(this.writerResume.bind(this)));
+
+    // User task tracking from CLI tools (Issue #260)
+    this.router.post('/user-task/create', this.asyncHandler(this.userTaskCreate.bind(this)));
+    this.router.post('/user-task/update', this.asyncHandler(this.userTaskUpdate.bind(this)));
+
+    // Plan mode tracking (Issue #317)
+    this.router.post('/plan-mode/enter', this.asyncHandler(this.planModeEnter.bind(this)));
+    this.router.post('/plan-mode/exit', this.asyncHandler(this.planModeExit.bind(this)));
   }
 
   /**
@@ -299,5 +314,221 @@ export class HooksRouter extends BaseRouter {
     this.success(res, {
       success: true,
     });
+  }
+
+  /**
+   * POST /api/hooks/writer/pause
+   * Pause SSE-Writer during git operations (Issue #288)
+   */
+  private async writerPause(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { reason } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    // Broadcast pause event to all SSE clients (including SSE-Writer)
+    this.deps.sseBroadcaster.broadcastWriterPause(contentSessionId, reason || 'git-operation');
+
+    this.success(res, {
+      success: true,
+      paused: true,
+    });
+  }
+
+  /**
+   * POST /api/hooks/writer/resume
+   * Resume SSE-Writer after git operations (Issue #288)
+   */
+  private async writerResume(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    // Broadcast resume event to all SSE clients (including SSE-Writer)
+    this.deps.sseBroadcaster.broadcastWriterResume(contentSessionId);
+
+    this.success(res, {
+      success: true,
+      paused: false,
+    });
+  }
+
+  /**
+   * POST /api/hooks/user-task/create
+   * Called when Claude Code TaskCreate tool is used (Issue #260)
+   */
+  private async userTaskCreate(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const {
+      project,
+      externalId, // Claude Code's taskId (Issue #316)
+      title,
+      description,
+      activeForm,
+      workingDirectory,
+      gitBranch,
+      sourceMetadata,
+    } = req.body;
+
+    if (!project || !title) {
+      this.badRequest('Missing required fields: project, title');
+    }
+
+    // Create the user task with externalId for linking to Claude Code's task
+    const task = await this.deps.userTasks.create({
+      externalId, // Link to Claude Code's taskId
+      project,
+      title,
+      description,
+      activeForm,
+      sessionId: contentSessionId,
+      source: 'claude-code',
+      sourceMetadata,
+      workingDirectory,
+      gitBranch,
+      status: 'pending',
+    });
+
+    // Broadcast task creation event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'user-task:created',
+      data: { task, sessionId: contentSessionId },
+    });
+
+    this.success(res, {
+      success: true,
+      taskId: task.id,
+      externalId: task.externalId,
+    });
+  }
+
+  /**
+   * POST /api/hooks/user-task/update
+   * Called when Claude Code TaskUpdate tool is used (Issue #260)
+   */
+  private async userTaskUpdate(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const {
+      project,
+      externalId,
+      title,
+      description,
+      activeForm,
+      status,
+      owner,
+      blockedBy,
+      blocks,
+      sourceMetadata,
+    } = req.body;
+
+    if (!externalId) {
+      this.badRequest('Missing required field: externalId');
+    }
+
+    // Map Claude Code status to our status type
+    const mappedStatus = status as UserTaskStatus | undefined;
+
+    // Update the task by external ID
+    const task = await this.deps.userTasks.updateByExternalId(externalId, {
+      title,
+      description,
+      activeForm,
+      status: mappedStatus,
+      owner,
+      blockedBy,
+      blocks,
+    });
+
+    if (!task) {
+      // Task doesn't exist yet - create it
+      const newTask = await this.deps.userTasks.create({
+        externalId,
+        project: project || 'unknown',
+        title: title || `Task ${externalId}`,
+        description,
+        activeForm,
+        sessionId: contentSessionId,
+        source: 'claude-code',
+        sourceMetadata,
+        status: mappedStatus || 'pending',
+        owner,
+        blockedBy,
+        blocks,
+      });
+
+      this.deps.sseBroadcaster.broadcast({
+        type: 'user-task:created',
+        data: { task: newTask, sessionId: contentSessionId },
+      });
+
+      this.success(res, {
+        success: true,
+        taskId: newTask.id,
+        created: true,
+      });
+      return;
+    }
+
+    // Broadcast task update event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'user-task:updated',
+      data: { task, sessionId: contentSessionId },
+    });
+
+    this.success(res, {
+      success: true,
+      taskId: task.id,
+      updated: true,
+    });
+  }
+
+  /**
+   * POST /api/hooks/plan-mode/enter
+   * Called when Claude Code EnterPlanMode tool is used (Issue #317)
+   */
+  private async planModeEnter(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { project } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    await this.deps.sessionService.enterPlanMode(contentSessionId);
+
+    // Broadcast event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'session:plan-mode-entered',
+      data: { sessionId: contentSessionId, project },
+    });
+
+    this.success(res, { success: true });
+  }
+
+  /**
+   * POST /api/hooks/plan-mode/exit
+   * Called when Claude Code ExitPlanMode tool is used (Issue #317)
+   */
+  private async planModeExit(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { project, approved, allowedPrompts } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    const duration = await this.deps.sessionService.exitPlanMode(contentSessionId);
+
+    // Broadcast event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'session:plan-mode-exited',
+      data: { sessionId: contentSessionId, project, approved, duration, allowedPrompts },
+    });
+
+    this.success(res, { success: true, duration });
   }
 }

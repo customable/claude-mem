@@ -7,37 +7,20 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15541 | 9:34 AM | 🟣 | Resolving merge conflict in package.json | ~1802 |
-| #15540 | 9:34 AM | 🔵 | Dependency version conflict in package.json | ~1162 |
-| #15528 | 9:31 AM | 🟣 | Update Node.js engine requirement to v24.13.0 | ~1469 |
-| #15527 | 9:31 AM | 🔵 | Node.js version requirement updated to v24 | ~1015 |
-
-### Jan 24, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #14627 | 10:45 PM | 🟠 | Added PreCompact hook to hooks.json | ~2634 |
-| #14624 | 10:45 PM | 🔵 | Discovered hook system configuration | ~1423 |
-| #14461 | 10:30 PM | 🔵 | Discovered hook system configuration | ~1472 |
-| #14431 | 10:20 PM | 🔵 | Discovered hook system configuration | ~1478 |
-| #14410 | 10:16 PM | 🔵 | Discovered hook system configuration | ~1492 |
-| #14277 | 10:01 PM | 🔵 | Discovered hook system configuration | ~1487 |
-
-### Jan 23, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #11773 | 10:19 PM | 🔵 | Reviewed mem-search skill documentation | ~1004 |
-| #11771 | 10:19 PM | 🔵 | Recall Skill Documentation Review | ~1440 |
-| #11770 | 10:19 PM | 🔵 | Reviewed recent activity log in CLAUDE.md | ~966 |
-| #11760 | 10:18 PM | 🔵 | Reviewed recent activity log in CLAUDE.md | ~969 |
-| #11759 | 10:18 PM | 🔵 | Recall Skill Documentation Review | ~1494 |
+| #1956 | 4:52 PM | 🔵 | Discovered plugin package.json dependencies | ~963 |
+| #1719 | 4:11 PM | 🔵 | Identified files containing Claude memory-related documentation | ~940 |
+| #1126 | 2:31 PM | 🟣 | Replace Bun with Node for worker-service commands | ~2535 |
+| #1115 | 2:30 PM | 🟣 | Updated Node.js engine requirement and removed Bun support | ~1335 |
+| #1114 | 2:30 PM | 🔵 | Discovered plugin package.json configuration | ~1006 |
+| #1111 | 2:30 PM | 🟣 | Changed worker-service execution from Bun to Node | ~2495 |
+| #1099 | 2:29 PM | 🔵 | Examining plugin hooks configuration | ~1688 |
+| #1030 | 2:18 PM | 🔵 | Discovered plugin package.json with runtime dependencies | ~1030 |
 
 ## Key Insights
 
-- **Dependency Updates**: Resolved merge conflicts in `package.json`, updating Node.js to v24.13.0 and dependencies like `eventsource` to v4.1.0.
-- **Hook System**: Added a new `PreCompact` hook to `hooks.json`, expanding the lifecycle event system.
-- **Bug Fixes**: Identified and documented issues with date filtering, missing API endpoints (`/api/search/observations`, `/api/search/timeline`), and invalid memory types.
-- **Documentation**: Reviewed and documented the `/recall` skill and hook system configuration, clarifying memory retrieval and lifecycle triggers.
-- **Next Steps**: Implement missing API endpoints, fix database constraints, and merge pending PRs for Node.js, pnpm, and dependency updates.
+- **Runtime Shift**: The project has moved from Bun to Node.js for worker-service execution, broadening compatibility with older Node.js versions (≥18.0.0).
+- **Dependency Mapping**: Core dependencies include `@xenova/transformers` (ML), `@qdrant/js-client-rest` (vector DB), and `eventsource` (SSE).
+- **Documentation Spread**: Memory-related docs are scattered across 8 files, indicating a need for consolidation.
+- **Hooks Configuration**: Lifecycle hooks (SessionStart, UserPromptSubmit, etc.) are defined in `hooks.json`, critical for memory system integration.
+- **Type System Updates**: Recent work expanded observation interfaces (e.g., `concept`, `gitBranch`) and fixed type inconsistencies.
 </claude-mem-context>

@@ -2,10 +2,13 @@
  * SSE Broadcaster
  *
  * Manages Server-Sent Events connections for real-time UI updates.
+ * Also publishes events to WebSocket clients via WorkerHub (Issue #264).
  */
 
 import type { Response } from 'express';
 import { createLogger } from '@claude-mem/shared';
+import type { ChannelEvent } from '@claude-mem/types';
+import type { WorkerHub } from '../websocket/index.js';
 
 const logger = createLogger('sse');
 
@@ -32,7 +35,18 @@ export type SSEEventType =
   | 'task:completed'
   | 'task:failed'
   | 'task:progress'
-  | 'claudemd:ready';
+  | 'claudemd:ready'
+  | 'writer:pause'
+  | 'writer:resume'
+  // User task events (Issue #260)
+  | 'user-task:created'
+  | 'user-task:updated'
+  // Hub federation events (Issue #263)
+  | 'hub:connected'
+  | 'hub:disconnected'
+  // Plan mode events (Issue #317)
+  | 'session:plan-mode-entered'
+  | 'session:plan-mode-exited';
 
 /**
  * SSE Event payload
@@ -58,6 +72,15 @@ interface SSEClient {
 export class SSEBroadcaster {
   private clients: Map<string, SSEClient> = new Map();
   private clientCounter = 0;
+  private workerHub?: WorkerHub;
+
+  /**
+   * Set WorkerHub for WebSocket event publishing (Issue #264)
+   */
+  setWorkerHub(hub: WorkerHub): void {
+    this.workerHub = hub;
+    logger.info('WorkerHub connected for WebSocket event publishing');
+  }
 
   /**
    * Add a new SSE client
@@ -105,7 +128,7 @@ export class SSEBroadcaster {
   }
 
   /**
-   * Broadcast event to all clients
+   * Broadcast event to all clients (SSE and WebSocket)
    */
   broadcast(event: SSEEvent): void {
     const eventWithTimestamp: SSEEvent = {
@@ -128,6 +151,11 @@ export class SSEBroadcaster {
         // Remove failed client
         this.clients.delete(clientId);
       }
+    }
+
+    // Also publish to WebSocket clients via WorkerHub (Issue #264)
+    if (this.workerHub) {
+      this.workerHub.publish(event.type as ChannelEvent, event.data);
     }
   }
 
@@ -279,6 +307,30 @@ export class SSEBroadcaster {
       type: 'session:pre-compact',
       data: { sessionId, project },
     });
+  }
+
+  /**
+   * Broadcast writer pause event (Issue #288)
+   * Tells SSE-Writer to pause writing CLAUDE.md during git operations
+   */
+  broadcastWriterPause(sessionId: string, reason: string): void {
+    this.broadcast({
+      type: 'writer:pause',
+      data: { sessionId, reason },
+    });
+    logger.debug(`Writer pause broadcast for session ${sessionId}: ${reason}`);
+  }
+
+  /**
+   * Broadcast writer resume event (Issue #288)
+   * Tells SSE-Writer to resume writing CLAUDE.md after git operations
+   */
+  broadcastWriterResume(sessionId: string): void {
+    this.broadcast({
+      type: 'writer:resume',
+      data: { sessionId },
+    });
+    logger.debug(`Writer resume broadcast for session ${sessionId}`);
   }
 
   /**

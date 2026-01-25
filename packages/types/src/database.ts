@@ -83,6 +83,10 @@ export interface SdkSessionRecord {
   repo_path?: string | null;
   is_worktree?: boolean;
   branch?: string | null;
+  // Plan mode tracking (Issue #317)
+  is_in_plan_mode?: boolean;
+  plan_mode_entered_at?: number | null;
+  plan_mode_count?: number;
 }
 
 /**
@@ -278,4 +282,33 @@ export interface DocumentRecord {
   last_accessed_epoch: number;
   created_at: string;
   created_at_epoch: number;
+}
+
+/**
+ * Compression status for archived tool outputs
+ */
+export type CompressionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'skipped';
+
+/**
+ * Archived Tool Output database record (Endless Mode - Issue #109)
+ *
+ * Stores full tool outputs for later recall while compressed
+ * observations are used in the context window.
+ */
+export interface ArchivedOutputRecord {
+  id: number;
+  memory_session_id: string;
+  project: string;
+  tool_name: string;
+  tool_input: string;           // JSON string of tool input
+  tool_output: string;          // Full uncompressed output
+  compressed_observation_id?: number; // Link to compressed observation
+  compression_status: CompressionStatus;
+  token_count?: number;         // Original token count
+  compressed_token_count?: number; // After compression (~95% reduction target)
+  error_message?: string;       // Error if compression failed
+  created_at: string;
+  created_at_epoch: number;
+  compressed_at?: string;
+  compressed_at_epoch?: number;
 }

@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, IArchivedOutputRepository, IUserTaskRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType, CompressionStatus, UserTaskStatus } from '@claude-mem/types';
 import {
   cacheManager,
   projectCache,
@@ -47,6 +47,8 @@ export interface DataRouterDeps {
   observationLinks: IObservationLinkRepository;
   observationTemplates: IObservationTemplateRepository;
   projectSettings: IProjectSettingsRepository;
+  archivedOutputs?: IArchivedOutputRepository;
+  userTasks: IUserTaskRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -130,6 +132,20 @@ export class DataRouter extends BaseRouter {
     this.router.get('/project-settings/:project', this.asyncHandler(this.getProjectSettings.bind(this)));
     this.router.put('/project-settings/:project', this.asyncHandler(this.updateProjectSettings.bind(this)));
     this.router.delete('/project-settings/:project', this.asyncHandler(this.deleteProjectSettings.bind(this)));
+
+    // Archived Outputs (Endless Mode - Issue #109)
+    this.router.get('/archived-outputs', this.asyncHandler(this.listArchivedOutputs.bind(this)));
+    this.router.get('/archived-outputs/search', this.asyncHandler(this.searchArchivedOutputs.bind(this)));
+    this.router.get('/archived-outputs/stats', this.asyncHandler(this.getArchivedOutputsStats.bind(this)));
+    this.router.get('/archived-outputs/:id', this.asyncHandler(this.getArchivedOutput.bind(this)));
+    this.router.get('/archived-outputs/by-observation/:observationId', this.asyncHandler(this.getArchivedOutputByObservation.bind(this)));
+
+    // User Tasks (Issue #260 - TodoList & PlanMode)
+    this.router.get('/user-tasks', this.asyncHandler(this.listUserTasks.bind(this)));
+    this.router.get('/user-tasks/stats', this.asyncHandler(this.getUserTaskStats.bind(this)));
+    this.router.get('/user-tasks/status/counts', this.asyncHandler(this.getUserTaskCounts.bind(this)));
+    this.router.get('/user-tasks/:id', this.asyncHandler(this.getUserTask.bind(this)));
+    this.router.get('/user-tasks/:id/children', this.asyncHandler(this.getUserTaskChildren.bind(this)));
   }
 
   /**
@@ -149,48 +165,33 @@ export class DataRouter extends BaseRouter {
     const sessionIds = sessions.map(s => s.content_session_id);
     const firstPrompts = await this.deps.userPrompts.getFirstPromptsForSessions(sessionIds);
 
+    // Get observation counts and file stats in batch (Issue #202 - fix N+1 problem)
+    const memorySessionIds = sessions
+      .map(s => s.memory_session_id)
+      .filter((id): id is string => id !== null && id !== undefined);
+
+    const [observationCounts, fileStats] = await Promise.all([
+      this.deps.observations.getCountsBySessionIds(memorySessionIds),
+      this.deps.observations.getFileStatsBySessionIds(memorySessionIds),
+    ]);
+
     // Enrich sessions with observation counts, first prompts, and file info
-    const enrichedSessions = await Promise.all(
-      sessions.map(async (session) => {
-        let observationCount = 0;
-        const filesRead: string[] = [];
-        const filesModified: string[] = [];
+    const enrichedSessions = sessions.map((session) => {
+      const stats = session.memory_session_id
+        ? fileStats.get(session.memory_session_id)
+        : undefined;
 
-        if (session.memory_session_id) {
-          const observations = await this.deps.observations.getBySessionId(session.memory_session_id);
-          observationCount = observations.length;
-
-          // Aggregate files from all observations
-          for (const obs of observations) {
-            if (obs.files_read) {
-              try {
-                const files = JSON.parse(obs.files_read) as string[];
-                for (const f of files) {
-                  if (!filesRead.includes(f)) filesRead.push(f);
-                }
-              } catch { /* ignore parse errors */ }
-            }
-            if (obs.files_modified) {
-              try {
-                const files = JSON.parse(obs.files_modified) as string[];
-                for (const f of files) {
-                  if (!filesModified.includes(f)) filesModified.push(f);
-                }
-              } catch { /* ignore parse errors */ }
-            }
-          }
-        }
-
-        return {
-          ...session,
-          user_prompt: firstPrompts.get(session.content_session_id) || null,
-          observation_count: observationCount,
-          prompt_count: session.prompt_counter ?? 0,
-          files_read: filesRead,
-          files_modified: filesModified,
-        };
-      })
-    );
+      return {
+        ...session,
+        user_prompt: firstPrompts.get(session.content_session_id) || null,
+        observation_count: session.memory_session_id
+          ? observationCounts.get(session.memory_session_id) ?? 0
+          : 0,
+        prompt_count: session.prompt_counter ?? 0,
+        files_read: stats?.filesRead ?? [],
+        files_modified: stats?.filesModified ?? [],
+      };
+    });
 
     const total = await this.deps.sessionService.getSessionCount({
       project: getString(project),
@@ -1326,5 +1327,223 @@ export class DataRouter extends BaseRouter {
     }
 
     this.noContent(res);
+  }
+
+  // ============================================
+  // Archived Outputs (Endless Mode - Issue #109)
+  // ============================================
+
+  /**
+   * GET /api/data/archived-outputs
+   * List archived outputs with filtering
+   */
+  private async listArchivedOutputs(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const { sessionId, project, status, toolName, limit, offset } = req.query;
+
+    const outputs = await this.deps.archivedOutputs.list(
+      {
+        sessionId: getString(sessionId),
+        project: getString(project),
+        compressionStatus: getString(status) as CompressionStatus | undefined,
+        toolName: getString(toolName),
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+        offset: this.parseOptionalIntParam(getString(offset)) ?? 0,
+      }
+    );
+
+    this.success(res, { data: outputs });
+  }
+
+  /**
+   * GET /api/data/archived-outputs/search
+   * Search archived outputs (for MCP recall)
+   */
+  private async searchArchivedOutputs(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const { q, sessionId, project, toolName, limit } = req.query;
+
+    if (!q || typeof q !== 'string') {
+      this.badRequest('Query parameter "q" is required');
+    }
+
+    const outputs = await this.deps.archivedOutputs.search(
+      q,
+      {
+        sessionId: getString(sessionId),
+        project: getString(project),
+        toolName: getString(toolName),
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 10,
+      }
+    );
+
+    this.success(res, { data: outputs, query: q });
+  }
+
+  /**
+   * GET /api/data/archived-outputs/stats
+   * Get archived output statistics
+   */
+  private async getArchivedOutputsStats(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const stats = await this.deps.archivedOutputs.getStats();
+    this.success(res, stats);
+  }
+
+  /**
+   * GET /api/data/archived-outputs/:id
+   * Get a specific archived output by ID
+   */
+  private async getArchivedOutput(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const id = parseInt(getRequiredString(req.params.id), 10);
+    if (isNaN(id)) {
+      this.badRequest('Invalid ID');
+    }
+
+    const output = await this.deps.archivedOutputs.findById(id);
+    if (!output) {
+      this.notFound(`Archived output not found: ${id}`);
+    }
+
+    this.success(res, output);
+  }
+
+  /**
+   * GET /api/data/archived-outputs/by-observation/:observationId
+   * Get archived output by observation ID (for recall)
+   */
+  private async getArchivedOutputByObservation(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const observationId = parseInt(getRequiredString(req.params.observationId), 10);
+    if (isNaN(observationId)) {
+      this.badRequest('Invalid observation ID');
+    }
+
+    const output = await this.deps.archivedOutputs.findByObservationId(observationId);
+    if (!output) {
+      this.notFound(`Archived output not found for observation: ${observationId}`);
+    }
+
+    this.success(res, output);
+  }
+
+  // ============================================
+  // User Tasks (Issue #260 - TodoList & PlanMode)
+  // ============================================
+
+  /**
+   * GET /api/data/user-tasks
+   * List user tasks with filtering
+   */
+  private async listUserTasks(req: Request, res: Response): Promise<void> {
+    const { project, sessionId, status, source, parentTaskId, limit, offset } = req.query;
+
+    // Parse status - can be single or comma-separated
+    let statusFilter: UserTaskStatus | UserTaskStatus[] | undefined;
+    const statusStr = getString(status);
+    if (statusStr) {
+      if (statusStr.includes(',')) {
+        statusFilter = statusStr.split(',') as UserTaskStatus[];
+      } else {
+        statusFilter = statusStr as UserTaskStatus;
+      }
+    }
+
+    // Parse parentTaskId - use null for root tasks only
+    let parentFilter: number | null | undefined;
+    const parentStr = getString(parentTaskId);
+    if (parentStr === 'null' || parentStr === 'root') {
+      parentFilter = null;
+    } else if (parentStr) {
+      parentFilter = parseInt(parentStr, 10);
+    }
+
+    const tasks = await this.deps.userTasks.list({
+      project: getString(project),
+      sessionId: getString(sessionId),
+      status: statusFilter,
+      source: getString(source) as 'claude-code' | 'cursor' | 'aider' | 'copilot' | 'manual' | 'api' | undefined,
+      parentTaskId: parentFilter,
+      limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+      offset: this.parseOptionalIntParam(getString(offset)) ?? 0,
+    });
+
+    this.success(res, { data: tasks });
+  }
+
+  /**
+   * GET /api/data/user-tasks/stats
+   * Get user task statistics
+   */
+  private async getUserTaskStats(req: Request, res: Response): Promise<void> {
+    const { project } = req.query;
+
+    const stats = await this.deps.userTasks.getStats(getString(project));
+
+    this.success(res, stats);
+  }
+
+  /**
+   * GET /api/data/user-tasks/status/counts
+   * Get user task counts by status
+   */
+  private async getUserTaskCounts(req: Request, res: Response): Promise<void> {
+    const { project } = req.query;
+
+    const counts = await this.deps.userTasks.countByStatus(getString(project));
+
+    this.success(res, counts);
+  }
+
+  /**
+   * GET /api/data/user-tasks/:id
+   * Get a specific user task by ID
+   */
+  private async getUserTask(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const task = await this.deps.userTasks.findById(id);
+    if (!task) {
+      this.notFound(`User task not found: ${id}`);
+    }
+
+    this.success(res, task);
+  }
+
+  /**
+   * GET /api/data/user-tasks/:id/children
+   * Get child tasks of a user task
+   */
+  private async getUserTaskChildren(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const children = await this.deps.userTasks.getChildren(id);
+
+    this.success(res, { data: children });
   }
 }

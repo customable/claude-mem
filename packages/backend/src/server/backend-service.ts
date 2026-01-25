@@ -16,7 +16,9 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService, CleanupService, createCleanupService } from '../services/index.js';
+import { HubFederation } from '../websocket/hub-federation.js';
+import { FederatedRouter } from '../websocket/federated-router.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService, CleanupService, createCleanupService, WorkerTokenService, HubRegistry } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -37,6 +39,8 @@ import {
   ShareRouter,
   CleanupRouter,
   MetricsRouter,
+  WorkerTokensRouter,
+  HubsRouter,
 } from '../routes/index.js';
 import {
   expensiveLimiter,
@@ -96,6 +100,10 @@ export class BackendService {
   private pluginManager: PluginManager | null = null;
   private shareService: ShareService | null = null;
   private cleanupService: CleanupService | null = null;
+  private workerTokenService: WorkerTokenService | null = null;
+  private hubRegistry: HubRegistry | null = null;
+  private hubFederation: HubFederation | null = null;
+  private federatedRouter: FederatedRouter | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -147,6 +155,9 @@ export class BackendService {
 
       // Initialize SSE broadcaster (TaskDispatcher will wire up worker events)
       this.sseBroadcaster = new SSEBroadcaster();
+
+      // Wire SSE broadcaster to WorkerHub for WebSocket event publishing (Issue #264)
+      this.sseBroadcaster.setWorkerHub(this.workerHub);
 
       // Handle worker ready for termination (not overridden by TaskDispatcher)
       this.workerHub.onWorkerReadyForTermination = (workerId) => {
@@ -270,7 +281,8 @@ export class BackendService {
         this.sseBroadcaster!,
         this.unitOfWork.observations,
         this.unitOfWork.sessions,
-        this.unitOfWork.summaries
+        this.unitOfWork.summaries,
+        this.unitOfWork.archivedOutputs
       );
 
       this.sessionService = new SessionService(
@@ -334,6 +346,56 @@ export class BackendService {
         workerProcessManager: this.workerProcessManager!,
       });
 
+      // Initialize worker token service for token-based worker auth (Issue #263)
+      this.workerTokenService = new WorkerTokenService(
+        this.database.getForkedEntityManager()
+      );
+      // Wire token service to WorkerHub for DB-backed token validation
+      this.workerHub!.setWorkerTokenService(this.workerTokenService);
+
+      // Initialize hub registry for distributed worker pools (Issue #263)
+      this.hubRegistry = new HubRegistry(
+        this.database.getForkedEntityManager()
+      );
+      // Register built-in hub on startup
+      await this.hubRegistry.initialize();
+
+      // Initialize federated router for multi-hub task routing (Issue #263)
+      this.federatedRouter = new FederatedRouter(this.hubRegistry);
+
+      // Initialize hub federation handler for external hubs (Issue #263)
+      this.hubFederation = new HubFederation({
+        hubToken: this.settings.HUB_TOKEN,
+      });
+      this.hubFederation.setHubRegistry(this.hubRegistry);
+      this.hubFederation.attach(this.server!, '/ws/hub');
+
+      // Wire up hub federation events
+      this.hubFederation.on({
+        onHubConnected: (hub) => {
+          logger.info(`External hub connected: ${hub.name} (${hub.id})`);
+          this.sseBroadcaster?.broadcast({
+            type: 'hub:connected',
+            data: { hubId: hub.id, name: hub.name },
+          });
+        },
+        onHubDisconnected: (hubId) => {
+          logger.info(`External hub disconnected: ${hubId}`);
+          this.sseBroadcaster?.broadcast({
+            type: 'hub:disconnected',
+            data: { hubId },
+          });
+        },
+        onTaskComplete: (hubId, taskId, result, processingTimeMs) => {
+          // Forward to task dispatcher for standard handling
+          this.taskDispatcher?.['handleTaskComplete']?.(hubId, taskId, result);
+        },
+        onTaskError: (hubId, taskId, error, retryable) => {
+          // Forward to task dispatcher for standard handling
+          this.taskDispatcher?.['handleTaskError']?.(hubId, taskId, error);
+        },
+      });
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -347,6 +409,7 @@ export class BackendService {
           taskService: this.taskService,
           claudemd: this.unitOfWork.claudemd,
           codeSnippets: this.unitOfWork.codeSnippets,
+          archivedOutputs: this.unitOfWork.archivedOutputs,
           onWorkerLinked: (spawnedId, hubWorkerId) => {
             this.workerProcessManager?.linkToHubWorker(spawnedId, hubWorkerId);
           },
@@ -395,6 +458,8 @@ export class BackendService {
       sessionService: this.sessionService!,
       taskService: this.taskService!,
       claudemd: this.unitOfWork!.claudemd,
+      sseBroadcaster: this.sseBroadcaster!,
+      userTasks: this.unitOfWork!.userTasks,
     }).router);
 
     // Data routes
@@ -410,6 +475,8 @@ export class BackendService {
       observationLinks: this.unitOfWork!.observationLinks,
       observationTemplates: this.unitOfWork!.observationTemplates,
       projectSettings: this.unitOfWork!.projectSettings,
+      archivedOutputs: this.unitOfWork!.archivedOutputs,
+      userTasks: this.unitOfWork!.userTasks,
     }).router);
 
     // Search routes
@@ -423,6 +490,7 @@ export class BackendService {
       observations: this.unitOfWork!.observations,
       summaries: this.unitOfWork!.summaries,
       sessions: this.unitOfWork!.sessions,
+      userTasks: this.unitOfWork!.userTasks,
     }).router);
 
     // Import routes
@@ -470,6 +538,16 @@ export class BackendService {
     // Cleanup routes (process/memory leak prevention - Issue #101)
     this.app.use('/api/cleanup', new CleanupRouter({
       cleanupService: this.cleanupService!,
+    }).router);
+
+    // Worker tokens routes (Issue #263)
+    this.app.use('/api/worker-tokens', new WorkerTokensRouter({
+      workerTokenService: this.workerTokenService!,
+    }).router);
+
+    // Hubs routes (Issue #263)
+    this.app.use('/api/hubs', new HubsRouter({
+      hubRegistry: this.hubRegistry!,
     }).router);
 
     // Metrics endpoint (Issue #209)
@@ -623,6 +701,11 @@ export class BackendService {
     // Close SSE connections
     if (this.sseBroadcaster) {
       this.sseBroadcaster.closeAll();
+    }
+
+    // Shutdown hub federation (Issue #263)
+    if (this.hubFederation) {
+      await this.hubFederation.shutdown();
     }
 
     // Shutdown worker hub

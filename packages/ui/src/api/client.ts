@@ -50,6 +50,16 @@ export function del<T>(path: string): Promise<T> {
   return fetchApi<T>(path, { method: 'DELETE' });
 }
 
+/**
+ * PUT request
+ */
+export function put<T>(path: string, body: unknown): Promise<T> {
+  return fetchApi<T>(path, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
 // ============================================
 // API Types
 // ============================================
@@ -142,6 +152,13 @@ export interface SpawnStatus {
   spawnedCount: number;
   maxWorkers: number;
   canSpawnMore: boolean;
+  // Provider configuration (Issue #254)
+  enabledProviders?: string[];
+  defaultProvider?: string;
+  // Auto-Spawn status (Issue #256)
+  autoSpawnEnabled?: boolean;
+  autoSpawnCount?: number;
+  autoSpawnProviders?: string[];
 }
 
 // Insights types
@@ -181,6 +198,102 @@ export interface TechnologyUsageRecord {
   observation_count: number;
   project: string | null;
 }
+
+export interface ProjectSettings {
+  id: number;
+  project: string;
+  display_name?: string;
+  description?: string;
+  archived?: boolean;
+  last_activity_epoch?: number;
+  created_at_epoch: number;
+  updated_at_epoch?: number;
+}
+
+// Endless Mode (Issue #109)
+export type CompressionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'skipped';
+
+export interface ArchivedOutput {
+  id: number;
+  session_id: string;
+  project: string;
+  tool_name: string;
+  tool_input: string;
+  tool_output: string;
+  token_count: number;
+  compression_status: CompressionStatus;
+  compressed_observation_id?: number;
+  compressed_token_count?: number;
+  error_message?: string;
+  created_at_epoch: number;
+}
+
+export interface ArchivedOutputStats {
+  totalCount: number;
+  pendingCount: number;
+  completedCount: number;
+  failedCount: number;
+  skippedCount: number;
+  totalOriginalTokens: number;
+  totalCompressedTokens: number;
+  compressionRatio: number;
+  avgCompressionRatio: number;
+}
+
+// User Tasks (Issue #260 - TodoList & PlanMode)
+export type UserTaskStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'blocked'
+  | 'more_info_needed'
+  | 'ready_for_review'
+  | 'completed'
+  | 'cancelled';
+
+export type UserTaskSource =
+  | 'claude-code'
+  | 'cursor'
+  | 'aider'
+  | 'copilot'
+  | 'manual'
+  | 'api';
+
+export interface UserTask {
+  id: number;
+  externalId?: string;
+  title: string;
+  description?: string;
+  activeForm?: string;
+  status: UserTaskStatus;
+  priority?: 'low' | 'medium' | 'high';
+  project: string;
+  sessionId?: string;
+  parentTaskId?: number;
+  source: UserTaskSource;
+  sourceMetadata?: Record<string, unknown>;
+  owner?: string;
+  workingDirectory?: string;
+  gitBranch?: string;
+  affectedFiles?: string[];
+  blockedBy?: string[];
+  blocks?: string[];
+  dueAtEpoch?: number;
+  createdAtEpoch: number;
+  updatedAtEpoch: number;
+  completedAtEpoch?: number;
+  costTokens?: number;
+  costUsd?: number;
+}
+
+export interface UserTaskStats {
+  total: number;
+  pending: number;
+  inProgress: number;
+  completed: number;
+  blocked: number;
+}
+
+export type UserTaskCounts = Record<UserTaskStatus, number>;
 
 export interface AchievementDefinition {
   id: string;
@@ -251,6 +364,38 @@ export interface Stats {
   };
 }
 
+export type TaskStatus = 'pending' | 'assigned' | 'processing' | 'completed' | 'failed' | 'timeout';
+export type TaskType = 'observation' | 'summarize' | 'embedding' | 'claude-md' | 'cleanup';
+
+export interface Task {
+  id: string;
+  type: TaskType;
+  status: TaskStatus;
+  requiredCapability: string;
+  fallbackCapabilities?: string[];
+  priority: number;
+  payload: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  error?: string;
+  retryCount: number;
+  maxRetries: number;
+  assignedWorkerId?: string;
+  createdAt: number;
+  assignedAt?: number;
+  completedAt?: number;
+  retryAfter?: number;
+  deduplicationKey?: string;
+}
+
+export interface TaskCounts {
+  pending: number;
+  assigned: number;
+  processing: number;
+  completed: number;
+  failed: number;
+  timeout: number;
+}
+
 export interface HealthStatus {
   status: 'ok' | 'degraded' | 'error';
   coreReady: boolean;
@@ -258,6 +403,95 @@ export interface HealthStatus {
   workers: {
     connected: number;
   };
+}
+
+// ============================================
+// Worker Tokens & Hub Federation (Issue #263)
+// ============================================
+
+export type TokenScope = 'instance' | 'group' | 'project';
+
+export interface WorkerToken {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  scope: TokenScope;
+  hubId?: string;
+  projectFilter?: string;
+  capabilities?: string[];
+  labels?: Record<string, string>;
+  createdAt: string;
+  expiresAt?: string;
+  lastUsedAt?: string;
+  revokedAt?: string;
+  registrationCount?: number;
+}
+
+export interface WorkerTokenCreateRequest {
+  name: string;
+  scope: TokenScope;
+  hubId?: string;
+  projectFilter?: string;
+  capabilities?: string[];
+  labels?: Record<string, string>;
+  expiresAt?: string;
+}
+
+export interface WorkerTokenCreateResponse {
+  token: string;
+  id: string;
+  prefix: string;
+}
+
+export interface WorkerRegistration {
+  id: string;
+  tokenId: string;
+  systemId: string;
+  hostname?: string;
+  labels?: Record<string, string>;
+  capabilities?: string[];
+  status: 'online' | 'offline';
+  connectedAt: string;
+  disconnectedAt?: string;
+  lastHeartbeat?: string;
+}
+
+export type HubType = 'builtin' | 'external';
+export type HubStatus = 'healthy' | 'degraded' | 'unhealthy' | 'offline';
+
+export interface Hub {
+  id: string;
+  name: string;
+  type: HubType;
+  endpoint?: string;
+  priority: number;
+  weight: number;
+  region?: string;
+  labels?: Record<string, string>;
+  capabilities?: string[];
+  status: HubStatus;
+  connectedWorkers: number;
+  activeWorkers: number;
+  avgLatencyMs?: number;
+  createdAt: string;
+  lastHeartbeat?: string;
+}
+
+export interface HubCreateRequest {
+  name: string;
+  endpoint?: string;
+  priority?: number;
+  weight?: number;
+  region?: string;
+  labels?: Record<string, string>;
+  capabilities?: string[];
+}
+
+export interface HubStats {
+  totalHubs: number;
+  healthyHubs: number;
+  totalWorkers: number;
+  activeWorkers: number;
 }
 
 // ============================================
@@ -350,7 +584,8 @@ export const api = {
   getWorkerStats: () => get<{ totalConnected: number }>('/workers/stats'),
   getSpawnStatus: () => get<SpawnStatus>('/workers/spawn-status'),
   getSpawnedWorkers: () => get<{ data: SpawnedWorker[]; canSpawn: boolean; maxWorkers: number }>('/workers/spawned'),
-  spawnWorker: () => post<{ id: string; pid: number; message: string }>('/workers/spawn', {}),
+  spawnWorker: (config?: { provider?: string }) =>
+    post<{ id: string; pid: number; message: string }>('/workers/spawn', config ?? {}),
   terminateWorker: (id: string) => del<{ message: string; queued?: boolean; reason?: string }>(`/workers/spawned/${id}`),
 
   // Settings
@@ -398,6 +633,14 @@ export const api = {
       filesRead: Array<{ path: string; count: number }>;
       filesModified: Array<{ path: string; count: number }>;
     }>(`/data/projects/${encodeURIComponent(project)}/files`),
+
+  // Project Settings
+  getProjectSettings: (project: string) =>
+    get<ProjectSettings>(`/data/project-settings/${encodeURIComponent(project)}`),
+  updateProjectSettings: (project: string, settings: Partial<ProjectSettings>) =>
+    put<ProjectSettings>(`/data/project-settings/${encodeURIComponent(project)}`, settings),
+  deleteProjectSettings: (project: string) =>
+    del<void>(`/data/project-settings/${encodeURIComponent(project)}`),
 
   // Logs
   getLogs: (params?: { level?: string; context?: string; limit?: number }) => {
@@ -499,4 +742,125 @@ export const api = {
   getInsightsAchievements: () => get<AchievementProgress[]>('/insights/achievements'),
   checkAchievements: () =>
     post<{ checked: boolean; updated: number; achievements: AchievementProgress[] }>('/insights/achievements/check', {}),
+
+  // Tasks
+  getTasks: (params?: { status?: TaskStatus; type?: TaskType; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set('status', params.status);
+    if (params?.type) query.set('type', params.type);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    const queryStr = query.toString();
+    return get<{ data: Task[]; total?: number }>(`/data/tasks${queryStr ? '?' + queryStr : ''}`).then(res => ({
+      items: res.data || [],
+      total: res.total || res.data?.length || 0,
+    }));
+  },
+  getTask: (id: string) => get<Task>(`/data/tasks/${id}`),
+  getTaskCounts: () => get<TaskCounts>('/data/tasks/status/counts'),
+  // Retry a failed task (Issue #285)
+  retryTask: (id: string) => post<void>(`/data/tasks/${id}/retry`, {}),
+
+  // Archived Outputs - Endless Mode (Issue #109)
+  getArchivedOutputs: (params?: { sessionId?: string; project?: string; status?: CompressionStatus; toolName?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.sessionId) query.set('sessionId', params.sessionId);
+    if (params?.project) query.set('project', params.project);
+    if (params?.status) query.set('status', params.status);
+    if (params?.toolName) query.set('toolName', params.toolName);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    const queryStr = query.toString();
+    return get<{ data: ArchivedOutput[] }>(`/data/archived-outputs${queryStr ? '?' + queryStr : ''}`).then(res => res.data || []);
+  },
+  searchArchivedOutputs: (query: string, params?: { sessionId?: string; project?: string; toolName?: string; limit?: number }) => {
+    const searchParams = new URLSearchParams();
+    searchParams.set('q', query);
+    if (params?.sessionId) searchParams.set('sessionId', params.sessionId);
+    if (params?.project) searchParams.set('project', params.project);
+    if (params?.toolName) searchParams.set('toolName', params.toolName);
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    return get<{ data: ArchivedOutput[]; query: string }>(`/data/archived-outputs/search?${searchParams}`).then(res => res.data || []);
+  },
+  getArchivedOutputStats: () => get<ArchivedOutputStats>('/data/archived-outputs/stats'),
+  getArchivedOutput: (id: number) => get<ArchivedOutput>(`/data/archived-outputs/${id}`),
+  getArchivedOutputByObservation: (observationId: number) => get<ArchivedOutput>(`/data/archived-outputs/by-observation/${observationId}`),
+
+  // User Tasks - Issue #260 (TodoList & PlanMode)
+  getUserTasks: (params?: {
+    project?: string;
+    sessionId?: string;
+    status?: UserTaskStatus | UserTaskStatus[];
+    source?: UserTaskSource;
+    parentTaskId?: number | 'root';
+    limit?: number;
+    offset?: number;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.project) query.set('project', params.project);
+    if (params?.sessionId) query.set('sessionId', params.sessionId);
+    if (params?.status) {
+      const statusStr = Array.isArray(params.status) ? params.status.join(',') : params.status;
+      query.set('status', statusStr);
+    }
+    if (params?.source) query.set('source', params.source);
+    if (params?.parentTaskId !== undefined) {
+      query.set('parentTaskId', params.parentTaskId === 'root' ? 'null' : String(params.parentTaskId));
+    }
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    const queryStr = query.toString();
+    return get<{ data: UserTask[] }>(`/data/user-tasks${queryStr ? '?' + queryStr : ''}`).then(res => res.data || []);
+  },
+  getUserTask: (id: number) => get<UserTask>(`/data/user-tasks/${id}`),
+  getUserTaskStats: (project?: string) => {
+    const query = project ? `?project=${encodeURIComponent(project)}` : '';
+    return get<UserTaskStats>(`/data/user-tasks/stats${query}`);
+  },
+  getUserTaskCounts: (project?: string) => {
+    const query = project ? `?project=${encodeURIComponent(project)}` : '';
+    return get<UserTaskCounts>(`/data/user-tasks/status/counts${query}`);
+  },
+  getUserTaskChildren: (id: number) =>
+    get<{ data: UserTask[] }>(`/data/user-tasks/${id}/children`).then(res => res.data || []),
+
+  // User Task Export (Issue #260 Phase 4)
+  exportUserTasks: (params?: { project?: string; status?: string; format?: 'json' | 'markdown' | 'download'; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.project) query.set('project', params.project);
+    if (params?.status) query.set('status', params.status);
+    if (params?.format) query.set('format', params.format);
+    if (params?.limit) query.set('limit', String(params.limit));
+    const queryStr = query.toString();
+    return get<{ exportedAt: string; filters: { project: string; status: string }; count: number; tasks: UserTask[] }>(
+      `/export/user-tasks${queryStr ? '?' + queryStr : ''}`
+    );
+  },
+  exportUserTasksMarkdown: (params?: { project?: string; status?: string }) => {
+    const query = new URLSearchParams();
+    query.set('format', 'markdown');
+    if (params?.project) query.set('project', params.project);
+    if (params?.status) query.set('status', params.status);
+    return fetch(`/api/export/user-tasks?${query}`).then(res => res.text());
+  },
+
+  // Worker Tokens - Issue #263 (Hub Federation)
+  getWorkerTokens: () =>
+    get<{ data: WorkerToken[] }>('/worker-tokens').then(res => res.data || []),
+  getWorkerToken: (id: string) => get<WorkerToken>(`/worker-tokens/${id}`),
+  createWorkerToken: (request: WorkerTokenCreateRequest) =>
+    post<WorkerTokenCreateResponse>('/worker-tokens', request),
+  revokeWorkerToken: (id: string) => del<void>(`/worker-tokens/${id}`),
+  getTokenRegistrations: (tokenId: string) =>
+    get<{ data: WorkerRegistration[] }>(`/worker-tokens/${tokenId}/registrations`).then(res => res.data || []),
+
+  // Hubs - Issue #263 (Hub Federation)
+  getHubs: () => get<{ data: Hub[] }>('/hubs').then(res => res.data || []),
+  getHub: (id: string) => get<Hub>(`/hubs/${id}`),
+  createHub: (request: HubCreateRequest) => post<Hub>('/hubs', request),
+  updateHub: (id: string, updates: Partial<HubCreateRequest>) => put<Hub>(`/hubs/${id}`, updates),
+  deleteHub: (id: string) => del<void>(`/hubs/${id}`),
+  getHubStats: () => get<HubStats>('/hubs/stats'),
+  getHubWorkers: (hubId: string) =>
+    get<{ data: WorkerRegistration[] }>(`/hubs/${hubId}/workers`).then(res => res.data || []),
 };

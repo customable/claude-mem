@@ -1,15 +1,18 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * Backend Service CLI Entry Point
  *
  * Usage:
- *   bun backend-service.ts start    - Start the backend server
- *   bun backend-service.ts stop     - Stop the backend server (via API)
- *   bun backend-service.ts status   - Check backend status
+ *   npx @claude-mem/backend start    - Start the backend server
+ *   npx @claude-mem/backend stop     - Stop the backend server (via API)
+ *   npx @claude-mem/backend status   - Check backend status
  */
 
 import { BackendService } from './server/backend-service.js';
-import { createLogger } from '@claude-mem/shared';
+import { createLogger, initFileLogging, getLogFilePath } from '@claude-mem/shared';
+
+// Initialize file logging in dev mode (Issue #251)
+const fileTransport = initFileLogging('backend');
 
 const logger = createLogger('cli');
 
@@ -37,6 +40,12 @@ async function main(): Promise<void> {
 }
 
 async function startBackend(): Promise<void> {
+  // Log file location if file logging is enabled (Issue #251)
+  const logPath = getLogFilePath();
+  if (logPath) {
+    logger.info(`File logging enabled: ${logPath}`);
+  }
+
   // Use empty options - BackendService will load from settings
   const service = new BackendService();
 

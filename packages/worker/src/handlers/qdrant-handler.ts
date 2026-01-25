@@ -1,13 +1,14 @@
 /**
- * Qdrant Sync Handler
+ * Vector Database Sync Handler (Issue #112)
  *
- * Processes Qdrant vector database synchronization tasks.
+ * Processes vector database synchronization tasks.
  * Syncs observations and summaries to the vector store for semantic search.
+ * Uses the provider-agnostic VectorDatabase interface.
  */
 
 import { createLogger } from '@claude-mem/shared';
 import type { QdrantSyncTaskPayload, QdrantSyncTask } from '@claude-mem/types';
-import { QdrantService, type VectorDocument } from '../services/qdrant-service.js';
+import type { VectorDatabase, VectorDocument } from '../vector-db/index.js';
 
 const logger = createLogger('qdrant-handler');
 
@@ -57,10 +58,13 @@ export interface DataProvider {
 }
 
 /**
- * Handle a Qdrant sync task
+ * Handle a vector database sync task
+ *
+ * Uses the provider-agnostic VectorDatabase interface to support
+ * multiple backends (Qdrant, sqlite-vec, etc.) via Issue #112.
  */
 export async function handleQdrantSyncTask(
-  qdrantService: QdrantService,
+  vectorDb: VectorDatabase,
   payload: QdrantSyncTaskPayload,
   signal?: AbortSignal,
   dataProvider?: DataProvider
@@ -72,8 +76,8 @@ export async function handleQdrantSyncTask(
 
   const startTime = Date.now();
 
-  // Initialize Qdrant service (loads embedding model, ensures collection)
-  await qdrantService.initialize();
+  // Initialize vector database (loads embedding model, ensures collection)
+  await vectorDb.initialize();
 
   let documentsProcessed = 0;
   let documentsAdded = 0;
@@ -83,7 +87,7 @@ export async function handleQdrantSyncTask(
   if (payload.mode === 'full') {
     // Full sync: Clear existing documents for project and re-sync
     if (payload.project) {
-      await qdrantService.deleteByFilter({ project: payload.project });
+      await vectorDb.deleteByFilter({ project: payload.project });
       logger.info('Cleared existing documents for project', { project: payload.project });
       documentsDeleted++; // Approximate - could be many
     }
@@ -93,7 +97,7 @@ export async function handleQdrantSyncTask(
       const observations = await dataProvider.fetchAllObservations(payload.project);
       if (observations.length > 0) {
         const observationDocs = observations.map(obs => observationToDocument(obs));
-        await qdrantService.upsert(observationDocs);
+        await vectorDb.upsert(observationDocs);
         documentsAdded += observations.length;
         documentsProcessed += observations.length;
         logger.info('Synced observations', { count: observations.length });
@@ -103,7 +107,7 @@ export async function handleQdrantSyncTask(
       const summaries = await dataProvider.fetchAllSummaries(payload.project);
       if (summaries.length > 0) {
         const summaryDocs = summaries.map(sum => summaryToDocument(sum));
-        await qdrantService.upsert(summaryDocs);
+        await vectorDb.upsert(summaryDocs);
         documentsAdded += summaries.length;
         documentsProcessed += summaries.length;
         logger.info('Synced summaries', { count: summaries.length });
@@ -119,7 +123,7 @@ export async function handleQdrantSyncTask(
         const observations = await dataProvider.fetchObservations(payload.observationIds);
         if (observations.length > 0) {
           const docs = observations.map(obs => observationToDocument(obs));
-          await qdrantService.upsert(docs);
+          await vectorDb.upsert(docs);
           documentsUpdated += observations.length;
           documentsProcessed += observations.length;
           logger.info('Synced observations', { count: observations.length });
@@ -130,7 +134,7 @@ export async function handleQdrantSyncTask(
         const summaries = await dataProvider.fetchSummaries(payload.summaryIds);
         if (summaries.length > 0) {
           const docs = summaries.map(sum => summaryToDocument(sum));
-          await qdrantService.upsert(docs);
+          await vectorDb.upsert(docs);
           documentsUpdated += summaries.length;
           documentsProcessed += summaries.length;
           logger.info('Synced summaries', { count: summaries.length });

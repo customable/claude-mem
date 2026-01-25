@@ -5,49 +5,44 @@
 
 ### Jan 25
 
-| ID      | Time      | T  | Title                                                                 | Read       |
-|---------|-----------|----|-----------------------------------------------------------------------|------------|
-| #15502  | 1:30 AM   | 🔵 | FTS5 Query Parsing Logic in ObservationRepository                     | ~1525      |
-| #15490  | 1:29 AM   | 🔵 | FTS5 query parsing and search implementation in ObservationRepository | ~3299      |
-| #15489  | 1:29 AM   | 🔵 | Full-text search implementation using SQLite FTS5                     | ~1881      |
-| #15473  | 1:23 AM   | 🔵 | Exploring MikroORM Observation Repository Implementation              | ~5521      |
-| #15469  | 1:22 AM   | 🔴 | Enhanced FTS5 query parsing to handle hyphens and edge cases          | ~6647      |
-| #15392  | 12:57 AM  | 🔄 | Update TaskRepository.updateStatus parameter type                     | ~3262      |
-| #15391  | 12:57 AM  | 🟣 | Update TaskRepository import to use TaskUpdateExtras                  | ~3316      |
-| #15386  | 12:56 AM  | 🔵 | Task status update logic with exponential backoff support             | ~1114      |
-| #15385  | 12:56 AM  | 🔴 | Fix type annotation in TaskRepository.updateStatus                    | ~3367      |
-| #15384  | 12:56 AM  | 🟠 | Added BaseTask import to TaskRepository                               | ~3289      |
-| #15383  | 12:56 AM  | 🔵 | TaskRepository uses SQLite-specific JSON queries                      | ~957       |
-| #15378  | 12:55 AM  | 🔵 | TaskRepository handles status updates and exponential backoff          | ~1222      |
-| #15375  | 12:55 AM  | 🔵 | TaskRepository handles task updates and assignment                    | ~1118      |
-| #15361  | 12:53 AM  | 🟠 | Added retryAfter support for exponential backoff                      | ~4112      |
-| #15359  | 12:53 AM  | 🔴 | Add retry_after check to getNextPending query (Issue #206)             | ~4255      |
-| #15357  | 12:52 AM  | 🟠 | Added retryAfter field to Task entity conversion                      | ~3933      |
-| #15304  | 12:45 AM  | 🟠 | Added batchUpdateStatus method to TaskRepository                      | ~4013      |
-| #15302  | 12:45 AM  | 🟠 | Added batchDelete method to ObservationRepository                     | ~5903      |
-| #15297  | 12:45 AM  | 🔵 | Examining MikroORM Task Repository Implementation                     | ~2721      |
-| #15296  | 12:45 AM  | 🔵 | Exploring ObservationRepository's delete and analytics methods        | ~1129      |
-| #15214  | 12:32 AM  | 🔵 | Exploring MikroORM Observation Repository Implementation              | ~5557      |
-| #15208  | 12:32 AM  | 🔵 | Examining UserPromptRepository implementation                         | ~1783      |
-
-### Jan 24
-
-| ID      | Time      | T  | Title                                                                 | Read       |
-|---------|-----------|----|-----------------------------------------------------------------------|------------|
-| #14990  | 11:54 PM  | 🔵 | Found usage of sanitizeFts5Query method in ObservationRepository      | ~781       |
-| #14989  | 11:54 PM  | 🔴 | Fix TypeScript type assertion in search results                        | ~6672      |
-| #14987  | 11:54 PM  | 🔵 | ObservationRepository uses FTS5 for semantic search                   | ~1033      |
-| #14985  | 11:54 PM  | 🔄 | Renamed method from sanitizeFts5Query to parseFts5Query               | ~5431      |
-| #14983  | 11:54 PM  | 🔵 | ObservationRepository implements search facets for filtering           | ~1756      |
-| #14972  | 11:52 PM  | 🟠 | Enhanced FTS5 search with advanced query parsing and BM25 ranking     | ~7988      |
-| #14969  | 11:51 PM  | 🔵 | ObservationRepository uses FTS5 for search functionality              | ~1872      |
-| #14965  | 11:51 PM  | 🔵 | ObservationRepository contains analytics methods                       | ~1406      |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #2946 | 7:36 PM | 🔵 | Discovered UserTaskRepository for CLI task management | ~2274 |
+| #2442 | 6:17 PM | 🟠 | Add MikroOrmUserTaskRepository export to repositories | ~1722 |
+| #2438 | 6:17 PM | 🔵 | Discovered MikroORM repository exports structure | ~1594 |
+| #2420 | 6:13 PM | 🔵 | Exploring MikroORM Observation Repository | ~2134 |
+| #2343 | 6:02 PM | 🔵 | Found getStats method in ArchivedOutputRepository | ~1982 |
+| #2168 | 5:33 PM | 🔵 | Examined UserPromptRepository implementation | ~1781 |
+| #2140 | 5:29 PM | 🟠 | Add MikroORM ref import to ArchivedOutputRepository | ~3659 |
+| #2139 | 5:28 PM | 🔄 | Refactor: Use MikroORM reference for relation | ~3644 |
+| #2138 | 5:28 PM | 🔴 | Fix MikroORM Ref relation assignment | ~3790 |
+| #2136 | 5:27 PM | 🔴 | Fix compressed_observation_id extraction | ~4770 |
+| #2133 | 5:27 PM | 🔴 | Fix MikroORM relation query | ~3756 |
+| #2132 | 5:27 PM | 🟠 | Add Observation import to ArchivedOutputRepository | ~3254 |
+| #2129 | 5:27 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3156 |
+| #960 | 1:55 PM | 🔵 | TaskRepository uses MikroORM with SQLite JSON | ~1684 |
+| #946 | 1:51 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3156 |
+| #921 | 1:43 PM | 🔵 | Exploring MikroORM Observation Repository | ~5513 |
+| #920 | 1:43 PM | 🔵 | TaskRepository implements deduplication | ~3493 |
+| #915 | 1:42 PM | 🔵 | Examined SessionRepository implementation | ~3205 |
+| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3169 |
+| #677 | 12:52 PM | 🟠 | Added ArchivedOutputRepository export | ~1483 |
+| #667 | 12:50 PM | 🟠 | Created ArchivedOutputRepository | ~5277 |
+| #664 | 12:49 PM | 🔵 | Examined MikroORM Document Repository | ~3251 |
+| #663 | 12:49 PM | 🔵 | MikroORM Repository Structure Overview | ~1226 |
+| #545 | 12:34 PM | 🔵 | Examining TaskRepository implementation | ~3523 |
+| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite JSON | ~1639 |
+| #128 | 11:46 AM | 🟠 | Added task deduplication functionality | ~5137 |
+| #126 | 11:46 AM | 🟠 | Added deduplication key support | ~3840 |
+| #125 | 11:46 AM | 🟠 | Added createHash import to TaskRepository | ~3226 |
+| #124 | 11:46 AM | 🔵 | Examining TaskRepository implementation | ~3148 |
+| #69 | 11:34 AM | 🔴 | Fixed SQL query logic for file filtering | ~5791 |
 
 ## Key Insights
 
-- **FTS5 Query Parsing Enhancements**: Significant work on `parseFts5Query` method to handle complex search syntax, including phrase search, OR/NOT operators, and special characters. Edge cases like hyphens and standalone wildcards are now properly handled.
-- **Task Management Improvements**: Added exponential backoff support via `retryAfter` field, batch operations for status updates and deletions, and improved type safety in TaskRepository.
-- **Database-Specific Optimizations**: SQLite-specific features like FTS5 virtual tables and JSON operations are heavily used, indicating database-specific optimizations.
-- **Analytics Capabilities**: ObservationRepository includes methods for calculating analytics metrics and search facets, providing filtering capabilities.
-- **Type System Refactoring**: Ongoing refactoring of type system with changes like replacing `BaseTask` with `TaskUpdateExtras` for better type safety.
+- **ArchivedOutputRepository** is a critical component for Endless Mode (Issue #109), handling full tool output storage with compression support. Multiple fixes were applied to MikroORM relation handling.
+- **TaskRepository** gained deduplication capabilities (Issue #207) using SHA-256 hashing to prevent duplicate task creation, improving system reliability.
+- **MikroORM integration** is deepening across repositories (UserTask, Observation, Session) with consistent patterns for entity-DTO conversion and SQLite-specific optimizations.
+- **Repository structure** is well-organized with a central export hub, making it easy to extend database functionality.
+- **Bug fixes** focused on MikroORM relation handling and SQL query logic, particularly around foreign key references and JSON operations.
 </claude-mem-context>

@@ -7,12 +7,24 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { loadSettings } from '@claude-mem/shared';
+import { loadSettings, initFileLogging, createLogger } from '@claude-mem/shared';
 import { z } from 'zod';
 
 // Version injected at build time
 declare const __PLUGIN_VERSION__: string;
 const version = typeof __PLUGIN_VERSION__ !== 'undefined' ? __PLUGIN_VERSION__ : '0.0.0-dev';
+
+// Initialize file logging in dev/debug mode (Issue #252)
+// MCP servers can't use console.log (reserved for protocol), so file logging is essential
+const isDebugMode = process.env.CLAUDE_DEBUG === '1' ||
+                    process.env.CLAUDE_MEM_DEBUG === '1' ||
+                    process.env.NODE_ENV === 'development';
+
+if (isDebugMode) {
+  initFileLogging('mcp-search');
+}
+
+const logger = createLogger('mcp-search');
 
 // CRITICAL: Redirect console to stderr for MCP protocol
 const originalLog = console.log;
@@ -48,6 +60,13 @@ async function callBackendAPI(
   endpoint: string,
   params: Record<string, unknown>
 ): Promise<{ content: Array<{ type: 'text'; text: string }>; isError?: boolean }> {
+  const startTime = Date.now();
+
+  // Log API call in debug mode (Issue #252)
+  if (isDebugMode) {
+    logger.debug(`MCP API call: ${endpoint}`, { params });
+  }
+
   try {
     const searchParams = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
@@ -65,10 +84,19 @@ async function callBackendAPI(
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Backend API error (${response.status}): ${errorText}`);
+      const error = new Error(`Backend API error (${response.status}): ${errorText}`);
+      if (isDebugMode) {
+        logger.error(`MCP API error: ${endpoint}`, { status: response.status, errorText });
+      }
+      throw error;
     }
 
     const data = await response.json() as Record<string, unknown>;
+
+    // Log success in debug mode
+    if (isDebugMode) {
+      logger.debug(`MCP API success: ${endpoint}`, { durationMs: Date.now() - startTime });
+    }
 
     // Format response
     return {
@@ -206,6 +234,60 @@ async function main(): Promise<void> {
       };
       return callBackendAPI('/api/data/documents/search', backendParams);
     }
+  );
+
+  // Register recall_archived tool (Endless Mode - Issue #109)
+  server.registerTool(
+    'recall_archived',
+    {
+      description: 'Recall full tool outputs that were compressed in Endless Mode. Use this when you need the complete original output from a tool that was summarized.',
+      inputSchema: {
+        query: z.string().optional().describe('Search query to find archived outputs'),
+        observationId: z.number().optional().describe('Observation ID to recall full output for'),
+        sessionId: z.string().optional().describe('Filter by session ID'),
+        project: z.string().optional().describe('Filter by project'),
+        toolName: z.string().optional().describe('Filter by tool name (e.g., Read, Grep, Bash)'),
+        limit: z.number().optional().describe('Max results (default 5)'),
+      },
+    },
+    async (args) => {
+      const params = args as Record<string, unknown>;
+
+      // If observationId is provided, get the specific archived output
+      if (params.observationId) {
+        return callBackendAPI(`/api/data/archived-outputs/by-observation/${params.observationId}`, {});
+      }
+
+      // Otherwise, search archived outputs
+      if (!params.query) {
+        return {
+          content: [{
+            type: 'text' as const,
+            text: 'Error: Either "query" or "observationId" is required'
+          }],
+          isError: true,
+        };
+      }
+
+      const backendParams: Record<string, unknown> = {
+        q: params.query,
+        sessionId: params.sessionId,
+        project: params.project,
+        toolName: params.toolName,
+        limit: params.limit ?? 5,
+      };
+      return callBackendAPI('/api/data/archived-outputs/search', backendParams);
+    }
+  );
+
+  // Register archived_stats tool (Endless Mode - Issue #109)
+  server.registerTool(
+    'archived_stats',
+    {
+      description: 'Get statistics about archived tool outputs and compression efficiency.',
+      inputSchema: {},
+    },
+    async () => callBackendAPI('/api/data/archived-outputs/stats', {})
   );
 
   // Connect via stdio

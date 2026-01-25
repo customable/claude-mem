@@ -1,221 +1,143 @@
 # Claude-Mem Development Instructions
 
+**WICHTIG: Alle Anweisungen in dieser Datei sind verbindlich und müssen strikt befolgt werden!**
+
 ## Workflow
 
-**IMMER Änderungen committen und pushen** nach Abschluss einer Aufgabe!
+### Commits & Push
 
-**Bei mehreren Issues:** Pro Issue einen eigenen Commit erstellen, dann am Ende gesammelt pushen.
+- **Pro Issue mindestens ein Commit** (gerne auch mehr bei größeren Änderungen)
+- **Pushen nur mit Freigabe vom User**, außer der Prompt am Anfang erlaubt direktes Pushen
+- Bei mehreren Issues: Pro Issue eigene Commits erstellen, dann am Ende gesammelt pushen (nach Freigabe)
 
-## Wichtige Befehle
+### Issues umsetzen
 
-### Dev Server Restart
-**IMMER** `pnpm run dev:restart` verwenden um Backend und UI neu zu starten:
-```bash
-pnpm run dev:restart
+- **Issues IMMER komplett umsetzen** - nicht in Phasen oder Teilschritten
+- Erst mit dem nächsten Issue beginnen, wenn das aktuelle vollständig abgeschlossen ist
+- Bei Blockern oder Unklarheiten: User fragen, nicht teilweise implementieren
+
+### CLAUDE.md Dateien
+
+- **Automatisch generierte CLAUDE.md-Dateien regelmäßig mit committen**
+- Diese Dateien werden vom Plugin automatisch aktualisiert
+- User-Content außerhalb der generierten Bereiche bleibt erhalten
+
+## Technische Details
+
+### Monorepo-Struktur
+
+```
+packages/
+├── backend/     # Express API Server
+├── database/    # MikroORM Entities & Repositories
+├── hooks/       # Claude Code Hook Handlers
+├── shared/      # Shared Utilities (Logger, Settings)
+├── types/       # TypeScript Interfaces
+├── ui/          # React/Vite Frontend
+└── worker/      # AI Task Processing
+plugin/          # Claude Code Plugin
 ```
 
-### TypeScript Check
-```bash
-# Alle Packages auf Root-Ebene
-pnpm run typecheck
-```
-**Erfolgreich wenn:** Alle Packages zeigen "Done" in der Ausgabe. Der Check läuft über 7 Workspace-Packages und ist fertig sobald alle "Done" erscheinen. **Nicht** mehrfach starten oder auf weitere Ausgabe warten!
-
-### Build
-```bash
-pnpm run build
-```
-
-### Plugin Build
-```bash
-pnpm run build:plugin
-```
-
-### Plugin Sync (nach Build!)
-```bash
-pnpm run sync-marketplace
-```
-Synchronisiert das Plugin in alle Claude-Installationen. **Claude Code muss danach neu gestartet werden!**
-
-## Projekt-Struktur
-
-- `packages/types` - Shared TypeScript types
-- `packages/shared` - Shared utilities, constants, logger
-- `packages/database` - SQLite database layer
-- `packages/backend` - Express API server
-- `packages/hooks` - Claude Code hooks handlers
-- `packages/worker` - Background worker for AI tasks
-- `packages/ui` - React/Vite frontend
-
-## Datenbank
-
-SQLite-Datenbank unter `~/.claude-mem/claude-mem.db`
-
-### Wichtige Tabellen
-
-| Tabelle | Beschreibung |
-|---------|--------------|
-| `sdk_sessions` | Claude Code Sessions mit working_directory |
-| `observations` | AI-generierte Observations mit cwd |
-| `session_summaries` | Session-Zusammenfassungen |
-| `project_claudemd` | Generierter CLAUDE.md Content |
-| `task_queue` | Worker Task Queue |
-| `documents` | Gecachte MCP-Dokumentation (Context7, WebFetch) |
-
-### Abfrage-Beispiele
-
-**Hinweis:** MikroORM wird intern im Backend verwendet. Für schnelle Debugging-Abfragen ist `bun:sqlite` einfacher (kein Connection-Setup).
+### Wichtige Befehle
 
 ```bash
-# Sessions abfragen (WICHTIG: Tabelle heißt sdk_sessions!)
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, content_session_id, working_directory, status FROM sdk_sessions ORDER BY id DESC LIMIT 5').all());
-"
+# Development
+pnpm dev              # Build plugin + sync to marketplace
+pnpm build            # Build all packages
+pnpm test             # Run tests
+pnpm typecheck        # TypeScript check (1x ausführen bis "Done", bei unklarer Ausgabe Script anpassen)
+pnpm sync-marketplace # Sync plugin to Claude marketplace
+pnpm dev:restart      # Restart dev services
 
-# Observations abfragen
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, title, type, cwd FROM observations ORDER BY id DESC LIMIT 5').all());
-"
+# Einzelne Packages builden
+pnpm build:backend    # Backend only
+pnpm build:worker     # Worker only
+pnpm build:hooks      # Hooks only
+pnpm build:plugin     # Plugin only
 
-# CLAUDE.md Content abfragen
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, project, content_session_id, working_directory FROM project_claudemd ORDER BY id DESC LIMIT 5').all());
-"
-
-# Task Queue Status
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT type, status, COUNT(*) as count FROM task_queue GROUP BY type, status').all());
-"
+# Docker
+pnpm docker:up        # Start containers
+pnpm docker:down      # Stop containers
+pnpm docker:logs      # View logs
 ```
 
-## CLAUDE.md Auto-Generation
+### Issue-Tracker
 
-Das Plugin generiert automatisch Context-Sections in CLAUDE.md-Dateien.
+- Repository: `customable/claude-mem` auf Forgejo
+- Labels werden automatisch gesetzt (priority, type)
+- **Kommentare und Attachments in Issues IMMER prüfen** - können wichtige Informationen enthalten
+- **Blocks und Dependencies beachten** - Issues können andere blockieren oder von anderen abhängen
 
-**Komponenten:**
-- `SSE-Writer` - Wird beim Session-Start gespawnt, lauscht auf SSE-Events
-- `claude-md` Task - Generiert den Content (AI-basiert)
-- `project_claudemd` Tabelle - Speichert generierten Content
+### UI-Referenzen
 
-**Timing:**
-- Nach jeder X. Observation wird ein `claude-md` Task gequeued (Standard: 10)
-- Nach Session-Ende wird ebenfalls generiert (via summarize-Task)
-- SSE-Writer empfängt `claudemd:ready` Event und schreibt die Datei
-- Subdirectories mit Observations bekommen automatisch eigene CLAUDE.md Dateien
+- Screenshots und Design-Referenzen: `~/references`
 
-**Konfiguration:**
-- `CLAUDEMD_ENABLED: true` in `~/.claude-mem/settings.json`
-- `CLAUDEMD_OBSERVATION_INTERVAL: 10` - Anzahl Observations bis zur nächsten Generierung
+### Bei größeren Änderungen
 
-**Debugging:**
-```bash
-# SSE-Writer Prozesse prüfen
-ps aux | grep sse-writer
+Nach Änderungen an Backend, Worker oder Hooks:
 
-# PID-Dateien prüfen
-ls ~/.claude-mem/sse-writer-*.pid
-
-# Generierten Content in DB prüfen
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, project, content_session_id FROM project_claudemd ORDER BY id DESC').all());
-"
-```
-
-## Neue Migration erstellen
-
-1. **Migration-Datei erstellen:**
+1. **Plugin builden und syncen:**
    ```bash
-   # In packages/database/src/mikro-orm/migrations/
-   Migration20260123000005_CreateDocumentsTable.ts
+   pnpm build && pnpm sync-marketplace
    ```
 
-2. **Migration in Index exportieren:**
-   ```typescript
-   // packages/database/src/mikro-orm/migrations/index.ts
-   export { Migration20260123000005_CreateDocumentsTable } from './Migration20260123000005_CreateDocumentsTable.js';
-
-   export const mikroOrmMigrations = [
-     // ... bestehende Migrations
-     'Migration20260123000005_CreateDocumentsTable',
-   ];
-   ```
-
-3. **Migration in Config registrieren:**
-   ```typescript
-   // packages/database/src/mikro-orm.config.ts
-   import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
-
-   export const migrationsList = [
-     // ... bestehende Migrations
-     Migration20260123000005_CreateDocumentsTable,
-   ];
-   ```
-
-4. **Dev-Server neustarten:**
-   ```bash
-   pnpm run dev:restart
-   ```
-   Die Migration wird automatisch beim Start ausgeführt.
-
-## Forgejo Issues
-
-Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
+2. **Backend-Erreichbarkeit prüfen:**
+   - Nach Neustart testen ob Backend erreichbar ist
+   - Falls nicht erreichbar: Erst stoppen, dann **ohne** `-head` oder `-tail` neustarten
+   - Direkt die JS-Datei ausführen um vollständigen Log zu sehen:
+     ```bash
+     node packages/backend/dist/cli.js start
+     ```
 
 <claude-mem-context>
 # Recent Activity
 
 <!-- This section is auto-generated by claude-mem. Edit content outside the tags. -->
 
-### Jan 25, 2026
+### Jan 25
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15545 | 9:34 AM | 🟣 | Restore stashed changes | ~1026 |
-| #15544 | 9:34 AM | 🟣 | Force push rebased eventsource-4.x | ~966 |
-| #15543 | 9:34 AM | 🟣 | Rebase after dependency update | ~853 |
-| #15542 | 9:34 AM | 🔵 | No conflict markers found | ~702 |
-| #15541 | 9:34 AM | 🟣 | Resolve merge conflict in package.json | ~1802 |
-| #15540 | 9:34 AM | 🔵 | Dependency version conflict | ~1162 |
-| #15539 | 9:34 AM | 🟣 | Checkout eventsource-4.x | ~851 |
-| #15538 | 9:34 AM | 🟣 | Force push rebased pnpm-10.x | ~992 |
-| #15537 | 9:34 AM | 🟣 | Discard CLAUDE.md changes | ~891 |
-| #15536 | 9:34 AM | 🔵 | Git rebase in progress | ~1019 |
-| #15535 | 9:34 AM | 🔵 | No conflict markers | ~697 |
-| #15534 | 9:34 AM | 🔵 | Merge conflicts in package.json | ~698 |
-| #15533 | 9:32 AM | 🔴 | Resolved merge conflict | ~2039 |
-| #15532 | 9:32 AM | 🔵 | Project structure discovered | ~1626 |
-| #15531 | 9:32 AM | 🟣 | Checkout pnpm-10.x | ~859 |
-| #15530 | 9:31 AM | 🟣 | Force push rebased node-24.x | ~1024 |
-| #15529 | 9:31 AM | 🟣 | Continue rebase | ~800 |
-| #15528 | 9:31 AM | 🟣 | Update Node.js to v24.13.0 | ~1469 |
-| #15527 | 9:31 AM | 🔵 | Node.js version update | ~1015 |
-| #15526 | 9:31 AM | 🟣 | Checkout node-24.x | ~852 |
-| #15525 | 9:31 AM | 🟣 | Updated main branch | ~1272 |
-| #15524 | 9:31 AM | 🔵 | Fetched updates | ~1092 |
-| #15523 | 9:30 AM | 🔵 | Git remote configuration | ~752 |
-| #15522 | 9:30 AM | 🔵 | PR #246: Update pnpm to v10 | ~1446 |
-| #15521 | 9:30 AM | 🔵 | PR #248: eventsource v4 | ~1365 |
-| #15520 | 9:30 AM | 🔵 | PR #245: Node.js v24 | ~1328 |
-| #15519 | 1:36 AM | 🔴 | MCP search_documents error | ~1320 |
-| #15518 | 1:35 AM | 🔴 | MCP save_memory type error | ~1441 |
-| #15517 | 1:34 AM | 🔴 | MCP date filters broken | ~1439 |
-| #15516 | 1:34 AM | 🔵 | Missing MCP search endpoint | ~1382 |
+| #3576 | 9:06 PM | 🔵 | Examining API response structure in hooks route | ~1117 |
+| #3575 | 9:06 PM | 🔵 | Exploring hooks.ts route handling for session start | ~1397 |
+| #3574 | 9:05 PM | 🔵 | [Compressed] Edit | ~106 |
+| #3573 | 9:05 PM | 🔵 | Task handling logic in post-tool-use handler | ~1556 |
+| #3572 | 9:05 PM | 🔵 | [Compressed] Edit | ~116 |
+| #3571 | 9:05 PM | 🔵 | Discovered Task Tools Set in post-tool-use.ts | ~1173 |
+| #3570 | 9:05 PM | 🔵 | [Compressed] Edit | ~100 |
+| #3569 | 9:05 PM | 🔵 | [Compressed] Edit | ~118 |
+| #3568 | 9:05 PM | 🔵 | [Compressed] Edit | ~124 |
+| #3567 | 9:05 PM | 🔵 | Discovered MemoryTier and SdkSessionRecord types | ~1335 |
+| #3566 | 9:05 PM | 🔵 | [Compressed] Edit | ~135 |
+| #3565 | 9:05 PM | 🔵 | Discovered Session Update and Query Interfaces | ~1262 |
+| #3564 | 9:05 PM | 🔵 | [Compressed] Edit | ~101 |
+| #3563 | 9:04 PM | 🔵 | [Compressed] Read | ~138 |
+| #3562 | 9:04 PM | 🔵 | Discovering SessionRepository usage | ~1182 |
+| #3561 | 9:04 PM | 🔵 | [Compressed] Edit | ~100 |
+| #3560 | 9:04 PM | 🔵 | Discovered Session Update and Query Interfaces | ~1207 |
+| #3559 | 9:04 PM | 🔵 | Discovered SdkSessionRecord interface structure | ~2071 |
+| #3558 | 9:04 PM | 🔵 | Discovered Session Repository Interface | ~2235 |
+| #3557 | 9:03 PM | 📦 | Add plan mode tracking to sessions table | ~1896 |
+| #3556 | 9:03 PM | 🔵 | Found SessionUpdate interface in repository.ts | ~1024 |
+| #3555 | 9:03 PM | 🔵 | [Compressed] Edit | ~115 |
+| #3554 | 9:03 PM | 🔵 | [Compressed] Read | ~174 |
+| #3553 | 9:03 PM | 🔵 | Located SessionService class definition | ~997 |
+| #3552 | 9:03 PM | 🔵 | [Compressed] Read | ~163 |
+| #3551 | 9:03 PM | 🔵 | [Compressed] Edit | ~135 |
+| #3550 | 9:03 PM | 🔵 | Discovered migration list usage in MikroORM | ~1423 |
+| #3549 | 9:03 PM | 🔵 | Session Entity Structure Analysis | ~1973 |
+| #3548 | 9:03 PM | 🟠 | Track PlanMode status on Session level | ~2396 |
+| #3547 | 9:03 PM | 🔵 | Discovered MikroORM migration files structure | ~1407 |
 
 ## Key Insights
 
-- **Dependency Updates**: Multiple PRs (#245, #246, #248) are pending for Node.js v24, pnpm v10, and eventsource v4. These require review and merging.
-- **Merge Conflicts**: Resolved conflicts in `package.json` for Node.js and pnpm updates, but ensure all branches are synchronized.
-- **MCP Bugs**: Critical issues in MCP tools: invalid memory types, broken date filters, and missing `/api/search/observations` endpoint.
-- **Monorepo Structure**: Project uses pnpm workspaces with multiple packages (e.g., `backend`, `ui`, `plugin`). Ensure updates are compatible across all packages.
-- **Next Steps**: Merge dependency PRs, implement missing API endpoints, and fix MCP tool bugs (date filtering, memory types).
+- **Session Management Architecture**: Discovered core session management components including `SessionRepository`, `MikroOrmSessionRepository`, and `SessionService` classes, along with `SdkSessionRecord` interface and `MemoryTier` types. These form the foundation of session tracking and memory management.
+
+- **Task Handling System**: Identified task-related tool set (`TaskCreate`, `TaskUpdate`, `TaskList`, `TaskGet`) and their processing logic in `post-tool-use.ts`, revealing how user tasks are captured and managed through API calls.
+
+- **PlanMode Feature**: Issue #317 proposes tracking PlanMode status at session level. A migration (#3557) was created to add `is_in_plan_mode`, `plan_mode_entered_at`, and `plan_mode_count` columns to the sessions table.
+
+- **Database Migration Pattern**: The project uses explicit `migrationsList` in MikroORM configuration rather than glob patterns, requiring manual addition of new migrations to avoid .d.ts file issues.
+
+- **API Structure**: Examined hooks route handling in `hooks.ts`, particularly the session start endpoint which accepts both `sessionId` and legacy `contentSessionId` parameters, with specific validation requirements.
 </claude-mem-context>

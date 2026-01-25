@@ -2,6 +2,7 @@
  * Documents View
  *
  * Display and manage vector database documents.
+ * Issue #284: Add document preview and fix missing titles
  */
 
 import React, { useState, useMemo, useCallback } from 'react';
@@ -10,11 +11,246 @@ import remarkGfm from 'remark-gfm';
 import { api, type Document, type DocumentType } from '../api/client';
 import { useQuery } from '../hooks/useApi';
 
+/**
+ * Extract a meaningful display title from document data.
+ * Issue #284: Fix title showing only "[" for library docs.
+ *
+ * Priority order:
+ * 1. Valid title (not "[", not empty)
+ * 2. metadata.libraryId (e.g., "/vercel/next.js")
+ * 3. metadata.query (the search query used)
+ * 4. metadata.url (for web content)
+ * 5. source URL (last resort)
+ */
+function getDisplayTitle(doc: Document, metadata: Record<string, unknown> | null): string {
+  // Check if title is valid (not "[", not empty, not just whitespace)
+  const isValidTitle = (t: string | null | undefined): boolean => {
+    if (!t) return false;
+    const trimmed = t.trim();
+    // Invalid if: empty, single bracket, or starts with special JSON chars
+    return trimmed.length > 1 && !['[', '{', '"'].includes(trimmed[0]);
+  };
+
+  if (isValidTitle(doc.title)) {
+    return doc.title!;
+  }
+
+  // Try to extract from metadata
+  if (metadata) {
+    // Library ID (e.g., "/vercel/next.js")
+    if (typeof metadata.libraryId === 'string' && metadata.libraryId) {
+      return metadata.libraryId;
+    }
+    // Query used
+    if (typeof metadata.query === 'string' && metadata.query) {
+      return metadata.query;
+    }
+    // URL from toolInput
+    if (typeof metadata.toolInput === 'string') {
+      try {
+        const input = JSON.parse(metadata.toolInput);
+        if (input.libraryId) return input.libraryId;
+        if (input.query) return input.query;
+        if (input.url) return formatUrl(input.url);
+      } catch { /* ignore parse errors */ }
+    }
+    // Direct URL
+    if (typeof metadata.url === 'string' && metadata.url) {
+      return formatUrl(metadata.url);
+    }
+  }
+
+  // Fallback to source URL
+  if (doc.source) {
+    return formatUrl(doc.source);
+  }
+
+  return 'Untitled Document';
+}
+
+/**
+ * Format URL for display (extract domain + path)
+ */
+function formatUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    // Return domain + pathname (without query params)
+    const path = parsed.pathname === '/' ? '' : parsed.pathname;
+    return `${parsed.hostname}${path}`.slice(0, 60);
+  } catch {
+    // Not a valid URL, return as-is but truncated
+    return url.slice(0, 60);
+  }
+}
+
+/**
+ * Format relative time (e.g., "2 hours ago")
+ */
+function formatRelativeTime(epochMs: number): string {
+  const now = Date.now();
+  const diffMs = now - epochMs;
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffDays > 30) {
+    return new Date(epochMs).toLocaleDateString();
+  }
+  if (diffDays > 0) {
+    return `${diffDays}d ago`;
+  }
+  if (diffHours > 0) {
+    return `${diffHours}h ago`;
+  }
+  if (diffMins > 0) {
+    return `${diffMins}m ago`;
+  }
+  return 'just now';
+}
+
 interface Filters {
   project: string;
   type: string;
   sourceTool: string;
   search: string;
+}
+
+/**
+ * Export document content as markdown file (Issue #284)
+ */
+function exportAsMarkdown(doc: Document, displayTitle: string): void {
+  const blob = new Blob([doc.content || ''], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  // Sanitize filename
+  const filename = displayTitle.replace(/[^a-z0-9]/gi, '-').toLowerCase().slice(0, 50);
+  a.download = `${filename}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Document Preview Modal (Issue #284)
+ */
+function DocumentPreviewModal({
+  document,
+  onClose,
+  onCopy,
+  onExport,
+  onDelete,
+}: {
+  document: Document;
+  onClose: () => void;
+  onCopy: () => void;
+  onExport: () => void;
+  onDelete: () => void;
+}) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const metadata = document.metadata ? JSON.parse(document.metadata) : null;
+  const displayTitle = getDisplayTitle(document, metadata);
+  const config = DOCUMENT_TYPE_CONFIG[document.type] || DOCUMENT_TYPE_CONFIG.custom;
+
+  // Highlight search matches in content
+  const highlightedContent = useMemo(() => {
+    if (!searchTerm || !document.content) return null;
+    const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    return document.content.replace(regex, '**$1**');
+  }, [document.content, searchTerm]);
+
+  const contentToRender = searchTerm && highlightedContent ? highlightedContent : document.content;
+  const matchCount = searchTerm && document.content
+    ? (document.content.match(new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')) || []).length
+    : 0;
+
+  return (
+    <dialog className="modal modal-open">
+      <div className="modal-box max-w-4xl h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 pb-4 border-b border-base-300">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className={`iconify ${config.icon} size-5 ${config.color}`} />
+              <h3 className="font-bold text-lg truncate" title={displayTitle}>
+                {displayTitle}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-sm text-base-content/60">
+              <span className="badge badge-ghost badge-xs">{config.label}</span>
+              {document.project && (
+                <span className="badge badge-primary badge-xs badge-outline">{document.project}</span>
+              )}
+              <span className="text-xs">~{Math.round((document.content?.length || 0) / 1024)} KB</span>
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-sm btn-circle" onClick={onClose}>
+            <span className="iconify ph--x size-5" />
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="py-3 border-b border-base-300">
+          <label className="input input-sm input-bordered flex items-center gap-2">
+            <span className="iconify ph--magnifying-glass size-4 text-base-content/40" />
+            <input
+              type="text"
+              placeholder="Search in document..."
+              className="grow bg-transparent outline-none"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <>
+                <span className="text-xs text-base-content/50">{matchCount} matches</span>
+                <button
+                  className="btn btn-ghost btn-xs btn-circle"
+                  onClick={() => setSearchTerm('')}
+                >
+                  <span className="iconify ph--x size-3" />
+                </button>
+              </>
+            )}
+          </label>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto py-4">
+          <div className="prose prose-sm max-w-none dark:prose-invert">
+            <Markdown remarkPlugins={[remarkGfm]}>
+              {contentToRender || '*No content*'}
+            </Markdown>
+          </div>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex justify-between items-center pt-4 border-t border-base-300">
+          <div className="text-xs text-base-content/50">
+            Source: {document.source_tool} | Created: {new Date(document.created_at).toLocaleString()}
+          </div>
+          <div className="flex gap-2">
+            <button className="btn btn-ghost btn-sm" onClick={onCopy} title="Copy to clipboard">
+              <span className="iconify ph--copy size-4" />
+              Copy
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={onExport} title="Export as Markdown">
+              <span className="iconify ph--download size-4" />
+              Export
+            </button>
+            <button className="btn btn-ghost btn-sm text-error" onClick={onDelete} title="Delete">
+              <span className="iconify ph--trash size-4" />
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      <form method="dialog" className="modal-backdrop">
+        <button onClick={onClose}>close</button>
+      </form>
+    </dialog>
+  );
 }
 
 const DOCUMENT_TYPE_CONFIG: Record<DocumentType, { label: string; icon: string; color: string }> = {
@@ -30,6 +266,7 @@ export function DocumentsView() {
   const [filters, setFilters] = useState<Filters>({ project: '', type: '', sourceTool: '', search: '' });
   const [limit] = useState(50);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<Document | null>(null);
 
   // Fetch documents
   const { data, loading, error, refetch } = useQuery(
@@ -63,13 +300,17 @@ export function DocumentsView() {
     return items;
   }, [data, filters.search]);
 
-  // Get unique source tools for filter
-  const sourceTools = useMemo(() => {
-    const tools = new Set<string>();
+  // Get unique source tools for filter with counts (Issue #284)
+  const sourceToolsWithCounts = useMemo(() => {
+    const counts = new Map<string, number>();
     (data?.items || []).forEach(d => {
-      if (d.source_tool) tools.add(d.source_tool);
+      if (d.source_tool) {
+        counts.set(d.source_tool, (counts.get(d.source_tool) || 0) + 1);
+      }
     });
-    return Array.from(tools).sort();
+    return Array.from(counts.entries())
+      .map(([tool, count]) => ({ tool, count }))
+      .sort((a, b) => b.count - a.count);
   }, [data]);
 
   const projects = projectsData?.projects || [];
@@ -84,6 +325,33 @@ export function DocumentsView() {
       console.error('Failed to delete document:', err);
     }
   }, [refetch]);
+
+  // Copy document content to clipboard (Issue #284)
+  const handleCopy = useCallback(async (doc: Document) => {
+    try {
+      await navigator.clipboard.writeText(doc.content || '');
+      // Could add toast notification here
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  }, []);
+
+  // Export document as markdown (Issue #284)
+  const handleExport = useCallback((doc: Document) => {
+    const metadata = doc.metadata ? JSON.parse(doc.metadata) : null;
+    const displayTitle = getDisplayTitle(doc, metadata);
+    exportAsMarkdown(doc, displayTitle);
+  }, []);
+
+  // Open preview modal (Issue #284)
+  const handleOpenPreview = useCallback((doc: Document) => {
+    setPreviewDocument(doc);
+  }, []);
+
+  // Close preview modal
+  const handleClosePreview = useCallback(() => {
+    setPreviewDocument(null);
+  }, []);
 
   if (loading && !data) {
     return (
@@ -103,9 +371,12 @@ export function DocumentsView() {
     );
   }
 
+  // Check if any filter is active
+  const hasActiveFilters = filters.search || filters.type || filters.sourceTool || filters.project;
+
   return (
     <div className="space-y-4">
-      {/* Header & Filters */}
+      {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Documents</h2>
@@ -115,60 +386,94 @@ export function DocumentsView() {
           )}
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Search */}
-          <label className="input input-sm input-bordered flex items-center gap-2 w-40">
-            <span className="iconify ph--magnifying-glass size-4 text-base-content/40" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="grow bg-transparent outline-none"
-              value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-            />
-          </label>
-
-          {/* Project Filter */}
-          <select
-            className="select select-sm select-bordered"
-            value={filters.project}
-            onChange={(e) => setFilters((f) => ({ ...f, project: e.target.value }))}
-          >
-            <option value="">All Projects</option>
-            {projects.filter(Boolean).map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-
-          {/* Type Filter */}
-          <select
-            className="select select-sm select-bordered"
-            value={filters.type}
-            onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
-          >
-            <option value="">All Types</option>
-            {types.map((t) => (
-              <option key={t} value={t}>{DOCUMENT_TYPE_CONFIG[t].label}</option>
-            ))}
-          </select>
-
-          {/* Source Tool Filter */}
-          <select
-            className="select select-sm select-bordered"
-            value={filters.sourceTool}
-            onChange={(e) => setFilters((f) => ({ ...f, sourceTool: e.target.value }))}
-          >
-            <option value="">All Sources</option>
-            {sourceTools.map((t) => (
-              <option key={t} value={t}>{formatSourceTool(t)}</option>
-            ))}
-          </select>
+        <div className="flex items-center gap-2">
+          {/* Clear Filters Button (Issue #284) */}
+          {hasActiveFilters && (
+            <button
+              className="btn btn-ghost btn-xs gap-1"
+              onClick={() => setFilters({ project: '', type: '', sourceTool: '', search: '' })}
+              title="Clear all filters"
+            >
+              <span className="iconify ph--x size-3" />
+              Clear
+            </button>
+          )}
 
           {/* Refresh */}
-          <button onClick={refetch} className="btn btn-ghost btn-sm btn-square">
+          <button onClick={refetch} className="btn btn-ghost btn-sm btn-square" title="Refresh">
             <span className="iconify ph--arrows-clockwise size-4" />
           </button>
         </div>
+      </div>
+
+      {/* Source Tabs (Issue #284) */}
+      {sourceToolsWithCounts.length > 1 && (
+        <div className="flex gap-2 flex-wrap">
+          <button
+            className={`btn btn-sm ${!filters.sourceTool ? 'btn-primary' : 'btn-ghost'}`}
+            onClick={() => setFilters((f) => ({ ...f, sourceTool: '' }))}
+          >
+            All
+            <span className="badge badge-xs ml-1">{data?.items?.length || 0}</span>
+          </button>
+          {sourceToolsWithCounts.map(({ tool, count }) => (
+            <button
+              key={tool}
+              className={`btn btn-sm ${filters.sourceTool === tool ? 'btn-primary' : 'btn-ghost'}`}
+              onClick={() => setFilters((f) => ({ ...f, sourceTool: tool }))}
+            >
+              {formatSourceTool(tool)}
+              <span className="badge badge-xs ml-1">{count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Filters Row */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Search */}
+        <label className="input input-sm input-bordered flex items-center gap-2 w-40 sm:w-48">
+          <span className="iconify ph--magnifying-glass size-4 text-base-content/40" />
+          <input
+            type="text"
+            placeholder="Search..."
+            className="grow bg-transparent outline-none"
+            value={filters.search}
+            onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+          />
+          {filters.search && (
+            <button
+              className="btn btn-ghost btn-xs btn-circle"
+              onClick={() => setFilters((f) => ({ ...f, search: '' }))}
+            >
+              <span className="iconify ph--x size-3" />
+            </button>
+          )}
+        </label>
+
+        {/* Project Filter */}
+        <select
+          className="select select-sm select-bordered"
+          value={filters.project}
+          onChange={(e) => setFilters((f) => ({ ...f, project: e.target.value }))}
+        >
+          <option value="">All Projects</option>
+          {projects.filter(Boolean).map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
+
+        {/* Type Filter */}
+        <select
+          className="select select-sm select-bordered hidden sm:inline-flex"
+          value={filters.type}
+          onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
+        >
+          <option value="">All Types</option>
+          {types.map((t) => (
+            <option key={t} value={t}>{DOCUMENT_TYPE_CONFIG[t].label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Document List */}
@@ -196,9 +501,26 @@ export function DocumentsView() {
               expanded={expandedId === doc.id}
               onToggle={() => setExpandedId(expandedId === doc.id ? null : doc.id)}
               onDelete={() => handleDelete(doc.id)}
+              onCopy={() => handleCopy(doc)}
+              onExport={() => handleExport(doc)}
+              onOpenPreview={() => handleOpenPreview(doc)}
             />
           ))}
         </div>
+      )}
+
+      {/* Document Preview Modal (Issue #284) */}
+      {previewDocument && (
+        <DocumentPreviewModal
+          document={previewDocument}
+          onClose={handleClosePreview}
+          onCopy={() => handleCopy(previewDocument)}
+          onExport={() => handleExport(previewDocument)}
+          onDelete={() => {
+            handleDelete(previewDocument.id);
+            handleClosePreview();
+          }}
+        />
       )}
     </div>
   );
@@ -319,19 +641,27 @@ function DocumentCard({
   expanded,
   onToggle,
   onDelete,
+  onCopy,
+  onExport,
+  onOpenPreview,
 }: {
   document: Document;
   expanded: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  onCopy: () => void;
+  onExport: () => void;
+  onOpenPreview: () => void;
 }) {
   const config = DOCUMENT_TYPE_CONFIG[document.type] || DOCUMENT_TYPE_CONFIG.custom;
-  const date = new Date(document.created_at).toLocaleDateString('de-DE', {
+
+  // Use browser locale for dates (Issue #284)
+  const date = new Date(document.created_at).toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   });
-  const time = new Date(document.created_at).toLocaleTimeString('de-DE', {
+  const time = new Date(document.created_at).toLocaleTimeString(undefined, {
     hour: '2-digit',
     minute: '2-digit',
   });
@@ -339,8 +669,16 @@ function DocumentCard({
   // Parse metadata if available
   const metadata = document.metadata ? JSON.parse(document.metadata) : null;
 
+  // Get display title (Issue #284: Fix "[" title bug)
+  const displayTitle = getDisplayTitle(document, metadata);
+
   // Estimate content size
   const contentSize = document.content ? Math.round(document.content.length / 1024) : 0;
+
+  // Format last accessed time
+  const lastAccessed = document.last_accessed_epoch
+    ? formatRelativeTime(document.last_accessed_epoch)
+    : null;
 
   return (
     <div className="card bg-base-100 card-border">
@@ -354,7 +692,9 @@ function DocumentCard({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-medium truncate">{document.title || document.source || 'Untitled'}</span>
+              <span className="font-medium truncate max-w-[300px] sm:max-w-none" title={displayTitle}>
+                {displayTitle}
+              </span>
               <span className="badge badge-ghost badge-xs">{config.label}</span>
               {document.project && (
                 <span className="badge badge-primary badge-xs badge-outline">{document.project}</span>
@@ -366,20 +706,29 @@ function DocumentCard({
                 <span className="iconify ph--link size-3" />
                 {formatSourceTool(document.source_tool)}
               </span>
-              <span className="text-base-content/30">|</span>
+              <span className="text-base-content/30 hidden sm:inline">|</span>
               <span className="flex items-center gap-1">
                 <span className="iconify ph--eye size-3" />
                 {document.access_count} views
               </span>
-              <span className="text-base-content/30">|</span>
-              <span className="flex items-center gap-1">
+              <span className="text-base-content/30 hidden sm:inline">|</span>
+              <span className="flex items-center gap-1 hidden sm:flex">
                 <span className="iconify ph--file size-3" />
                 ~{contentSize} KB
               </span>
+              {lastAccessed && (
+                <>
+                  <span className="text-base-content/30 hidden sm:inline">|</span>
+                  <span className="flex items-center gap-1 hidden sm:flex" title="Last accessed">
+                    <span className="iconify ph--clock size-3" />
+                    {lastAccessed}
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
-          <div className="text-right shrink-0">
+          <div className="text-right shrink-0 hidden sm:block">
             <div className="text-xs text-base-content/50">{date}</div>
             <div className="text-xs text-base-content/40">{time}</div>
           </div>
@@ -426,11 +775,45 @@ function DocumentCard({
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-2">
               <button
+                className="btn btn-primary btn-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenPreview();
+                }}
+                title="Open full document"
+              >
+                <span className="iconify ph--arrow-square-out size-4" />
+                Open
+              </button>
+              <button
+                className="btn btn-ghost btn-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCopy();
+                }}
+                title="Copy content to clipboard"
+              >
+                <span className="iconify ph--copy size-4" />
+                Copy
+              </button>
+              <button
+                className="btn btn-ghost btn-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onExport();
+                }}
+                title="Export as Markdown"
+              >
+                <span className="iconify ph--download size-4" />
+                Export
+              </button>
+              <button
                 className="btn btn-ghost btn-xs text-error"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete();
                 }}
+                title="Delete this document"
               >
                 <span className="iconify ph--trash size-4" />
                 Delete

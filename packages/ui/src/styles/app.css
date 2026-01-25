@@ -3,6 +3,7 @@
 /* Tailwind CSS 4+ and DaisyUI 5+ */
 @import "./tailwind.css";
 @import "./daisyui.css";
+@import "./layout.css";
 
 /* Iconify (Phosphor icons) */
 @plugin "@iconify/tailwind4" {

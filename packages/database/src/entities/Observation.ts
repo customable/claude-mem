@@ -4,10 +4,17 @@
  * AI-generated observations from Claude Code sessions.
  */
 
-import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, OneToMany, Collection, Cascade } from '@mikro-orm/core';
 import type { ObservationType } from '@claude-mem/types';
+import type { ArchivedOutput } from './ArchivedOutput.js';
+import type { CodeSnippet } from './CodeSnippet.js';
+import type { Document } from './Document.js';
+import type { ObservationLink } from './ObservationLink.js';
+import type { RawMessage } from './RawMessage.js';
 
 @Entity({ tableName: 'observations' })
+@Index({ properties: ['project', 'created_at_epoch'] })
+@Index({ properties: ['working_directory'] })
 export class Observation {
   @PrimaryKey()
   id!: number;
@@ -58,7 +65,7 @@ export class Observation {
   git_branch?: string;
 
   @Property({ nullable: true })
-  cwd?: string;
+  working_directory?: string;
 
   @Property({ nullable: true })
   @Index()
@@ -118,4 +125,34 @@ export class Observation {
 
   @Property({ nullable: true, default: 0 })
   importance_boost?: number; // Manual boost (-10 to +10)
+
+  // Relations with cascade options (Issue #267 Phase 4)
+  @OneToMany('CodeSnippet', 'observation', {
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    orphanRemoval: true,
+  })
+  codeSnippets = new Collection<CodeSnippet>(this);
+
+  @OneToMany('Document', 'observation', {
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    orphanRemoval: true,
+  })
+  documents = new Collection<Document>(this);
+
+  @OneToMany('ObservationLink', 'source', {
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    orphanRemoval: true,
+  })
+  outgoingLinks = new Collection<ObservationLink>(this);
+
+  @OneToMany('ObservationLink', 'target')
+  incomingLinks = new Collection<ObservationLink>(this);
+
+  // Endless Mode: archived outputs - keep them even if observation is deleted
+  @OneToMany('ArchivedOutput', 'compressedObservation')
+  archivedOutputs = new Collection<ArchivedOutput>(this);
+
+  // Lazy Mode: raw messages - keep them even if observation is deleted
+  @OneToMany('RawMessage', 'observation')
+  rawMessages = new Collection<RawMessage>(this);
 }
