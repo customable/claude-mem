@@ -258,6 +258,38 @@ export interface Stats {
   };
 }
 
+export type TaskStatus = 'pending' | 'assigned' | 'processing' | 'completed' | 'failed' | 'timeout';
+export type TaskType = 'observation' | 'summarize' | 'embedding' | 'claude-md' | 'cleanup';
+
+export interface Task {
+  id: string;
+  type: TaskType;
+  status: TaskStatus;
+  requiredCapability: string;
+  fallbackCapabilities?: string[];
+  priority: number;
+  payload: Record<string, unknown>;
+  result?: Record<string, unknown>;
+  error?: string;
+  retryCount: number;
+  maxRetries: number;
+  assignedWorkerId?: string;
+  createdAt: number;
+  assignedAt?: number;
+  completedAt?: number;
+  retryAfter?: number;
+  deduplicationKey?: string;
+}
+
+export interface TaskCounts {
+  pending: number;
+  assigned: number;
+  processing: number;
+  completed: number;
+  failed: number;
+  timeout: number;
+}
+
 export interface HealthStatus {
   status: 'ok' | 'degraded' | 'error';
   coreReady: boolean;
@@ -507,4 +539,19 @@ export const api = {
   getInsightsAchievements: () => get<AchievementProgress[]>('/insights/achievements'),
   checkAchievements: () =>
     post<{ checked: boolean; updated: number; achievements: AchievementProgress[] }>('/insights/achievements/check', {}),
+
+  // Tasks
+  getTasks: (params?: { status?: TaskStatus; type?: TaskType; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set('status', params.status);
+    if (params?.type) query.set('type', params.type);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    const queryStr = query.toString();
+    return get<{ data: Task[] }>(`/data/tasks${queryStr ? '?' + queryStr : ''}`).then(res => ({
+      items: res.data || [],
+    }));
+  },
+  getTask: (id: string) => get<Task>(`/data/tasks/${id}`),
+  getTaskCounts: () => get<TaskCounts>('/data/tasks/status/counts'),
 };

@@ -20,10 +20,11 @@ import { AnalyticsView } from './views/Analytics';
 import { ProjectsView } from './views/Projects';
 import { DocumentsView } from './views/Documents';
 import { InsightsView } from './views/Insights';
+import { TasksView } from './views/Tasks';
 
-export type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'analytics' | 'insights' | 'projects' | 'documents' | 'workers' | 'settings';
+export type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'analytics' | 'insights' | 'projects' | 'documents' | 'tasks' | 'workers' | 'settings';
 
-const VALID_VIEWS: View[] = ['dashboard', 'memories', 'sessions', 'live', 'search', 'analytics', 'insights', 'projects', 'documents', 'workers', 'settings'];
+const VALID_VIEWS: View[] = ['dashboard', 'memories', 'sessions', 'live', 'search', 'analytics', 'insights', 'projects', 'documents', 'tasks', 'workers', 'settings'];
 
 function getViewFromHash(): View {
   const hash = window.location.hash.slice(1).split('?')[0];
@@ -124,6 +125,7 @@ export function App() {
               {view === 'insights' && <InsightsView />}
               {view === 'projects' && <ProjectsView />}
               {view === 'documents' && <DocumentsView />}
+              {view === 'tasks' && <TasksView />}
               {view === 'workers' && <WorkerStatus />}
               {view === 'settings' && <SettingsView />}
             </div>

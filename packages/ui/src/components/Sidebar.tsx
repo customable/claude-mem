@@ -33,7 +33,8 @@ const navItems: NavItem[] = [
   { id: 'projects', label: 'Projects', icon: 'ph--folder-open', section: 'Data' },
   { id: 'documents', label: 'Documents', icon: 'ph--files' },
   // System
-  { id: 'workers', label: 'Workers', icon: 'ph--cpu', section: 'System' },
+  { id: 'tasks', label: 'Tasks', icon: 'ph--queue', section: 'System' },
+  { id: 'workers', label: 'Workers', icon: 'ph--cpu' },
   { id: 'settings', label: 'Settings', icon: 'ph--gear' },
 ];
 
