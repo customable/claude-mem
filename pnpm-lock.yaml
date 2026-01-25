@@ -276,6 +276,31 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/worker-hub:
+    dependencies:
+      '@claude-mem/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@claude-mem/types':
+        specifier: workspace:*
+        version: link:../types
+      commander:
+        specifier: ^14.0.2
+        version: 14.0.2
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
+    devDependencies:
+      '@types/node':
+        specifier: ^24.10.9
+        version: 24.10.9
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
 packages:
 
   '@ampproject/remapping@2.3.0':

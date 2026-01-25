@@ -16,6 +16,8 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
+import { HubFederation } from '../websocket/hub-federation.js';
+import { FederatedRouter } from '../websocket/federated-router.js';
 import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService, CleanupService, createCleanupService, WorkerTokenService, HubRegistry } from '../services/index.js';
 import {
   HealthRouter,
@@ -100,6 +102,8 @@ export class BackendService {
   private cleanupService: CleanupService | null = null;
   private workerTokenService: WorkerTokenService | null = null;
   private hubRegistry: HubRegistry | null = null;
+  private hubFederation: HubFederation | null = null;
+  private federatedRouter: FederatedRouter | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -355,6 +359,42 @@ export class BackendService {
       );
       // Register built-in hub on startup
       await this.hubRegistry.initialize();
+
+      // Initialize federated router for multi-hub task routing (Issue #263)
+      this.federatedRouter = new FederatedRouter(this.hubRegistry);
+
+      // Initialize hub federation handler for external hubs (Issue #263)
+      this.hubFederation = new HubFederation({
+        hubToken: this.settings.HUB_TOKEN,
+      });
+      this.hubFederation.setHubRegistry(this.hubRegistry);
+      this.hubFederation.attach(this.server!, '/ws/hub');
+
+      // Wire up hub federation events
+      this.hubFederation.on({
+        onHubConnected: (hub) => {
+          logger.info(`External hub connected: ${hub.name} (${hub.id})`);
+          this.sseBroadcaster?.broadcast({
+            type: 'hub:connected',
+            data: { hubId: hub.id, name: hub.name },
+          });
+        },
+        onHubDisconnected: (hubId) => {
+          logger.info(`External hub disconnected: ${hubId}`);
+          this.sseBroadcaster?.broadcast({
+            type: 'hub:disconnected',
+            data: { hubId },
+          });
+        },
+        onTaskComplete: (hubId, taskId, result, processingTimeMs) => {
+          // Forward to task dispatcher for standard handling
+          this.taskDispatcher?.['handleTaskComplete']?.(hubId, taskId, result);
+        },
+        onTaskError: (hubId, taskId, error, retryable) => {
+          // Forward to task dispatcher for standard handling
+          this.taskDispatcher?.['handleTaskError']?.(hubId, taskId, error);
+        },
+      });
 
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
@@ -661,6 +701,11 @@ export class BackendService {
     // Close SSE connections
     if (this.sseBroadcaster) {
       this.sseBroadcaster.closeAll();
+    }
+
+    // Shutdown hub federation (Issue #263)
+    if (this.hubFederation) {
+      await this.hubFederation.shutdown();
     }
 
     // Shutdown worker hub

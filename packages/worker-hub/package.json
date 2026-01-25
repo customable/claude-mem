@@ -1,0 +1,36 @@
+{
+  "name": "@claude-mem/worker-hub",
+  "version": "1.0.0",
+  "description": "Standalone worker hub for distributed deployments",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "claude-mem-hub": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://git.customable.host/api/packages/customable/npm/",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@claude-mem/shared": "workspace:*",
+    "@claude-mem/types": "workspace:*",
+    "commander": "^14.0.2",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.9",
+    "@types/ws": "^8.18.1",
+    "typescript": "^5.9.3"
+  }
+}

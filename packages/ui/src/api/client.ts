@@ -406,6 +406,95 @@ export interface HealthStatus {
 }
 
 // ============================================
+// Worker Tokens & Hub Federation (Issue #263)
+// ============================================
+
+export type TokenScope = 'instance' | 'group' | 'project';
+
+export interface WorkerToken {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  scope: TokenScope;
+  hubId?: string;
+  projectFilter?: string;
+  capabilities?: string[];
+  labels?: Record<string, string>;
+  createdAt: string;
+  expiresAt?: string;
+  lastUsedAt?: string;
+  revokedAt?: string;
+  registrationCount?: number;
+}
+
+export interface WorkerTokenCreateRequest {
+  name: string;
+  scope: TokenScope;
+  hubId?: string;
+  projectFilter?: string;
+  capabilities?: string[];
+  labels?: Record<string, string>;
+  expiresAt?: string;
+}
+
+export interface WorkerTokenCreateResponse {
+  token: string;
+  id: string;
+  prefix: string;
+}
+
+export interface WorkerRegistration {
+  id: string;
+  tokenId: string;
+  systemId: string;
+  hostname?: string;
+  labels?: Record<string, string>;
+  capabilities?: string[];
+  status: 'online' | 'offline';
+  connectedAt: string;
+  disconnectedAt?: string;
+  lastHeartbeat?: string;
+}
+
+export type HubType = 'builtin' | 'external';
+export type HubStatus = 'healthy' | 'degraded' | 'unhealthy' | 'offline';
+
+export interface Hub {
+  id: string;
+  name: string;
+  type: HubType;
+  endpoint?: string;
+  priority: number;
+  weight: number;
+  region?: string;
+  labels?: Record<string, string>;
+  capabilities?: string[];
+  status: HubStatus;
+  connectedWorkers: number;
+  activeWorkers: number;
+  avgLatencyMs?: number;
+  createdAt: string;
+  lastHeartbeat?: string;
+}
+
+export interface HubCreateRequest {
+  name: string;
+  endpoint?: string;
+  priority?: number;
+  weight?: number;
+  region?: string;
+  labels?: Record<string, string>;
+  capabilities?: string[];
+}
+
+export interface HubStats {
+  totalHubs: number;
+  healthyHubs: number;
+  totalWorkers: number;
+  activeWorkers: number;
+}
+
+// ============================================
 // API Functions
 // ============================================
 
@@ -754,4 +843,24 @@ export const api = {
     if (params?.status) query.set('status', params.status);
     return fetch(`/api/export/user-tasks?${query}`).then(res => res.text());
   },
+
+  // Worker Tokens - Issue #263 (Hub Federation)
+  getWorkerTokens: () =>
+    get<{ data: WorkerToken[] }>('/worker-tokens').then(res => res.data || []),
+  getWorkerToken: (id: string) => get<WorkerToken>(`/worker-tokens/${id}`),
+  createWorkerToken: (request: WorkerTokenCreateRequest) =>
+    post<WorkerTokenCreateResponse>('/worker-tokens', request),
+  revokeWorkerToken: (id: string) => del<void>(`/worker-tokens/${id}`),
+  getTokenRegistrations: (tokenId: string) =>
+    get<{ data: WorkerRegistration[] }>(`/worker-tokens/${tokenId}/registrations`).then(res => res.data || []),
+
+  // Hubs - Issue #263 (Hub Federation)
+  getHubs: () => get<{ data: Hub[] }>('/hubs').then(res => res.data || []),
+  getHub: (id: string) => get<Hub>(`/hubs/${id}`),
+  createHub: (request: HubCreateRequest) => post<Hub>('/hubs', request),
+  updateHub: (id: string, updates: Partial<HubCreateRequest>) => put<Hub>(`/hubs/${id}`, updates),
+  deleteHub: (id: string) => del<void>(`/hubs/${id}`),
+  getHubStats: () => get<HubStats>('/hubs/stats'),
+  getHubWorkers: (hubId: string) =>
+    get<{ data: WorkerRegistration[] }>(`/hubs/${hubId}/workers`).then(res => res.data || []),
 };

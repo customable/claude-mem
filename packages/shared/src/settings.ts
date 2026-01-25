@@ -34,6 +34,9 @@ export interface Settings {
   AUTO_SPAWN_WORKER_COUNT: number;
   AUTO_SPAWN_PROVIDERS: string; // Comma-separated list of providers to cycle through
 
+  // Hub Federation (Issue #263)
+  HUB_TOKEN: string; // Token for external hubs to authenticate with backend
+
   // AI Provider Configuration
   AI_PROVIDER: 'mistral' | 'gemini' | 'openrouter' | 'openai' | 'anthropic';
   AI_PROVIDER_FALLBACK: string[]; // Array of provider names for fallback order
@@ -176,6 +179,9 @@ export const DEFAULTS: Settings = {
   AUTO_SPAWN_WORKERS: false,
   AUTO_SPAWN_WORKER_COUNT: 2,
   AUTO_SPAWN_PROVIDERS: '', // Empty = use AI_PROVIDER for all
+
+  // Hub Federation (Issue #263)
+  HUB_TOKEN: '', // Empty = no authentication required for external hubs
 
   // AI Provider Configuration
   AI_PROVIDER: 'mistral',

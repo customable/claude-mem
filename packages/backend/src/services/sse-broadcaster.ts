@@ -40,7 +40,10 @@ export type SSEEventType =
   | 'writer:resume'
   // User task events (Issue #260)
   | 'user-task:created'
-  | 'user-task:updated';
+  | 'user-task:updated'
+  // Hub federation events (Issue #263)
+  | 'hub:connected'
+  | 'hub:disconnected';
 
 /**
  * SSE Event payload

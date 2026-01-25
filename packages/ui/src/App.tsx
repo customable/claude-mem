@@ -10,7 +10,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
-import { WorkerStatus } from './components/WorkerStatus';
 import { Console } from './components/Console';
 
 // Lazy-loaded views for code splitting (Issue #305)
@@ -26,6 +25,7 @@ const DocumentsView = lazy(() => import('./views/Documents').then(m => ({ defaul
 const InsightsView = lazy(() => import('./views/Insights').then(m => ({ default: m.InsightsView })));
 const TasksView = lazy(() => import('./views/Tasks').then(m => ({ default: m.TasksView })));
 const UserTasksView = lazy(() => import('./views/UserTasks').then(m => ({ default: m.UserTasksView })));
+const WorkersView = lazy(() => import('./views/Workers').then(m => ({ default: m.WorkersView })));
 
 export type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'analytics' | 'insights' | 'projects' | 'documents' | 'user-tasks' | 'tasks' | 'workers' | 'settings';
 
@@ -144,7 +144,7 @@ export function App() {
                 {view === 'documents' && <DocumentsView />}
                 {view === 'user-tasks' && <UserTasksView />}
                 {view === 'tasks' && <TasksView />}
-                {view === 'workers' && <WorkerStatus />}
+                {view === 'workers' && <WorkersView />}
                 {view === 'settings' && <SettingsView />}
               </Suspense>
             </div>
