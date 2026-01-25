@@ -145,14 +145,6 @@ export function LiveView() {
     });
   };
 
-  const formatRelativeTime = (ts: number) => {
-    const diff = Date.now() - ts;
-    if (diff < 1000) return 'just now';
-    if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-    return formatTime(ts);
-  };
-
   // Render event details in a nice format
   const renderEventDetails = (event: LiveEvent) => {
     const { type, data } = event;
@@ -280,6 +272,47 @@ export function LiveView() {
 
   const eventTypes = ['all', 'session', 'task', 'worker', 'observation'];
 
+  // Count events by type for filter badges (Issue #279)
+  const eventCounts = eventTypes.reduce((acc, type) => {
+    if (type === 'all') {
+      acc[type] = events.length;
+    } else {
+      acc[type] = events.filter(e => e.type.startsWith(type)).length;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Export events as JSON (Issue #279)
+  const handleExport = () => {
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      filter,
+      eventCount: filteredEvents.length,
+      events: filteredEvents.map(e => ({
+        type: e.type,
+        timestamp: new Date(e.timestamp).toISOString(),
+        data: e.data,
+      })),
+    };
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `claude-mem-events-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  // Clear events with confirmation (Issue #279)
+  const handleClear = () => {
+    if (events.length === 0) return;
+    if (confirm(`Clear all ${events.length} events?`)) {
+      setEvents([]);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -292,15 +325,26 @@ export function LiveView() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {/* Filter */}
+          {/* Filter with count badges (Issue #279) */}
           <div className="join">
             {eventTypes.map((t) => (
               <button
                 key={t}
-                className={`join-item btn btn-xs ${filter === t ? 'btn-primary' : 'btn-ghost'}`}
+                className={`join-item btn btn-xs gap-1 ${
+                  filter === t
+                    ? 'btn-primary'
+                    : eventCounts[t] > 0
+                    ? 'btn-outline btn-primary'
+                    : 'btn-ghost'
+                }`}
                 onClick={() => setFilter(t)}
               >
                 {t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}
+                {eventCounts[t] > 0 && (
+                  <span className={`badge badge-xs ${filter === t ? 'badge-ghost' : 'badge-primary'}`}>
+                    {eventCounts[t]}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -308,12 +352,25 @@ export function LiveView() {
           <button
             className={`btn btn-sm ${paused ? 'btn-warning' : 'btn-ghost'}`}
             onClick={() => setPaused(!paused)}
+            title={paused ? 'Resume' : 'Pause'}
           >
             <span className={`iconify ${paused ? 'ph--play' : 'ph--pause'} size-4`} />
           </button>
+          {/* Export button (Issue #279) */}
           <button
             className="btn btn-ghost btn-sm"
-            onClick={() => setEvents([])}
+            onClick={handleExport}
+            title="Export events as JSON"
+            disabled={events.length === 0}
+          >
+            <span className="iconify ph--download size-4" />
+          </button>
+          {/* Clear button with confirmation (Issue #279) */}
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={handleClear}
+            title="Clear all events"
+            disabled={events.length === 0}
           >
             <span className="iconify ph--trash size-4" />
           </button>
@@ -349,8 +406,12 @@ export function LiveView() {
                         <span className={`font-medium text-sm ${config.color}`}>
                           {config.label}
                         </span>
-                        <span className="text-xs text-base-content/40 tabular-nums">
-                          {formatRelativeTime(event.timestamp)}
+                        {/* Timestamp with tooltip for exact time (Issue #279) */}
+                        <span
+                          className="text-xs text-base-content/40 tabular-nums cursor-help"
+                          title={new Date(event.timestamp).toLocaleString()}
+                        >
+                          {formatTime(event.timestamp)}
                         </span>
                       </div>
                       {renderEventDetails(event)}
