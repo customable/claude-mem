@@ -23,7 +23,7 @@
 | #422 | 12:22 PM | 🔵 | Workers Router API Structure and Capabilities | ~3131 |
 | #363 | 12:15 PM | 🔵 | Examining Workers Router Implementation | ~3120 |
 | #241 | 11:59 AM | 🔵 | Exploring Hooks Router Implementation | ~3455 |
-| #200 | 11:56 AM | 🟠 | Add auto-spawn configuration to worker spawn status endpoint | ~4607 |
+| #200 | 11:56 AM | 🟣 | Add auto-spawn configuration to worker spawn status endpoint | ~4607 |
 | #198 | 11:56 AM | 🔵 | Exploring Data Router Structure | ~2113 |
 | #194 | 11:56 AM | 🔵 | Backend routes structure overview | ~1464 |
 | #186 | 11:56 AM | 🔵 | Workers Router API Structure and Functionality | ~2960 |
@@ -35,9 +35,9 @@
 
 ## Key Insights
 
-- **Backend Architecture**: The project has a well-structured backend with modular routers (HealthRouter, DataRouter, WorkersRouter, etc.), each handling specific API endpoints.
-- **Session Enrichment Optimization**: Refactored session enrichment logic to batch fetch observation counts and file stats, addressing N+1 query performance issues.
-- **Search Functionality**: Implemented both semantic (Qdrant) and full-text (SQLite FTS5) search with fallback mechanisms and date range filtering.
-- **Worker Management**: Comprehensive worker management API with auto-spawn configuration, spawning/termination endpoints, and status checks.
-- **UI Improvements**: Recent focus on document preview modals, export functionality, title handling, and filtering enhancements.
+- **Backend Architecture**: The project has a well-structured backend with modular routers (HealthRouter, DataRouter, WorkersRouter, etc.) and a BaseRouter providing common utilities.
+- **Search Functionality**: Implements both semantic (Qdrant) and full-text (SQLite FTS5) search with fallback mechanisms and date range filtering.
+- **Worker Management**: Comprehensive worker management API with auto-spawn configuration and status monitoring capabilities.
+- **Performance Optimization**: Recent refactoring addressed N+1 query problems in session enrichment logic, significantly improving database query efficiency.
+- **SSE Implementation**: Server-Sent Events (SSE) implementation with keepalive functionality for real-time updates.
 </claude-mem-context>

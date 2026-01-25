@@ -40,9 +40,9 @@
 
 ## Key Insights
 
-- **Comprehensive Testing**: Multiple test suites were created for core components (SearchRouter, DataRouter, TaskService, BaseRouter, HealthRouter), indicating a focus on test coverage and reliability.
-- **Migration from Bun to Node.js**: The CLI execution method was updated from Bun to Node.js, suggesting a shift in runtime preference or compatibility requirements.
-- **API and Architecture Discoveries**: Extensive exploration of backend routes, data handling, and service architecture (e.g., SSE Broadcaster, Task Service) reveals a well-structured system with clear separation of concerns.
-- **Refactoring and Bug Fixes**: Several refactoring efforts (e.g., compression status handling, metrics simplification) and bug fixes (e.g., test expectations, error logging) were made to improve code quality and maintainability.
-- **Document Management**: Document-related functionality (API endpoints, search, and metadata handling) is distributed across multiple services, indicating a modular approach to document management.
+- **Comprehensive Testing**: Multiple test suites were created for core components (SearchRouter, DataRouter, TaskService, BaseRouter, HealthRouter), indicating a focus on improving code reliability and maintainability.
+- **Runtime Migration**: The project is transitioning from Bun to Node.js, as evidenced by CLI execution method updates and the removal of Bun references.
+- **API Structure**: The backend API routes for documents, sessions, and search functionality were thoroughly analyzed, revealing a well-structured Express router with multiple endpoints.
+- **Task Management**: The TaskService architecture was examined, showing a sophisticated system with backpressure handling and multiple task types (observation, summarization, embedding, etc.).
+- **Error Handling**: Several bug fixes and improvements were made to error handling, particularly in parameter parsing and CLI error logging.
 </claude-mem-context>
