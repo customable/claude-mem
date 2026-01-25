@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2595 | 6:45 PM | 🔵 | Discovered SSE writer function for CLAUDE.md management | ~1695 |
-| #2582 | 6:44 PM | 🟠 | Create path utilities for file/directory normalization | ~2346 |
-| #2577 | 6:43 PM | 🔵 | Examining @claude-mem/hooks package configuration | ~1480 |
-| #2560 | 6:41 PM | 🔵 | Identified files containing targetDirectory patterns | ~767 |
-| #2462 | 6:20 PM | 🔵 | Hook handlers registry structure discovered | ~1475 |
-| #2458 | 6:20 PM | 🔵 | Hook system types and structure discovered | ~1933 |
-| #2390 | 6:09 PM | 🔵 | SSE Writer Handles Directory Validation and Pause States | ~1625 |
-| #2385 | 6:08 PM | 🔵 | SSE Writer Implementation Analysis | ~1998 |
-| #2326 | 6:02 PM | 🔵 | SSE Writer Process Spawning Mechanism | ~2333 |
-| #2315 | 6:01 PM | 🔵 | SSE Writer pattern found in hooks package | ~1272 |
-| #2084 | 5:16 PM | 🟠 | Added recall_archived and archived_stats tools | ~6206 |
-| #2066 | 5:14 PM | 🔵 | MCP Server Architecture and Backend Integration | ~3354 |
-| #2046 | 5:11 PM | 🔵 | Post-tool-use handler for observation extraction | ~3157 |
-| #2045 | 5:10 PM | 🔵 | No references to "ArchivedOutput" in hooks package | ~740 |
-| #1953 | 4:51 PM | 🔵 | Examining package.json for @claude-mem/hooks | ~1144 |
-| #1948 | 4:50 PM | 🟠 | Added typecheck script to package.json | ~1449 |
-| #1860 | 4:32 PM | 🔵 | Discovered CLAUDE.md context preservation logic | ~1331 |
-| #1856 | 4:32 PM | 🔴 | Add validation for claude-mem-context tags | ~6398 |
-| #1834 | 4:29 PM | 🟠 | Add Git command writer control for Bash tool | ~4315 |
-| #1826 | 4:27 PM | 🟠 | Add Git command detection for SSE-Writer | ~3971 |
-| #1824 | 4:26 PM | 🟠 | Add writerPaused flag for git operations | ~3864 |
-| #1822 | 4:25 PM | 🔵 | Post-tool-use handler processes observations | ~2563 |
-| #1821 | 4:25 PM | 🔵 | Hook system types and structure | ~1570 |
-| #1818 | 4:25 PM | 🔵 | SSE Writer Component Analysis | ~3498 |
-| #1815 | 4:25 PM | 🟠 | Added writer pause/resume functionality | ~6184 |
-| #1812 | 4:24 PM | 🔵 | SSE Writer Implementation Analysis | ~1896 |
-| #1810 | 4:24 PM | 🟠 | Add writer pause/resume event handling | ~4383 |
-| #1807 | 4:24 PM | 🟠 | Add writerPaused flag for git operations | ~3806 |
-| #1778 | 4:21 PM | 🔵 | SSE Writer Process for CLAUDE.md Management | ~3560 |
-| #1724 | 4:12 PM | 🔵 | Understanding SSE Writer Component | ~3547 |
+| #3306 | 8:19 PM | 🔵 | Plan mode references in CLAUDE.md | ~1070 |
+| #3298 | 8:19 PM | 📝 | Tool filtering logic review | ~1387 |
+| #2947 | 7:37 PM | 🔵 | Subagent/task code patterns | ~1173 |
+| #2941 | 7:36 PM | 🔵 | Hook handlers registry | ~1780 |
+| #2940 | 7:36 PM | 🔵 | Subagent stop handler | ~1589 |
+| #2929 | 7:35 PM | 🔵 | Subagent start handler | ~1628 |
+| #2907 | 7:35 PM | 🔵 | Hook system types | ~1928 |
+| #2828 | 7:19 PM | 📚 | Replace eventsource with ws | ~2329 |
+| #2827 | 7:19 PM | 🔵 | Hooks package config | ~1482 |
+| #2595 | 6:45 PM | 🔵 | SSE writer function | ~1695 |
+| #2582 | 6:44 PM | 🟠 | Path utilities created | ~2346 |
+| #2577 | 6:43 PM | 🔵 | Hooks package config | ~1480 |
+| #2560 | 6:41 PM | 🔵 | Directory/ready patterns | ~767 |
+| #2462 | 6:20 PM | 🔵 | Hook handlers registry | ~1475 |
+| #2458 | 6:20 PM | 🔵 | Hook system types | ~1933 |
+| #2390 | 6:09 PM | 🔵 | SSE writer validation | ~1625 |
+| #2385 | 6:08 PM | 🔵 | SSE writer analysis | ~1998 |
+| #2326 | 6:02 PM | 🔵 | SSE writer spawning | ~2333 |
+| #2315 | 6:01 PM | 🔵 | SSE writer pattern | ~1272 |
+| #2084 | 5:16 PM | 🟠 | Endless Mode tools | ~6206 |
+| #2066 | 5:14 PM | 🔵 | MCP server architecture | ~3354 |
+| #2046 | 5:11 PM | 🔵 | Post-tool-use handler | ~3157 |
+| #2045 | 5:10 PM | 🔵 | ArchivedOutput search | ~740 |
+| #1953 | 4:51 PM | 🔵 | Hooks package config | ~1144 |
+| #1948 | 4:50 PM | 🟠 | Typecheck script added | ~1449 |
+| #1860 | 4:32 PM | 🔵 | CLAUDE.md preservation | ~1331 |
+| #1856 | 4:32 PM | 🔴 | Context tag validation | ~6398 |
+| #1834 | 4:29 PM | 🟠 | Git command writer control | ~4315 |
+| #1826 | 4:27 PM | 🟠 | Git command detection | ~3971 |
+| #1824 | 4:26 PM | 🟠 | Writer pause flag | ~3864 |
 
 ## Key Insights
 
-- **SSE Writer Core Functionality**: The SSE Writer is a critical component that manages CLAUDE.md files, handling directory validation, pause/resume states for git operations, and context preservation logic.
-- **Git Integration**: Multiple features were added to handle git operations safely, including pause/resume functionality and command detection to prevent file conflicts.
-- **Hook System Architecture**: The hook system is event-driven with a registry for handlers, supporting session lifecycle events and tool usage processing.
-- **MCP Server Integration**: The Model Context Protocol server bridges Claude and backend APIs, with tools for search, time tracking, and observation extraction.
-- **Archived Output Handling**: New tools (`recall_archived`, `archived_stats`) were added to support Endless Mode, addressing token compression and retrieval of archived tool outputs.
+- **Hook System Architecture**: Discovered comprehensive hook system with registry, types, and handlers for session lifecycle events (start, tool use, stop).
+- **SSE Writer**: Implemented Server-Sent Events writer for CLAUDE.md updates with pause/resume for git operations and context preservation.
+- **Subagent Management**: Found subagent lifecycle handlers (start/stop) with fail-open backend communication.
+- **Dependency Change**: Replaced `eventsource` with `ws` for real-time communication.
+- **Git Integration**: Added pause/resume logic for git operations to prevent conflicts during file writes.
 </claude-mem-context>

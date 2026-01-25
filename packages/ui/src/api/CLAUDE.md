@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #3449 | 8:45 PM | 🔵 | API Client Structure and Types | ~1814 |
 | #2109 | 5:21 PM | 🔵 | Discovered API client interfaces and data structures | ~1451 |
 | #2102 | 5:20 PM | 🟠 | Added Archived Outputs API Endpoints for Endless Mode | ~6588 |
 | #2100 | 5:20 PM | 🔵 | API Client Structure and Types | ~1519 |
@@ -28,7 +29,7 @@
 | #1621 | 3:49 PM | 🔵 | Search for "retryTask" yields no results in UI API | ~735 |
 | #1371 | 2:59 PM | 🔵 | API Client Structure and Capabilities | ~5531 |
 | #1169 | 2:34 PM | 🔵 | API Client Structure and Capabilities | ~5433 |
-| #563 | 12:36 PM | 🔵 | API Client Methods for Documents, Code Snippets, and Insights | ~2327 |
+| #563 | 12:35 PM | 🔵 | API Client Methods for Documents, Code Snippets, and Insights | ~2327 |
 | #561 | 12:35 PM | 🟠 | Added task-related API endpoints to client | ~5957 |
 | #560 | 12:35 PM | 🔵 | API Client Methods for Search, Workers, and Analytics | ~2194 |
 | #559 | 12:35 PM | 🟠 | Added Task and TaskCounts interfaces to API client | ~5799 |
@@ -36,13 +37,15 @@
 | #556 | 12:35 PM | 🔵 | Task-related variables found in API client | ~765 |
 | #555 | 12:35 PM | 🔵 | API Client Structure and Types | ~1518 |
 | #364 | 12:15 PM | 🟠 | Add provider configuration to spawnWorker function | ~5581 |
-| #362 | 12:15 PM | 🟠 | Added provider configuration fields to SpawnStatus interface | ~5713 |
 
 ## Key Insights
 
-- **Endless Mode Development**: Significant progress on Endless Mode, including new API endpoints for archived outputs and compression tracking types. This aligns with the goal of reducing token usage by ~95%.
-- **API Client Expansion**: Multiple new API endpoints and interfaces added (e.g., project settings, task management, retry functionality), enhancing backend communication capabilities.
-- **Refactoring Efforts**: Large-scale modularization of `Settings.tsx` (17 files) and updates to observation interfaces to sync with system prompts.
-- **Missing Functionality**: Some project management endpoints (e.g., delete, archive) are absent, indicating potential gaps in the current implementation.
-- **Build Optimization Needed**: Warnings about CSS and chunk sizes suggest performance improvements are required for the UI.
+- **API Client Expansion**: Significant work on extending the API client with new endpoints for Endless Mode (archived outputs), project settings, and task management (retry functionality).
+- **Endless Mode Support**: Added compression tracking types and archived output management, indicating progress on Issue #109.
+- **Task Management**: Enhanced task handling with retry capabilities (Issue #285) and improved task listing with count information.
+- **Project Settings**: New CRUD operations for project settings, completing the API client's resource management capabilities.
+- **Discovery Focus**: Multiple observations about existing API structures, revealing comprehensive data models for workers, documents, insights, and analytics.
+- **Missing Functionality**: Noted absence of project modification endpoints (delete/archive/rename), suggesting potential gaps in current implementation.
+- **Performance Considerations**: Worker processes consume ~138MB each, with 5114 tasks (mostly completed) in the database.
+- **Next Steps**: Multi-database support (SQLite + PostgreSQL) and addressing JavaScript bundle performance issues are prioritized.
 </claude-mem-context>

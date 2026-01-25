@@ -7,29 +7,26 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #3298 | 8:19 PM | 📝 | Reviewed tool filtering logic | ~1387 |
 | #2941 | 7:36 PM | 🔵 | Hook Handlers Registry Architecture | ~1780 |
-| #2940 | 7:36 PM | 🔵 | Subagent Stop Hook Handler Implementation | ~1589 |
-| #2929 | 7:35 PM | 🔵 | Subagent Start Hook Handler Implementation | ~1628 |
-| #2462 | 6:20 PM | 🔵 | Hook handlers registry structure discovered | ~1475 |
-| #2326 | 6:02 PM | 🔵 | SSE Writer Process Spawning Mechanism | ~2333 |
-| #2046 | 5:11 PM | 🔵 | Post-tool-use handler for observation extraction | ~3157 |
-| #1834 | 4:29 PM | 🟠 | Add Git command writer control for Bash tool | ~4315 |
-| #1826 | 4:27 PM | 🟠 | Add Git command detection for SSE-Writer pause/resume | ~3971 |
-| #1822 | 4:25 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2563 |
-| #705 | 12:55 PM | 🔵 | Hook handlers registry structure discovered | ~1486 |
-| #692 | 12:54 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2584 |
-| #247 | 12:00 PM | 🔵 | Subagent Stop Hook Handler Implementation | ~1265 |
-| #245 | 11:59 AM | 🔵 | Subagent Start Hook Handler Implementation | ~1328 |
-| #244 | 11:59 AM | 🔵 | Post-tool-use handler processes tool usage for observation extraction | ~2609 |
-| #240 | 11:59 AM | 🔵 | Hook handlers registry structure discovered | ~1479 |
-| #239 | 11:59 AM | 🔵 | Session Start Handler Implementation Analysis | ~3290 |
-| #233 | 11:59 AM | 🔵 | User prompt submission handler with secret detection and urgency detection | ~2003 |
+| #2940 | 7:36 PM | 🔵 | Subagent Stop Hook Handler | ~1589 |
+| #2929 | 7:35 PM | 🔵 | Subagent Start Hook Handler | ~1628 |
+| #2462 | 6:20 PM | 🔵 | Hook handlers registry structure | ~1475 |
+| #2326 | 6:02 PM | 🔵 | SSE Writer Process Spawning | ~2333 |
+| #2046 | 5:11 PM | 🔵 | Post-tool-use handler analysis | ~3157 |
+| #1834 | 4:29 PM | 🟠 | Git command writer control | ~4315 |
+| #1826 | 4:27 PM | 🟠 | Git command detection | ~3971 |
+| #1822 | 4:25 PM | 🔵 | Post-tool-use handler processes | ~2563 |
 
 ## Key Insights
 
-- **Hook Handlers Registry**: Centralized event-driven architecture discovered with default handlers for session-start, user-prompt-submit, post-tool-use, and other events. Extensible design allows for custom handlers.
-- **Subagent Lifecycle Management**: Subagent start/stop handlers track lifecycle events with fail-open behavior to ensure robustness. Backend API integration for event recording.
-- **SSE-Writer Process Management**: Session-start handler spawns SSE-Writer processes for CLAUDE.md updates using Node's child_process.spawn. PID file management ensures process control.
-- **Git Command Handling**: Added pause/resume functionality for SSE-Writer during Git operations to prevent conflicts. Implemented command detection and control mechanisms.
-- **WebSocket Migration**: Ongoing transition from SSE to WebSocket for real-time communication. ChannelManager and WorkerHub extensions support multi-client subscriptions.
+- **Hook System Architecture**: The project uses a central hook handlers registry with default handlers for events like session-start, user-prompt-submit, and post-tool-use. This event-driven architecture is extensible and supports fail-open behavior for backend communications.
+
+- **Tool Filtering Logic**: The post-tool-use handler excludes meta-tools and claude-mem's own MCP tools to prevent circular observations. This ensures clean data capture for actual tool usage.
+
+- **Git Integration**: Added functionality to pause/resume SSE-Writer during Git operations to prevent conflicts. This includes detection logic for specific Git commands that should trigger these actions.
+
+- **Subagent Lifecycle**: Subagent start/stop handlers record lifecycle events with fail-open behavior, ensuring subagent operations continue even if backend tracking fails.
+
+- **SSE Writer Mechanism**: The session-start handler spawns an SSE writer process for CLAUDE.md updates using Node's child_process.spawn, with PID file management for process control.
 </claude-mem-context>

@@ -7,44 +7,44 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #3172 | 8:06 PM | 🔵 | Legacy settings migration mechanism discovered | ~1839 |
-| #3166 | 8:05 PM | 🔵 | Database configuration supports SQLite, PostgreSQL, and MySQL | ~1634 |
-| #3165 | 8:05 PM | 🟠 | Add DATABASE_URL parsing functionality | ~2148 |
-| #3164 | 8:05 PM | 🔵 | Database package uses MikroORM with multiple SQL drivers | ~1661 |
-| #3163 | 8:05 PM | 🔵 | Settings loading and merging logic discovered | ~1732 |
-| #3162 | 8:05 PM | 🔵 | MikroORM multi-database configuration discovered | ~2458 |
-| #3146 | 8:02 PM | 🟠 | Added parseTargetDatabase and TargetDatabase to migration exports | ~1798 |
-| #3140 | 8:01 PM | 🔵 | Legacy database import CLI command discovered | ~1636 |
-| #3138 | 8:01 PM | 🔵 | CLI commands for configuration and migration discovered | ~1710 |
-| #3129 | 7:59 PM | 🔵 | CLI Configuration and Service Initialization | ~1742 |
-| #3122 | 7:59 PM | 🔵 | Settings parsing and migration logic discovered | ~1733 |
-| #3120 | 7:59 PM | 🔵 | Environment variable usage found in settings.ts | ~1082 |
-| #3118 | 7:58 PM | 🔵 | AI and Database Configuration Settings | ~2131 |
-| #3117 | 7:58 PM | 🔵 | Backend Service Initialization and Configuration | ~1724 |
-| #3115 | 7:58 PM | 🔵 | Search for CLAUDE_MEM_DATABASE in settings.ts | ~1056 |
-| #3110 | 7:57 PM | 🔵 | Database initialization and service setup in backend-service.ts | ~1631 |
-| #3107 | 7:57 PM | 🔵 | Database configuration and MikroORM usage discovered | ~1306 |
-| #3105 | 7:57 PM | 🔵 | Database configuration supports both SQLite and PostgreSQL | ~1339 |
-| #3093 | 7:56 PM | 🔵 | Database configuration interface discovered | ~1704 |
-| #3081 | 7:53 PM | 🔵 | Discovered CreateObservationInput interface structure | ~1818 |
-| #3080 | 7:53 PM | 🔵 | MikroORM database layer exports structure | ~1445 |
-| #3078 | 7:53 PM | 🔵 | Repository Pattern Types and Search Interface | ~2081 |
-| #3076 | 7:52 PM | 🔵 | MikroORM Database Initializer Structure | ~1937 |
-| #3073 | 7:51 PM | 📝 | Database layer documentation and structure overview | ~1409 |
-| #3072 | 7:51 PM | 🔵 | Backend package.json analysis | ~1808 |
-| #3068 | 7:51 PM | 🟠 | Create migration module for legacy data import | ~1641 |
-| #3065 | 7:50 PM | 🟠 | Create SQLite backup utility for legacy migration | ~2520 |
-| #3064 | 7:49 PM | 🟠 | Create type mapper for legacy migration | ~2350 |
-| #3052 | 7:47 PM | 🔵 | Backend package.json structure and dependencies | ~1821 |
-| #3050 | 7:47 PM | 🔵 | Base Router Class Structure and Utilities | ~1984 |
+| #3449 | 8:45 PM | 🔵 | API Client Structure and Types | ~1814 |
+| #3440 | 8:44 PM | 🔵 | SSE Event Type Definition and Usage | ~2338 |
+| #3438 | 8:43 PM | 🔵 | HUB_TOKEN/Settings Interface Files | ~1267 |
+| #3433 | 8:43 PM | 🔵 | Endless Mode & Default Settings | ~2383 |
+| #3428 | 8:42 PM | 🟠 | HubFederation WebSocket Exports | ~2220 |
+| #3426 | 8:41 PM | 🟠 | Worker-Hub Package Index | ~1400 |
+| #3423 | 8:41 PM | 🟠 | Worker Hub CLI Creation | ~2907 |
+| #3417 | 8:39 PM | 🔵 | Worker Package Config | ~1615 |
+| #3415 | 8:39 PM | ⚙️ | Worker-Hub TypeScript Config | ~1304 |
+| #3414 | 8:38 PM | 🟠 | FederatedRouter Exports | ~1972 |
+| #3413 | 8:38 PM | 🟠 | Worker-Hub Package.json | ~1946 |
+| #3407 | 8:37 PM | 🔵 | WebSocket Module Exports | ~1314 |
+| #3393 | 8:32 PM | 🔵 | MikroORM Migration Config | ~2002 |
+| #3392 | 8:32 PM | 📦 | Worker Federation Migration | ~2377 |
+| #3391 | 8:31 PM | 🔵 | Worker Migration Files | ~1436 |
+| #3390 | 8:31 PM | 🔵 | MikroORM Migration Structure | ~1295 |
+| #3385 | 8:30 PM | 🔵 | Hub Registry Filtering | ~1674 |
+| #3377 | 8:30 PM | 🔵 | Worker Token Service Methods | ~1744 |
+| #3371 | 8:28 PM | 🔵 | Worker Token Validation | ~2206 |
+| #3357 | 8:26 PM | 🟠 | SqlEntityManager Type Export | ~1913 |
+| #3356 | 8:26 PM | 🔵 | EntityManager Usage | ~1309 |
+| #3355 | 8:26 PM | 🔵 | Database Module Import | ~1105 |
+| #3354 | 8:26 PM | 🔵 | No MikroORM Dependency | ~1087 |
+| #3353 | 8:26 PM | 🔵 | MikroORM Exports Structure | ~1419 |
+| #3351 | 8:25 PM | 🔵 | MikroORM Initializer | ~1943 |
+| #3349 | 8:25 PM | 📝 | Database Documentation | ~1396 |
+| #3348 | 8:25 PM | 🔵 | Database Entities | ~1574 |
+| #3346 | 8:25 PM | 🔵 | Shared TypeScript Types | ~1544 |
+| #3344 | 8:24 PM | 🔄 | Ref Type Import Separation | ~1981 |
+| #3343 | 8:24 PM | 🔵 | WorkerRegistration Entity | ~1647 |
 
 ## Key Insights
 
-- **Multi-database support**: The system now supports SQLite, PostgreSQL, and MySQL via MikroORM, with PostgreSQL connection string parsing added.
-- **Legacy migration system**: Comprehensive migration tools were created for importing data from legacy systems, including backup utilities and type mapping.
-- **Configuration architecture**: Settings management handles file settings, environment variables, and legacy key migration with clear precedence rules.
-- **CLI enhancements**: New CLI commands for configuration display and legacy database import with multiple options (dry-run, backup, conflict resolution).
-- **Rebranding initiative**: Project is transitioning to "remembr" with new organization structure and SaaS infrastructure planning underway.
+- **Worker Federation Implementation**: Major progress on Issue #263 with new WorkerToken, WorkerRegistration, and Hub entities, plus WebSocket exports for federated routing (FederatedRouter, HubFederation).
+- **Database Architecture**: MikroORM is central to the system with 20+ entities, migrations, and a clear repository pattern. No direct MikroORM dependency in backend (likely abstracted).
+- **CLI & Distributed Deployment**: New worker-hub package with CLI capabilities for standalone hubs, supporting authentication and WebSocket communication.
+- **Type Safety Improvements**: Refactored type imports (e.g., `Ref`) and added SqlEntityManager exports for better service integration.
+- **Next Steps**: Merge worker federation changes (Issue #263), test distributed deployment, and address multi-database support (SQLite + PostgreSQL).
 </claude-mem-context>
 
 # Package Structure
