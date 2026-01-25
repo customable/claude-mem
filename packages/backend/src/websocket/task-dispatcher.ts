@@ -427,8 +427,10 @@ export class TaskDispatcher {
           await this.archivedOutputs.updateCompressionStatus(
             payload.archivedOutputId,
             'completed',
-            observation.id,
-            compressionResult.compressedTokens
+            {
+              compressedObservationId: observation.id,
+              compressedTokenCount: compressionResult.compressedTokens,
+            }
           );
 
           logger.info(`Compression task completed: archived output ${payload.archivedOutputId} -> observation ${observation.id}`);
@@ -442,9 +444,7 @@ export class TaskDispatcher {
           await this.archivedOutputs.updateCompressionStatus(
             payload.archivedOutputId,
             'failed',
-            undefined,
-            undefined,
-            'No result from compression worker'
+            { errorMessage: 'No result from compression worker' }
           );
         }
       }

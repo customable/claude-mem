@@ -67,10 +67,10 @@ function createMetric<T extends MetricConfig>(
  * Create all metrics from configuration
  */
 function createMetrics(registry: Registry): MetricInstances {
-  const metrics: Partial<MetricInstances> = {};
+  const metrics: Record<string, Histogram<string> | Counter<string> | Gauge<string>> = {};
 
   for (const [name, config] of Object.entries(METRICS_CONFIG)) {
-    metrics[name as MetricName] = createMetric(config, registry);
+    metrics[name] = createMetric(config, registry);
   }
 
   return metrics as MetricInstances;

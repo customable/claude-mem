@@ -80,7 +80,7 @@ program
 
       worker.start();
     } catch (error) {
-      logger.error('Failed to start worker:', error);
+      logger.error('Failed to start worker:', error instanceof Error ? { message: error.message } : { error });
       process.exit(1);
     }
   });

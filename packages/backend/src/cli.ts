@@ -57,7 +57,7 @@ program
       logger.info('Backend service running');
       logger.info(`HTTP: http://${settings.BACKEND_BIND || '0.0.0.0'}:${settings.BACKEND_PORT || 37777}`);
     } catch (error) {
-      logger.error('Failed to start backend:', error);
+      logger.error('Failed to start backend:', error instanceof Error ? { message: error.message } : { error });
       process.exit(1);
     }
   });
@@ -94,7 +94,12 @@ program
       const response = await fetch(`http://127.0.0.1:${options.port}/api/health`);
 
       if (response.ok) {
-        const status = await response.json();
+        const status = (await response.json()) as {
+          status?: string;
+          coreReady?: boolean;
+          workers?: { connected?: number };
+          version?: string;
+        };
 
         if (options.json) {
           console.log(JSON.stringify(status, null, 2));

@@ -94,8 +94,10 @@ export class MistralEmbeddingProvider implements EmbeddingProvider {
       inputs: texts,
     });
 
-    // Extract embeddings from response
-    return response.data.map((item) => item.embedding);
+    // Extract embeddings from response (filter out any undefined embeddings)
+    return response.data
+      .map((item) => item.embedding)
+      .filter((embedding): embedding is number[] => embedding !== undefined);
   }
 
   async embedSingle(text: string): Promise<number[]> {

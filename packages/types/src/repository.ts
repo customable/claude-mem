@@ -232,7 +232,7 @@ export interface ISessionRepository {
 export interface CreateObservationInput {
   memorySessionId: string;
   project: string;
-  text: string;
+  text?: string;
   type: ObservationType;
   title?: string;
   subtitle?: string;
