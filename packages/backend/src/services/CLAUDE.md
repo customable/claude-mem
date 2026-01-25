@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2722 | 6:59 PM | 🔵 | SSE Broadcaster Service Implementation | ~2299 |
 | #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
 | #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
 | #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
@@ -36,13 +37,12 @@
 | #758 | 1:07 PM | 🔵 | Examining Task Service Implementation | ~5156 |
 | #757 | 1:07 PM | 🟠 | Added new task types and repository to task-service.ts | ~5339 |
 | #714 | 12:56 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~2673 |
-| #713 | 12:56 PM | 🔵 | Session Service Methods for Observation and Completion | ~2099 |
 
 ## Key Insights
 
-- **Achievement System**: The `insights-service.ts` implements achievement unlocking logic based on user activity thresholds and includes a `updateDailyStats` method for tracking daily metrics.
-- **Task Management**: The `task-service.ts` features a backpressure mechanism, Endless Mode for archiving outputs, and compression task queueing, indicating a robust task handling system.
-- **SSE Integration**: The SSE Broadcaster service supports real-time events, including new `writer:pause` and `writer:resume` events, enhancing UI responsiveness.
-- **Missing Features**: No vector/semantic search or task queue functions were found in key services, suggesting potential gaps in functionality.
-- **Bugfix Tracking**: The `insights-service.ts` contains logic for tracking bugfixes, though inconsistencies in property naming (`bugfixCount` vs. `bugFixCount`) were noted.
+- **SSE Broadcaster Enhancements**: Added writer pause/resume events (`writer:pause`, `writer:resume`) to support real-time UI updates during git operations.
+- **Endless Mode Implementation**: Introduced archiving and compression logic for tool outputs, reducing token usage by ~94.5% (Issue #109).
+- **Task Service Architecture**: Discovered backpressure handling, task prioritization, and multi-type task support (observation, summarization, compression).
+- **Insights Service**: Found achievement unlocking logic and daily statistics tracking for user activity metrics.
+- **Missing Features**: No vector/semantic search in `session-service.ts` or task queue functions in backend services—potential gaps for future development.
 </claude-mem-context>

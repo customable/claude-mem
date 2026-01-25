@@ -7,54 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2806 | 7:15 PM | 🔵 | Worker task assignment mechanism discovered | ~1484 |
+| #2804 | 7:15 PM | 🔵 | WorkerHub class methods for worker management | ~1974 |
+| #2785 | 7:10 PM | 🔵 | Worker message handling architecture discovered | ~1532 |
+| #2781 | 7:09 PM | 🔵 | WebSocket Server Implementation with Heartbeat | ~1979 |
+| #2775 | 7:09 PM | 🔵 | Worker Hub WebSocket Management Structure | ~1803 |
+| #2774 | 7:08 PM | 🟠 | Created SSE-Writer Client Type for WebSocket | ~2887 |
+| #2767 | 7:08 PM | 🟠 | Added ChannelManager export to WebSocket | ~1723 |
+| #2766 | 7:08 PM | 🔵 | WebSocket module exports identified | ~1163 |
+| #2736 | 7:00 PM | 🔵 | WebSocket Types Structure | ~1453 |
+| #2728 | 7:00 PM | 📝 | WebSocket module exports overview | ~1177 |
+| #2719 | 6:59 PM | 🔵 | No WebSocket route patterns found | ~1162 |
+| #2714 | 6:59 PM | 🔵 | SSE broadcasting in task dispatcher | ~1448 |
+| #2700 | 6:58 PM | 🔵 | Search for SSE broadcaster usage | ~1116 |
+| #2696 | 6:58 PM | 🔵 | WebSocket Types for Worker Management | ~1486 |
+| #2694 | 6:58 PM | 🔵 | WebSocket module exports identified | ~1168 |
+| #2680 | 6:57 PM | 🔵 | WebSocket connection management types | ~1445 |
+| #2676 | 6:57 PM | 🔵 | WebSocket module exports structure | ~1162 |
+| #2573 | 6:42 PM | 🔵 | CLAUDE.md generation logic in task-dispatcher | ~2164 |
+| #2566 | 6:42 PM | 🔵 | Working directory handling in task dispatcher | ~1466 |
+| #2052 | 5:11 PM | 🔵 | Compression task handling in task-dispatcher | ~1741 |
+| #1783 | 4:21 PM | 🔵 | WorkerHub WebSocket management structure | ~1919 |
+| #1781 | 4:21 PM | 🔵 | Task dispatcher handles observation tasks | ~2893 |
+| #1779 | 4:21 PM | 🔵 | Task Dispatcher Architecture Overview | ~2537 |
 | #1071 | 2:26 PM | 🔄 | Update compression status error handling | ~4719 |
 | #1069 | 2:26 PM | 🔄 | Update archived output compression status | ~4727 |
 | #1067 | 2:26 PM | 🔵 | Task dispatcher handles compression results | ~1129 |
-| #777 | 1:10 PM | 🟠 | Added compression task handling | ~5502 |
+| #777 | 1:10 PM | 🟠 | Added compression task handling for Endless Mode | ~5502 |
 | #776 | 1:10 PM | 🔵 | Task Dispatcher Architecture Overview | ~2447 |
-| #774 | 1:10 PM | 🟠 | Added archivedOutputs repository | ~5047 |
-| #773 | 1:10 PM | 🟠 | Add archivedOutputs repository | ~4950 |
-| #772 | 1:09 PM | 🔵 | TaskDispatcher class structure | ~1463 |
-| #771 | 1:09 PM | 🟠 | Added archived outputs repository | ~5222 |
-| #769 | 1:09 PM | 🟠 | Add CompressionTask and IArchivedOutputRepository | ~4725 |
-| #768 | 1:09 PM | 🔵 | Task dispatcher handles claude-md content | ~2195 |
-| #766 | 1:09 PM | 🔵 | Task completion handling | ~2460 |
-| #623 | 12:45 PM | 🔵 | Task Dispatcher Architecture Overview | ~2449 |
-| #620 | 12:45 PM | 🔵 | Worker Hub WebSocket Management | ~5280 |
-| #553 | 12:34 PM | 🔵 | Task dispatcher handles observation tasks | ~2735 |
-| #547 | 12:34 PM | 🔵 | Task Dispatcher Architecture Overview | ~2130 |
-| #543 | 12:34 PM | 🔵 | WebSocket module exports | ~844 |
-| #536 | 12:33 PM | 🔵 | Worker Hub WebSocket Management | ~5221 |
-| #464 | 12:24 PM | 🔵 | Task Dispatcher Handles Observation Tasks | ~2339 |
-| #436 | 12:22 PM | 🔵 | CLAUDE.md generation workflow | ~1940 |
-| #433 | 12:22 PM | 🔵 | Task Dispatcher Architecture Overview | ~2418 |
-| #432 | 12:22 PM | 🔵 | Worker Hub WebSocket Management | ~5240 |
-| #426 | 12:22 PM | 🔵 | WebSocket Types for Worker Management | ~1124 |
-| #108 | 11:42 AM | 🔴 | Normalize escaped newlines in tool outputs | ~4983 |
-| #106 | 11:41 AM | 🔴 | Fix regex execution on normalized text | ~4798 |
-| #103 | 11:41 AM | 🔵 | Code block parsing logic | ~908 |
-| #92 | 11:39 AM | 🔵 | Tool output handling | ~824 |
-| #91 | 11:38 AM | 🔵 | Observation creation workflow | ~1190 |
-| #89 | 11:38 AM | 🔵 | Code block extraction logic | ~1449 |
-| #88 | 11:38 AM | 🔵 | Code snippet extraction logic | ~1612 |
+| #774 | 1:10 PM | 🟠 | Added archivedOutputs repository to TaskDispatcher | ~5047 |
+| #773 | 1:10 PM | 🟠 | Add archivedOutputs repository to TaskDispatcher | ~4950 |
 
 ## Key Insights
 
-- **Compression Task Handling**: Added support for compression tasks in the task dispatcher, including archived output status updates and event broadcasting (Issue #109).
-- **API Refactoring**: Improved `updateCompressionStatus` method to use object parameters instead of multiple undefined parameters for better maintainability.
-- **Worker Hub Architecture**: Discovered sophisticated WebSocket-based worker management with authentication, heartbeats, and capability matching.
-- **Code Extraction**: Enhanced code block parsing and extraction logic for handling fenced code blocks in markdown content.
-- **Bug Fixes**: Resolved issues with escaped newlines in tool outputs and regex execution on normalized text.
-
-## Recent Progress
-
-- **MikroORM Entity Refactoring**: Planned and documented database-agnostic design decisions for entity relationships.
-- **Embedding Provider Abstraction**: Implemented a registry pattern for multiple embedding providers (local, Mistral) with priority-based capability resolution.
-- **Task Priority System**: Proposed and documented a new task priority system and worker hub federation architecture.
-
-## Next Steps
-
-- Implement MikroORM entity refactoring with critical missing relations.
-- Complete test suite for the new embedding provider system.
-- Implement proposed task priority system and worker hub federation architecture.
+- **WebSocket Architecture**: The system uses WebSocket-based worker management with heartbeat checks, authentication, and task distribution via `WorkerHub` and `TaskDispatcher`.
+- **Task Handling**: The task dispatcher processes observation, summary, and compression tasks, broadcasting events via SSE and managing worker capabilities.
+- **Compression Logic**: Recent refactoring improved compression status handling, with updates to `updateCompressionStatus` for better error management.
+- **Endless Mode**: New features support Endless Mode (Issue #109), including compression task handling and archived output management.
+- **CLAUDE.md Generation**: The task dispatcher tracks observation counts and triggers CLAUDE.md generation at configurable intervals.
 </claude-mem-context>

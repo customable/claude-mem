@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2772 | 7:08 PM | 🟠 | Added channel types export for unified WebSocket | ~1687 |
+| #2764 | 7:08 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1469 |
+| #2746 | 7:02 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Communication | ~2206 |
+| #2742 | 7:01 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1437 |
+| #2738 | 7:01 PM | 🔵 | WebSocket Protocol Types for Backend-Worker Communication | ~2228 |
+| #2692 | 6:57 PM | 🔵 | WebSocket Protocol Types for Backend-Worker Communication | ~2190 |
 | #2502 | 6:28 PM | 🔵 | User Task Type System Structure | ~2197 |
 | #2441 | 6:17 PM | 🟠 | Add user task types export to types index | ~1573 |
 | #2432 | 6:16 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1425 |
 | #2431 | 6:15 PM | 🟠 | Added User Task Types and Repository Interface | ~3097 |
 | #2362 | 6:05 PM | 🔵 | Found ObservationType definition in database.ts | ~1252 |
-| #2360 | 6:04 PM | 🔵 | Discovered database.ts type definitions | ~1806 |
+| #2360 | 6:04 PM | 🔵 | Discovered database.ts type definitions for observation categorization | ~1806 |
 | #2357 | 6:04 PM | 🔵 | Discovered InsightsSummary interface structure | ~1673 |
 | #2319 | 6:01 PM | 🔵 | Repository Pattern Types and Search Interface | ~2065 |
-| #2079 | 5:15 PM | 🔵 | Discovered IArchivedOutputRepository Interface | ~2244 |
+| #2079 | 5:15 PM | 🔵 | Discovered IArchivedOutputRepository Interface for Endless Mode | ~2244 |
 | #2063 | 5:13 PM | 🔵 | Repository Pattern Types and Search Implementation | ~2072 |
 | #1940 | 4:48 PM | 🔵 | Task system architecture overview | ~3203 |
 | #1932 | 4:47 PM | 🔵 | Task system architecture overview | ~3213 |
 | #1930 | 4:47 PM | 🔵 | Database model types for claude-mem | ~3322 |
 | #1913 | 4:45 PM | 🔵 | Database model types for claude-mem | ~3302 |
-| #1070 | 2:26 PM | 🔵 | Found updateCompressionStatus method signature | ~908 |
-| #1050 | 2:24 PM | 🔄 | Make text field optional in CreateObservationInput | ~5133 |
+| #1070 | 2:26 PM | 🔵 | Found updateCompressionStatus method signature in repository.ts | ~908 |
+| #1050 | 2:24 PM | 🟣 | Make text field optional in CreateObservationInput | ~5133 |
 | #1049 | 2:24 PM | 🔵 | Exploring Observation Repository Interface | ~983 |
-| #959 | 1:55 PM | 🔵 | Task type 'compression' related to Endless Mode | ~1090 |
-| #958 | 1:55 PM | 🔵 | Discovered CreateTaskInput type and its usage | ~1739 |
+| #959 | 1:55 PM | 🔵 | Task type 'compression' related to Endless Mode (Issue #109) | ~1090 |
+| #958 | 1:55 PM | 🔵 | Discovered CreateTaskInput type and its usage in repository | ~1739 |
 | #951 | 1:52 PM | 🔵 | Worker Capabilities System Architecture | ~2722 |
 | #789 | 1:15 PM | 🔵 | Worker Capabilities System Architecture | ~3442 |
-| #740 | 1:04 PM | 🟠 | Add compression capability parsing | ~4117 |
-| #739 | 1:04 PM | 🟠 | Add compression capability conversion | ~3793 |
-| #738 | 1:03 PM | 🟠 | Add 'compression' capability for Endless Mode | ~3891 |
-| #737 | 1:03 PM | 🔵 | Worker Capabilities System Architecture | ~3271 |
-| #736 | 1:03 PM | 🟠 | Add compression capabilities for Endless Mode | ~3691 |
-| #735 | 1:03 PM | 🔵 | Task system architecture overview | ~2961 |
-| #734 | 1:03 PM | 🟠 | Added CompressionTask for Endless Mode | ~4299 |
-| #733 | 1:03 PM | 🟠 | Added 'compression' capability to CAPABILITY_PROVIDER_MAP | ~3951 |
-| #732 | 1:02 PM | 🟠 | Added 'compression' task type for Endless Mode | ~3324 |
+| #740 | 1:04 PM | 🟠 | Add compression capability parsing in fromLegacyCapability | ~4117 |
+| #739 | 1:04 PM | 🟠 | Add compression capability to legacy capability conversion | ~3793 |
+| #738 | 1:03 PM | 🟠 | Add 'compression' capability for Endless Mode (Issue #109) | ~3891 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with compression capabilities added across the system, including new task types, worker capabilities, and repository interfaces.
-- **User Task System**: New UserTask entity and repository interface were added for tracking CLI tool tasks, extending the system's functionality.
-- **Type System Expansion**: Multiple TypeScript type definitions were discovered and expanded, including observation types, repository patterns, and worker capabilities.
-- **Compression Effectiveness**: Compression reduces token usage by ~94.5%, with 'Edit' and 'Read' tools being the most resource-intensive.
-- **Architecture Discoveries**: Explored and documented key architectural components like the task queue system, repository patterns, and worker capabilities decoupling.
+- **WebSocket Protocol & Worker Communication**: Extensive exploration of WebSocket protocol types for backend-worker communication, including authentication, task management, and heartbeat mechanisms.
+- **User Task System**: New user task types and repository interfaces were added, supporting CLI tool integration and status lifecycle management.
+- **Compression Capability**: Added support for 'compression' capability in the worker system, tied to Endless Mode (Issue #109), including legacy capability parsing and conversion.
+- **TypeScript Types Expansion**: Multiple exports added to the shared TypeScript types index, enhancing modularity and reusability across the project.
+- **Repository Pattern**: Discovered and documented repository pattern implementations for data access, including search functionality with BM25 scoring and session management.
 </claude-mem-context>

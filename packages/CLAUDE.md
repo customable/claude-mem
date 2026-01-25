@@ -7,44 +7,49 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2570 | 6:42 PM | 🔵 | Found broadcastClaudeMdReady method in SSE broadcaster | ~2155 |
-| #2567 | 6:42 PM | 🔵 | Discovered files related to ClaudeMd task processing | ~1234 |
-| #2566 | 6:42 PM | 🔵 | Working directory handling in task dispatcher | ~1466 |
-| #2563 | 6:41 PM | 🔵 | Identifying files related to ClaudeMD state and directory handling | ~1342 |
-| #2560 | 6:41 PM | 🔵 | Identified files containing targetDirectory or claudemd:ready patterns | ~767 |
-| #2537 | 6:36 PM | 🔵 | ExportRouter initialization in backend service | ~1334 |
-| #2534 | 6:35 PM | 🔵 | User Tasks View Component Structure | ~2333 |
-| #2529 | 6:34 PM | 🔵 | Discovered user-task event types in SSE broadcaster and hooks | ~1294 |
-| #2526 | 6:34 PM | 🔵 | SSE usage found in UI package | ~1410 |
-| #2510 | 6:29 PM | 🔵 | Backend service routes and dependencies discovered | ~1293 |
-| #2509 | 6:29 PM | 🔵 | DataRouter instantiation found in backend-service.ts | ~754 |
-| #2502 | 6:28 PM | 🔵 | User Task Type System Structure | ~2197 |
-| #2501 | 6:28 PM | 🔵 | Sidebar Component Structure and Navigation Logic | ~1887 |
-| #2473 | 6:22 PM | 🔵 | API Rate Limiting and Router Structure | ~1805 |
-| #2472 | 6:22 PM | 🔵 | HooksRouter usage found in backend-service.ts | ~1107 |
-| #2462 | 6:20 PM | 🔵 | Hook handlers registry structure discovered | ~1475 |
-| #2458 | 6:20 PM | 🔵 | Hook system types and structure discovered | ~1933 |
-| #2449 | 6:17 PM | 🟠 | Add user_tasks table migration for CLI task tracking | ~2548 |
-| #2446 | 6:17 PM | 🔵 | Migration for archived_outputs table discovered | ~1932 |
-| #2442 | 6:17 PM | 🟠 | Add MikroOrmUserTaskRepository export to repositories index | ~1722 |
-| #2441 | 6:17 PM | 🟠 | Add user task types export to types index | ~1573 |
-| #2439 | 6:17 PM | 🔵 | MikroORM Database Initializer Structure | ~1931 |
-| #2438 | 6:17 PM | 🔵 | Discovered MikroORM repository exports structure | ~1594 |
-| #2434 | 6:16 PM | 🔵 | Found Mikro-ORM initializer files in database package | ~1168 |
-| #2432 | 6:16 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1425 |
-| #2431 | 6:15 PM | 🟠 | Added User Task Types and Repository Interface | ~3097 |
-| #2427 | 6:14 PM | 🔵 | Exploring Observation Entity Structure | ~1819 |
-| #2426 | 6:14 PM | 🔵 | Database configuration and migration structure discovered | ~1596 |
-| #2425 | 6:14 PM | 📝 | Reviewed MikroORM configuration file header | ~1371 |
-| #2424 | 6:14 PM | 🔵 | Discovered MikroORM entity configuration | ~1773 |
+| #2806 | 7:15 PM | 🔵 | Worker task assignment mechanism discovered | ~1484 |
+| #2804 | 7:15 PM | 🔵 | WorkerHub class methods for worker management | ~1974 |
+| #2785 | 7:10 PM | 🔵 | Worker message handling architecture discovered | ~1532 |
+| #2781 | 7:09 PM | 🔵 | WebSocket Server Implementation with Heartbeat | ~1979 |
+| #2775 | 7:09 PM | 🔵 | Worker Hub WebSocket Management Structure | ~1803 |
+| #2774 | 7:08 PM | 🟠 | Created SSE-Writer Client Type for WebSocket | ~2887 |
+| #2772 | 7:08 PM | 🟠 | Added channel types export for unified WebSocket | ~1687 |
+| #2767 | 7:08 PM | 🟠 | Added ChannelManager export to WebSocket module | ~1723 |
+| #2766 | 7:08 PM | 🔵 | WebSocket module exports identified | ~1163 |
+| #2764 | 7:08 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1469 |
+| #2746 | 7:02 PM | 🔵 | WebSocket Protocol Types for Worker-Backend Comm | ~2206 |
+| #2742 | 7:01 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1437 |
+| #2738 | 7:01 PM | 🔵 | WebSocket Protocol Types for Backend-Worker Comm | ~2228 |
+| #2736 | 7:00 PM | 🔵 | WebSocket Types Structure | ~1453 |
+| #2732 | 7:00 PM | 🔵 | SSE broadcast mechanism usage across backend | ~1863 |
+| #2731 | 7:00 PM | 🔵 | Backend Service CLI Structure and Commands | ~2029 |
+| #2729 | 7:00 PM | 🔵 | SSE Stream Router Implementation | ~1584 |
+| #2728 | 7:00 PM | 📝 | WebSocket module exports overview | ~1177 |
+| #2727 | 7:00 PM | 🔵 | Event types used in SSE and WebSocket communication | ~1806 |
+| #2722 | 6:59 PM | 🔵 | SSE Broadcaster Service Implementation | ~2299 |
+| #2719 | 6:59 PM | 🔵 | No WebSocket route or subscription patterns found | ~1162 |
+| #2718 | 6:59 PM | 🔵 | SSE broadcasting methods for task and worker events | ~2232 |
+| #2714 | 6:59 PM | 🔵 | SSE broadcasting in task dispatcher | ~1448 |
+| #2713 | 6:58 PM | 🔵 | Live View Component Uses Server-Sent Events | ~1907 |
+| #2712 | 6:58 PM | 📝 | WorkerStatus component documentation | ~1998 |
+| #2711 | 6:58 PM | 🔵 | Search for SSE-related code in UI package | ~1076 |
+| #2709 | 6:58 PM | 🔵 | DashboardView component structure and SSE integration | ~2024 |
+| #2706 | 6:58 PM | 🔵 | SSE Stream Implementation Analysis | ~1568 |
+| #2704 | 6:58 PM | 🔵 | Backend Service CLI Structure and Commands | ~1982 |
+| #2700 | 6:58 PM | 🔵 | Search for SSE broadcaster usage in task dispatcher | ~1116 |
 
 ## Key Insights
 
-- **Event-Driven Architecture**: The system heavily relies on SSE (Server-Sent Events) for real-time updates, with a robust hook system for event handling (e.g., `user-task:created`, `user-task:updated`).
-- **Task Management**: A new `user_tasks` table and related infrastructure were added to track CLI tool tasks, including status lifecycle, priority, and cost tracking.
-- **Database Structure**: MikroORM is used for database operations, supporting SQLite, PostgreSQL, and MySQL, with a well-defined entity and repository structure.
-- **Component Discovery**: Key components like `UserTasks.tsx`, `Sidebar`, and `ExportRouter` were explored, revealing the UI and backend service architecture.
-- **Performance Metrics**: High token compression efficiency (94.5%) was noted, alongside potential optimizations for search results and task queue handling.
+- **WebSocket Architecture**: The system uses a robust WebSocket-based worker management system with `WorkerHub` for connection handling, task assignment, and heartbeat monitoring.
+- **SSE Integration**: Server-Sent Events (SSE) are extensively used for real-time UI updates, including task lifecycle events and worker status tracking.
+- **TypeScript Types**: Shared TypeScript types define WebSocket protocols, worker capabilities, and task definitions, ensuring type safety across the system.
+- **Backend CLI**: The backend service supports CLI commands (`start`, `stop`, `status`) and uses SSE for real-time communication.
+- **Recent Features**: New exports (`ChannelManager`, channel types) and client types (`SSE-Writer`) were added to enhance WebSocket functionality.
+
+## Next Steps
+- Implement configurable modes and git hooks for team collaboration.
+- Address API authentication failures and SQLite lock contention issues.
+- Optimize token usage and explore alternative domain naming strategies.
 </claude-mem-context>
 
 # Package Structure
