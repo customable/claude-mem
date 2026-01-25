@@ -5,19 +5,27 @@
 
 ### Jan 25, 2026
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #80 | 11:37 AM | 🔵 | No snippet refs in worker pkg | ~701 |
-| #257 | - | ✅ | Created GitHub issues | - |
-| - | - | 🟠 | Added performance indexes | - |
-| - | - | 🔄 | Refactored session enrichment | - |
-| - | - | 🟣 | Fixed N+1 query problem | - |
+| ID   | Time       | T      | Title                                      | Read       |
+|------|------------|--------|--------------------------------------------|------------|
+| #457 | 12:24 PM   | 🔵     | In-Process Worker Architecture Review       | ~4472      |
+| #455 | 12:24 PM   | 🔵     | Worker package configuration and deps       | ~1330      |
+| #454 | 12:24 PM   | 🟣     | Update npm registry URL in package.json     | ~1480      |
+| #445 | 12:23 PM   | 🔵     | Worker package configuration and deps       | ~1211      |
+| #443 | 12:23 PM   | 🟣     | Added publishConfig to package.json         | ~1513      |
+| #418 | 12:22 PM   | 🔵     | WebSocket Client Implementation Analysis    | ~4077      |
+| #417 | 12:22 PM   | 🔵     | Worker Service Architecture Overview        | ~3921      |
+| #410 | 12:21 PM   | 🟠     | Worker CLI Implementation (Issue #261)      | ~2586      |
+| #409 | 12:21 PM   | 🔄     | Worker package.json refactored for CLI      | ~2176      |
+| #407 | 12:21 PM   | 🔵     | Worker package configuration and deps       | ~1187      |
+| #402 | 12:20 PM   | 🔵     | Worker Service Architecture Overview        | ~3931      |
+| #400 | 12:19 PM   | 🔵     | Worker package configuration and deps       | ~1177      |
+| #80  | 11:37 AM   | 🔵     | No code snippet references found            | ~701       |
 
 ## Key Insights
 
-- Performance optimized via batch queries and indexes (resolved N+1 issue)
-- Core gaps identified: snippet saving, auto-spawning, docs accuracy
-- System uses MikroORM with FTS5 for full-text search
-- Worker package may use different terminology for code snippets
-- Next: Monitor perf metrics, implement snippet/auto-spawn fixes
+- **Worker Architecture**: The in-process worker runs within the hook process with key differences from spawned workers (no auto-reconnection, idle timeout, max runtime limit).
+- **CLI Integration**: A new CLI entry point (`@claude-mem/worker`) was added with configurable options for backend connection and authentication.
+- **Package Configuration**: The worker package.json was refactored to support CLI integration, including a custom npm registry (`https://git.customable.host`).
+- **Dependencies**: The worker relies on Anthropic AI SDK, Mistral AI, and Qdrant vector database for distributed AI processing.
+- **Next Steps**: Test new features (CLI, offline queue, file logging), verify TypeScript type safety, and push local commits to the remote repository.
 </claude-mem-context>

@@ -7,26 +7,26 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3169 |
+| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3169 |
 | #677 | 12:52 PM | 🟠 | Added ArchivedOutputRepository export | ~1483 |
 | #667 | 12:50 PM | 🟠 | Created ArchivedOutputRepository | ~5277 |
-| #664 | 12:49 PM | 🔵 | MikroORM Document Repository Implementation | ~3251 |
-| #663 | 12:49 PM | 🔵 | MikroORM Repository Structure Overview | ~1226 |
-| #545 | 12:34 PM | 🔵 | TaskRepository implementation review | ~3523 |
-| #201 | 11:57 AM | 🔵 | TaskRepository SQLite JSON handling | ~1639 |
-| #128 | 11:46 AM | 🟠 | Task deduplication functionality | ~5137 |
-| #126 | 11:46 AM | 🟠 | Deduplication key support | ~3840 |
-| #125 | 11:46 AM | 🟠 | Added createHash import | ~3226 |
-| #124 | 11:46 AM | 🔵 | TaskRepository MikroORM review | ~3148 |
-| #69 | 11:34 AM | 🔴 | Fixed SQL query logic in ObservationRepository | ~5791 |
-| #66 | 11:33 AM | 🔵 | ObservationRepository FTS5 search | ~5522 |
-| #64 | 11:32 AM | 🔵 | Batch delete with chunking | ~1969 |
+| #664 | 12:49 PM | 🔵 | MikroORM Document Repository | ~3251 |
+| #663 | 12:49 PM | 🔵 | MikroORM Repository Structure | ~1226 |
+| #545 | 12:34 PM | 🔵 | TaskRepository Implementation | ~3523 |
+| #201 | 11:57 AM | 🔵 | TaskRepository JSON Handling | ~1639 |
+| #128 | 11:46 AM | 🟠 | Task Deduplication (Issue #207) | ~5137 |
+| #126 | 11:46 AM | 🟠 | Deduplication Key Support | ~3840 |
+| #125 | 11:46 AM | 🟠 | Added createHash Import | ~3226 |
+| #124 | 11:46 AM | 🔵 | TaskRepository MikroORM Review | ~3148 |
+| #69 | 11:34 AM | 🔴 | Fixed SQL Query Logic | ~5791 |
+| #66 | 11:33 AM | 🔵 | ObservationRepository FTS5 | ~5522 |
+| #64 | 11:32 AM | 🔵 | Batch Delete Chunking | ~1969 |
 
 ## Key Insights
 
-- **Endless Mode Storage**: New `ArchivedOutputRepository` implemented for storing full tool outputs (Issue #109), supporting compression and CRUD operations.
-- **Task Deduplication**: Added SHA-256-based deduplication to `TaskRepository` (Issue #207) to prevent duplicate task creation.
-- **Database Layer**: MikroORM repositories expanded with new exports and SQLite-specific optimizations (JSON handling, FTS5 search).
-- **Bug Fixes**: Corrected SQL query logic in `ObservationRepository` for proper file filtering.
-- **Architecture**: System uses capability-based worker routing, hybrid SSE/WebSocket communication, and modular database support (SQLite, PostgreSQL, libSQL).
+- **Endless Mode Storage**: Implemented `ArchivedOutputRepository` for handling compressed tool outputs (Issue #109), supporting CRUD operations and compression tracking.
+- **Task Deduplication**: Added SHA-256-based deduplication keys to `TaskRepository` (Issue #207) to prevent duplicate task creation.
+- **Database Layer**: MikroORM repositories (e.g., `TaskRepository`, `ObservationRepository`) use SQLite-specific features like JSON functions and FTS5 for search.
+- **Bug Fixes**: Resolved SQL query logic in `ObservationRepository` for proper file filtering and batch delete chunking to avoid SQLite limits.
+- **Architecture**: System uses capability-based worker routing, hybrid SSE/WebSocket communication, and modular design with separate packages for functionalities.
 </claude-mem-context>

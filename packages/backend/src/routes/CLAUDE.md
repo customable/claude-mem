@@ -7,8 +7,17 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #715 | 12:56 PM | 🔵 | Exploring Hooks Router Implementation | ~3483 |
+| #696 | 12:54 PM | 🔵 | Exploring Hooks Router Implementation | ~3460 |
+| #602 | 12:42 PM | 🔵 | Search Router Implementation Analysis | ~4665 |
+| #551 | 12:34 PM | 🔵 | Discovered task-related API endpoints | ~980 |
+| #550 | 12:34 PM | 🔵 | Examining task and stats API endpoints | ~1371 |
+| #544 | 12:34 PM | 🔵 | Exploring Data Router Structure | ~1984 |
+| #535 | 12:33 PM | 🔵 | SSE Stream Implementation Analysis | ~1255 |
+| #422 | 12:22 PM | 🔵 | Workers Router API Structure | ~3131 |
+| #363 | 12:15 PM | 🔵 | Examining Workers Router Implementation | ~3120 |
 | #241 | 11:59 AM | 🔵 | Exploring Hooks Router Implementation | ~3455 |
-| #200 | 11:56 AM | 🟠 | Add auto-sppawn config to worker API | ~4607 |
+| #200 | 11:56 AM | 🟠 | Add auto-spawn config to worker API | ~4607 |
 | #198 | 11:56 AM | 🔵 | Exploring Data Router Structure | ~2113 |
 | #194 | 11:56 AM | 🔵 | Backend routes structure overview | ~1464 |
 | #186 | 11:56 AM | 🔵 | Workers Router API Structure | ~2960 |
@@ -20,9 +29,9 @@
 
 ## Key Insights
 
-- **Router Architecture**: Backend uses modular router structure with 20+ specialized routers (HealthRouter, DataRouter, WorkersRouter)
-- **Worker Management**: Comprehensive worker API with spawning, termination, and auto-spawn configuration capabilities
-- **Performance Fix**: Resolved N+1 query problem in session enrichment by implementing batch fetching
-- **Task Deduplication**: Implemented SHA-256 hashing for task deduplication with `deduplication_key` field
-- **Code Extraction**: Fixed code snippet extraction by normalizing escaped newlines in API outputs
+- **Router Architecture**: The backend uses a modular router system with specialized endpoints for hooks, search, data, workers, and SSE streams. Key files include `hooks.ts`, `search.ts`, `data.ts`, and `workers.ts`.
+- **Worker Management**: The workers router provides comprehensive API endpoints for spawning, terminating, and managing workers, with auto-spawn configuration support.
+- **Performance Optimization**: Session enrichment logic was refactored to batch fetch observation counts and file stats, addressing N+1 query issues.
+- **Real-time Communication**: The system uses a hybrid SSE/WebSocket architecture for real-time updates, with plans to unify under WebSocket.
+- **Search Capabilities**: Supports both semantic (Qdrant) and full-text (SQLite FTS5) search with conditional vector database integration.
 </claude-mem-context>
