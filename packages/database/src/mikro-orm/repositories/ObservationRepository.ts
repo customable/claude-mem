@@ -176,18 +176,30 @@ export class MikroOrmObservationRepository implements IObservationRepository {
   }
 
   /**
-   * Parse and sanitize FTS5 query with support for extended syntax (Issue #211)
+   * Parse and sanitize FTS5 query with support for extended syntax (Issue #211, #238)
    * Supports: phrase search ("..."), OR, NOT (-), prefix (*)
+   * Handles: hyphens in terms (claude-mem), standalone wildcards, special characters
    */
   private parseFts5Query(query: string): string {
+    // Trim and handle empty/whitespace-only queries
+    const trimmed = query.trim();
+    if (!trimmed) {
+      throw new Error('Search query cannot be empty');
+    }
+
+    // Handle standalone wildcard - not a valid FTS5 query
+    if (trimmed === '*') {
+      throw new Error('Standalone wildcard (*) is not a valid search query. Use a prefix like "term*" instead.');
+    }
+
     // Handle quoted phrases first - preserve them
     const phrases: string[] = [];
-    let processed = query.replace(/"([^"]+)"/g, (_, phrase) => {
+    let processed = trimmed.replace(/"([^"]+)"/g, (_, phrase) => {
       phrases.push(`"${phrase}"`);
       return `__PHRASE_${phrases.length - 1}__`;
     });
 
-    // Convert -term to NOT term
+    // Convert -term to NOT term (only when preceded by space or at start)
     processed = processed.replace(/\s-(\w+)/g, ' NOT $1');
     processed = processed.replace(/^-(\w+)/, 'NOT $1');
 
@@ -199,12 +211,29 @@ export class MikroOrmObservationRepository implements IObservationRepository {
     // Escape any remaining special characters in individual terms (except allowed operators)
     const terms = processed.split(/\s+/).filter(Boolean);
     return terms.map(term => {
-      // Allow: OR, NOT, quoted phrases, prefix wildcards
-      if (term === 'OR' || term === 'NOT' || term.startsWith('"') || term.endsWith('*')) {
+      // Allow: OR, NOT, quoted phrases, valid prefix wildcards (word*)
+      if (term === 'OR' || term === 'NOT' || term.startsWith('"')) {
         return term;
       }
-      // Escape special FTS5 characters in regular terms
-      if (/[():^]/.test(term)) {
+
+      // Handle prefix wildcard (word*) - valid FTS5 syntax
+      if (term.endsWith('*') && term.length > 1 && !term.slice(0, -1).includes('*')) {
+        const prefix = term.slice(0, -1);
+        // If prefix contains special chars, quote it and add wildcard
+        if (/[-():^]/.test(prefix)) {
+          return `"${prefix.replace(/"/g, '""')}"*`;
+        }
+        return term;
+      }
+
+      // Handle terms with hyphens (like claude-mem) - quote them to treat as literal
+      // FTS5 interprets - as NOT operator, so we need to quote the entire term
+      if (term.includes('-')) {
+        return `"${term.replace(/"/g, '""')}"`;
+      }
+
+      // Escape other special FTS5 characters in regular terms
+      if (/[():^*]/.test(term)) {
         return `"${term.replace(/"/g, '""')}"`;
       }
       return term;

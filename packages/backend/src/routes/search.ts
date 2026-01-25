@@ -84,45 +84,54 @@ export class SearchRouter extends BaseRouter {
 
     const filters = { project, type: type as any };
 
-    // Use enhanced search with ranking and highlights
-    if (highlight) {
-      const { results, total } = await this.deps.observations.searchWithRanking(
-        query!,
-        filters,
-        { limit, offset, snippetLength }
-      );
+    try {
+      // Use enhanced search with ranking and highlights
+      if (highlight) {
+        const { results, total } = await this.deps.observations.searchWithRanking(
+          query!,
+          filters,
+          { limit, offset, snippetLength }
+        );
 
-      // Optionally get facets
-      let facets;
-      if (includeFacets) {
-        facets = await this.deps.observations.getSearchFacets(query!, filters);
+        // Optionally get facets
+        let facets;
+        if (includeFacets) {
+          facets = await this.deps.observations.getSearchFacets(query!, filters);
+        }
+
+        const took = Date.now() - startTime;
+
+        this.success(res, {
+          results,
+          total,
+          facets,
+          query: {
+            original: query,
+            parsed: query, // Could be enhanced to show normalized query
+            took,
+          },
+        });
+      } else {
+        // Use simple search (backwards compatible)
+        const items = await this.deps.observations.search(
+          query!,
+          filters,
+          { limit, offset }
+        );
+
+        this.success(res, {
+          items,
+          query,
+          total: items.length,
+        });
       }
-
-      const took = Date.now() - startTime;
-
-      this.success(res, {
-        results,
-        total,
-        facets,
-        query: {
-          original: query,
-          parsed: query, // Could be enhanced to show normalized query
-          took,
-        },
-      });
-    } else {
-      // Use simple search (backwards compatible)
-      const items = await this.deps.observations.search(
-        query!,
-        filters,
-        { limit, offset }
-      );
-
-      this.success(res, {
-        items,
-        query,
-        total: items.length,
-      });
+    } catch (error) {
+      // Handle FTS5 query parsing errors as bad request (Issue #238)
+      const err = error as Error;
+      if (err.message?.includes('search query') || err.message?.includes('wildcard')) {
+        this.badRequest(err.message);
+      }
+      throw error;
     }
   }
 
@@ -177,22 +186,31 @@ export class SearchRouter extends BaseRouter {
     }
 
     // Fallback to text search
-    const results = await this.deps.observations.search(
-      query!,
-      { project, type: type as any },
-      { limit }
-    );
+    try {
+      const results = await this.deps.observations.search(
+        query!,
+        { project, type: type as any },
+        { limit }
+      );
 
-    this.success(res, {
-      items: results,
-      query,
-      total: results.length,
-      mode: vectorDbEnabled ? 'text-fallback' : 'text',
-      vectorDbEnabled,
-      note: vectorDbEnabled
-        ? 'Semantic search unavailable, using text fallback.'
-        : 'Enable VECTOR_DB=qdrant for semantic search.',
-    });
+      this.success(res, {
+        items: results,
+        query,
+        total: results.length,
+        mode: vectorDbEnabled ? 'text-fallback' : 'text',
+        vectorDbEnabled,
+        note: vectorDbEnabled
+          ? 'Semantic search unavailable, using text fallback.'
+          : 'Enable VECTOR_DB=qdrant for semantic search.',
+      });
+    } catch (error) {
+      // Handle FTS5 query parsing errors as bad request (Issue #238)
+      const err = error as Error;
+      if (err.message?.includes('search query') || err.message?.includes('wildcard')) {
+        this.badRequest(err.message);
+      }
+      throw error;
+    }
   }
 
   /**
@@ -222,18 +240,27 @@ export class SearchRouter extends BaseRouter {
     const vectorDbEnabled = settings.VECTOR_DB === 'qdrant';
 
     // Use text search (FTS5) - works reliably regardless of Qdrant status
-    const results = await this.deps.observations.search(
-      query!,
-      { project, type: type as any },
-      { limit }
-    );
+    try {
+      const results = await this.deps.observations.search(
+        query!,
+        { project, type: type as any },
+        { limit }
+      );
 
-    this.success(res, {
-      items: results,
-      query,
-      total: results.length,
-      mode: 'text',
-      vectorDbEnabled,
-    });
+      this.success(res, {
+        items: results,
+        query,
+        total: results.length,
+        mode: 'text',
+        vectorDbEnabled,
+      });
+    } catch (error) {
+      // Handle FTS5 query parsing errors as bad request (Issue #238)
+      const err = error as Error;
+      if (err.message?.includes('search query') || err.message?.includes('wildcard')) {
+        this.badRequest(err.message);
+      }
+      throw error;
+    }
   }
 }
