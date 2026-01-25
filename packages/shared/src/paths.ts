@@ -45,6 +45,15 @@ export const CLAUDE_CONFIG_DIR = getEnvOrDefault(
   join(homedir(), '.claude')
 );
 
+/**
+ * Logs directory (Issue #251)
+ * Default: ~/.claude-mem/logs
+ */
+export const LOGS_DIR = getEnvOrDefault(
+  'CLAUDE_MEM_LOGS_DIR',
+  join(DATA_DIR, 'logs')
+);
+
 // ============================================
 // Helper functions
 // ============================================

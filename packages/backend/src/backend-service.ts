@@ -9,7 +9,10 @@
  */
 
 import { BackendService } from './server/backend-service.js';
-import { createLogger } from '@claude-mem/shared';
+import { createLogger, initFileLogging, getLogFilePath } from '@claude-mem/shared';
+
+// Initialize file logging in dev mode (Issue #251)
+const fileTransport = initFileLogging('backend');
 
 const logger = createLogger('cli');
 
@@ -37,6 +40,12 @@ async function main(): Promise<void> {
 }
 
 async function startBackend(): Promise<void> {
+  // Log file location if file logging is enabled (Issue #251)
+  const logPath = getLogFilePath();
+  if (logPath) {
+    logger.info(`File logging enabled: ${logPath}`);
+  }
+
   // Use empty options - BackendService will load from settings
   const service = new BackendService();
 

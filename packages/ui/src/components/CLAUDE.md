@@ -13,9 +13,9 @@
 
 ## Key Insights
 
-- Implemented task deduplication using SHA-256 hashing of payloads
-- Fixed code snippet extraction by normalizing escaped newlines in API outputs
-- Optimized session queries to resolve N+1 issues with batch operations
-- Added UI indicator for auto-spawn status in WorkerStatus component
-- Discovered and addressed database performance issues (missing indexes, malformed JSON)
+- Implemented task deduplication using SHA-256 hashing to prevent queue overload
+- Added auto-spawn status UI to WorkerStatus component for better worker management visibility
+- Documented package structure and architecture, revealing gaps in task/plan features
+- Fixed code snippet extraction by normalizing newlines in API outputs
+- Next steps include testing deduplication under load and verifying worker auto-spawn reliability
 </claude-mem-context>
