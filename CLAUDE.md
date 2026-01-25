@@ -180,42 +180,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #285 | 12:03 PM | 🔵 | Reviewing recent commit history | ~1109 |
-| #284 | 12:03 PM | ✅ | Close issue #258: Interface-based metrics | ~1564 |
-| #283 | 12:03 PM | 🟣 | Task 4 status updated to completed | ~704 |
-| #282 | 12:03 PM | 🔄 | Interface-based metrics refactoring | ~1171 |
-| #281 | 12:03 PM | 🔵 | TypeScript typecheck passes for 7/8 projects | ~983 |
-| #280 | 12:03 PM | 🔄 | Refactor metrics to interface-based config | ~5842 |
-| #279 | 12:02 PM | 🟠 | Added centralized metrics configuration | ~2890 |
-| #278 | 12:02 PM | 🟠 | Added metrics type definitions | ~1367 |
-| #277 | 12:02 PM | 🔵 | Exploring shared TypeScript types | ~1065 |
-| #276 | 12:02 PM | 🟠 | Added metrics types export | ~1215 |
-| #275 | 12:02 PM | 🔵 | Issue #258: Metrics refactor proposal | ~1598 |
-| #274 | 12:02 PM | 🟠 | Issue #260: TodoList & PlanMode feature | ~5964 |
-| #273 | 12:01 PM | 🔵 | Discovered TypeScript files in packages/types | ~1041 |
-| #272 | 12:01 PM | 🔵 | Prometheus metrics implementation | ~2166 |
-| #271 | 12:01 PM | ✅ | Closed issue #259: Package structure review | ~1331 |
-| #270 | 12:01 PM | 🟠 | Added package structure documentation | ~4272 |
-| #269 | 12:01 PM | 🟣 | Task 3 status updated to completed | ~702 |
-| #268 | 12:01 PM | 🟣 | Task 4 status updated to "in_progress" | ~710 |
-| #267 | 12:01 PM | 🟠 | Add package structure documentation | ~845 |
-| #266 | 12:01 PM | 🔵 | Hook input structure documentation | ~2761 |
-| #265 | 12:01 PM | 🔵 | Internal dependency structure analysis | ~1084 |
-| #264 | 12:01 PM | 🔵 | Reviewed recent development activity log | ~2215 |
-| #263 | 12:01 PM | 🔵 | Claude Code data capture exploration | ~3919 |
-| #262 | 12:00 PM | 🔵 | Environment variables in hooks package | ~1761 |
-| #261 | 12:00 PM | 🟣 | Updated README.md roadmap section | ~4695 |
-| #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service | ~1205 |
-| #259 | 12:00 PM | 🔵 | Subagent functionality across files | ~1029 |
-| #258 | 12:00 PM | 🔵 | No package READMEs found | ~857 |
-| #257 | 12:00 PM | 🔵 | Searching for task-related protocol methods | ~2437 |
-| #256 | 12:00 PM | 🔵 | Issue #259: Package structure review | ~1338 |
+| #637 | 12:46 PM | 🟠 | Conditional Qdrant capabilities | ~986 |
+| #636 | 12:46 PM | 🔵 | Worker Capabilities Analysis | ~5090 |
+| #635 | 12:45 PM | 🔵 | UI hooks files discovered | ~768 |
+| #634 | 12:45 PM | 🟠 | Vector-DB optional implementation | ~1062 |
+| #633 | 12:45 PM | 🔵 | Worker Capabilities System | ~3277 |
+| #632 | 12:45 PM | 🔵 | Environment variables in settings | ~805 |
+| #631 | 12:45 PM | 🟣 | Task status updated | ~726 |
+| #630 | 12:45 PM | 🔵 | Capabilities cross-module usage | ~1282 |
+| #629 | 12:45 PM | 🔵 | TypeScript typecheck results | ~947 |
+| #628 | 12:45 PM | 🔵 | Settings configuration structure | ~2572 |
+| #627 | 12:45 PM | 🟣 | CLAUDE.md file changes staged | ~1277 |
+| #626 | 12:45 PM | 🔵 | TypeScript typecheck status | ~972 |
+| #625 | 12:45 PM | 🔵 | Worker Service Architecture | ~3966 |
+| #624 | 12:45 PM | 🔵 | WebSocket Client Implementation | ~2450 |
+| #623 | 12:45 PM | 🔵 | Task Dispatcher Architecture | ~2449 |
+| #622 | 12:45 PM | 🟣 | Files staged for Issue #112 | ~987 |
+| #621 | 12:45 PM | 🔵 | In-Process Worker Architecture | ~4551 |
+| #620 | 12:45 PM | 🔵 | Worker Hub WebSocket System | ~5280 |
+| #619 | 12:44 PM | 🔵 | Capabilities cross-module usage | ~1008 |
+| #618 | 12:44 PM | 🔵 | Worker package structure | ~1902 |
+| #617 | 12:44 PM | 🔵 | Worker package structure | ~1835 |
+| #616 | 12:44 PM | 🔵 | WebSocket module structure | ~912 |
+| #615 | 12:43 PM | 🔵 | TypeScript typecheck success | ~986 |
+| #614 | 12:43 PM | 🔴 | Conditional Qdrant capabilities | ~4335 |
+| #613 | 12:43 PM | 🔵 | TypeScript typecheck results | ~863 |
+| #612 | 12:43 PM | 🟣 | Conditional Qdrant capabilities | ~4899 |
+| #611 | 12:43 PM | 🔵 | In-Process Worker Architecture | ~4505 |
+| #610 | 12:42 PM | 🟠 | Vector-DB optional (Issue #112) | ~1001 |
+| #609 | 12:42 PM | 🔵 | Worker Service Architecture | ~3974 |
+| #608 | 12:42 PM | 🔵 | Task Service Implementation | ~5206 |
 
 ## Key Insights
 
-- **Metrics Refactoring**: Major refactoring of Prometheus metrics to use interface-based configuration (issues #258, #280, #282) for improved maintainability and type safety.
-- **Package Structure Documentation**: Added comprehensive documentation for the monorepo's 7-package architecture (issue #259, #270, #271) with dependency graphs and placement guidelines.
-- **Task Management Progress**: Multiple tasks updated to "completed" status (#283, #269) indicating active progress tracking.
-- **Feature Development**: New features added for TodoList/PlanMode (#274) and centralized metrics configuration (#279, #278).
-- **Type Safety**: TypeScript typecheck passes for 7/8 projects (#281) with ongoing type definition improvements (#278, #276).
+- **Vector-DB Optional Implementation**: Phase 1 of Issue #112 was completed, making Qdrant capabilities conditional on the `VECTOR_DB` setting. This allows the system to run without a vector database.
+- **Worker Capabilities System**: The system decouples abstract capabilities from provider implementations, supporting both legacy and new capabilities. This is a core cross-cutting concern.
+- **TypeScript Typecheck Status**: The codebase is largely type-correct, with successful typechecks for 7 out of 8 workspace projects. One project may still have type errors.
+- **Worker Architecture**: The worker system includes in-process workers, WebSocket-based communication, and a sophisticated task dispatcher that matches tasks to workers based on capabilities.
+- **Configuration Structure**: The `settings.ts` file reveals a comprehensive type-safe settings system supporting defaults, settings files, and environment variables like `VECTOR_DB`, `IN_PROCESS_WORKER`, and `WORKER_AUTH_TOKEN`.
 </claude-mem-context>
