@@ -10,9 +10,8 @@ import type { CompressionStatus } from '@claude-mem/types';
 import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'archived_outputs' })
+// Composite index for time-based project queries (Issue #267 Phase 5)
 @Index({ properties: ['project', 'created_at_epoch'] })
-@Index({ properties: ['memory_session_id'] })
-@Index({ properties: ['compression_status'] })
 export class ArchivedOutput {
   @PrimaryKey()
   id!: number;

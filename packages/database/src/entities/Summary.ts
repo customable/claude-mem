@@ -8,6 +8,8 @@ import { Entity, PrimaryKey, Property, Index, ManyToOne, type Ref } from '@mikro
 import type { Session } from './Session.js';
 
 @Entity({ tableName: 'summaries' })
+// Composite index for session-based time queries (Issue #267 Phase 5)
+@Index({ properties: ['memory_session_id', 'created_at_epoch'] })
 export class Summary {
   @PrimaryKey()
   id!: number;

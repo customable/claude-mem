@@ -10,6 +10,9 @@ import type { Session } from './Session.js';
 import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'raw_messages' })
+// Composite indexes for common query patterns (Issue #267 Phase 5)
+@Index({ properties: ['session_id', 'processed'] })
+@Index({ properties: ['project', 'created_at_epoch'] })
 export class RawMessage {
   @PrimaryKey()
   id!: number;
