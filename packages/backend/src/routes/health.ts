@@ -43,6 +43,9 @@ export class HealthRouter extends BaseRouter {
     // Admin: Restart backend
     this.router.post('/admin/restart', this.asyncHandler(this.restart.bind(this)));
 
+    // Admin: Shutdown backend
+    this.router.post('/admin/shutdown', this.asyncHandler(this.shutdown.bind(this)));
+
     // Cache stats (Issue #203)
     this.router.get('/cache/stats', this.asyncHandler(this.cacheStats.bind(this)));
     this.router.post('/cache/clear', this.asyncHandler(this.cacheClear.bind(this)));
@@ -143,6 +146,19 @@ export class HealthRouter extends BaseRouter {
     // Delay restart to allow response to be sent
     setTimeout(async () => {
       await this.deps.onRestart!();
+    }, 100);
+  }
+
+  /**
+   * POST /api/admin/shutdown
+   * Gracefully shutdown the backend service
+   */
+  private async shutdown(_req: Request, res: Response): Promise<void> {
+    this.success(res, { success: true, message: 'Shutting down...' });
+
+    // Delay shutdown to allow response to be sent
+    setTimeout(() => {
+      process.exit(0);
     }, 100);
   }
 
