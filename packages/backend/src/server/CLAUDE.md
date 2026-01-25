@@ -7,30 +7,35 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1801 | 4:23 PM | 🟠 | Added SSE broadcaster to HooksRouter | ~5119 |
-| #1800 | 4:23 PM | 🔵 | SSEBroadcaster usage in backend-service | ~918 |
-| #1799 | 4:23 PM | 🔵 | API route structure and rate limiting | ~1096 |
-| #1793 | 4:22 PM | 🔵 | Backend Service Architecture Overview | ~2407 |
-| #1028 | 2:18 PM | 🔵 | No "bun" references in backend-service | ~813 |
+| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter | ~5194 |
+| #2081 | 5:15 PM | 🔵 | Backend API routes structure | ~1198 |
+| #1858 | 4:32 PM | 🟠 | SSE broadcaster to HooksRouter | ~5135 |
+| #1844 | 4:30 PM | 🔵 | Backend API routes structure | ~988 |
+| #1842 | 4:30 PM | 🔵 | HooksRouter initialization | ~851 |
+| #1801 | 4:23 PM | 🟠 | SSE broadcaster to HooksRouter | ~5119 |
+| #1800 | 4:23 PM | 🔵 | SSEBroadcaster usage | ~918 |
+| #1799 | 4:23 PM | 🔵 | API route structure | ~1096 |
+| #1793 | 4:22 PM | 🔵 | Backend Service Architecture | ~2407 |
+| #1028 | 2:18 PM | 🔵 | Search for "bun" yields no results | ~813 |
 | #779 | 1:11 PM | 🟠 | Added archivedOutputs to TaskDispatcher | ~5244 |
 | #778 | 1:10 PM | 🔵 | Backend Service Initialization Flow | ~1195 |
 | #770 | 1:09 PM | 🔵 | Backend service initialization | ~1152 |
-| #765 | 1:09 PM | 🟣 | TaskService now uses archivedOutputs | ~5035 |
-| #549 | 12:34 PM | 🔵 | Express app middleware setup | ~1280 |
-| #456 | 12:24 PM | 🔵 | Backend Service Architecture Overview | ~2863 |
+| #765 | 1:09 PM | 🔄 | TaskService now receives archivedOutputs | ~5035 |
+| #549 | 12:34 PM | 🔵 | Express app setup | ~1280 |
+| #456 | 12:24 PM | 🔵 | Backend Service Architecture | ~2863 |
 | #447 | 12:23 PM | 🔵 | Backend service initialization | ~2270 |
-| #446 | 12:23 PM | 🔵 | TaskDispatcher usage in backend-service | ~956 |
-| #310 | 12:06 PM | 🔵 | Server module exports identified | ~813 |
-| #309 | 12:06 PM | 🔵 | Express app middleware setup | ~1244 |
-| #306 | 12:06 PM | 🔵 | Files with BackendService references | ~733 |
-| #166 | 11:55 AM | 🔵 | Backend Service Architecture Overview | ~5035 |
+| #446 | 12:23 PM | 🔵 | TaskDispatcher usage | ~956 |
+| #310 | 12:06 PM | 🔵 | Server module exports | ~813 |
+| #309 | 12:06 PM | 🔵 | Express app setup | ~1244 |
+| #306 | 12:06 PM | 🔵 | Files containing BackendService | ~733 |
+| #166 | 11:55 AM | 🔵 | Backend Service Architecture | ~5035 |
 | #86 | 11:38 AM | 🔵 | TaskDispatcher initialization | ~1155 |
 
 ## Key Insights
 
-- **SSE Integration**: Added SSE broadcasting to HooksRouter (#1801) and discovered existing SSEBroadcaster usage (#1800), indicating real-time event capabilities are being expanded.
-- **Architecture Discoveries**: Multiple observations (#1793, #456, #166) reveal the backend's core structure: Express-based HTTP server, MikroORM for DB, WebSocket for workers, and multi-service orchestration.
-- **Task System Enhancements**: TaskDispatcher and TaskService now integrate archivedOutputs (#779, #765), suggesting improved output management and historical data access.
-- **Initialization Flow**: Detailed backend service startup sequence documented (#778, #770), showing dependency injection patterns for core services.
-- **Next Steps**: Need to address SSE-Writer Git conflicts (#288), modularize large UI components (#290), and fix achievement progress calculations.
+- **Archived Outputs Integration**: Multiple components (DataRouter, TaskDispatcher, TaskService) now include `archivedOutputs` dependency, indicating a new focus on historical data management.
+- **SSE Expansion**: Server-Sent Events (SSE) functionality was added to HooksRouter, enabling real-time event broadcasting for hooks.
+- **Backend Architecture**: The backend service orchestrates multiple services (WorkerHub, TaskDispatcher, SSEBroadcaster) with Express for HTTP routing and MikroORM for database operations.
+- **API Structure**: Backend API routes are organized into groups (SSE, Data, Search, Export) with rate-limited endpoints for critical operations.
+- **Refactoring Progress**: Settings.tsx was modularized into 17 files, and observation types were expanded to address inconsistencies in system prompts.
 </claude-mem-context>

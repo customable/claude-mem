@@ -98,42 +98,42 @@ Nach Änderungen an Backend, Worker oder Hooks:
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1935 | 4:47 PM | 🔵 | Located ObservationTask interface | ~684 |
-| #1934 | 4:47 PM | 🟠 | Added observation fields: concept, gitBranch, decisionCategory | ~2835 |
-| #1933 | 4:47 PM | 🟣 | Task 5 status updated to completed | ~707 |
-| #1932 | 4:47 PM | 🔵 | Task system architecture overview | ~3213 |
-| #1931 | 4:47 PM | 🟠 | Added fields to ObservationResult interface | ~2551 |
-| #1930 | 4:47 PM | 🔵 | Database model types for claude-mem | ~3322 |
-| #1929 | 4:47 PM | 🟣 | Task 3 status updated to "in_progress" | ~699 |
-| #1928 | 4:47 PM | 🟠 | Added new fields to observation parsing | ~3707 |
-| #1927 | 4:47 PM | 🟣 | Task 5 status updated to "in_progress" | ~695 |
-| #1926 | 4:47 PM | 🟣 | Task 4 status updated to "in_progress" | ~723 |
-| #1925 | 4:46 PM | 🔄 | Expanded observation types in XML parser | ~3323 |
-| #1924 | 4:46 PM | 🟣 | Task status updated from pending to in_progress | ~722 |
-| #1923 | 4:46 PM | 🔄 | Expanded ParsedObservation interface | ~2893 |
-| #1922 | 4:46 PM | 🔵 | Discovered system prompts for observation extraction | ~3708 |
-| #1921 | 4:46 PM | 🟣 | Task 2 status updated to "in_progress" | ~699 |
-| #1920 | 4:46 PM | 🟠 | Update VALID_TYPES in xml-parser.ts | ~928 |
-| #1919 | 4:45 PM | 🟠 | Add new field parsing to xml-parser.ts | ~874 |
-| #1918 | 4:45 PM | 🟠 | Update ParsedObservation type | ~879 |
-| #1917 | 4:45 PM | 🟣 | Run TypeScript check and fix errors | ~741 |
-| #1916 | 4:45 PM | 🔵 | Observation Entity Structure Analysis | ~1961 |
-| #1915 | 4:45 PM | 🟠 | Update OBSERVATION_SYSTEM_PROMPT | ~752 |
-| #1914 | 4:45 PM | 🟠 | Update observation-handler.ts | ~792 |
-| #1913 | 4:45 PM | 🔵 | Database model types for claude-mem | ~3302 |
-| #1912 | 4:45 PM | 🔵 | Agent Interface and Types Structure | ~1705 |
-| #1911 | 4:45 PM | 🔵 | Located ParsedObservation interface | ~694 |
-| #1910 | 4:44 PM | 🔵 | XML Parser for Agent Responses | ~2203 |
-| #1909 | 4:44 PM | 🔵 | Issue #290: Modularize UI Views | ~2299 |
-| #1908 | 4:44 PM | 🔵 | Observation Handler Structure | ~1937 |
-| #1907 | 4:44 PM | 🔵 | Discovered system prompts | ~3703 |
-| #1906 | 4:44 PM | 🔴 | Issue #292: OBSERVATION_SYSTEM_PROMPT out of sync | ~2328 |
+| #2098 | 5:19 PM | 🔵 | API Client Methods for Insights and Tasks | ~1646 |
+| #2097 | 5:19 PM | 🔵 | Issue #260: TodoList & PlanMode Feature Requirements | ~3559 |
+| #2096 | 5:19 PM | 🔵 | Client.ts file size discovered | ~723 |
+| #2095 | 5:19 PM | 🔵 | Build process completed with CSS warning | ~1483 |
+| #2094 | 5:19 PM | 🔵 | Search for compression and archiving code | ~788 |
+| #2093 | 5:19 PM | 🟠 | Phase 3 Complete: MCP Tools & API Endpoints | ~1118 |
+| #2092 | 5:19 PM | 🟠 | Add Archived Outputs API Endpoints | ~3019 |
+| #2091 | 5:18 PM | 🟠 | Add MCP tools and API endpoints | ~1160 |
+| #2090 | 5:18 PM | 🔵 | Git status reveals modified CLAUDE.md files | ~1155 |
+| #2089 | 5:17 PM | ✅ | TypeScript type check passes for all projects | ~1025 |
+| #2088 | 5:17 PM | 🔴 | TypeScript errors in DataRouter | ~1516 |
+| #2087 | 5:17 PM | 🔄 | Standardize error handling in endpoints | ~7328 |
+| #2086 | 5:16 PM | 🔵 | BaseRouter class utilities discovered | ~1626 |
+| #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints | ~2072 |
+| #2084 | 5:16 PM | 🟠 | Added recall_archived and archived_stats tools | ~6206 |
+| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter | ~5194 |
+| #2082 | 5:15 PM | 🔵 | DataRouter initialization discovered | ~2514 |
+| #2081 | 5:15 PM | 🔵 | Backend API routes structure discovered | ~1198 |
+| #2080 | 5:15 PM | 🟠 | Added archived outputs API endpoints | ~6386 |
+| #2079 | 5:15 PM | 🔵 | Discovered IArchivedOutputRepository Interface | ~2244 |
+| #2078 | 5:15 PM | 🟠 | Added Archived Outputs API Endpoints | ~5296 |
+| #2077 | 5:15 PM | 🔵 | Project settings API endpoints discovered | ~1201 |
+| #2076 | 5:14 PM | 🟠 | Added optional archivedOutputs repository | ~5043 |
+| #2075 | 5:14 PM | 🔵 | Count lines in data.ts | ~721 |
+| #2074 | 5:14 PM | 🔵 | Backend route files discovered | ~1367 |
+| #2073 | 5:14 PM | 🔵 | ArchivedOutput entity and related files | ~1333 |
+| #2072 | 5:14 PM | 🔵 | Endless Mode v7.1 Implementation Analysis | ~6138 |
+| #2071 | 5:14 PM | 🟠 | Add IArchivedOutputRepository and CompressionStatus | ~4942 |
+| #2070 | 5:14 PM | 🔵 | Exploring plugin directory structure | ~2355 |
+| #2069 | 5:14 PM | 🔵 | Examining API routes and session handling | ~2148 |
 
 ## Key Insights
 
-- **Observation System Enhancement**: Added new fields (`concept`, `gitBranch`, `decisionCategory`) to observation interfaces and parsing logic, expanding metadata capture capabilities.
-- **Task System Progress**: Multiple tasks updated to "in_progress" and one completed, indicating active development workflow.
-- **Critical Bug Identified**: OBSERVATION_SYSTEM_PROMPT is missing 9 observation types compared to the database definition, requiring synchronization.
-- **UI Refactoring Needed**: Large UI files (e.g., Settings.tsx) identified for modularization to improve maintainability.
-- **Type System Expansion**: Observation types expanded from 7 to 21 categories, improving observation classification granularity.
+- **Archived Outputs Feature**: Major progress on Endless Mode (Issue #109) with new API endpoints, MCP tools, and repository interfaces for archived outputs functionality.
+- **TypeScript Health**: Type checks pass across all workspace projects, though DataRouter has 8 errors needing attention.
+- **Code Quality**: Refactored error handling in archived outputs endpoints to standardize responses.
+- **Documentation**: Multiple CLAUDE.md files modified, indicating ongoing documentation updates.
+- **Build Status**: Successful build with minor CSS warnings and chunk size advisories.
 </claude-mem-context>

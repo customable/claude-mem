@@ -7,6 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
+| #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
 | #1836 | 4:29 PM | 🟠 | Add writer pause/resume events to SSEBroadcaster | ~4144 |
 | #1835 | 4:29 PM | 🟠 | Added writer pause/resume events to SSEEventType | ~3881 |
 | #1833 | 4:29 PM | 🔵 | SSE Broadcaster Implements Pre-Compact Event | ~1012 |
@@ -35,14 +37,12 @@
 | #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service.ts | ~1205 |
 | #218 | 11:58 AM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1543 |
 | #160 | 11:55 AM | 🔵 | Worker Process Manager Structure and Capabilities | ~1831 |
-| #141 | 11:49 AM | 🔴 | Implement task deduplication for claude-md tasks (Issue #207) | ~5706 |
-| #140 | 11:48 AM | 🔵 | Task Service Creates Documentation Generation Tasks | ~1236 |
 
 ## Key Insights
 
-- **SSE-Writer Enhancements**: Added `writer:pause` and `writer:resume` events to prevent Git conflicts during CLAUDE.md updates (Issues #1836, #1835, #1809, #1798).
-- **Endless Mode Implementation**: Introduced compression task queueing and archived output handling for Endless Mode (Issues #763, #762, #759).
-- **Task Deduplication**: Fixed duplicate `claude-md` tasks by implementing `createIfNotExists` (Issue #141).
-- **Backpressure Handling**: Task Service includes queue limits to prevent overload (Issues #218, #423).
-- **UI Refactoring Needed**: Large components like `Settings.tsx` require modularization for maintainability.
+- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with archiving logic, compression capabilities, and fallback mechanisms added to TaskService.
+- **SSE Event System Expansion**: New writer pause/resume events added to SSEEventType and SSEBroadcaster, enhancing real-time UI control during git operations.
+- **Task Management Enhancements**: Backpressure mechanism (Issue #205) and compression task queueing improve system reliability and performance.
+- **Architecture Discoveries**: Deep exploration of core services (TaskService, SessionService, SSEBroadcaster) revealing event-driven architecture and worker management patterns.
+- **Type System Improvements**: Added new observation fields (concept, gitBranch, decisionCategory) and expanded observation types for better data consistency.
 </claude-mem-context>

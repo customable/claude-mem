@@ -7,18 +7,20 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1126 | 2:31 PM | 🟣 | Replace Bun with Node for worker-service | ~2535 |
-| #1115 | 2:30 PM | 🟣 | Updated Node.js engine requirement | ~1335 |
-| #1114 | 2:30 PM | 🔵 | Discovered plugin package.json config | ~1006 |
-| #1111 | 2:30 PM | 🟣 | Changed worker-service execution | ~2495 |
+| #1956 | 4:52 PM | 🔵 | Discovered plugin package.json dependencies | ~963 |
+| #1719 | 4:11 PM | 🔵 | Identified files containing Claude memory-related documentation | ~940 |
+| #1126 | 2:31 PM | 🟣 | Replace Bun with Node for worker-service commands | ~2535 |
+| #1115 | 2:30 PM | 🟣 | Updated Node.js engine requirement and removed Bun support | ~1335 |
+| #1114 | 2:30 PM | 🔵 | Discovered plugin package.json configuration | ~1006 |
+| #1111 | 2:30 PM | 🟣 | Changed worker-service execution from Bun to Node | ~2495 |
 | #1099 | 2:29 PM | 🔵 | Examining plugin hooks configuration | ~1688 |
-| #1030 | 2:18 PM | 🔵 | Discovered plugin package.json | ~1030 |
+| #1030 | 2:18 PM | 🔵 | Discovered plugin package.json with runtime dependencies | ~1030 |
 
 ## Key Insights
 
-- **Bun to Node Migration**: Active transition from Bun to Node.js across worker-service commands, hooks, and engine requirements (Node >=18.0.0). This broadens compatibility but requires systematic updates.
-- **Runtime Dependencies**: Plugin relies on `@xenova/transformers` (AI/ML), `@qdrant/js-client-rest` (vector DB), and `eventsource` (real-time updates via WebSocket/SSE).
-- **Critical Files**: `hooks.json` and `package.json` are central to the migration and plugin functionality. Prioritize these for testing post-migration.
-- **Compatibility Focus**: Changes aim to resolve Bun-related issues while maintaining MikroORM and modern npm/pnpm workflows.
-- **Next Steps**: Remove redundant `bun.lock` files, update shebangs, and validate Docker/health-check configurations for Node.js.
+- **Runtime Shift**: The project has moved from Bun to Node.js for worker-service execution, broadening compatibility with older Node.js versions (≥18.0.0).
+- **Dependency Mapping**: Core dependencies include `@xenova/transformers` (ML), `@qdrant/js-client-rest` (vector DB), and `eventsource` (SSE).
+- **Documentation Spread**: Memory-related docs are scattered across 8 files, indicating a need for consolidation.
+- **Hooks Configuration**: Lifecycle hooks (SessionStart, UserPromptSubmit, etc.) are defined in `hooks.json`, critical for memory system integration.
+- **Type System Updates**: Recent work expanded observation interfaces (e.g., `concept`, `gitBranch`) and fixed type inconsistencies.
 </claude-mem-context>

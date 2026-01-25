@@ -13,9 +13,9 @@
 
 ## Key Insights
 
-- New reusable UI components (ApiKeyInput, FormField) added for Settings view
-- Observation system expanded with new fields (concept, gitBranch, decisionCategory)
-- Identified critical bugs: missing observation types in OBSERVATION_SYSTEM_PROMPT and SSE-Writer race condition
-- UI modularization opportunities discovered (issue #290)
-- TypeScript checks mostly passing across 8 monorepo packages
+- **UI Component Progress**: Three new reusable components (`ApiKeyInput`, `FormField`, and component index) were created for the Settings view, improving modularity and reusability.
+- **Type System Updates**: Added new fields (`concept`, `gitBranch`, `decisionCategory`) to observation interfaces and expanded observation types, resolving type inconsistencies.
+- **Bug Discovery**: Identified a critical bug where `OBSERVATION_SYSTEM_PROMPT` is missing 9 observation types, requiring immediate synchronization.
+- **Race Condition**: Found a race condition where SSE-Writer overwrites `CLAUDE.md` during Git operations, needing a pause mechanism during such operations.
+- **Next Steps**: Focus on fixing the observation prompt synchronization, implementing SSE-Writer pause logic, and continuing UI modularization as per issue #290.
 </claude-mem-context>

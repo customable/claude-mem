@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2098 | 5:19 PM | 🔵 | API Client Methods for Insights and Tasks | ~1646 |
 | #1878 | 4:36 PM | 🔵 | API Client Structure and Types | ~1529 |
-| #1876 | 4:36 PM | 🟠 | Added ProjectSettings interface | ~5551 |
-| #1874 | 4:35 PM | 🟠 | Added PUT request function | ~5524 |
-| #1873 | 4:35 PM | 🟠 | Added project settings endpoints | ~5650 |
-| #1872 | 4:35 PM | 🔵 | API Client Data Retrieval Methods | ~2354 |
-| #1871 | 4:35 PM | 🔵 | Examining API client interfaces | ~1519 |
-| #1868 | 4:34 PM | 🔵 | API Client Endpoints Overview | ~3600 |
-| #1867 | 4:34 PM | 🔵 | Project-related API endpoints | ~877 |
-| #1866 | 4:34 PM | 🔵 | No project modification endpoints | ~723 |
-| #1861 | 4:32 PM | 🔵 | No project management endpoints | ~720 |
-| #1629 | 3:51 PM | 🟠 | Add retryTask endpoint | ~5853 |
-| #1623 | 3:50 PM | 🔵 | Task data retrieval methods | ~924 |
-| #1622 | 3:49 PM | 🔵 | Discovered task retrieval methods | ~935 |
-| #1621 | 3:49 PM | 🔵 | No retryTask in UI API | ~735 |
-| #1371 | 2:59 PM | 🔵 | API Client Capabilities | ~5531 |
-| #1169 | 2:34 PM | 🔵 | API Client Structure | ~5433 |
-| #563 | 12:36 PM | 🔵 | Document/Code Snippet APIs | ~2327 |
-| #561 | 12:35 PM | 🟠 | Added task-related endpoints | ~5957 |
-| #560 | 12:35 PM | 🔵 | Search/Worker APIs | ~2194 |
-| #559 | 12:35 PM | 🟠 | Added Task interfaces | ~5799 |
-| #557 | 12:35 PM | 🔵 | API Interface Definitions | ~1139 |
-| #556 | 12:35 PM | 🔵 | Task-related variables | ~765 |
-| #555 | 12:35 PM | 🔵 | API Client Types | ~1518 |
-| #364 | 12:15 PM | 🟠 | Provider config in spawnWorker | ~5581 |
-| #362 | 12:15 PM | 🟠 | Added provider config fields | ~5713 |
-| #360 | 12:14 PM | 🔵 | API Client Capabilities | ~5584 |
-| #208 | 11:57 AM | 🟠 | Added auto-spawn fields | ~5578 |
-| #203 | 11:57 AM | 🔵 | Discovered SpawnStatus interface | ~888 |
-| #195 | 11:56 AM | 🔵 | SpawnStatus and API endpoints | ~1161 |
-| #171 | 11:55 AM | 🔵 | Spawn status endpoint | ~778 |
+| #1876 | 4:36 PM | 🟠 | Added ProjectSettings interface to API client | ~5551 |
+| #1874 | 4:35 PM | 🟠 | Added PUT request function to API client | ~5524 |
+| #1873 | 4:35 PM | 🟠 | Added project settings API endpoints to client | ~5650 |
+| #1872 | 4:35 PM | 🔵 | API Client Methods for Data Retrieval | ~2354 |
+| #1871 | 4:35 PM | 🔵 | Examining API client interfaces and data models | ~1519 |
+| #1868 | 4:34 PM | 🔵 | API Client Structure and Endpoints | ~3600 |
+| #1867 | 4:34 PM | 🔵 | API client contains project-related endpoints | ~877 |
+| #1866 | 4:34 PM | 🔵 | No project modification endpoints found in UI API | ~723 |
+| #1861 | 4:32 PM | 🔵 | No project management API endpoints found | ~720 |
+| #1629 | 3:51 PM | 🟠 | Add retryTask API endpoint and enhance task listing | ~5853 |
+| #1623 | 3:50 PM | 🔵 | API client methods for task data retrieval | ~924 |
+| #1622 | 3:49 PM | 🔵 | Discovered API client methods for task retrieval | ~935 |
+| #1621 | 3:49 PM | 🔵 | Search for "retryTask" yields no results in UI API | ~735 |
+| #1371 | 2:59 PM | 🔵 | API Client Structure and Capabilities | ~5531 |
+| #1169 | 2:34 PM | 🔵 | API Client Structure and Capabilities | ~5433 |
+| #563 | 12:36 PM | 🔵 | API Client Methods for Documents, Code Snippets, and Insights | ~2327 |
+| #561 | 12:35 PM | 🟠 | Added task-related API endpoints to client | ~5957 |
+| #560 | 12:35 PM | 🔵 | API Client Methods for Search, Workers, and Analytics | ~2194 |
+| #559 | 12:35 PM | 🟠 | Added Task and TaskCounts interfaces to API client | ~5799 |
+| #557 | 12:35 PM | 🔵 | API Client Interface and Function Definitions | ~1139 |
+| #556 | 12:35 PM | 🔵 | Task-related variables found in API client | ~765 |
+| #555 | 12:35 PM | 🔵 | API Client Structure and Types | ~1518 |
+| #364 | 12:15 PM | 🟠 | Add provider configuration to spawnWorker function | ~5581 |
+| #362 | 12:15 PM | 🟠 | Added provider configuration fields to SpawnStatus interface | ~5713 |
+| #360 | 12:14 PM | 🔵 | API Client Structure and Capabilities | ~5584 |
+| #208 | 11:57 AM | 🟠 | Added auto-spawn fields to SpawnStatus interface | ~5578 |
+| #203 | 11:57 AM | 🔵 | Discovered SpawnStatus and InsightsSummary interfaces | ~888 |
+| #195 | 11:56 AM | 🔵 | Discovered SpawnStatus interface and related API endpoints | ~1161 |
 
 ## Key Insights
 
-- **API Client Expansion**: Significant enhancements to the API client including new endpoints for project settings (GET/PUT/DELETE), task management (retryTask, getTasks), and worker spawning with provider configuration.
-- **Missing Functionality**: No project modification endpoints (delete/archive/rename) found in UI API, suggesting these operations may be handled elsewhere or not yet implemented.
-- **Task Management**: Added comprehensive task-related interfaces (TaskStatus, TaskType) and endpoints for task retrieval and retry operations.
-- **Worker Management**: Enhanced spawnWorker function with provider configuration and added auto-spawn fields to SpawnStatus interface.
-- **Data Models**: Discovered and documented key interfaces (ProjectSettings, SpawnStatus, InsightsSummary) that define core data structures.
+- **API Client Expansion**: Significant enhancements to the API client, including new endpoints for project settings, task management, and worker spawning. The client now supports full CRUD operations.
+- **Task Management**: Added `retryTask` functionality and improved task retrieval methods, addressing Issue #285.
+- **Provider Configuration**: Extended worker spawning capabilities with provider-specific configurations, enhancing flexibility.
+- **TypeScript Interfaces**: New interfaces for `ProjectSettings`, `Task`, and `SpawnStatus` improve type safety and data structure clarity.
+- **Missing Endpoints**: No project modification endpoints (delete, archive, rename) were found, suggesting a gap in functionality or alternative implementation.
 </claude-mem-context>
