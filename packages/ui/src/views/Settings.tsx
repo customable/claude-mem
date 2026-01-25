@@ -9,6 +9,71 @@ import * as React from "react";
 
 type SettingsTab = 'general' | 'provider' | 'context' | 'workers' | 'advanced';
 
+// Validation rules (Issue #287)
+interface ValidationRule {
+  validate: (value: unknown) => boolean;
+  message: string;
+}
+
+const VALIDATION_RULES: Record<string, ValidationRule> = {
+  BACKEND_PORT: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 1 && num <= 65535);
+    },
+    message: 'Port must be between 1 and 65535',
+  },
+  DATABASE_PORT: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 1 && num <= 65535);
+    },
+    message: 'Port must be between 1 and 65535',
+  },
+  MAX_WORKERS: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 1 && num <= 100);
+    },
+    message: 'Max workers must be between 1 and 100',
+  },
+  CLAUDEMD_TASK_TIMEOUT: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 1000);
+    },
+    message: 'Timeout must be at least 1000ms',
+  },
+  RETENTION_MAX_AGE_DAYS: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 0);
+    },
+    message: 'Days must be 0 or greater',
+  },
+  RETENTION_MAX_COUNT: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 0);
+    },
+    message: 'Count must be 0 or greater',
+  },
+  CONTEXT_OBSERVATION_LIMIT: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 1 && num <= 500);
+    },
+    message: 'Limit must be between 1 and 500',
+  },
+  BATCH_SIZE: {
+    validate: (v) => {
+      const num = Number(v);
+      return !v || (Number.isInteger(num) && num >= 1 && num <= 100);
+    },
+    message: 'Batch size must be between 1 and 100',
+  },
+};
+
 interface Settings {
   // General
   LOG_LEVEL?: string;
@@ -93,20 +158,30 @@ const TABS: { id: SettingsTab; label: string; icon: string }[] = [
 export function SettingsView() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [settings, setSettings] = useState<Settings>({});
+  const [originalSettings, setOriginalSettings] = useState<Settings>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
 
   const fetchSettings = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setValidationErrors({});
     try {
       const response = await fetch('/api/settings');
       if (!response.ok) throw new Error('Failed to load settings');
       const data = await response.json();
       setSettings(data);
+      setOriginalSettings(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load settings');
     } finally {
@@ -118,13 +193,74 @@ export function SettingsView() {
     fetchSettings();
   }, [fetchSettings]);
 
+  // Critical settings that require confirmation (Issue #287)
+  const CRITICAL_SETTINGS: Record<string, { title: string; message: string }> = {
+    DATABASE_TYPE: {
+      title: 'Change Database Type',
+      message: 'Changing the database type requires a restart and may affect data accessibility. Are you sure?',
+    },
+    DATA_DIR: {
+      title: 'Change Data Directory',
+      message: 'Changing the data directory will create a new database. Existing data will remain in the old location. Are you sure?',
+    },
+    REMOTE_MODE: {
+      title: 'Enable Remote Backend',
+      message: 'Enabling remote mode will connect hooks to an external server. Make sure the remote URL and token are configured correctly. Continue?',
+    },
+  };
+
   const handleChange = (key: string, value: unknown) => {
+    // Validate if rule exists (Issue #287)
+    if (VALIDATION_RULES[key]) {
+      const rule = VALIDATION_RULES[key];
+      if (!rule.validate(value)) {
+        setValidationErrors((prev) => ({ ...prev, [key]: rule.message }));
+      } else {
+        setValidationErrors((prev) => {
+          const next = { ...prev };
+          delete next[key];
+          return next;
+        });
+      }
+    }
+
+    // Check if this is a critical setting that needs confirmation (Issue #287)
+    const criticalInfo = CRITICAL_SETTINGS[key];
+    if (criticalInfo && value !== originalSettings[key]) {
+      // Special case: REMOTE_MODE only needs confirmation when enabling
+      if (key === 'REMOTE_MODE' && value === false) {
+        applyChange(key, value);
+        return;
+      }
+
+      setConfirmDialog({
+        open: true,
+        title: criticalInfo.title,
+        message: criticalInfo.message,
+        onConfirm: () => {
+          applyChange(key, value);
+          setConfirmDialog(null);
+        },
+      });
+      return;
+    }
+
+    applyChange(key, value);
+  };
+
+  const applyChange = (key: string, value: unknown) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
     setHasChanges(true);
     setSuccess(null);
   };
 
   const handleSave = async () => {
+    // Check for validation errors before saving (Issue #287)
+    if (Object.keys(validationErrors).length > 0) {
+      setError('Please fix validation errors before saving');
+      return;
+    }
+
     setIsSaving(true);
     setError(null);
     setSuccess(null);
@@ -136,6 +272,7 @@ export function SettingsView() {
       });
       if (!response.ok) throw new Error('Failed to save settings');
       setHasChanges(false);
+      setOriginalSettings(settings);
       setSuccess('Settings saved successfully');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save settings');
@@ -148,6 +285,7 @@ export function SettingsView() {
     fetchSettings();
     setHasChanges(false);
     setSuccess(null);
+    setValidationErrors({});
   };
 
   if (isLoading) {
@@ -157,6 +295,8 @@ export function SettingsView() {
       </div>
     );
   }
+
+  const hasValidationErrors = Object.keys(validationErrors).length > 0;
 
   return (
     <div className="space-y-6">
@@ -177,7 +317,8 @@ export function SettingsView() {
             <button
               className="btn btn-primary btn-sm"
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={isSaving || hasValidationErrors}
+              title={hasValidationErrors ? 'Fix validation errors first' : undefined}
             >
               {isSaving ? (
                 <span className="loading loading-spinner loading-xs" />
@@ -223,22 +364,50 @@ export function SettingsView() {
       <div className="card bg-base-100 card-border">
         <div className="card-body">
           {activeTab === 'general' && (
-            <GeneralSettings settings={settings} onChange={handleChange} />
+            <GeneralSettings settings={settings} onChange={handleChange} errors={validationErrors} />
           )}
           {activeTab === 'provider' && (
-            <ProviderSettings settings={settings} onChange={handleChange} />
+            <ProviderSettings settings={settings} onChange={handleChange} errors={validationErrors} />
           )}
           {activeTab === 'context' && (
-            <ContextSettings settings={settings} onChange={handleChange} />
+            <ContextSettings settings={settings} onChange={handleChange} errors={validationErrors} />
           )}
           {activeTab === 'workers' && (
-            <WorkerSettings settings={settings} onChange={handleChange} />
+            <WorkerSettings settings={settings} onChange={handleChange} errors={validationErrors} />
           )}
           {activeTab === 'advanced' && (
-            <AdvancedSettings settings={settings} onChange={handleChange} />
+            <AdvancedSettings settings={settings} onChange={handleChange} errors={validationErrors} />
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog (Issue #287) */}
+      {confirmDialog?.open && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg flex items-center gap-2">
+              <span className="iconify ph--warning text-warning size-6" />
+              {confirmDialog.title}
+            </h3>
+            <p className="py-4">{confirmDialog.message}</p>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setConfirmDialog(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-warning"
+                onClick={confirmDialog.onConfirm}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setConfirmDialog(null)} />
+        </div>
+      )}
     </div>
   );
 }
@@ -246,18 +415,21 @@ export function SettingsView() {
 interface TabProps {
   settings: Settings;
   onChange: (key: string, value: unknown) => void;
+  errors: Record<string, string>;
 }
 
-// Reusable form field component
+// Reusable form field component with validation support (Issue #287)
 function FormField({
   label,
   hint,
   badge,
+  error,
   children,
 }: {
   label: string;
   hint?: string;
   badge?: React.ReactNode;
+  error?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -267,7 +439,14 @@ function FormField({
         {badge}
       </legend>
       {children}
-      {hint && <p className="fieldset-label text-base-content/60">{hint}</p>}
+      {error ? (
+        <p className="fieldset-label text-error flex items-center gap-1">
+          <span className="iconify ph--warning-circle size-3" />
+          {error}
+        </p>
+      ) : hint ? (
+        <p className="fieldset-label text-base-content/60">{hint}</p>
+      ) : null}
     </fieldset>
   );
 }
@@ -305,7 +484,7 @@ function ApiKeyInput({
   );
 }
 
-function GeneralSettings({ settings, onChange }: TabProps) {
+function GeneralSettings({ settings, onChange, errors }: TabProps) {
   return (
     <div className="space-y-6 max-w-lg">
       <h3 className="text-lg font-medium">General Settings</h3>
@@ -355,10 +534,11 @@ function GeneralSettings({ settings, onChange }: TabProps) {
           <FormField
             label="Max Age (Days)"
             hint="Delete data older than this many days (0 = disabled)"
+            error={errors.RETENTION_MAX_AGE_DAYS}
           >
             <input
               type="number"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.RETENTION_MAX_AGE_DAYS ? 'input-error' : ''}`}
               placeholder="0"
               min="0"
               value={settings.RETENTION_MAX_AGE_DAYS || ''}
@@ -369,10 +549,11 @@ function GeneralSettings({ settings, onChange }: TabProps) {
           <FormField
             label="Max Count"
             hint="Keep only the most recent N observations per project (0 = unlimited)"
+            error={errors.RETENTION_MAX_COUNT}
           >
             <input
               type="number"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.RETENTION_MAX_COUNT ? 'input-error' : ''}`}
               placeholder="0"
               min="0"
               value={settings.RETENTION_MAX_COUNT || ''}
@@ -419,13 +600,14 @@ function GeneralSettings({ settings, onChange }: TabProps) {
           <FormField
             label="Task Timeout (ms)"
             hint="Maximum time for CLAUDE.md generation tasks (default: 600000 = 10 min)"
+            error={errors.CLAUDEMD_TASK_TIMEOUT}
           >
             <input
               type="number"
-              className="input input-bordered w-full"
+              className={`input input-bordered w-full ${errors.CLAUDEMD_TASK_TIMEOUT ? 'input-error' : ''}`}
               placeholder="600000"
-              min="60000"
-              step="60000"
+              min="1000"
+              step="1000"
               value={settings.CLAUDEMD_TASK_TIMEOUT || ''}
               onChange={(e) => onChange('CLAUDEMD_TASK_TIMEOUT', parseInt(e.target.value) || 600000)}
             />
@@ -493,7 +675,7 @@ const ALL_PROVIDERS = [
   { id: 'anthropic', name: 'Anthropic', keyField: 'ANTHROPIC_API_KEY' },
 ] as const;
 
-function ProviderSettings({ settings, onChange }: TabProps) {
+function ProviderSettings({ settings, onChange, errors: _errors }: TabProps) {
   const provider = settings.AI_PROVIDER || 'mistral';
   const enabledProviders = (settings.ENABLED_PROVIDERS || '').split(',').filter(Boolean);
 
@@ -687,7 +869,7 @@ function ProviderSettings({ settings, onChange }: TabProps) {
   );
 }
 
-function ContextSettings({ settings, onChange }: TabProps) {
+function ContextSettings({ settings, onChange, errors }: TabProps) {
   return (
     <div className="space-y-6 max-w-lg">
       <h3 className="text-lg font-medium">Context Injection Settings</h3>
@@ -698,13 +880,14 @@ function ContextSettings({ settings, onChange }: TabProps) {
       <FormField
         label="Observation Limit"
         hint="Maximum number of recent observations to include in context"
+        error={errors.CONTEXT_OBSERVATION_LIMIT}
       >
         <input
           type="number"
-          className="input input-bordered w-full"
+          className={`input input-bordered w-full ${errors.CONTEXT_OBSERVATION_LIMIT ? 'input-error' : ''}`}
           placeholder="50"
           min="1"
-          max="200"
+          max="500"
           value={settings.CONTEXT_OBSERVATION_LIMIT || ''}
           onChange={(e) => onChange('CONTEXT_OBSERVATION_LIMIT', parseInt(e.target.value) || 50)}
         />
@@ -745,7 +928,7 @@ function ContextSettings({ settings, onChange }: TabProps) {
   );
 }
 
-function WorkerSettings({ settings, onChange }: TabProps) {
+function WorkerSettings({ settings, onChange, errors }: TabProps) {
   const enabledProviders = (settings.ENABLED_PROVIDERS || '').split(',').filter(Boolean);
   const autoSpawnProviders = (settings.AUTO_SPAWN_PROVIDERS || '').split(',').filter(Boolean);
 
@@ -784,13 +967,14 @@ function WorkerSettings({ settings, onChange }: TabProps) {
       <FormField
         label="Max Workers"
         hint="Maximum number of workers that can be spawned from the UI"
+        error={errors.MAX_WORKERS}
       >
         <input
           type="number"
-          className="input input-bordered w-full"
+          className={`input input-bordered w-full ${errors.MAX_WORKERS ? 'input-error' : ''}`}
           placeholder="4"
           min="1"
-          max="16"
+          max="100"
           value={settings.MAX_WORKERS || ''}
           onChange={(e) => onChange('MAX_WORKERS', parseInt(e.target.value) || 4)}
         />
@@ -924,7 +1108,7 @@ function WorkerSettings({ settings, onChange }: TabProps) {
   );
 }
 
-function AdvancedSettings({ settings, onChange }: TabProps) {
+function AdvancedSettings({ settings, onChange, errors }: TabProps) {
   const [isRestarting, setIsRestarting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
@@ -1039,11 +1223,13 @@ function AdvancedSettings({ settings, onChange }: TabProps) {
 
       <div className="divider">Network</div>
 
-      <FormField label="Backend Port" hint="HTTP/WebSocket port for the backend">
+      <FormField label="Backend Port" hint="HTTP/WebSocket port for the backend" error={errors.BACKEND_PORT}>
         <input
           type="number"
-          className="input input-bordered w-full"
+          className={`input input-bordered w-full ${errors.BACKEND_PORT ? 'input-error' : ''}`}
           placeholder="37777"
+          min="1"
+          max="65535"
           value={settings.BACKEND_PORT || ''}
           onChange={(e) => onChange('BACKEND_PORT', parseInt(e.target.value) || 37777)}
         />
@@ -1156,11 +1342,13 @@ function AdvancedSettings({ settings, onChange }: TabProps) {
               />
             </FormField>
 
-            <FormField label="Port">
+            <FormField label="Port" error={errors.DATABASE_PORT}>
               <input
                 type="number"
-                className="input input-bordered w-full"
+                className={`input input-bordered w-full ${errors.DATABASE_PORT ? 'input-error' : ''}`}
                 placeholder="5432"
+                min="1"
+                max="65535"
                 value={settings.DATABASE_PORT || ''}
                 onChange={(e) => onChange('DATABASE_PORT', parseInt(e.target.value) || 5432)}
               />
@@ -1241,13 +1429,14 @@ function AdvancedSettings({ settings, onChange }: TabProps) {
       <FormField
         label="Batch Size"
         hint="Number of items to process in each batch"
+        error={errors.BATCH_SIZE}
       >
         <input
           type="number"
-          className="input input-bordered w-full"
+          className={`input input-bordered w-full ${errors.BATCH_SIZE ? 'input-error' : ''}`}
           placeholder="5"
           min="1"
-          max="50"
+          max="100"
           value={settings.BATCH_SIZE || ''}
           onChange={(e) => onChange('BATCH_SIZE', parseInt(e.target.value) || 5)}
         />
