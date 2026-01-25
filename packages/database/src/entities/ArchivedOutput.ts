@@ -5,9 +5,8 @@
  * Enables perfect recall while using compressed observations in context.
  */
 
-import { Entity, PrimaryKey, Property, Index, ManyToOne } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
 import type { CompressionStatus } from '@claude-mem/types';
-import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'archived_outputs' })
 @Index({ properties: ['project', 'created_at_epoch'] })
@@ -63,8 +62,4 @@ export class ArchivedOutput {
 
   @Property({ nullable: true })
   compressed_at_epoch?: number;
-
-  // Optional relation to compressed observation
-  @ManyToOne('Observation', { nullable: true })
-  compressedObservation?: Observation;
 }

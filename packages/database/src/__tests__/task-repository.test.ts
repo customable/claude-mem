@@ -5,8 +5,32 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { MikroORM } from '@mikro-orm/core';
 import type { SqlEntityManager } from '@mikro-orm/knex';
+import type { WorkerCapability } from '@claude-mem/types';
 import { createMikroOrmConfig } from '../mikro-orm.config.js';
 import { MikroOrmTaskRepository } from '../mikro-orm/repositories/TaskRepository.js';
+
+/**
+ * Helper to create task input with defaults
+ * Uses 'any' to bypass strict type checking in tests
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function taskInput(overrides: {
+  type: string;
+  payload: unknown;
+  requiredCapability: WorkerCapability;
+  priority?: number;
+  maxRetries?: number;
+  fallbackCapabilities?: WorkerCapability[];
+}): any {
+  return {
+    type: overrides.type,
+    payload: overrides.payload,
+    requiredCapability: overrides.requiredCapability,
+    priority: overrides.priority ?? 0,
+    maxRetries: overrides.maxRetries ?? 3,
+    fallbackCapabilities: overrides.fallbackCapabilities,
+  };
+}
 
 describe('TaskRepository', () => {
   let orm: MikroORM;
@@ -27,40 +51,40 @@ describe('TaskRepository', () => {
 
   describe('create', () => {
     it('should create a task with required fields', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: { sessionId: 'session-1' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       expect(task.id).toBeDefined();
       expect(task.type).toBe('observation');
       expect(task.status).toBe('pending');
-      expect(task.requiredCapability).toBe('llm');
+      expect(task.requiredCapability).toBe('observation:mistral');
       expect(task.payload).toEqual({ sessionId: 'session-1' });
     });
 
     it('should create a task with optional fields', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'summarize',
         payload: { content: 'test' },
-        requiredCapability: 'llm',
-        fallbackCapabilities: ['llm:mistral', 'llm:gemini'],
+        requiredCapability: 'observation:mistral',
+        fallbackCapabilities: ['summarize:mistral', 'summarize:gemini'],
         priority: 5,
         maxRetries: 3,
-      });
+      }));
 
       expect(task.priority).toBe(5);
       expect(task.maxRetries).toBe(3);
-      expect(task.fallbackCapabilities).toEqual(['llm:mistral', 'llm:gemini']);
+      expect(task.fallbackCapabilities).toEqual(['summarize:mistral', 'summarize:gemini']);
     });
 
     it('should generate deduplication key automatically', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: { sessionId: 'session-1' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       expect(task.deduplicationKey).toBeDefined();
       expect(task.deduplicationKey).toMatch(/^observation:/);
@@ -69,11 +93,11 @@ describe('TaskRepository', () => {
 
   describe('createIfNotExists', () => {
     it('should create task if no duplicate exists', async () => {
-      const task = await repo.createIfNotExists({
+      const task = await repo.createIfNotExists(taskInput({
         type: 'observation',
         payload: { sessionId: 'unique-session' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       expect(task).not.toBeNull();
       expect(task?.type).toBe('observation');
@@ -81,37 +105,37 @@ describe('TaskRepository', () => {
 
     it('should return null if duplicate pending task exists', async () => {
       // Create first task
-      await repo.create({
+      await repo.create(taskInput({
         type: 'observation',
         payload: { sessionId: 'duplicate-session' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       // Try to create duplicate
-      const duplicate = await repo.createIfNotExists({
+      const duplicate = await repo.createIfNotExists(taskInput({
         type: 'observation',
         payload: { sessionId: 'duplicate-session' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       expect(duplicate).toBeNull();
     });
 
     it('should allow creation if existing task is completed', async () => {
       // Create and complete first task
-      const task1 = await repo.create({
+      const task1 = await repo.create(taskInput({
         type: 'observation',
         payload: { sessionId: 'completed-session' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
       await repo.updateStatus(task1.id, 'completed');
 
       // Should be able to create new task with same payload
-      const task2 = await repo.createIfNotExists({
+      const task2 = await repo.createIfNotExists(taskInput({
         type: 'observation',
         payload: { sessionId: 'completed-session' },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       expect(task2).not.toBeNull();
     });
@@ -119,11 +143,11 @@ describe('TaskRepository', () => {
 
   describe('findById', () => {
     it('should find task by ID', async () => {
-      const created = await repo.create({
+      const created = await repo.create(taskInput({
         type: 'observation',
         payload: { test: true },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const found = await repo.findById(created.id);
 
@@ -139,11 +163,11 @@ describe('TaskRepository', () => {
 
   describe('updateStatus', () => {
     it('should update task status', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const updated = await repo.updateStatus(task.id, 'processing');
 
@@ -151,11 +175,11 @@ describe('TaskRepository', () => {
     });
 
     it('should set completedAt when completing task', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const updated = await repo.updateStatus(task.id, 'completed');
 
@@ -163,11 +187,11 @@ describe('TaskRepository', () => {
     });
 
     it('should update result when provided', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const updated = await repo.updateStatus(task.id, 'completed', {
         result: { observationId: 123 },
@@ -177,11 +201,11 @@ describe('TaskRepository', () => {
     });
 
     it('should update error when provided', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const updated = await repo.updateStatus(task.id, 'failed', {
         error: 'Something went wrong',
@@ -193,11 +217,11 @@ describe('TaskRepository', () => {
 
   describe('assign', () => {
     it('should assign task to worker', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const assigned = await repo.assign(task.id, 'worker-1');
 
@@ -207,11 +231,11 @@ describe('TaskRepository', () => {
     });
 
     it('should not assign already assigned task', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       // Assign once
       await repo.assign(task.id, 'worker-1');
@@ -224,58 +248,58 @@ describe('TaskRepository', () => {
 
   describe('getNextPending', () => {
     it('should get next pending task matching capability', async () => {
-      await repo.create({
+      await repo.create(taskInput({
         type: 'observation',
         payload: { order: 1 },
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
-      const next = await repo.getNextPending(['llm']);
+      const next = await repo.getNextPending(['observation:mistral']);
 
       expect(next).not.toBeNull();
-      expect(next?.requiredCapability).toBe('llm');
+      expect(next?.requiredCapability).toBe('observation:mistral');
     });
 
     it('should prioritize by priority field', async () => {
-      await repo.create({
-        type: 'low',
+      await repo.create(taskInput({
+        type: 'low-priority',
         payload: {},
-        requiredCapability: 'llm',
+        requiredCapability: 'observation:mistral',
         priority: 1,
-      });
-      await repo.create({
-        type: 'high',
+      }));
+      await repo.create(taskInput({
+        type: 'high-priority',
         payload: {},
-        requiredCapability: 'llm',
+        requiredCapability: 'observation:mistral',
         priority: 10,
-      });
+      }));
 
-      const next = await repo.getNextPending(['llm']);
+      const next = await repo.getNextPending(['observation:mistral']);
 
-      expect(next?.type).toBe('high');
+      expect(next?.type).toBe('high-priority'); // Higher priority
     });
 
     it('should return null if no matching tasks', async () => {
-      await repo.create({
+      await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'embedding',
-      });
+        requiredCapability: 'embedding:local',
+      }));
 
-      const next = await repo.getNextPending(['llm']);
+      const next = await repo.getNextPending(['observation:mistral']);
 
       expect(next).toBeNull();
     });
 
     it('should match fallback capabilities', async () => {
-      await repo.create({
+      await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'embedding',
-        fallbackCapabilities: ['llm'],
-      });
+        requiredCapability: 'embedding:local',
+        fallbackCapabilities: ['observation:mistral'],
+      }));
 
-      const next = await repo.getNextPending(['llm']);
+      const next = await repo.getNextPending(['observation:mistral']);
 
       expect(next).not.toBeNull();
     });
@@ -283,9 +307,9 @@ describe('TaskRepository', () => {
 
   describe('list', () => {
     beforeEach(async () => {
-      await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      await repo.create({ type: 'summarize', payload: {}, requiredCapability: 'llm' });
-      const task3 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
+      await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      await repo.create(taskInput({ type: 'summarize', payload: {}, requiredCapability: 'observation:mistral' }));
+      const task3 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
       await repo.updateStatus(task3.id, 'completed');
     });
 
@@ -312,9 +336,9 @@ describe('TaskRepository', () => {
 
   describe('countByStatus', () => {
     it('should count tasks by status', async () => {
-      await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      const task3 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
+      await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      const task3 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
       await repo.updateStatus(task3.id, 'completed');
 
       const counts = await repo.countByStatus();
@@ -327,9 +351,9 @@ describe('TaskRepository', () => {
 
   describe('getByWorkerId', () => {
     it('should get tasks by worker ID', async () => {
-      const task1 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      const task2 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
+      const task1 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      const task2 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
 
       await repo.assign(task1.id, 'worker-1');
       await repo.assign(task2.id, 'worker-1');
@@ -342,11 +366,11 @@ describe('TaskRepository', () => {
 
   describe('cleanup', () => {
     it('should delete old completed/failed tasks', async () => {
-      const task = await repo.create({
+      const task = await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
       await repo.updateStatus(task.id, 'completed');
 
       // Cleanup tasks older than 0ms (all of them)
@@ -356,11 +380,11 @@ describe('TaskRepository', () => {
     });
 
     it('should not delete pending tasks', async () => {
-      await repo.create({
+      await repo.create(taskInput({
         type: 'observation',
         payload: {},
-        requiredCapability: 'llm',
-      });
+        requiredCapability: 'observation:mistral',
+      }));
 
       const deleted = await repo.cleanup(0);
 
@@ -370,9 +394,9 @@ describe('TaskRepository', () => {
 
   describe('batchUpdateStatus', () => {
     it('should update multiple tasks at once', async () => {
-      const task1 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      const task2 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
-      const task3 = await repo.create({ type: 'observation', payload: {}, requiredCapability: 'llm' });
+      const task1 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      const task2 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
+      const task3 = await repo.create(taskInput({ type: 'observation', payload: {}, requiredCapability: 'observation:mistral' }));
 
       const updated = await repo.batchUpdateStatus([task1.id, task2.id], 'failed');
 
