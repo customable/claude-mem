@@ -63,17 +63,66 @@ function parseArgs(argv: string[]): Args {
 }
 
 /**
+ * Normalize a path to a directory (Issue #297)
+ *
+ * If the path appears to be a file (has an extension like .ts, .js, .tsx),
+ * extract the directory portion using path.dirname().
+ */
+function normalizeToDirectory(inputPath: string): string {
+  // Check if path has a file extension (common code file extensions)
+  const ext = path.extname(inputPath);
+  const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json', '.md', '.py', '.go', '.rs', '.java', '.c', '.cpp', '.h', '.hpp'];
+
+  if (ext && codeExtensions.includes(ext.toLowerCase())) {
+    const dir = path.dirname(inputPath);
+    console.log(`[sse-writer] Normalized file path to directory: ${inputPath} → ${dir}`);
+    return dir;
+  }
+
+  return inputPath;
+}
+
+/**
  * Write or update CLAUDE.md file
  * Preserves user content outside of <claude-mem-context> tags
+ *
+ * @returns true if write succeeded, false otherwise
  */
-function writeClaudeMd(dir: string, content: string): void {
-  const filePath = path.join(dir, 'CLAUDE.md');
+function writeClaudeMd(dir: string, content: string): boolean {
+  // Normalize directory path in case a file path was passed (Issue #297)
+  const normalizedDir = normalizeToDirectory(dir);
+
+  // Validate the path is actually a directory
+  try {
+    const stat = fs.statSync(normalizedDir);
+    if (!stat.isDirectory()) {
+      console.error(`[sse-writer] Path is not a directory: ${normalizedDir}`);
+      return false;
+    }
+  } catch {
+    // Directory doesn't exist - that's OK, we might create CLAUDE.md anyway if parent exists
+    const parentDir = path.dirname(normalizedDir);
+    if (!fs.existsSync(parentDir)) {
+      console.error(`[sse-writer] Parent directory does not exist: ${parentDir}`);
+      return false;
+    }
+    // Create the target directory
+    try {
+      fs.mkdirSync(normalizedDir, { recursive: true });
+    } catch (mkdirError) {
+      const err = mkdirError as Error;
+      console.error(`[sse-writer] Failed to create directory ${normalizedDir}: ${err.message}`);
+      return false;
+    }
+  }
+
+  const filePath = path.join(normalizedDir, 'CLAUDE.md');
   const startTag = '<claude-mem-context>';
 
   // Validate content has required tags (Issue #291)
   if (!content.includes(startTag)) {
     console.error(`[sse-writer] Received content without claude-mem-context tags, skipping`);
-    return;
+    return false;
   }
 
   try {
@@ -84,12 +133,14 @@ function writeClaudeMd(dir: string, content: string): void {
       fs.writeFileSync(filePath, updated);
     } else {
       // Create new file
-      console.log(`[sse-writer] Creating new CLAUDE.md in ${dir}`);
+      console.log(`[sse-writer] Creating new CLAUDE.md in ${normalizedDir}`);
       fs.writeFileSync(filePath, content);
     }
+    return true;
   } catch (error) {
     const err = error as Error;
     console.error(`[sse-writer] Failed to write CLAUDE.md: ${err.message}`);
+    return false;
   }
 }
 
@@ -187,8 +238,11 @@ function main(): void {
       console.log(`[sse-writer] Writing ${pendingWrites.size} CLAUDE.md file(s)...`);
       for (const [dir, content] of pendingWrites) {
         console.log(`[sse-writer] Writing CLAUDE.md to ${dir}`);
-        writeClaudeMd(dir, content);
-        console.log(`[sse-writer] CLAUDE.md written to ${dir}`);
+        const success = writeClaudeMd(dir, content);
+        if (success) {
+          console.log(`[sse-writer] CLAUDE.md written to ${dir}`);
+        }
+        // Error already logged in writeClaudeMd if failed (Issue #297)
       }
     }
 
@@ -222,7 +276,10 @@ function main(): void {
             console.log(`[sse-writer] Writing ${pendingWrites.size} queued file(s)...`);
             for (const [dir, content] of pendingWrites) {
               console.log(`[sse-writer] Writing queued CLAUDE.md to ${dir}`);
-              writeClaudeMd(dir, content);
+              const success = writeClaudeMd(dir, content);
+              if (success) {
+                console.log(`[sse-writer] CLAUDE.md written to ${dir}`);
+              }
             }
             pendingWrites.clear();
           }
@@ -270,8 +327,11 @@ function main(): void {
         // Write immediately to the target directory
         console.log(`[sse-writer] Received CLAUDE.md content for ${payload.workingDirectory}`);
         console.log(`[sse-writer] Writing CLAUDE.md to ${payload.workingDirectory}`);
-        writeClaudeMd(payload.workingDirectory, payload.content);
-        console.log('[sse-writer] CLAUDE.md written successfully');
+        const success = writeClaudeMd(payload.workingDirectory, payload.content);
+        if (success) {
+          console.log('[sse-writer] CLAUDE.md written successfully');
+        }
+        // Error already logged in writeClaudeMd if failed (Issue #297)
       }
 
       // Handle session:started event (reactivation after completion)

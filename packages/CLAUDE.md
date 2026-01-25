@@ -7,44 +7,44 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1071 | 2:26 PM | 🔄 | Update compression status error handling | ~4719 |
-| #1070 | 2:26 PM | 🔵 | Found updateCompressionStatus method signature | ~908 |
-| #1069 | 2:26 PM | 🔄 | Update archived output compression status | ~4727 |
-| #1068 | 2:26 PM | 🔵 | Found updateCompressionStatus method usage | ~1462 |
-| #1067 | 2:26 PM | 🔵 | Task dispatcher handles compression results | ~1129 |
-| #1066 | 2:25 PM | 🔄 | Simplified metrics object type | ~2323 |
-| #1065 | 2:25 PM | 🔵 | Metrics module uses Prometheus | ~1399 |
-| #1064 | 2:25 PM | 🔵 | Metrics initialization and registry setup | ~942 |
-| #1063 | 2:25 PM | 🔄 | Add TypeScript type annotation to status | ~2908 |
-| #1062 | 2:25 PM | 🔴 | Improved error logging in backend CLI | ~2452 |
-| #1061 | 2:25 PM | 🔵 | CLI commands for backend management | ~1460 |
-| #1059 | 2:25 PM | 🔴 | Filter undefined embeddings in Mistral | ~2160 |
-| #1058 | 2:25 PM | 🔴 | Improved error logging in worker CLI | ~2980 |
-| #1057 | 2:25 PM | 🔵 | Worker initialization and error handling | ~1023 |
-| #1056 | 2:25 PM | 🔵 | Mistral embedding provider supports batch | ~949 |
-| #1051 | 2:24 PM | 🔄 | Removed unused test helper function | ~5640 |
-| #1050 | 2:24 PM | 🟣 | Make text field optional in CreateObservationInput | ~5133 |
-| #1049 | 2:24 PM | 🔵 | Exploring Observation Repository Interface | ~983 |
-| #1047 | 2:24 PM | 🟠 | Added test helper function for observation | ~5758 |
-| #1046 | 2:23 PM | 🔴 | Fix missing 'text' field in test observation | ~5631 |
-| #1045 | 2:23 PM | 🔴 | Added missing 'text' field in test observation | ~5643 |
-| #1044 | 2:23 PM | 🔴 | Add missing 'text' field in test observation | ~5626 |
-| #1038 | 2:22 PM | 🔵 | ObservationRepository Test Suite Analysis | ~5721 |
-| #1035 | 2:21 PM | 🔵 | Exploring ObservationRepository test structure | ~1791 |
-| #1028 | 2:18 PM | 🔵 | Search for "bun" in backend-service.ts | ~813 |
-| #1027 | 2:18 PM | 🔵 | CLI entry point detection logic found | ~996 |
-| #1026 | 2:17 PM | 🔵 | Bun runtime usage found in plugin-entry.ts | ~878 |
-| #1024 | 2:16 PM | 🔵 | Worker process manager uses file path | ~863 |
-| #1018 | 2:14 PM | 🟠 | Created comprehensive error handler tests | ~5558 |
-| #1017 | 2:13 PM | 🟠 | Created comprehensive XML parser tests | ~6280 |
+| #2372 | 6:06 PM | 🔵 | Achievement unlocking logic in insights-service | ~1592 |
+| #2371 | 6:06 PM | 🔵 | Bug fix count tracking across packages | ~1625 |
+| #2368 | 6:06 PM | 🔵 | Discovered updateDailyStats method | ~1270 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic in insights-service | ~1384 |
+| #2362 | 6:05 PM | 🔵 | ObservationType definition in database.ts | ~1252 |
+| #2360 | 6:04 PM | 🔵 | Database.ts type definitions for observations | ~1806 |
+| #2357 | 6:04 PM | 🔵 | InsightsSummary interface structure | ~1673 |
+| #2350 | 6:03 PM | 🔵 | ACHIEVEMENTS constant in insights-service | ~1067 |
+| #2344 | 6:02 PM | 🔵 | Backend service routes and dependencies | ~1231 |
+| #2343 | 6:02 PM | 🔵 | getStats method in ArchivedOutputRepository | ~1982 |
+| #2336 | 6:02 PM | 🔵 | ArchivedOutputs references in database | ~1175 |
+| #2335 | 6:02 PM | 🔵 | Backend API routes for project settings | ~1694 |
+| #2328 | 6:02 PM | 🔵 | DataRouter initialization and usage | ~1858 |
+| #2327 | 6:02 PM | 🔵 | Archived outputs depend on Endless Mode | ~1275 |
+| #2326 | 6:02 PM | 🔵 | SSE Writer process spawning mechanism | ~2333 |
+| #2319 | 6:01 PM | 🔵 | Repository pattern types and search | ~2065 |
+| #2317 | 6:01 PM | 🔵 | Metrics router implementation | ~1938 |
+| #2316 | 6:01 PM | 🔵 | ArchivedOutput entity structure | ~1781 |
+| #2315 | 6:01 PM | 🔵 | SSE Writer pattern in hooks package | ~1272 |
+| #2313 | 6:00 PM | 🔵 | Archived-output references in routes | ~1125 |
+| #2288 | 5:56 PM | 🔵 | OPENAI_EMBEDDING_MODEL in settings | ~1142 |
+| #2280 | 5:55 PM | 🔵 | Achievement system in Insights view | ~2190 |
+| #2276 | 5:55 PM | 🔵 | Mistral embedding provider | ~1841 |
+| #2272 | 5:54 PM | 🔵 | Insights achievements functionality | ~1066 |
+| #2268 | 5:54 PM | 🔵 | Progress and achievement files | ~1083 |
+| #2257 | 5:53 PM | 🟠 | Implemented OpenAI Agent | ~2970 |
+| #2256 | 5:53 PM | 🔵 | Worker package.json analysis | ~1619 |
+| #2254 | 5:53 PM | 🔵 | Mistral agent implementation | ~2149 |
+| #2250 | 5:52 PM | 🔵 | Worker capability resolution logic | ~1969 |
+| #2249 | 5:52 PM | 🔵 | Task processing in worker-service | ~2216 |
 
 ## Key Insights
 
-- **Refactoring Focus**: Significant refactoring of `updateCompressionStatus` method to use object parameters for better maintainability.
-- **Metrics & Monitoring**: Comprehensive Prometheus-based metrics system discovered, including custom registry and interface-based configuration.
-- **Error Handling**: Multiple improvements to error logging in both backend and worker CLIs, ensuring structured error handling.
-- **Embedding Providers**: Mistral embedding provider supports batch operations, with improvements to handle undefined embeddings.
-- **Testing Enhancements**: Comprehensive test suites created for error handling middleware and XML parser utilities, improving code reliability.
+- **Achievement System Bug**: The achievement progress calculation has a bug preventing partial progress tracking, requiring a fix for proper functionality.
+- **SSE Writer Issue**: The SSE writer process fails due to incorrect file path handling, needing a fix for directory path resolution.
+- **Missing API Endpoint**: The `GET /api/data/archived-outputs/stats` endpoint is missing and needs implementation for archived outputs statistics.
+- **Embedding Models**: The project uses both OpenAI and Mistral embedding models, with configurable settings for different providers.
+- **Worker Architecture**: The worker service uses a priority-based capability resolution system (CLI > env vars > settings > auto-detection) for task processing.
 </claude-mem-context>
 
 # Package Structure

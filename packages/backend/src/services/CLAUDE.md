@@ -7,6 +7,12 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
+| #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
+| #2218 | 5:48 PM | 🔵 | Search for observation and vector-related code in task-service.ts | ~1087 |
+| #2217 | 5:48 PM | 🔵 | Semantic search task execution uses polling mechanism | ~2097 |
+| #2215 | 5:48 PM | 🔵 | No vector/semantic search references in session-service.ts | ~1066 |
 | #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
 | #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
 | #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
@@ -31,18 +37,12 @@
 | #757 | 1:07 PM | 🟠 | Added new task types and repository to task-service.ts | ~5339 |
 | #714 | 12:56 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~2673 |
 | #713 | 12:56 PM | 🔵 | Session Service Methods for Observation and Completion | ~2099 |
-| #608 | 12:42 PM | 🔵 | Examining Task Service Implementation | ~5206 |
-| #539 | 12:34 PM | 🔵 | SSE Broadcaster Service Implementation | ~2970 |
-| #423 | 12:22 PM | 🔵 | Task Service Structure and Backpressure Handling | ~1680 |
-| #416 | 12:22 PM | 🔵 | Worker Process Manager Implementation Analysis | ~5100 |
-| #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service.ts | ~1205 |
-| #218 | 11:58 AM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1543 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with archiving logic, compression capabilities, and task queueing functionality added to TaskService.
-- **SSE Event System Expansion**: New writer pause/resume events added to SSEEventType and SSEBroadcaster, enhancing real-time UI control.
-- **Task Management Architecture**: Deep analysis of TaskService reveals sophisticated backpressure handling and multiple task types (observation, summarization, compression, etc.).
-- **Session Service Discoveries**: SessionService handles prompt filtering and subagent event tracking, with methods for observation queuing and session completion.
-- **Performance Bottleneck**: Endless Mode v7.1 has synchronous 110s latency per tool use that needs optimization (asynchronous compression).
+- **SSE Writer Issues**: The SSE writer process was not running due to incorrect file path handling, requiring fixes for directory resolution.
+- **Achievement System Bug**: Achievement progress calculation was flawed, preventing partial progress tracking and requiring automatic calculation logic.
+- **Missing API Endpoint**: The `GET /api/data/archived-outputs/stats` endpoint was missing, impacting data retrieval for archived outputs.
+- **Endless Mode Implementation**: New features were added for Endless Mode, including compression task queueing and archived output handling.
+- **Task Service Enhancements**: The Task Service was updated with backpressure mechanisms, new task types, and improved compression capabilities.
 </claude-mem-context>

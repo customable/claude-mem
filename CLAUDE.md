@@ -98,42 +98,42 @@ Nach Änderungen an Backend, Worker oder Hooks:
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2199 | 5:45 PM | 🔵 | Open issues in claude-mem repository | ~1560 |
-| #2198 | 5:45 PM | 🔵 | No blocking issues found for issue #260 | ~1007 |
-| #2197 | 5:45 PM | 🔵 | Open issues in claude-mem repository | ~1571 |
-| #2196 | 5:45 PM | 🔵 | [Compressed] mcp__forgejo__get_issue | ~236 |
-| #2195 | 5:44 PM | 🟣 | Commit auto-generated CLAUDE.md updates | ~1391 |
-| #2194 | 5:41 PM | 🟣 | Completed database schema changes | ~1196 |
-| #2193 | 5:40 PM | 🔄 | Removed issue dependency #262 from #267 | ~750 |
-| #2192 | 5:40 PM | 🟠 | Added composite indexes to RawMessage | ~1850 |
-| #2191 | 5:40 PM | 🔄 | Add composite indexes for query patterns | ~1047 |
-| #2190 | 5:39 PM | 🔵 | Issue #267 blocked by database discussion | ~1169 |
-| #2189 | 5:38 PM | 🔵 | TypeScript type check passes | ~1036 |
-| #2188 | 5:38 PM | 🔄 | Add cascade options to database entities | ~1036 |
-| #2187 | 5:38 PM | 🔵 | TypeScript type check passes | ~1060 |
-| #2186 | 5:38 PM | 🔄 | Improved index documentation | ~1813 |
-| #2185 | 5:38 PM | 🟠 | Added composite index for session queries | ~1517 |
-| #2184 | 5:37 PM | 🔄 | Removed redundant entity-level indexes | ~1863 |
-| #2183 | 5:37 PM | 🔵 | Database entities use extensive indexing | ~5695 |
-| #2182 | 5:37 PM | 🔄 | Enhanced Session entity relations | ~2807 |
-| #2181 | 5:36 PM | 🟠 | Add Cascade import to Session entity | ~1724 |
-| #2180 | 5:36 PM | 🔵 | Build process completed with warnings | ~1172 |
-| #2179 | 5:36 PM | 🔄 | Add cascade options to Observation | ~3759 |
-| #2178 | 5:36 PM | 🔵 | Observation Entity Structure Analysis | ~2137 |
-| #2177 | 5:36 PM | 🔄 | Add Session as hub with entity relations | ~1083 |
-| #2176 | 5:36 PM | 🟠 | Add Cascade import to Observation | ~2237 |
-| #2175 | 5:35 PM | 🔄 | Refactor RawMessage observation relation | ~2098 |
-| #2174 | 5:35 PM | 🔄 | Refactor UserPrompt entity | ~2469 |
-| #2173 | 5:35 PM | 🔄 | Separate FK column in Summary entity | ~2065 |
-| #2172 | 5:35 PM | 🔵 | TypeScript type check passes | ~1012 |
-| #2171 | 5:34 PM | 🔄 | Refactor RawMessage entity | ~2251 |
-| #2170 | 5:34 PM | 🔄 | Refactor ClaudeMd entity | ~2622 |
+| #2374 | 6:07 PM | 🔵 | TypeScript type checking completed | ~1309 |
+| #2373 | 6:07 PM | 📝 | Staging docs and code changes | ~1412 |
+| #2372 | 6:06 PM | 🔵 | Achievement unlocking logic found | ~1592 |
+| #2371 | 6:06 PM | 🔵 | Bug fix count tracking discovered | ~1625 |
+| #2370 | 6:06 PM | 🔵 | [Compressed] Edit | ~119 |
+| #2369 | 6:06 PM | 🔵 | TypeScript type checking passes | ~1003 |
+| #2368 | 6:06 PM | 🔵 | Discovered updateDailyStats method | ~1270 |
+| #2367 | 6:06 PM | 🔵 | [Compressed] Bash | ~138 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found | ~1384 |
+| #2365 | 6:05 PM | 🔴 | Type Error in Insights Service | ~1571 |
+| #2364 | 6:05 PM | 💬 | Git status check | ~1448 |
+| #2363 | 6:05 PM | 🔵 | [Compressed] Edit | ~123 |
+| #2362 | 6:05 PM | 🔵 | ObservationType definition found | ~1252 |
+| #2361 | 6:04 PM | 🔵 | [Compressed] Edit | ~102 |
+| #2360 | 6:04 PM | 🔵 | Database type definitions discovered | ~1806 |
+| #2359 | 6:04 PM | ☑️ | Worker task queue backlog issue | ~1623 |
+| #2358 | 6:04 PM | 🔵 | [Compressed] Edit | ~171 |
+| #2357 | 6:04 PM | 🔵 | InsightsSummary interface found | ~1673 |
+| #2356 | 6:04 PM | 🔵 | [Compressed] Read | ~176 |
+| #2355 | 6:03 PM | 🔵 | Achievement progress calculation bug | ~1882 |
+| #2354 | 6:03 PM | ☑️ | Missing API endpoint issue closed | ~1504 |
+| #2353 | 6:03 PM | 🔵 | [Compressed] Read | ~167 |
+| #2352 | 6:03 PM | 🔵 | [Compressed] Task | ~295 |
+| #2351 | 6:03 PM | ☑️ | Task queue backlog issue created | ~1989 |
+| #2350 | 6:03 PM | 🔵 | ACHIEVEMENTS constant located | ~1067 |
+| #2349 | 6:03 PM | 🔵 | [Compressed] Read | ~144 |
+| #2348 | 6:03 PM | 🔵 | [Compressed] Bash | ~201 |
+| #2347 | 6:03 PM | 🔵 | [Compressed] Read | ~132 |
+| #2346 | 6:03 PM | 🔵 | [Compressed] Read | ~201 |
+| #2345 | 6:03 PM | 🔵 | [Compressed] Read | ~113 |
 
 ## Key Insights
 
-- **Database Optimization**: Extensive refactoring of database entities (e.g., Session, Observation, RawMessage) to improve query performance via composite indexes and cascade operations.
-- **Type Safety**: All TypeScript checks pass across the monorepo, ensuring type safety and no regressions.
-- **Issue Management**: Issue #267 (database schema changes) is no longer blocked by #262 (database discussion), allowing independent progress.
-- **Build Warnings**: UI package has chunk size warnings (>500 kB), indicating potential optimization needs.
-- **Endless Mode**: Recent work includes UI improvements (dashboard widgets, settings) and API endpoints for archived outputs, but latency issues (110s per tool use) remain unresolved.
+- **Type Safety Confirmed**: TypeScript type checking passed across all packages, ensuring codebase integrity.
+- **Achievement System Bug**: Partial achievement progress is not tracked, requiring a fix for proper "In Progress" display.
+- **Task Queue Backlog**: Critical issue with 41+ queued tasks not processing, linked to WebSocket disconnections.
+- **Missing API Endpoint**: `GET /api/data/archived-outputs/stats` endpoint is needed for dashboard metrics.
+- **Code Structure**: Key files identified (e.g., `insights-service.ts`, `database.ts`) for insights and achievement logic.
 </claude-mem-context>

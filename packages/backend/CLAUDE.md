@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2335 | 6:02 PM | 🔵 | Backend API routes for project settings and archived outputs | ~1694 |
+| #2328 | 6:02 PM | 🔵 | DataRouter initialization and usage discovered | ~1858 |
+| #2327 | 6:02 PM | 🔵 | Archived outputs feature depends on Endless Mode | ~1275 |
+| #2317 | 6:01 PM | 🔵 | Metrics Router Implementation Analysis | ~1938 |
+| #2313 | 6:00 PM | 🔵 | Found references to "archived-output" in backend routes | ~1125 |
+| #2272 | 5:54 PM | 🔵 | Located files related to insights achievements functionality | ~1066 |
+| #2227 | 5:48 PM | 🔵 | Discovered files related to observation creation events | ~1292 |
+| #2218 | 5:48 PM | 🔵 | Search for observation and vector-related code in task-service.ts | ~1087 |
+| #2217 | 5:48 PM | 🔵 | Semantic search task execution uses polling mechanism | ~2097 |
+| #2215 | 5:48 PM | 🔵 | No vector/semantic search references in session-service.ts | ~1066 |
+| #2214 | 5:48 PM | 🔵 | No Qdrant sync functionality found in backend | ~1095 |
+| #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
+| #2212 | 5:47 PM | 🔵 | Discovered usage of executeSemanticSearch in backend | ~1403 |
+| #2087 | 5:17 PM | 🔄 | Standardize error handling in archived outputs endpoints | ~7328 |
+| #2086 | 5:17 PM | 🔵 | BaseRouter class provides common route utilities | ~1626 |
+| #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints for Endless Mode | ~2072 |
+| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter initialization | ~5194 |
+| #2082 | 5:15 PM | 🔵 | DataRouter initialization and usage in backend service | ~2514 |
+| #2081 | 5:15 PM | 🔵 | Backend API routes structure discovered | ~1198 |
+| #2080 | 5:15 PM | 🟠 | Added archived outputs API endpoints for endless mode | ~6386 |
+| #2078 | 5:15 PM | 🟠 | Added Archived Outputs API Endpoints for Endless Mode | ~5296 |
+| #2077 | 5:15 PM | 🔵 | Project settings API endpoints discovered | ~1201 |
+| #2076 | 5:15 PM | 🟠 | Added optional archivedOutputs repository to DataRouterDeps | ~5043 |
+| #2071 | 5:14 PM | 🟠 | Add IArchivedOutputRepository and CompressionStatus to imports | ~4942 |
+| #2069 | 5:14 PM | 🔵 | Examining API routes and session handling in data.ts | ~2148 |
+| #2068 | 5:14 PM | 🔵 | Backend routes structure overview | ~1420 |
+| #2067 | 5:14 PM | 🔵 | Exploring Data Router Structure | ~2089 |
+| #2065 | 5:13 PM | 🔵 | No files found with "archived" or "ArchivedOutput" in routes | ~713 |
 | #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
 | #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
-| #2052 | 5:11 PM | 🔵 | Compression task handling in task-dispatcher.ts | ~1741 |
-| #2047 | 5:11 PM | 🔵 | Search for archiving-related code | ~951 |
-| #1954 | 4:51 PM | 🔵 | Backend package.json structure and dependencies | ~1441 |
-| #1950 | 4:50 PM | 🟣 | Added typecheck script to package.json | ~1778 |
-| #1870 | 4:35 PM | 🔵 | Project parameter usage in data routes | ~2949 |
-| #1865 | 4:34 PM | 🔵 | Found project deletion/archive/rename functionality | ~712 |
-| #1858 | 4:32 PM | 🟣 | Add SSE broadcaster to HooksRouter initialization | ~5135 |
-| #1845 | 4:31 PM | 🔵 | Subagent Stop Hook Endpoint Implementation | ~1025 |
-| #1844 | 4:30 PM | 🔵 | Backend API routes structure discovered | ~988 |
-| #1843 | 4:30 PM | 🔵 | Exploring API hooks in backend routes | ~951 |
-| #1842 | 4:30 PM | 🔵 | HooksRouter initialization in backend service | ~851 |
-| #1841 | 4:30 PM | 🟣 | Added writer pause/resume endpoints for git ops | ~5328 |
-| #1840 | 4:29 PM | 🟣 | Added writer control endpoints for git operations | ~3993 |
-| #1839 | 4:29 PM | 🟣 | Add SSEBroadcaster dependency to HooksRouter | ~4149 |
-| #1838 | 4:29 PM | 🔵 | Exploring Hooks Router Structure | ~923 |
-| #1837 | 4:29 PM | 🔵 | Search for "sseBroadcaster" in hooks.ts | ~718 |
-| #1836 | 4:29 PM | 🟣 | Add writer pause/resume events to SSEBroadcaster | ~4144 |
-| #1835 | 4:29 PM | 🟣 | Added writer pause/resume events to SSEEventType | ~3881 |
-| #1833 | 4:28 PM | 🔵 | SSE Broadcaster Implements Pre-Compact Event | ~1012 |
-| #1831 | 4:28 PM | 🔵 | SSE Event Types Defined in Backend Service | ~1006 |
-| #1830 | 4:28 PM | 🔵 | Search for "writer:pause" in SSE broadcaster | ~719 |
-| #1809 | 4:24 PM | 🟣 | Added writer:pause and writer:resume events | ~3897 |
-| #1808 | 4:24 PM | 🔵 | Exploring Hooks Router Implementation | ~3495 |
-| #1802 | 4:24 PM | 🔵 | HooksRouter instantiation found | ~972 |
-| #1801 | 4:23 PM | 🟣 | Added SSE broadcaster to HooksRouter | ~5119 |
-| #1800 | 4:23 PM | 🔵 | SSEBroadcaster usage in backend-service.ts | ~918 |
-| #1799 | 4:23 PM | 🔵 | API route structure and rate limiting | ~1096 |
-| #1798 | 4:23 PM | 🟣 | Added writer pause/resume broadcast methods | ~4163 |
 
 ## Key Insights
 
-- **SSE Integration**: Multiple changes focused on integrating SSE (Server-Sent Events) into the hooks system, including new event types (`writer:pause`, `writer:resume`) and broadcaster methods. This enables real-time updates during git operations.
-- **Archiving & Compression**: Discovery of Endless Mode archiving logic and compression task handling suggests a focus on optimizing output storage and retrieval.
-- **TypeScript & Code Quality**: Addition of a `typecheck` script and modularization efforts (e.g., refactoring `Settings.tsx`) indicate ongoing improvements to maintainability and type safety.
-- **API & Hooks Expansion**: New endpoints for writer control (pause/resume) and subagent lifecycle management expand the backend's capabilities for real-time collaboration.
-- **Project Lifecycle Management**: Found functionality for project deletion/archiving/renaming, indicating robust project management features in the data routes.
+- **Archived Outputs Feature**: The project is actively implementing archived outputs functionality tied to "Endless Mode" (Issue #109), with new API endpoints, DataRouter integration, and standardized error handling.
+- **Backend Architecture**: The backend uses a modular router architecture with specialized routers (Health, Data, Workers, etc.) and a BaseRouter class providing common utilities.
+- **Semantic Search**: The system implements semantic search through a polling mechanism in the task service, but lacks vector database or Qdrant synchronization functionality.
+- **Missing Features**: Several components are missing or incomplete, including UI implementation for achievements, API endpoints for archived outputs stats, and emoji mappings in system prompts.
+- **Next Steps**: Focus on implementing missing API endpoints, fixing achievement progress calculation, and addressing incomplete emoji mappings.
 </claude-mem-context>

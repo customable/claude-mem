@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2343 | 6:02 PM | 🔵 | Found getStats method in ArchivedOutputRepository | ~1982 |
 | #2168 | 5:33 PM | 🔵 | Examined UserPromptRepository implementation | ~1781 |
 | #2140 | 5:29 PM | 🟠 | Add MikroORM ref import to ArchivedOutputRepository | ~3659 |
 | #2139 | 5:28 PM | 🔄 | Refactor: Use MikroORM reference for relation | ~3644 |
@@ -15,7 +16,7 @@
 | #2133 | 5:27 PM | 🔴 | Fix MikroORM relation query | ~3756 |
 | #2132 | 5:27 PM | 🟠 | Add Observation import to ArchivedOutputRepository | ~3254 |
 | #2129 | 5:27 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3156 |
-| #960 | 1:55 PM | 🔵 | TaskRepository uses MikroORM with SQLite-specific JSON | ~1684 |
+| #960 | 1:55 PM | 🔵 | TaskRepository uses MikroORM with SQLite JSON | ~1684 |
 | #946 | 1:51 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3156 |
 | #921 | 1:43 PM | 🔵 | Exploring MikroORM Observation Repository | ~5513 |
 | #920 | 1:43 PM | 🔵 | TaskRepository implements deduplication | ~3493 |
@@ -26,7 +27,7 @@
 | #664 | 12:49 PM | 🔵 | Examined MikroORM Document Repository | ~3251 |
 | #663 | 12:49 PM | 🔵 | MikroORM Repository Structure Overview | ~1226 |
 | #545 | 12:34 PM | 🔵 | Examining TaskRepository implementation | ~3523 |
-| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite-specific JSON | ~1639 |
+| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite JSON | ~1639 |
 | #128 | 11:46 AM | 🟠 | Added task deduplication functionality | ~5137 |
 | #126 | 11:46 AM | 🟠 | Added deduplication key support | ~3840 |
 | #125 | 11:46 AM | 🟠 | Added createHash import to TaskRepository | ~3226 |
@@ -37,9 +38,9 @@
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with the creation and refinement of `ArchivedOutputRepository`, including MikroORM relation fixes and compression support.
-- **Task Deduplication**: Implemented SHA-256-based deduplication in `TaskRepository` (Issue #207) to prevent duplicate task creation, improving system reliability.
-- **MikroORM Refactoring**: Multiple fixes and optimizations in MikroORM repositories, including proper use of `ref()` for relations and query corrections for better data integrity.
-- **Performance Bottleneck**: Identified 110s latency in synchronous Endless Mode v7.1, requiring async compression implementation for optimization.
-- **Repository Structure**: Comprehensive exploration of MikroORM repositories (Observation, Session, Document, Task) revealing robust FTS5 search, batch operations, and SQLite-specific optimizations.
+- **ArchivedOutputRepository** is a major focus, with multiple fixes and enhancements for Endless Mode storage (Issue #109), including MikroORM relation handling and compression support.
+- **TaskRepository** improvements include deduplication (Issue #207) using SHA-256 hashing and SQLite JSON handling.
+- **ObservationRepository** uses FTS5 for full-text search and implements batch operations for performance.
+- **MikroORM** is the primary ORM, with extensive use of references (`ref()`) and relations for entity management.
+- **Bugfixes** addressed SQL query logic, relation assignments, and ID extraction in repository methods.
 </claude-mem-context>
