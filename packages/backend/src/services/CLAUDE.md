@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #3312 | 8:19 PM | 🟠 | Added WorkerTokenService and HubRegistry exports | ~2234 |
+| #3303 | 8:19 PM | 🔵 | Backend services index file structure | ~1714 |
+| #3293 | 8:17 PM | 🔵 | Task Service Architecture Overview | ~1674 |
 | #2722 | 6:59 PM | 🔵 | SSE Broadcaster Service Implementation | ~2299 |
-| #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
-| #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
-| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
-| #2218 | 5:48 PM | 🔵 | Search for observation and vector-related code in task-service.ts | ~1087 |
-| #2217 | 5:48 PM | 🔵 | Semantic search task execution uses polling mechanism | ~2097 |
-| #2215 | 5:48 PM | 🔵 | No vector/semantic search references in session-service.ts | ~1066 |
-| #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
-| #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
-| #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
-| #1836 | 4:29 PM | 🟠 | Add writer pause/resume events to SSEBroadcaster | ~4144 |
-| #1835 | 4:29 PM | 🟠 | Added writer pause/resume events to SSEEventType | ~3881 |
-| #1833 | 4:29 PM | 🔵 | SSE Broadcaster Implements Pre-Compact Event | ~1012 |
-| #1831 | 4:28 PM | 🔵 | SSE Event Types Defined in Backend Service | ~1006 |
-| #1830 | 4:28 PM | 🔵 | Search for "writer:pause" in SSE broadcaster service | ~719 |
-| #1809 | 4:24 PM | 🟠 | Added writer:pause and writer:resume events to SSEEventType | ~3897 |
-| #1798 | 4:23 PM | 🟠 | Added writer pause/resume broadcast methods | ~4163 |
-| #1792 | 4:22 PM | 🔵 | SSE Broadcaster Service Implementation | ~2959 |
-| #1790 | 4:22 PM | 🔵 | SSE Broadcaster Service Implementation | ~2968 |
-| #1787 | 4:22 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~2255 |
-| #1271 | 2:45 PM | 🔵 | Task Service Architecture Analysis | ~4960 |
-| #1167 | 2:34 PM | 🔵 | SSE Broadcaster Service Implementation | ~2964 |
-| #1024 | 2:16 PM | 🔵 | Worker process manager uses file path resolution | ~863 |
-| #767 | 1:09 PM | 🟠 | Added compression capability resolution and fallback logic | ~6090 |
-| #763 | 1:08 PM | 🟠 | Implement Endless Mode for observation tasks | ~6336 |
-| #762 | 1:08 PM | 🟠 | Added compression task queueing functionality | ~5731 |
-| #759 | 1:07 PM | 🟠 | Added archivedOutputs repository to TaskService constructor | ~5267 |
-| #758 | 1:07 PM | 🔵 | Examining Task Service Implementation | ~5156 |
-| #757 | 1:07 PM | 🟠 | Added new task types and repository to task-service.ts | ~5339 |
-| #714 | 12:56 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~2673 |
+| #2372 | 6:06 PM | 🔵 | Insights service implements achievement logic | ~1592 |
+| #2368 | 6:06 PM | 🔵 | Discovered updateDailyStats method | ~1270 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic in insights-service | ~1384 |
+| #2218 | 5:48 PM | 🔵 | No vector search in task-service.ts | ~1087 |
+| #2217 | 5:48 PM | 🔵 | Semantic search uses polling mechanism | ~2097 |
+| #2215 | 5:48 PM | 🔵 | No vector search in session-service.ts | ~1066 |
+| #2213 | 5:47 PM | 🔵 | No task queue functions in backend | ~1076 |
+| #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic | ~2332 |
+| #2053 | 5:12 PM | 🔵 | Task Service backpressure mechanism | ~1643 |
+| #1836 | 4:29 PM | 🟠 | Added writer pause/resume events | ~4144 |
+| #1835 | 4:29 PM | 🟠 | Added writer events to SSEEventType | ~3881 |
+| #1833 | 4:29 PM | 🔵 | SSE Broadcaster pre-compact event | ~1012 |
+| #1831 | 4:28 PM | 🔵 | SSE Event Types defined | ~1006 |
+| #1830 | 4:28 PM | 🔵 | No "writer:pause" in SSE broadcaster | ~719 |
+| #1809 | 4:24 PM | 🟠 | Added writer pause/resume events | ~3897 |
+| #1798 | 4:23 PM | 🟠 | Added writer pause/resume broadcast | ~4163 |
+| #1792 | 4:22 PM | 🔵 | SSE Broadcaster service overview | ~2959 |
+| #1790 | 4:22 PM | 🔵 | SSE Broadcaster implementation | ~2968 |
+| #1787 | 4:22 PM | 🔵 | Session Service prompt handling | ~2255 |
+| #1271 | 2:45 PM | 🔵 | Task Service architecture analysis | ~4960 |
+| #1167 | 2:34 PM | 🔵 | SSE Broadcaster service overview | ~2964 |
+| #1024 | 2:16 PM | 🔵 | Worker process path resolution | ~863 |
+| #767 | 1:09 PM | 🟠 | Added compression capability logic | ~6090 |
+| #763 | 1:08 PM | 🟠 | Implemented Endless Mode | ~6336 |
+| #762 | 1:08 PM | 🟠 | Added compression task queueing | ~5731 |
+| #759 | 1:07 PM | 🟠 | Added archivedOutputs repository | ~5267 |
 
 ## Key Insights
 
-- **SSE Broadcaster Enhancements**: Added writer pause/resume events (`writer:pause`, `writer:resume`) to support real-time UI updates during git operations.
-- **Endless Mode Implementation**: Introduced archiving and compression logic for tool outputs, reducing token usage by ~94.5% (Issue #109).
-- **Task Service Architecture**: Discovered backpressure handling, task prioritization, and multi-type task support (observation, summarization, compression).
-- **Insights Service**: Found achievement unlocking logic and daily statistics tracking for user activity metrics.
-- **Missing Features**: No vector/semantic search in `session-service.ts` or task queue functions in backend services—potential gaps for future development.
+- **SSE & Real-Time Architecture**: The project heavily uses Server-Sent Events (SSE) for real-time UI updates, with recent additions for writer pause/resume events and pre-compact notifications.
+- **Task Management**: The Task Service implements sophisticated backpressure handling, multiple task types, and Endless Mode archiving with compression capabilities.
+- **Insights & Achievements**: The insights service tracks daily stats and unlocks achievements based on user activity thresholds (observations, decisions, bugfixes).
+- **Architecture Gaps**: No vector/semantic search implementation found in core services, and task queue functions are missing from backend services.
+- **Recent Features**: Added Endless Mode for observation archiving, compression task queueing, and writer state management via SSE events.
 </claude-mem-context>

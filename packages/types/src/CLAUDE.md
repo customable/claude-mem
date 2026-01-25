@@ -7,14 +7,21 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #3081 | 7:53 PM | 🔵 | Discovered CreateObservationInput interface | ~1818 |
-| #3078 | 7:53 PM | 🔵 | Repository Pattern Types and Search Interface | ~2081 |
-| #3048 | 7:46 PM | 🔵 | ObservationType and DecisionCategory usage | ~1761 |
-| #2950 | 7:37 PM | 🔵 | User Task Types and Repository Interface | ~2193 |
-| #2936 | 7:36 PM | 🔵 | Search for repository interfaces | ~1043 |
-| #2931 | 7:35 PM | 🔵 | Discovered User Task Types | ~2187 |
-| #2924 | 7:35 PM | 🔵 | Found ObservationLink interface | ~1024 |
-| #2772 | 7:08 PM | 🟠 | Added channel types export for WebSocket | ~1687 |
+| #3346 | 8:25 PM | 🔵 | Exploring shared TypeScript types | ~1544 |
+| #3292 | 8:17 PM | 🔵 | User Task Types and Repository | ~2212 |
+| #3290 | 8:17 PM | 🟠 | Added hub federation types export | ~1719 |
+| #3285 | 8:16 PM | 🔵 | Exploring shared TypeScript types | ~1474 |
+| #3262 | 8:14 PM | 📝 | Reviewed shared TypeScript types | ~1479 |
+| #3245 | 8:13 PM | 🔵 | WebSocket Protocol Types | ~2221 |
+| #3209 | 8:10 PM | 🔵 | WebSocket Protocol Types | ~2204 |
+| #3081 | 7:53 PM | 🔵 | CreateObservationInput interface | ~1818 |
+| #3078 | 7:53 PM | 🔵 | Repository Pattern Types | ~2081 |
+| #3048 | 7:46 PM | 🔵 | ObservationType usage analysis | ~1761 |
+| #2950 | 7:37 PM | 🔵 | User Task Types and Repository | ~2193 |
+| #2936 | 7:36 PM | 🔵 | Repository interfaces search | ~1043 |
+| #2931 | 7:35 PM | 🔵 | User Task Types and Repository | ~2187 |
+| #2924 | 7:35 PM | 🔵 | ObservationLink interface found | ~1024 |
+| #2772 | 7:08 PM | 🟠 | Added channel types export | ~1687 |
 | #2764 | 7:08 PM | 🔵 | Exploring shared TypeScript types | ~1469 |
 | #2746 | 7:02 PM | 🔵 | WebSocket Protocol Types | ~2206 |
 | #2742 | 7:01 PM | 🔵 | Exploring shared TypeScript types | ~1437 |
@@ -23,26 +30,19 @@
 | #2502 | 6:28 PM | 🔵 | User Task Type System Structure | ~2197 |
 | #2441 | 6:17 PM | 🟠 | Add user task types export | ~1573 |
 | #2432 | 6:16 PM | 🔵 | Exploring shared TypeScript types | ~1425 |
-| #2431 | 6:15 PM | 🟠 | Added User Task Types and Repository | ~3097 |
-| #2362 | 6:05 PM | 🔵 | Found ObservationType definition | ~1252 |
-| #2360 | 6:04 PM | 🔵 | Discovered database.ts type definitions | ~1806 |
-| #2357 | 6:04 PM | 🔵 | Discovered InsightsSummary interface | ~1673 |
+| #2431 | 6:15 PM | 🟠 | Added User Task Types | ~3097 |
+| #2362 | 6:05 PM | 🔵 | ObservationType definition found | ~1252 |
+| #2360 | 6:04 PM | 🔵 | Database type definitions | ~1806 |
+| #2357 | 6:04 PM | 🔵 | InsightsSummary interface | ~1673 |
 | #2319 | 6:01 PM | 🔵 | Repository Pattern Types | ~2065 |
-| #2079 | 5:15 PM | 🔵 | Discovered IArchivedOutputRepository | ~2244 |
+| #2079 | 5:15 PM | 🔵 | IArchivedOutputRepository | ~2244 |
 | #2063 | 5:13 PM | 🔵 | Repository Pattern Types | ~2072 |
-| #1940 | 4:48 PM | 🔵 | Task system architecture overview | ~3203 |
-| #1932 | 4:47 PM | 🔵 | Task system architecture overview | ~3213 |
-| #1930 | 4:47 PM | 🔵 | Database model types | ~3322 |
-| #1913 | 4:45 PM | 🔵 | Database model types | ~3302 |
-| #1070 | 2:26 PM | 🔵 | Found updateCompressionStatus method | ~908 |
-| #1050 | 2:24 PM | 🔄 | Make text field optional | ~5133 |
-| #1049 | 2:24 PM | 🔵 | Exploring Observation Repository | ~983 |
 
 ## Key Insights
 
-- **Type System Exploration**: Extensive discovery of TypeScript interfaces for observations, tasks, repositories, and WebSocket protocols, indicating active architectural documentation.
-- **Feature Development**: Added exports for WebSocket channel types and user task types, expanding the shared type system (Issues #264, #260).
-- **Database & Task Architecture**: Deep dives into repository patterns, BM25 search, and task lifecycle management (8 task types with priority-based queues).
-- **Rebranding & Multi-Tenancy**: Planned transition to "remembr" with PostgreSQL support and column-based multi-tenancy for SaaS scalability.
-- **Core Changes**: Made `text` field optional in `CreateObservationInput` to support observations without text content.
+- **TypeScript Architecture**: Extensive exploration of shared TypeScript types, including WebSocket protocols, repository patterns, and task management systems.
+- **Feature Additions**: New exports added for hub federation and channel types, extending the system's capabilities.
+- **Repository Pattern**: Consistent use of repository interfaces for data access, with BM25 search functionality and session management.
+- **Task Management**: User task types and lifecycle (pending/in_progress/completed) are well-defined, with repository interfaces for database operations.
+- **WebSocket Communication**: Protocol types for backend-worker communication are robust, covering authentication, task management, and heartbeats.
 </claude-mem-context>
