@@ -22,10 +22,14 @@ claude-mem is a Claude Code plugin that captures, compresses, and recalls knowle
 | **Session Summaries** | Compressed session history with request/learned/completed |
 | **Auto CLAUDE.md** | Generates context files in your project directories |
 | **MCP Search Tools** | Semantic search across observations and memories |
-| **Multi-Provider** | Supports Anthropic, Mistral, OpenAI for AI tasks |
+| **Multi-Provider** | Supports Anthropic, Mistral, OpenAI, Gemini for AI tasks |
 | **Web UI** | Browse sessions, observations, and summaries |
 | **Document Caching** | Caches Context7/WebFetch results for reuse |
 | **SSE Real-Time Updates** | Live updates to CLAUDE.md files during sessions |
+| **Code Snippets** | Automatic extraction and storage of code examples |
+| **Insights Dashboard** | Daily stats, technology usage tracking, achievements |
+| **Auto-Spawn Workers** | Automatic worker spawning on backend startup |
+| **Task Deduplication** | Prevents duplicate task processing via SHA-256 hashing |
 
 ## Key Concepts
 
@@ -217,24 +221,35 @@ pnpm run build:plugin
 
 ## Database
 
-SQLite database at `~/.claude-mem/claude-mem.db`:
+SQLite database at `~/.claude-mem/claude-mem.db` (managed by MikroORM):
 
 | Table | Description |
 |-------|-------------|
-| `sdk_sessions` | Claude Code sessions |
+| `sessions` | Claude Code sessions with metadata |
 | `observations` | AI-extracted insights from tool use |
-| `session_summaries` | Compressed session summaries |
-| `project_claudemd` | Generated CLAUDE.md content |
-| `task_queue` | Worker task queue |
-| `documents` | Cached external documentation |
+| `summaries` | Compressed session summaries |
+| `claudemd` | Generated CLAUDE.md content |
+| `tasks` | Worker task queue with deduplication |
+| `documents` | Cached external documentation (Context7/WebFetch) |
+| `prompts` | User prompts with urgency tracking |
+| `code_snippets` | Extracted code examples from sessions |
+| `achievements` | User achievements and milestones |
+| `daily_stats` | Aggregated daily statistics |
+| `technology_usage` | Technology usage tracking |
+| `observation_links` | Links between related observations |
+| `repositories` | Git repository metadata |
 
 ## Roadmap
 
 Current high-priority items:
 
 - **Endless Mode** ([#109](https://git.customable.host/customable/claude-mem/issues/109)) - Real-time context compression for unlimited session length
-- **Process/Memory Leaks** ([#101](https://git.customable.host/customable/claude-mem/issues/101)) - Fix orphaned worker processes
-- **Documents Search** ([#115](https://git.customable.host/customable/claude-mem/issues/115)) - MCP tool for searching cached documentation
+
+### Recently Completed
+
+- ✅ **Documents Search** ([#115](https://git.customable.host/customable/claude-mem/issues/115)) - MCP tool for searching cached documentation
+- ✅ **Process/Memory Leaks** ([#101](https://git.customable.host/customable/claude-mem/issues/101)) - Fix orphaned worker processes
+- ✅ **Database Schema Redesign** ([#197](https://git.customable.host/customable/claude-mem/issues/197)) - Modernized table structure with MikroORM
 
 See [all open issues](https://git.customable.host/customable/claude-mem/issues) for the full list.
 
