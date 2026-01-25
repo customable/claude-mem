@@ -1,11 +1,11 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 /**
  * Backend Service CLI Entry Point
  *
  * Usage:
- *   bun backend-service.ts start    - Start the backend server
- *   bun backend-service.ts stop     - Stop the backend server (via API)
- *   bun backend-service.ts status   - Check backend status
+ *   npx @claude-mem/backend start    - Start the backend server
+ *   npx @claude-mem/backend stop     - Stop the backend server (via API)
+ *   npx @claude-mem/backend status   - Check backend status
  */
 
 import { BackendService } from './server/backend-service.js';
