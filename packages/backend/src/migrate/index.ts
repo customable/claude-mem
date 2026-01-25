@@ -20,8 +20,10 @@ export {
 export {
   importLegacyDatabase,
   formatImportReport,
+  parseTargetDatabase,
   type ImportOptions,
   type ImportResult,
   type ImportStats,
   type ConflictStrategy,
+  type TargetDatabase,
 } from './importer.js';

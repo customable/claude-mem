@@ -14,6 +14,7 @@ import {
   formatAnalysisReport,
   importLegacyDatabase,
   formatImportReport,
+  parseTargetDatabase,
   type ConflictStrategy,
 } from './migrate/index.js';
 
@@ -204,6 +205,7 @@ migrate
   .command('import')
   .description('Import data from a legacy database')
   .argument('<source-db>', 'Path to legacy SQLite database')
+  .option('-t, --target <db>', 'Target database: SQLite path or postgres://user:pass@host:port/dbname')
   .option('-n, --dry-run', 'Analyze only, do not import')
   .option('--no-backup', 'Skip creating a backup of the target database')
   .option('-c, --conflict <strategy>', 'Conflict strategy: skip or overwrite', 'skip')
@@ -212,18 +214,23 @@ migrate
   .action(
     async (
       sourceDb: string,
-      options: { dryRun?: boolean; backup?: boolean; conflict?: string; project?: string[]; json?: boolean }
+      options: { target?: string; dryRun?: boolean; backup?: boolean; conflict?: string; project?: string[]; json?: boolean }
     ) => {
       try {
         const conflict = (options.conflict === 'overwrite' ? 'overwrite' : 'skip') as ConflictStrategy;
+        const target = options.target ? parseTargetDatabase(options.target) : undefined;
 
         logger.info(`Starting import from: ${sourceDb}`);
+        if (target) {
+          logger.info(`Target: ${target.type === 'postgresql' ? `PostgreSQL (${target.host}:${target.port}/${target.dbName})` : target.dbPath}`);
+        }
         if (options.dryRun) {
           logger.info('Dry run mode - no changes will be made');
         }
 
         const result = await importLegacyDatabase({
           sourcePath: sourceDb,
+          target,
           dryRun: options.dryRun,
           noBackup: options.backup === false,
           conflict,

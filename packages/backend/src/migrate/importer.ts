@@ -23,13 +23,28 @@ const logger = createLogger('migrate:importer');
 export type ConflictStrategy = 'skip' | 'overwrite';
 
 /**
+ * Target database configuration
+ */
+export interface TargetDatabase {
+  type: 'sqlite' | 'postgresql';
+  // SQLite
+  dbPath?: string;
+  // PostgreSQL
+  host?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+  dbName?: string;
+}
+
+/**
  * Import options
  */
 export interface ImportOptions {
-  /** Source database path */
+  /** Source database path (legacy SQLite) */
   sourcePath: string;
-  /** Target database path (optional - uses default if not specified) */
-  targetPath?: string;
+  /** Target database configuration */
+  target?: TargetDatabase;
   /** Skip backup creation */
   noBackup?: boolean;
   /** Conflict resolution strategy */
@@ -38,6 +53,27 @@ export interface ImportOptions {
   dryRun?: boolean;
   /** Only import from specific projects */
   projects?: string[];
+}
+
+/**
+ * Parse a database connection string or path into TargetDatabase config
+ */
+export function parseTargetDatabase(db: string): TargetDatabase {
+  if (db.startsWith('postgres://') || db.startsWith('postgresql://')) {
+    const url = new URL(db);
+    return {
+      type: 'postgresql',
+      host: url.hostname,
+      port: parseInt(url.port || '5432', 10),
+      user: url.username,
+      password: url.password,
+      dbName: url.pathname.slice(1),
+    };
+  }
+  return {
+    type: 'sqlite',
+    dbPath: db,
+  };
 }
 
 /**
@@ -126,14 +162,23 @@ export async function importLegacyDatabase(options: ImportOptions): Promise<Impo
     };
   }
 
-  // Create backup of target database
-  let backup: BackupResult | undefined;
+  // Determine target database configuration
   const settings = loadSettings();
-  const targetDbPath = options.targetPath || settings.DATABASE_PATH;
+  const target: TargetDatabase = options.target || {
+    type: settings.DATABASE_TYPE === 'postgres' ? 'postgresql' : 'sqlite',
+    dbPath: settings.DATABASE_PATH,
+    host: settings.DATABASE_HOST,
+    port: settings.DATABASE_PORT,
+    user: settings.DATABASE_USER,
+    password: settings.DATABASE_PASSWORD,
+    dbName: settings.DATABASE_NAME,
+  };
 
-  if (!noBackup && targetDbPath && existsSync(targetDbPath)) {
+  // Create backup of target database (SQLite only)
+  let backup: BackupResult | undefined;
+  if (!noBackup && target.type === 'sqlite' && target.dbPath && existsSync(target.dbPath)) {
     logger.info('Creating backup of target database...');
-    backup = createBackup(targetDbPath);
+    backup = createBackup(target.dbPath);
     if (!backup.success) {
       return {
         success: false,
@@ -144,6 +189,8 @@ export async function importLegacyDatabase(options: ImportOptions): Promise<Impo
       };
     }
     logger.info(`Backup created: ${backup.backupPath}`);
+  } else if (!noBackup && target.type === 'postgresql') {
+    logger.info('Note: Automatic backup skipped for PostgreSQL. Consider using pg_dump manually.');
   }
 
   // Initialize target database
@@ -151,10 +198,15 @@ export async function importLegacyDatabase(options: ImportOptions): Promise<Impo
   let sourceDb: Database.Database | null = null;
 
   try {
-    logger.info('Initializing target database...');
+    logger.info(`Initializing target database (${target.type})...`);
     db = new MikroOrmDatabase({
-      type: 'sqlite',
-      dbPath: targetDbPath,
+      type: target.type,
+      dbPath: target.type === 'sqlite' ? target.dbPath : undefined,
+      host: target.host,
+      port: target.port,
+      user: target.user,
+      password: target.password,
+      dbName: target.dbName,
     });
     await db.initialize();
 
