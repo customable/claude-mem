@@ -33,6 +33,11 @@ const TASK_TOOLS = new Set([
 ]);
 
 /**
+ * Claude Code plan mode tools (Issue #317)
+ */
+const PLAN_MODE_TOOLS = new Set(['EnterPlanMode', 'ExitPlanMode']);
+
+/**
  * TaskCreate tool input structure
  */
 interface TaskCreateInput {
@@ -240,9 +245,18 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
 
       if (input.toolName === 'TaskCreate') {
         const createInput = taskInput as TaskCreateInput;
+        // Extract externalId from toolOutput (Issue #316)
+        let externalId: string | undefined;
+        try {
+          const output = JSON.parse(input.toolOutput || '{}');
+          externalId = output.taskId;
+        } catch {
+          // Ignore parse errors - toolOutput might not be JSON
+        }
         await client.post('/api/hooks/user-task/create', {
           sessionId: input.sessionId,
           project: input.project,
+          externalId, // Link to Claude Code's taskId
           title: createInput.subject,
           description: createInput.description,
           activeForm: createInput.activeForm,
@@ -250,7 +264,7 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
           gitBranch,
           sourceMetadata: createInput.metadata,
         });
-        logger.debug(`User task created: ${createInput.subject}`);
+        logger.debug(`User task created: ${createInput.subject} (externalId: ${externalId})`);
       } else if (input.toolName === 'TaskUpdate') {
         const updateInput = taskInput as TaskUpdateInput;
         await client.post('/api/hooks/user-task/update', {
@@ -272,6 +286,39 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
     } catch (err) {
       const error = err as Error;
       logger.warn('Failed to capture user task:', { message: error.message });
+      // Don't block the tool flow
+    }
+  }
+
+  // Handle Claude Code plan mode tools (Issue #317)
+  if (PLAN_MODE_TOOLS.has(input.toolName)) {
+    try {
+      if (input.toolName === 'EnterPlanMode') {
+        await client.post('/api/hooks/plan-mode/enter', {
+          sessionId: input.sessionId,
+          project: input.project,
+        });
+        logger.debug('Session entered plan mode');
+      } else if (input.toolName === 'ExitPlanMode') {
+        // Parse toolInput for approval info
+        let allowedPrompts: unknown[] | undefined;
+        try {
+          const exitInput = JSON.parse(input.toolInput || '{}');
+          allowedPrompts = exitInput.allowedPrompts;
+        } catch {
+          // Ignore parse errors
+        }
+        await client.post('/api/hooks/plan-mode/exit', {
+          sessionId: input.sessionId,
+          project: input.project,
+          approved: true, // ExitPlanMode = User has approved
+          allowedPrompts,
+        });
+        logger.debug('Session exited plan mode');
+      }
+    } catch (err) {
+      const error = err as Error;
+      logger.warn('Failed to update plan mode:', { message: error.message });
       // Don't block the tool flow
     }
   }

@@ -83,6 +83,10 @@ export interface SdkSessionRecord {
   repo_path?: string | null;
   is_worktree?: boolean;
   branch?: string | null;
+  // Plan mode tracking (Issue #317)
+  is_in_plan_mode?: boolean;
+  plan_mode_entered_at?: number | null;
+  plan_mode_count?: number;
 }
 
 /**

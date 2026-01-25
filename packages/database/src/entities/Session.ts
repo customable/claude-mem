@@ -69,6 +69,25 @@ export class Session {
   @Property({ default: 0 })
   prompt_counter!: number;
 
+  // Plan mode tracking (Issue #317)
+  /**
+   * Whether session is currently in plan mode
+   */
+  @Property({ default: false })
+  is_in_plan_mode!: boolean;
+
+  /**
+   * Timestamp when plan mode was entered (epoch ms)
+   */
+  @Property({ nullable: true, type: 'bigint' })
+  plan_mode_entered_at?: number;
+
+  /**
+   * Number of times plan mode was entered in this session
+   */
+  @Property({ default: 0 })
+  plan_mode_count!: number;
+
   // Relations - Session as central hub (Issue #267 Phase 4)
   // Note: These use virtual relations via string session IDs
   @OneToMany('UserPrompt', 'session', {

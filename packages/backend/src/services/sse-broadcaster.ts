@@ -43,7 +43,10 @@ export type SSEEventType =
   | 'user-task:updated'
   // Hub federation events (Issue #263)
   | 'hub:connected'
-  | 'hub:disconnected';
+  | 'hub:disconnected'
+  // Plan mode events (Issue #317)
+  | 'session:plan-mode-entered'
+  | 'session:plan-mode-exited';
 
 /**
  * SSE Event payload

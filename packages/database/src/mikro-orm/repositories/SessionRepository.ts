@@ -35,6 +35,10 @@ function toRecord(entity: Session): SdkSessionRecord {
     repo_path: entity.repo_path ?? null,
     is_worktree: entity.is_worktree ?? false,
     branch: entity.branch ?? null,
+    // Plan mode tracking (Issue #317)
+    is_in_plan_mode: entity.is_in_plan_mode ?? false,
+    plan_mode_entered_at: entity.plan_mode_entered_at ?? null,
+    plan_mode_count: entity.plan_mode_count ?? 0,
   };
 }
 
@@ -57,6 +61,9 @@ export class MikroOrmSessionRepository implements ISessionRepository {
       repo_path: input.repoPath,
       is_worktree: input.isWorktree,
       branch: input.branch,
+      // Plan mode tracking (Issue #317)
+      is_in_plan_mode: false,
+      plan_mode_count: 0,
     });
 
     this.em.persist(entity);
@@ -97,6 +104,10 @@ export class MikroOrmSessionRepository implements ISessionRepository {
     if (input.repoPath !== undefined) entity.repo_path = input.repoPath;
     if (input.isWorktree !== undefined) entity.is_worktree = input.isWorktree;
     if (input.branch !== undefined) entity.branch = input.branch;
+    // Plan mode tracking (Issue #317)
+    if (input.isInPlanMode !== undefined) entity.is_in_plan_mode = input.isInPlanMode;
+    if (input.planModeEnteredAt !== undefined) entity.plan_mode_entered_at = input.planModeEnteredAt;
+    if (input.planModeCount !== undefined) entity.plan_mode_count = input.planModeCount;
 
     await this.em.flush();
     return toRecord(entity);

@@ -6,3 +6,4 @@ export { Migration20260125094906_initial_schema } from './Migration2026012509490
 export { Migration20260125100500_fts5_and_repositories } from './Migration20260125100500_fts5_and_repositories.js';
 export { Migration20260125124900_add_archived_outputs } from './Migration20260125124900_add_archived_outputs.js';
 export { Migration20260125200000_add_worker_federation } from './Migration20260125200000_add_worker_federation.js';
+export { Migration20260125210000_add_plan_mode_tracking } from './Migration20260125210000_add_plan_mode_tracking.js';

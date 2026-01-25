@@ -56,6 +56,10 @@ export class HooksRouter extends BaseRouter {
     // User task tracking from CLI tools (Issue #260)
     this.router.post('/user-task/create', this.asyncHandler(this.userTaskCreate.bind(this)));
     this.router.post('/user-task/update', this.asyncHandler(this.userTaskUpdate.bind(this)));
+
+    // Plan mode tracking (Issue #317)
+    this.router.post('/plan-mode/enter', this.asyncHandler(this.planModeEnter.bind(this)));
+    this.router.post('/plan-mode/exit', this.asyncHandler(this.planModeExit.bind(this)));
   }
 
   /**
@@ -361,6 +365,7 @@ export class HooksRouter extends BaseRouter {
     const contentSessionId = req.body.sessionId || req.body.contentSessionId;
     const {
       project,
+      externalId, // Claude Code's taskId (Issue #316)
       title,
       description,
       activeForm,
@@ -373,8 +378,9 @@ export class HooksRouter extends BaseRouter {
       this.badRequest('Missing required fields: project, title');
     }
 
-    // Create the user task
+    // Create the user task with externalId for linking to Claude Code's task
     const task = await this.deps.userTasks.create({
+      externalId, // Link to Claude Code's taskId
       project,
       title,
       description,
@@ -478,5 +484,51 @@ export class HooksRouter extends BaseRouter {
       taskId: task.id,
       updated: true,
     });
+  }
+
+  /**
+   * POST /api/hooks/plan-mode/enter
+   * Called when Claude Code EnterPlanMode tool is used (Issue #317)
+   */
+  private async planModeEnter(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { project } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    await this.deps.sessionService.enterPlanMode(contentSessionId);
+
+    // Broadcast event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'session:plan-mode-entered',
+      data: { sessionId: contentSessionId, project },
+    });
+
+    this.success(res, { success: true });
+  }
+
+  /**
+   * POST /api/hooks/plan-mode/exit
+   * Called when Claude Code ExitPlanMode tool is used (Issue #317)
+   */
+  private async planModeExit(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { project, approved, allowedPrompts } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    const duration = await this.deps.sessionService.exitPlanMode(contentSessionId);
+
+    // Broadcast event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'session:plan-mode-exited',
+      data: { sessionId: contentSessionId, project, approved, duration, allowedPrompts },
+    });
+
+    this.success(res, { success: true, duration });
   }
 }

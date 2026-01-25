@@ -140,6 +140,10 @@ export interface UpdateSessionInput {
   repoPath?: string;
   isWorktree?: boolean;
   branch?: string;
+  // Plan mode tracking (Issue #317)
+  isInPlanMode?: boolean;
+  planModeEnteredAt?: number;
+  planModeCount?: number;
 }
 
 /**

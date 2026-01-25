@@ -44,6 +44,7 @@ import { Migration20260125104748_add_task_deduplication } from './mikro-orm/migr
 import { Migration20260125124900_add_archived_outputs } from './mikro-orm/migrations/Migration20260125124900_add_archived_outputs.js';
 import { Migration20260125180000_add_user_tasks } from './mikro-orm/migrations/Migration20260125180000_add_user_tasks.js';
 import { Migration20260125200000_add_worker_federation } from './mikro-orm/migrations/Migration20260125200000_add_worker_federation.js';
+import { Migration20260125210000_add_plan_mode_tracking } from './mikro-orm/migrations/Migration20260125210000_add_plan_mode_tracking.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -102,6 +103,7 @@ export const migrationsList: Constructor<Migration>[] = [
   Migration20260125124900_add_archived_outputs,
   Migration20260125180000_add_user_tasks,
   Migration20260125200000_add_worker_federation,
+  Migration20260125210000_add_plan_mode_tracking,
 ];
 
 /**
