@@ -93,7 +93,9 @@ export class FederationClient {
   constructor(config: FederationClientConfig) {
     const settings = loadSettings();
 
-    this.backendUrl = config.backendUrl || `ws://${settings.BACKEND_HOST}:${settings.BACKEND_PORT}/ws/hub`;
+    // Use localhost when BACKEND_HOST is 0.0.0.0 (bind address, not connection address)
+    const connectionHost = settings.BACKEND_HOST === '0.0.0.0' ? '127.0.0.1' : settings.BACKEND_HOST;
+    this.backendUrl = config.backendUrl || `ws://${connectionHost}:${settings.BACKEND_PORT}/ws/hub`;
     this.hubToken = config.hubToken || '';
     this.name = config.name;
     this.region = config.region;

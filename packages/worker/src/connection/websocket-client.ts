@@ -72,7 +72,9 @@ export class WebSocketClient {
     const settings = loadSettings();
 
     // WebSocket is on same port as HTTP at /ws path
-    this.backendUrl = config.backendUrl || `ws://${settings.BACKEND_HOST}:${settings.BACKEND_PORT}/ws`;
+    // Use localhost when BACKEND_HOST is 0.0.0.0 (bind address, not connection address)
+    const connectionHost = settings.BACKEND_HOST === '0.0.0.0' ? '127.0.0.1' : settings.BACKEND_HOST;
+    this.backendUrl = config.backendUrl || `ws://${connectionHost}:${settings.BACKEND_PORT}/ws`;
     this.authToken = config.authToken || settings.WORKER_AUTH_TOKEN || '';
     this.capabilities = config.capabilities;
     this.reconnectInterval = config.reconnectInterval || WORKER.RECONNECT_INTERVAL;
