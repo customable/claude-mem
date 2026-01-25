@@ -10,6 +10,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { api, type Worker, type SpawnStatus } from '../api/client';
 import { useSSE } from '../hooks/useSSE';
+import { SpawnWorkerModal } from './SpawnWorkerModal';
 
 /**
  * Match task type to capability
@@ -70,6 +71,7 @@ export function WorkerStatus() {
   const [spawnStatus, setSpawnStatus] = useState<SpawnStatus | null>(null);
   const [spawning, setSpawning] = useState(false);
   const [terminatingId, setTerminatingId] = useState<string | null>(null);
+  const [showSpawnModal, setShowSpawnModal] = useState(false);
   const { workerTasks, lastEvent } = useSSE();
 
   // Initial fetch
@@ -128,11 +130,11 @@ export function WorkerStatus() {
       });
   };
 
-  const handleSpawn = async () => {
+  const handleSpawn = async (config?: { provider?: string }) => {
     setSpawning(true);
     setError(null);
     try {
-      await api.spawnWorker();
+      await api.spawnWorker(config);
       // Workers list will update via SSE
     } catch (err) {
       setError((err as Error).message);
@@ -254,7 +256,7 @@ export function WorkerStatus() {
         <div className="flex items-center gap-2">
           {spawnStatus?.available && spawnStatus.canSpawnMore && (
             <button
-              onClick={handleSpawn}
+              onClick={() => setShowSpawnModal(true)}
               className="btn btn-primary btn-sm"
               disabled={spawning}
             >
@@ -338,7 +340,7 @@ export function WorkerStatus() {
             </p>
             {spawnStatus?.available && spawnStatus.canSpawnMore && (
               <button
-                onClick={handleSpawn}
+                onClick={() => setShowSpawnModal(true)}
                 className="btn btn-primary btn-sm mt-4"
                 disabled={spawning}
               >
@@ -407,6 +409,15 @@ export function WorkerStatus() {
           )}
         </div>
       )}
+
+      {/* Spawn Worker Modal (Issue #254) */}
+      <SpawnWorkerModal
+        isOpen={showSpawnModal}
+        onClose={() => setShowSpawnModal(false)}
+        onSpawn={handleSpawn}
+        spawnStatus={spawnStatus}
+        isSpawning={spawning}
+      />
     </div>
   );
 }

@@ -142,6 +142,9 @@ export interface SpawnStatus {
   spawnedCount: number;
   maxWorkers: number;
   canSpawnMore: boolean;
+  // Provider configuration (Issue #254)
+  enabledProviders?: string[];
+  defaultProvider?: string;
   // Auto-Spawn status (Issue #256)
   autoSpawnEnabled?: boolean;
   autoSpawnCount?: number;
@@ -354,7 +357,8 @@ export const api = {
   getWorkerStats: () => get<{ totalConnected: number }>('/workers/stats'),
   getSpawnStatus: () => get<SpawnStatus>('/workers/spawn-status'),
   getSpawnedWorkers: () => get<{ data: SpawnedWorker[]; canSpawn: boolean; maxWorkers: number }>('/workers/spawned'),
-  spawnWorker: () => post<{ id: string; pid: number; message: string }>('/workers/spawn', {}),
+  spawnWorker: (config?: { provider?: string }) =>
+    post<{ id: string; pid: number; message: string }>('/workers/spawn', config ?? {}),
   terminateWorker: (id: string) => del<{ message: string; queued?: boolean; reason?: string }>(`/workers/spawned/${id}`),
 
   // Settings
