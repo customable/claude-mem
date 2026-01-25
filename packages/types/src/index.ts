@@ -36,3 +36,6 @@ export * from './metrics.js';
 
 // User task types (Issue #260)
 export * from './user-task.js';
+
+// Channel types for unified WebSocket (Issue #264)
+export * from './channels.js';

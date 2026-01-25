@@ -1,31 +1,26 @@
 /**
  * SSE Writer
  *
- * Standalone Node.js process that listens to backend SSE events
+ * Standalone Node.js process that listens to backend WebSocket events
  * and writes CLAUDE.md files to the local filesystem.
  *
  * This process is spawned by the plugin for each session and handles
  * the local file writing that the remote backend/worker cannot do.
  *
+ * Issue #264: Migrated from EventSource (SSE) to WebSocket for unified
+ * channel-based communication with server-side filtering.
+ *
  * Security:
  * - Only writes to the working directory specified at spawn time
- * - Only processes events matching the session ID
- * - Only processes events matching the project name
+ * - Only processes events matching the session ID (server-side filtered)
+ * - Only processes events matching the project name (server-side filtered)
  * - Validates all data before writing
  */
 
-// @ts-ignore - eventsource types are installed in devDependencies
-import { EventSource } from 'eventsource';
+import WebSocket from 'ws';
 import * as fs from 'fs';
 import * as path from 'path';
 import { normalizeToDirectory } from './utils/path-utils.js';
-
-// Type definitions for eventsource events
-interface MessageEvent {
-  data: string;
-  type: string;
-  lastEventId: string;
-}
 
 // Parse command line arguments
 interface Args {
@@ -178,16 +173,9 @@ function main(): void {
     process.exit(1);
   }
 
-  // Build SSE URL with auth token as query parameter
-  // (EventSource doesn't support custom headers in browser API)
-  const sseUrl = `${args.backend}/api/stream?token=${encodeURIComponent(args.token)}`;
-  console.log(`[sse-writer] Connecting to ${args.backend}/api/stream`);
-
-  // Create EventSource
-  const es = new EventSource(sseUrl);
-
-  // Track connection state
-  let connected = false;
+  // Build WebSocket URL (Issue #264)
+  const wsUrl = args.backend.replace(/^http/, 'ws') + '/ws';
+  console.log(`[sse-writer] Connecting to ${wsUrl}`);
 
   // Track collected CLAUDE.md content for multiple directories
   // Key: directory path, Value: content to write
@@ -200,24 +188,15 @@ function main(): void {
   // Track if writing is paused during git operations (Issue #288)
   let writerPaused = false;
 
-  es.onopen = () => {
-    connected = true;
-    console.log('[sse-writer] Connected to SSE stream');
-  };
-
-  es.onerror = (_event: Event) => {
-    if (!connected) {
-      console.error('[sse-writer] Failed to connect to SSE stream');
-      // Don't exit - will retry automatically
-    } else {
-      console.warn('[sse-writer] SSE connection error, reconnecting...');
-    }
-  };
+  // Reconnection settings
+  let reconnectAttempts = 0;
+  const maxReconnectAttempts = 10;
+  const reconnectDelay = 5000;
 
   /**
    * Write all collected CLAUDE.md files and exit
    */
-  const writeAllAndExit = () => {
+  const writeAllAndExit = (ws: WebSocket | null) => {
     if (pendingWrites.size === 0) {
       console.log('[sse-writer] No CLAUDE.md content to write');
     } else {
@@ -233,131 +212,198 @@ function main(): void {
     }
 
     console.log('[sse-writer] All tasks complete, shutting down');
-    es.close();
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.close();
+    }
     process.exit(0);
   };
 
-  // Handle all SSE messages
-  es.onmessage = (event: MessageEvent) => {
-    try {
-      const data = JSON.parse(event.data);
+  /**
+   * Handle incoming channel event
+   */
+  const handleEvent = (channel: string, data: unknown) => {
+    const payload = data as Record<string, unknown>;
 
-      // Handle writer:pause event (Issue #288)
-      if (data.type === 'writer:pause' && data.data) {
-        const payload = data.data as { sessionId: string; reason?: string };
-        if (payload.sessionId === args.session) {
-          writerPaused = true;
-          console.log(`[sse-writer] Writing paused: ${payload.reason || 'unknown reason'}`);
-        }
-      }
+    // Handle writer:pause event (Issue #288)
+    if (channel === 'writer:pause') {
+      // Server-side filtering ensures this is for our session
+      writerPaused = true;
+      console.log(`[sse-writer] Writing paused: ${(payload.reason as string) || 'unknown reason'}`);
+    }
 
-      // Handle writer:resume event (Issue #288)
-      if (data.type === 'writer:resume' && data.data) {
-        const payload = data.data as { sessionId: string };
-        if (payload.sessionId === args.session) {
-          writerPaused = false;
-          console.log('[sse-writer] Writing resumed');
-          // Write any pending content that was queued during pause
-          if (pendingWrites.size > 0) {
-            console.log(`[sse-writer] Writing ${pendingWrites.size} queued file(s)...`);
-            for (const [dir, content] of pendingWrites) {
-              console.log(`[sse-writer] Writing queued CLAUDE.md to ${dir}`);
-              const success = writeClaudeMd(dir, content);
-              if (success) {
-                console.log(`[sse-writer] CLAUDE.md written to ${dir}`);
-              }
-            }
-            pendingWrites.clear();
+    // Handle writer:resume event (Issue #288)
+    if (channel === 'writer:resume') {
+      // Server-side filtering ensures this is for our session
+      writerPaused = false;
+      console.log('[sse-writer] Writing resumed');
+      // Write any pending content that was queued during pause
+      if (pendingWrites.size > 0) {
+        console.log(`[sse-writer] Writing ${pendingWrites.size} queued file(s)...`);
+        for (const [dir, content] of pendingWrites) {
+          console.log(`[sse-writer] Writing queued CLAUDE.md to ${dir}`);
+          const success = writeClaudeMd(dir, content);
+          if (success) {
+            console.log(`[sse-writer] CLAUDE.md written to ${dir}`);
           }
         }
+        pendingWrites.clear();
+      }
+    }
+
+    // Handle claudemd:ready event
+    if (channel === 'claudemd:ready') {
+      const claudemdPayload = payload as {
+        project: string;
+        contentSessionId: string;
+        workingDirectory: string;
+        content: string;
+      };
+
+      // Server-side filtering handles session/project validation (Issue #264)
+      // We only need to validate working directory is within our root
+
+      // Validate working directory is within our root directory
+      // Accept exact match OR subdirectories
+      if (claudemdPayload.workingDirectory !== args.dir &&
+          !claudemdPayload.workingDirectory.startsWith(args.dir + '/')) {
+        console.warn(
+          `[sse-writer] Directory mismatch: ${claudemdPayload.workingDirectory} is not within ${args.dir}`
+        );
+        return;
       }
 
-      // Handle claudemd:ready event
-      if (data.type === 'claudemd:ready' && data.data) {
-        const payload = data.data as {
-          project: string;
-          contentSessionId: string;
-          workingDirectory: string;
-          content: string;
-        };
-
-        // Validate session ID
-        if (payload.contentSessionId !== args.session) {
-          return; // Not for this session
-        }
-
-        // Validate project
-        if (payload.project !== args.project) {
-          console.warn(
-            `[sse-writer] Project mismatch: expected ${args.project}, got ${payload.project}`
-          );
-          return;
-        }
-
-        // Validate working directory is within our root directory
-        // Accept exact match OR subdirectories
-        if (payload.workingDirectory !== args.dir && !payload.workingDirectory.startsWith(args.dir + '/')) {
-          console.warn(
-            `[sse-writer] Directory mismatch: ${payload.workingDirectory} is not within ${args.dir}`
-          );
-          return;
-        }
-
-        // Check if writing is paused (Issue #288: git operations in progress)
-        if (writerPaused) {
-          console.log(`[sse-writer] Queueing write (paused): ${payload.workingDirectory}`);
-          pendingWrites.set(payload.workingDirectory, payload.content);
-          return;
-        }
-
-        // Write immediately to the target directory
-        console.log(`[sse-writer] Received CLAUDE.md content for ${payload.workingDirectory}`);
-        console.log(`[sse-writer] Writing CLAUDE.md to ${payload.workingDirectory}`);
-        const success = writeClaudeMd(payload.workingDirectory, payload.content);
-        if (success) {
-          console.log('[sse-writer] CLAUDE.md written successfully');
-        }
-        // Error already logged in writeClaudeMd if failed (Issue #297)
+      // Check if writing is paused (Issue #288: git operations in progress)
+      if (writerPaused) {
+        console.log(`[sse-writer] Queueing write (paused): ${claudemdPayload.workingDirectory}`);
+        pendingWrites.set(claudemdPayload.workingDirectory, claudemdPayload.content);
+        return;
       }
 
-      // Handle session:started event (reactivation after completion)
-      if (data.type === 'session:started' && data.data) {
-        const payload = data.data as { sessionId: string };
+      // Write immediately to the target directory
+      console.log(`[sse-writer] Received CLAUDE.md content for ${claudemdPayload.workingDirectory}`);
+      console.log(`[sse-writer] Writing CLAUDE.md to ${claudemdPayload.workingDirectory}`);
+      const success = writeClaudeMd(claudemdPayload.workingDirectory, claudemdPayload.content);
+      if (success) {
+        console.log('[sse-writer] CLAUDE.md written successfully');
+      }
+      // Error already logged in writeClaudeMd if failed (Issue #297)
+    }
 
-        if (payload.sessionId === args.session && sessionEnded) {
-          sessionEnded = false;
-          console.log('[sse-writer] Session reactivated');
+    // Handle session:started event (reactivation after completion)
+    if (channel === 'session:started') {
+      // Server-side filtering ensures this is for our session
+      if (sessionEnded) {
+        sessionEnded = false;
+        console.log('[sse-writer] Session reactivated');
 
-          // Clear the session end timeout
-          if (sessionEndTimeout) {
-            clearTimeout(sessionEndTimeout);
-            sessionEndTimeout = null;
-          }
+        // Clear the session end timeout
+        if (sessionEndTimeout) {
+          clearTimeout(sessionEndTimeout);
+          sessionEndTimeout = null;
         }
       }
+    }
 
-      // Handle session:ended event
-      // Don't exit immediately - wait for claudemd:ready events which come after session end
-      if (data.type === 'session:ended' && data.data) {
-        const payload = data.data as { sessionId: string };
+    // Handle session:ended event
+    // Don't exit immediately - wait for claudemd:ready events which come after session end
+    if (channel === 'session:ended') {
+      // Server-side filtering ensures this is for our session
+      if (!sessionEnded) {
+        sessionEnded = true;
+        console.log('[sse-writer] Session ended, waiting for claudemd:ready events...');
 
-        if (payload.sessionId === args.session && !sessionEnded) {
-          sessionEnded = true;
-          console.log('[sse-writer] Session ended, waiting for claudemd:ready events...');
-
-          // Set a shorter timeout now that session has ended
-          // Multiple claudemd tasks should complete within 5 minutes (worker may be busy)
-          sessionEndTimeout = setTimeout(() => {
-            console.log('[sse-writer] Timeout waiting for claudemd:ready after session end');
-            writeAllAndExit();
-          }, 5 * 60 * 1000);
-        }
+        // Set a shorter timeout now that session has ended
+        // Multiple claudemd tasks should complete within 5 minutes (worker may be busy)
+        sessionEndTimeout = setTimeout(() => {
+          console.log('[sse-writer] Timeout waiting for claudemd:ready after session end');
+          writeAllAndExit(ws);
+        }, 5 * 60 * 1000);
       }
-    } catch (error) {
-      const err = error as Error;
-      console.error(`[sse-writer] Error processing event: ${err.message}`);
     }
   };
+
+  /**
+   * Connect to WebSocket and handle messages
+   */
+  let ws: WebSocket;
+
+  const connect = () => {
+    ws = new WebSocket(wsUrl);
+
+    ws.on('open', () => {
+      console.log('[sse-writer] WebSocket connected, authenticating...');
+      reconnectAttempts = 0;
+
+      // Send SSE-Writer authentication message (Issue #264)
+      ws.send(JSON.stringify({
+        type: 'auth',
+        clientType: 'sse-writer',
+        sessionId: args.session,
+        project: args.project,
+        workingDirectory: args.dir,
+      }));
+    });
+
+    ws.on('message', (data: WebSocket.Data) => {
+      try {
+        const message = JSON.parse(data.toString());
+
+        // Handle ping -> pong for heartbeat
+        if (message.type === 'ping') {
+          ws.send(JSON.stringify({ type: 'pong' }));
+          return;
+        }
+
+        // Handle auth:success
+        if (message.type === 'auth:success') {
+          console.log(`[sse-writer] Authenticated as ${message.clientId}`);
+          return;
+        }
+
+        // Handle subscribed confirmation
+        if (message.type === 'subscribed') {
+          console.log(`[sse-writer] Subscribed to channels: ${message.channels.join(', ')}`);
+          return;
+        }
+
+        // Handle channel events
+        if (message.type === 'event') {
+          handleEvent(message.channel, message.data);
+          return;
+        }
+
+        // Handle errors
+        if (message.type === 'error' || message.type === 'auth:failed') {
+          console.error(`[sse-writer] Server error: ${message.message || message.reason}`);
+          return;
+        }
+      } catch (error) {
+        const err = error as Error;
+        console.error(`[sse-writer] Error processing message: ${err.message}`);
+      }
+    });
+
+    ws.on('close', (code: number, reason: Buffer) => {
+      console.log(`[sse-writer] WebSocket closed: ${code} - ${reason.toString()}`);
+
+      // Attempt reconnection unless we're shutting down
+      if (code !== 1000 && code !== 1001 && reconnectAttempts < maxReconnectAttempts) {
+        reconnectAttempts++;
+        console.log(`[sse-writer] Reconnecting in ${reconnectDelay}ms (attempt ${reconnectAttempts}/${maxReconnectAttempts})`);
+        setTimeout(connect, reconnectDelay);
+      } else if (reconnectAttempts >= maxReconnectAttempts) {
+        console.error('[sse-writer] Max reconnection attempts reached, shutting down');
+        writeAllAndExit(null);
+      }
+    });
+
+    ws.on('error', (error: Error) => {
+      console.error(`[sse-writer] WebSocket error: ${error.message}`);
+    });
+  };
+
+  // Initial connection
+  connect();
 
   // Graceful shutdown handlers
   const shutdown = (signal: string) => {
@@ -365,7 +411,7 @@ function main(): void {
     if (sessionEndTimeout) {
       clearTimeout(sessionEndTimeout);
     }
-    writeAllAndExit();
+    writeAllAndExit(ws);
   };
 
   process.on('SIGTERM', () => shutdown('SIGTERM'));
@@ -379,7 +425,7 @@ function main(): void {
     if (sessionEndTimeout) {
       clearTimeout(sessionEndTimeout);
     }
-    writeAllAndExit();
+    writeAllAndExit(ws);
   }, TIMEOUT_MS);
 
   // Keep process running

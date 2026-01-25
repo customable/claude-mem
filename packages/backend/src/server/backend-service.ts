@@ -148,6 +148,9 @@ export class BackendService {
       // Initialize SSE broadcaster (TaskDispatcher will wire up worker events)
       this.sseBroadcaster = new SSEBroadcaster();
 
+      // Wire SSE broadcaster to WorkerHub for WebSocket event publishing (Issue #264)
+      this.sseBroadcaster.setWorkerHub(this.workerHub);
+
       // Handle worker ready for termination (not overridden by TaskDispatcher)
       this.workerHub.onWorkerReadyForTermination = (workerId) => {
         // Execute pending termination when worker finishes its task
