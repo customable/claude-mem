@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2127 | 5:27 PM | 🔄 | Convert compressed_observation_id to ManyToOne | ~2288 |
-| #1916 | 4:45 PM | 🔵 | Observation Entity Structure Analysis | ~1961 |
-| #1896 | 4:41 PM | 🔵 | Examining Observation Entity Structure | ~1990 |
-| #1374 | 3:00 PM | 🔵 | Document Entity Structure Analysis | ~1324 |
+| #2147 | 5:30 PM | 🔵 | Examining Summary Entity Structure | ~1132 |
+| #2146 | 5:30 PM | 🔵 | Session Entity Structure Analysis | ~1317 |
+| #2145 | 5:30 PM | 🔵 | UserPrompt Entity Structure Analysis | ~953 |
+| #2142 | 5:29 PM | 🟠 | Add ArchivedOutput import to Observation | ~2575 |
+| #2137 | 5:28 PM | 🔵 | ArchivedOutput Entity Structure | ~1370 |
+| #2135 | 5:27 PM | 🔄 | Add ManyToOne to ArchivedOutput | ~1623 |
+| #2130 | 5:27 PM | 🔵 | Exploring Observation Entity | ~2008 |
+| #2127 | 5:27 PM | 🔄 | Convert compressed_observation_id | ~2288 |
+| #1916 | 4:45 PM | 🔵 | Observation Entity Structure | ~1961 |
+| #1896 | 4:41 PM | 🔵 | Examining Observation Entity | ~1990 |
+| #1374 | 3:00 PM | 🔵 | Document Entity Structure | ~1324 |
 | #985 | 1:58 PM | 🔵 | TechnologyUsage Entity Structure | ~1023 |
-| #984 | 1:58 PM | 🔵 | Database entities structure discovered | ~1144 |
+| #984 | 1:58 PM | 🔵 | Database entities structure | ~1144 |
 | #983 | 1:58 PM | 🔵 | Achievement Entity Structure | ~981 |
 | #982 | 1:58 PM | 🔵 | ProjectSettings Entity Structure | ~1207 |
 | #981 | 1:58 PM | 🔵 | ArchivedOutput Entity Structure | ~1365 |
-| #980 | 1:58 PM | 🔵 | UserPrompt Entity Structure Analysis | ~1138 |
-| #979 | 1:58 PM | 🔵 | ObservationTemplate Entity Structure | ~1082 |
-| #978 | 1:58 PM | 🔵 | RawMessage Entity Structure Analysis | ~1276 |
+| #980 | 1:58 PM | 🔵 | UserPrompt Entity Structure | ~1138 |
+| #979 | 1:58 PM | 🔵 | ObservationTemplate Entity | ~1082 |
+| #978 | 1:58 PM | 🔵 | RawMessage Entity Structure | ~1276 |
 | #977 | 1:58 PM | 🔵 | DailyStats entity structure | ~1172 |
-| #975 | 1:58 PM | 🔵 | Summary Entity Structure | ~1126 |
-| #974 | 1:58 PM | 🔵 | ObservationLink Entity Structure | ~1143 |
+| #975 | 1:58 PM | 🔵 | Examining Summary Entity | ~1126 |
+| #974 | 1:58 PM | 🔵 | ObservationLink Entity | ~1143 |
 | #973 | 1:58 PM | 🔵 | CodeSnippet Entity Structure | ~1177 |
-| #972 | 1:57 PM | 🔵 | Session Entity Structure Analysis | ~1223 |
+| #972 | 1:57 PM | 🔵 | Session Entity Structure | ~1223 |
 | #971 | 1:57 PM | 🔵 | ClaudeMd Entity Structure | ~1040 |
 | #970 | 1:57 PM | 🔵 | Repository Entity Structure | ~944 |
-| #969 | 1:57 PM | 🔵 | Document Entity Structure Analysis | ~1322 |
-| #967 | 1:57 PM | 🔵 | Observation Entity Structure Analysis | ~1963 |
-| #966 | 1:57 PM | 🔵 | Task Entity Structure Analysis | ~1413 |
+| #969 | 1:57 PM | 🔵 | Document Entity Structure | ~1322 |
+| #967 | 1:57 PM | 🔵 | Observation Entity Structure | ~1963 |
+| #966 | 1:57 PM | 🔵 | Task Entity Structure | ~1413 |
 | #953 | 1:53 PM | 🔄 | Remove compressedObservation relation | ~1723 |
-| #949 | 1:51 PM | 🟠 | Add compressed_observation_id field | ~1698 |
-| #948 | 1:51 PM | 🔄 | Remove unused imports | ~1682 |
-| #940 | 1:48 PM | 🔄 | Add explicit field name and index | ~1573 |
-| #939 | 1:48 PM | 🔄 | Remove redundant field | ~1675 |
-| #938 | 1:48 PM | 🔵 | ArchivedOutput Entity Structure | ~1414 |
-| #933 | 1:46 PM | 🔵 | Session Entity Structure Analysis | ~1324 |
-| #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure | ~1328 |
 
 ## Key Insights
 
-- **Entity Structure Analysis**: Extensive review of database entities (Observation, Session, Document, etc.) reveals a complex data model for tracking AI-generated observations, user interactions, and project metadata.
-- **Refactoring Focus**: Multiple refactoring efforts on `ArchivedOutput` entity to optimize the relationship with `Observation` (e.g., converting `compressed_observation_id` to ManyToOne, adding indexes).
-- **Endless Mode Development**: Key changes related to Endless Mode (Issue #109), including dual-memory system optimizations and UI components (dashboard widget, settings).
-- **Modularization Efforts**: Large UI files (e.g., `Settings.tsx` at 2061 lines) are being broken into modular components for maintainability.
-- **Type Safety Improvements**: Updates to observation interfaces (new fields like `concept`, `gitBranch`) and system prompts to ensure consistency across the monorepo.
+- **Entity Relationships**: Significant refactoring in `ArchivedOutput` and `Observation` entities, including adding/removing ManyToOne relationships to improve type safety and database structure.
+- **Endless Mode**: Focus on `ArchivedOutput` entity for perfect recall in Endless Mode (Issue #109), reducing token usage by ~95%.
+- **UI Improvements**: Added `EndlessModeCard` dashboard widget and modularized `Settings.tsx` into 17 files for better maintainability.
+- **Observation System**: Expanded observation types and fields (e.g., `concept`, `gitBranch`, `decisionCategory`) to sync with system prompts.
+- **Build Warnings**: Need to address CSS and chunk size optimizations post-UI updates.
 </claude-mem-context>
