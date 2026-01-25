@@ -122,7 +122,7 @@ The SSE Writer is a standalone Node.js process that handles real-time CLAUDE.md 
           ▼                ▼                ▼
 ┌─────────────────┐ ┌─────────────┐ ┌─────────────────────────┐
 │    Database     │ │   Worker    │ │      SSE Writer         │
-│    (SQLite)     │ │  (AI Agent) │ │   (CLAUDE.md files)     │
+│(SQLite/Postgres)│ │  (AI Agent) │ │   (CLAUDE.md files)     │
 └─────────────────┘ └─────────────┘ └─────────────────────────┘
 ```
 
@@ -161,7 +161,7 @@ pnpm sync-marketplace
 packages/
 ├── types/          # Shared TypeScript types
 ├── shared/         # Utilities, logging, settings
-├── database/       # SQLite + MikroORM repositories
+├── database/       # SQLite/PostgreSQL + MikroORM repositories
 ├── backend/        # Express API server
 ├── worker/         # AI agents for observation extraction
 ├── hooks/          # Claude Code hook handlers
@@ -221,7 +221,19 @@ pnpm run build:plugin
 
 ## Database
 
-SQLite database at `~/.claude-mem/claude-mem.db` (managed by MikroORM):
+SQLite (default) or PostgreSQL database, managed by MikroORM. See [docs/DATABASE.md](docs/DATABASE.md) for detailed setup instructions.
+
+```bash
+# Default (SQLite)
+claude-mem-backend start
+
+# With PostgreSQL
+claude-mem-backend start --db postgres://user:pass@localhost:5432/claudemem
+# Or via environment variable
+DATABASE_URL=postgres://user:pass@localhost:5432/claudemem claude-mem-backend start
+```
+
+SQLite database at `~/.claude-mem/claude-mem.db`:
 
 | Table | Description |
 |-------|-------------|

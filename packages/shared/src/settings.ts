@@ -417,6 +417,11 @@ export class SettingsManager {
       }
     }
 
+    // Parse DATABASE_URL if set (Issue #262)
+    if (merged.DATABASE_URL) {
+      this.parseDatabaseUrl(merged);
+    }
+
     return merged;
   }
 
@@ -491,6 +496,30 @@ export class SettingsManager {
     }
 
     return migrated;
+  }
+
+  /**
+   * Parse DATABASE_URL connection string into individual settings (Issue #262)
+   *
+   * Supports: postgres://user:pass@host:port/dbname
+   */
+  private parseDatabaseUrl(settings: Settings): void {
+    const url = settings.DATABASE_URL;
+    if (!url) return;
+
+    try {
+      if (url.startsWith('postgres://') || url.startsWith('postgresql://')) {
+        const parsed = new URL(url);
+        settings.DATABASE_TYPE = 'postgres';
+        settings.DATABASE_HOST = parsed.hostname || 'localhost';
+        settings.DATABASE_PORT = parseInt(parsed.port || '5432', 10);
+        settings.DATABASE_USER = decodeURIComponent(parsed.username || '');
+        settings.DATABASE_PASSWORD = decodeURIComponent(parsed.password || '');
+        settings.DATABASE_NAME = parsed.pathname.slice(1) || 'claude_mem'; // Remove leading /
+      }
+    } catch {
+      console.warn('[Settings] Invalid DATABASE_URL format:', url);
+    }
   }
 
   /**
