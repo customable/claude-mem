@@ -65,6 +65,10 @@ export interface Settings {
   VECTOR_DB_PATH: string;
   EMBEDDING_MODEL: string;
 
+  // Embedding Provider Configuration (Issue #112)
+  EMBEDDING_PROVIDER: 'local' | 'mistral';
+  MISTRAL_EMBEDDING_MODEL: string;
+
   // Context Configuration
   CONTEXT_OBSERVATION_LIMIT: number;
   CONTEXT_SHOW_READ_TOKENS: boolean;
@@ -202,6 +206,10 @@ export const DEFAULTS: Settings = {
   VECTOR_DB: 'none',
   VECTOR_DB_PATH: join(DEFAULT_DATA_DIR, 'vector-db'),
   EMBEDDING_MODEL: 'Xenova/all-MiniLM-L6-v2',
+
+  // Embedding Provider Configuration (Issue #112)
+  EMBEDDING_PROVIDER: 'local',
+  MISTRAL_EMBEDDING_MODEL: 'mistral-embed',
 
   // Context Configuration
   CONTEXT_OBSERVATION_LIMIT: 50,

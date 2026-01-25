@@ -2,12 +2,13 @@
  * Embedding Handler
  *
  * Processes text embedding tasks.
- * Generates vector embeddings for texts using the configured embedding model.
+ * Generates vector embeddings for texts using the configured embedding provider.
+ * Supports multiple providers via the embedding registry (Issue #112).
  */
 
 import { createLogger } from '@claude-mem/shared';
 import type { EmbeddingTaskPayload, EmbeddingTask } from '@claude-mem/types';
-import { getQdrantService } from '../services/qdrant-service.js';
+import { getEmbeddingProvider } from '../embeddings/index.js';
 
 const logger = createLogger('embedding-handler');
 
@@ -36,20 +37,24 @@ export async function handleEmbeddingTask(
 
   logger.debug(`Embedding ${texts.length} texts`);
 
-  const qdrantService = getQdrantService();
-  await qdrantService.initialize();
+  // Get embedding provider from registry
+  const provider = getEmbeddingProvider();
+  await provider.initialize();
 
-  // Generate embeddings using the Qdrant service's embedding model
-  const embeddings = await qdrantService.embed(texts);
+  // Generate embeddings using the configured provider
+  const embeddings = await provider.embed(texts);
 
   // Rough token estimate: ~4 chars per token
   const totalTokens = texts.reduce((sum, text) => sum + Math.ceil(text.length / 4), 0);
 
-  logger.info(`Generated ${embeddings.length} embeddings`);
+  logger.info(`Generated ${embeddings.length} embeddings`, {
+    provider: provider.name,
+    dimension: provider.dimension,
+  });
 
   return {
     embeddings,
-    model: 'Xenova/all-MiniLM-L6-v2',
+    model: provider.name,
     tokens: totalTokens,
   };
 }
