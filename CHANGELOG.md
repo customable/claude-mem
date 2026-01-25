@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.49.7] - 2026-01-25
+
+### Bug Fixes
+- Resolve startup issues after Node.js v24 upgrade
+
+### Improvements
+- Clarify typecheck success criteria in documentation
+
+
 ## [2.49.6] - 2026-01-25
 
 ### Bug Fixes
