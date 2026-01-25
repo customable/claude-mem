@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.1] - 2026-01-25
+
+### Bug Fixes
+- Fixed worker to use `127.0.0.1` when `BACKEND_HOST` is `0.0.0.0`
+
+### Improvements
+- Updated auto-generated `CLAUDE.md` files
+
+### Tests
+- Updated route count for admin/shutdown endpoint in backend tests
+
+
 ## [3.0.0] - 2026-01-25
 
 ### Features
