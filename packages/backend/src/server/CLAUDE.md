@@ -7,36 +7,37 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2473 | 6:22 PM | 🔵 | API Rate Limiting and Router Structure | ~1805 |
 | #2344 | 6:02 PM | 🔵 | Backend service routes and dependencies | ~1231 |
-| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter initialization | ~5194 |
-| #2081 | 5:15 PM | 🔵 | Backend API routes structure discovered | ~1198 |
-| #1858 | 4:32 PM | 🟠 | Add SSE broadcaster to HooksRouter initialization | ~5135 |
-| #1844 | 4:30 PM | 🔵 | Backend API routes structure discovered | ~988 |
-| #1842 | 4:30 PM | 🔵 | HooksRouter initialization in backend service | ~851 |
-| #1801 | 4:23 PM | 🟠 | Added SSE broadcaster to HooksRouter initialization | ~5119 |
-| #1800 | 4:23 PM | 🔵 | SSEBroadcaster usage in backend-service.ts | ~918 |
-| #1799 | 4:23 PM | 🔵 | API route structure and rate limiting configuration | ~1096 |
+| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter | ~5194 |
+| #2081 | 5:15 PM | 🔵 | Backend API routes structure | ~1198 |
+| #1858 | 4:32 PM | 🟠 | Add SSE broadcaster to HooksRouter | ~5135 |
+| #1844 | 4:30 PM | 🔵 | Backend API routes structure | ~988 |
+| #1842 | 4:30 PM | 🔵 | HooksRouter initialization | ~851 |
+| #1801 | 4:23 PM | 🟠 | Added SSE broadcaster to HooksRouter | ~5119 |
+| #1800 | 4:23 PM | 🔵 | SSEBroadcaster usage | ~918 |
+| #1799 | 4:22 PM | 🔵 | API route structure and rate limiting | ~1096 |
 | #1793 | 4:22 PM | 🔵 | Backend Service Architecture Overview | ~2407 |
-| #1028 | 2:18 PM | 🔵 | Search for "bun" in backend-service.ts yields no results | ~813 |
-| #779 | 1:11 PM | 🟠 | Added archivedOutputs to TaskDispatcher initialization | ~5244 |
+| #1028 | 2:18 PM | 🔵 | Search for "bun" yields no results | ~813 |
+| #779 | 1:11 PM | 🟠 | Added archivedOutputs to TaskDispatcher | ~5244 |
 | #778 | 1:10 PM | 🔵 | Backend Service Initialization Flow | ~1195 |
-| #770 | 1:09 PM | 🔵 | Backend service initialization and dependency injection | ~1152 |
-| #765 | 1:09 PM | 🔄 | TaskService now receives archivedOutputs dependency | ~5035 |
-| #549 | 12:34 PM | 🔵 | Express app setup with middleware and configuration options | ~1280 |
+| #770 | 1:09 PM | 🔵 | Backend service initialization | ~1152 |
+| #765 | 1:09 PM | 🔄 | TaskService now receives archivedOutputs | ~5035 |
+| #549 | 12:34 PM | 🔵 | Express app setup with middleware | ~1280 |
 | #456 | 12:24 PM | 🔵 | Backend Service Architecture Overview | ~2863 |
-| #447 | 12:23 PM | 🔵 | Backend service initialization and architecture overview | ~2270 |
-| #446 | 12:23 PM | 🔵 | TaskDispatcher usage in backend-service.ts | ~956 |
+| #447 | 12:23 PM | 🔵 | Backend service initialization | ~2270 |
+| #446 | 12:23 PM | 🔵 | TaskDispatcher usage | ~956 |
 | #310 | 12:06 PM | 🔵 | Server module exports identified | ~813 |
-| #309 | 12:06 PM | 🔵 | Express app setup with middleware and configuration options | ~1244 |
-| #306 | 12:06 PM | 🔵 | Identified files containing BackendService or createLogger | ~733 |
+| #309 | 12:06 PM | 🔵 | Express app setup with middleware | ~1244 |
+| #306 | 12:06 PM | 🔵 | Identified files containing BackendService | ~733 |
 | #166 | 11:55 AM | 🔵 | Backend Service Architecture Overview | ~5035 |
-| #86 | 11:38 AM | 🔵 | TaskDispatcher initialization and dependencies | ~1155 |
+| #86 | 11:38 AM | 🔵 | TaskDispatcher initialization | ~1155 |
 
 ## Key Insights
 
-- **SSE Integration**: Multiple additions of `SSEBroadcaster` to `HooksRouter` and `DataRouter` indicate a push for real-time event broadcasting capabilities.
-- **Archived Outputs**: New dependencies (`archivedOutputs`) added to `TaskDispatcher`, `TaskService`, and `DataRouter` suggest expanded functionality for historical data management.
-- **API Structure**: Discovery of route groups (SSE, Data, Search, Export) and rate-limited endpoints reveals a well-organized backend architecture.
-- **Backend Architecture**: The `BackendService` acts as the main orchestrator, managing services, HTTP/WS communication, and database operations (SQLite/PostgreSQL).
-- **Issues Identified**: Missing API endpoint (`GET /api/data/archived-outputs/stats`), SSE writer path handling bugs, and achievement progress calculation flaws need resolution.
+- **Archived Outputs Integration**: Multiple components (DataRouter, TaskDispatcher, TaskService) now include `archivedOutputs` dependency, suggesting expanded historical data handling capabilities.
+- **SSE Implementation**: HooksRouter was enhanced with SSE broadcaster for real-time event broadcasting, improving system responsiveness.
+- **API Structure**: Comprehensive discovery of backend routes, rate limiting, and middleware configuration reveals a well-organized API architecture.
+- **Optimization Focus**: Recent sessions highlight token efficiency improvements (94.5% compression) and search result optimization needs.
+- **Debugging Priority**: Search result extraction issues require JSON structure inspection and jq command adjustments.
 </claude-mem-context>

@@ -5,26 +5,28 @@
 
 ### Jan 25
 
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #2046 | 5:11 PM | 🔵 | Post-tool-use handler for observation extraction | ~3157 |
-| #1834 | 4:29 PM | 🟠 | Add Git command writer control for Bash tool | ~4315 |
-| #1826 | 4:27 PM | 🟠 | Add Git command detection for SSE-Writer pause/resume | ~3971 |
-| #1822 | 4:25 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2563 |
-| #705 | 12:55 PM | 🔵 | Hook handlers registry structure discovered | ~1486 |
-| #692 | 12:54 PM | 🔵 | Post-tool-use handler processes and sends observations | ~2584 |
-| #247 | 12:00 PM | 🔵 | Subagent Stop Hook Handler Implementation | ~1265 |
-| #245 | 11:59 AM | 🔵 | Subagent Start Hook Handler Implementation | ~1328 |
-| #244 | 11:59 AM | 🔵 | Post-tool-use handler processes tool usage for observation extraction | ~2609 |
-| #240 | 11:59 AM | 🔵 | Hook handlers registry structure discovered | ~1479 |
-| #239 | 11:59 AM | 🔵 | Session Start Handler Implementation Analysis | ~3290 |
-| #233 | 11:59 AM | 🔵 | User prompt submission handler with secret detection and urgency detection | ~2003 |
+| ID   | Time      | T       | Title                                                                 | Read       |
+|------|-----------|---------|-----------------------------------------------------------------------|------------|
+| #2462| 6:20 PM   | 🔵      | Hook handlers registry structure discovered                           | ~1475      |
+| #2326| 6:02 PM   | 🔵      | SSE Writer Process Spawning Mechanism                                 | ~2333      |
+| #2046| 5:11 PM   | 🔵      | Post-tool-use handler for observation extraction                      | ~3157      |
+| #1834| 4:29 PM   | 🟠      | Add Git command writer control for Bash tool                          | ~4315      |
+| #1826| 4:27 PM   | 🟠      | Add Git command detection for SSE-Writer pause/resume                 | ~3971      |
+| #1822| 4:25 PM   | 🔵      | Post-tool-use handler processes and sends observations                | ~2563      |
+| #705 | 12:55 PM  | 🔵      | Hook handlers registry structure discovered                           | ~1486      |
+| #692 | 12:54 PM  | 🔵      | Post-tool-use handler processes and sends observations                | ~2584      |
+| #247 | 12:00 PM  | 🔵      | Subagent Stop Hook Handler Implementation                             | ~1265      |
+| #245 | 11:59 AM  | 🔵      | Subagent Start Hook Handler Implementation                            | ~1328      |
+| #244 | 11:59 AM  | 🔵      | Post-tool-use handler processes tool usage for observation extraction  | ~2609      |
+| #240 | 11:59 AM  | 🔵      | Hook handlers registry structure discovered                           | ~1479      |
+| #239 | 11:59 AM  | 🔵      | Session Start Handler Implementation Analysis                          | ~3290      |
+| #233 | 11:59 AM  | 🔵      | User prompt submission handler with secret detection and urgency detection | ~2003 |
 
 ## Key Insights
 
-- **Git Command Handling**: New features added for Git command detection and writer control to prevent conflicts during staging operations.
-- **Observation Extraction**: Multiple discoveries and implementations around post-tool-use handlers for observation extraction, indicating a focus on tracking tool usage.
-- **Hook Handlers**: Extensive exploration of hook handlers (subagent start/stop, session start, user prompt submission) reveals a robust event-driven architecture.
-- **Secret Detection**: User prompt submission handler includes secret detection with configurable handling (skip/redact).
-- **Monorepo Structure**: Project uses a monorepo with 8 packages, requiring careful TypeScript checks and modularization efforts.
+- **Hook Handlers Registry**: Centralized event-driven system discovered with default handlers for session-start, user-prompt-submit, and post-tool-use events.
+- **SSE Writer Mechanism**: Uses Node's `child_process.spawn` for CLAUDE.md updates, with PID management for process control.
+- **Git Integration**: Added pause/resume logic for SSE-Writer during Git operations to prevent conflicts.
+- **Observation Extraction**: Post-tool-use handlers capture and process tool usage data, filtering meta-tools and handling secrets.
+- **Subagent Lifecycle**: Implemented handlers for subagent start/stop events with fail-open behavior for backend communication.
 </claude-mem-context>

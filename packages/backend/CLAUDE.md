@@ -7,6 +7,13 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2473 | 6:22 PM | 🔵 | API Rate Limiting and Router Structure | ~1805 |
+| #2472 | 6:22 PM | 🔵 | HooksRouter usage found in backend-service.ts | ~1107 |
+| #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
+| #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
+| #2350 | 6:03 PM | 🔵 | Located ACHIEVEMENTS constant in insights-service.ts | ~1067 |
+| #2344 | 6:02 PM | 🔵 | Backend service routes and dependencies | ~1231 |
 | #2335 | 6:02 PM | 🔵 | Backend API routes for project settings and archived outputs | ~1694 |
 | #2328 | 6:02 PM | 🔵 | DataRouter initialization and usage discovered | ~1858 |
 | #2327 | 6:02 PM | 🔵 | Archived outputs feature depends on Endless Mode | ~1275 |
@@ -21,7 +28,7 @@
 | #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
 | #2212 | 5:47 PM | 🔵 | Discovered usage of executeSemanticSearch in backend | ~1403 |
 | #2087 | 5:17 PM | 🔄 | Standardize error handling in archived outputs endpoints | ~7328 |
-| #2086 | 5:17 PM | 🔵 | BaseRouter class provides common route utilities | ~1626 |
+| #2086 | 5:16 PM | 🔵 | BaseRouter class provides common route utilities | ~1626 |
 | #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints for Endless Mode | ~2072 |
 | #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter initialization | ~5194 |
 | #2082 | 5:15 PM | 🔵 | DataRouter initialization and usage in backend service | ~2514 |
@@ -30,19 +37,12 @@
 | #2078 | 5:15 PM | 🟠 | Added Archived Outputs API Endpoints for Endless Mode | ~5296 |
 | #2077 | 5:15 PM | 🔵 | Project settings API endpoints discovered | ~1201 |
 | #2076 | 5:15 PM | 🟠 | Added optional archivedOutputs repository to DataRouterDeps | ~5043 |
-| #2071 | 5:14 PM | 🟠 | Add IArchivedOutputRepository and CompressionStatus to imports | ~4942 |
-| #2069 | 5:14 PM | 🔵 | Examining API routes and session handling in data.ts | ~2148 |
-| #2068 | 5:14 PM | 🔵 | Backend routes structure overview | ~1420 |
-| #2067 | 5:14 PM | 🔵 | Exploring Data Router Structure | ~2089 |
-| #2065 | 5:13 PM | 🔵 | No files found with "archived" or "ArchivedOutput" in routes | ~713 |
-| #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
-| #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
 
 ## Key Insights
 
-- **Archived Outputs Feature**: The project is actively implementing archived outputs functionality tied to "Endless Mode" (Issue #109), with new API endpoints, DataRouter integration, and standardized error handling.
-- **Backend Architecture**: The backend uses a modular router architecture with specialized routers (Health, Data, Workers, etc.) and a BaseRouter class providing common utilities.
-- **Semantic Search**: The system implements semantic search through a polling mechanism in the task service, but lacks vector database or Qdrant synchronization functionality.
-- **Missing Features**: Several components are missing or incomplete, including UI implementation for achievements, API endpoints for archived outputs stats, and emoji mappings in system prompts.
-- **Next Steps**: Focus on implementing missing API endpoints, fixing achievement progress calculation, and addressing incomplete emoji mappings.
+- **Archived Outputs Feature**: Significant progress on implementing archived outputs functionality for "Endless Mode" (Issue #109), including new API endpoints and DataRouter integration.
+- **Insights Service**: Discovered achievement tracking and daily stats logic in insights-service.ts, including bugfix tracking and first-time event detection.
+- **Search Functionality**: Semantic search uses polling mechanism with 30-second timeout; no Qdrant sync or vector search found in current implementation.
+- **Error Handling**: Standardized error responses across archived outputs endpoints using Express response methods.
+- **API Structure**: Backend routes organized into SSE, Data, Search, and Export groups with dependency injection pattern.
 </claude-mem-context>
