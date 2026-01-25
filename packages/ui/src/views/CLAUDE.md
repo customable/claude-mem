@@ -7,16 +7,18 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #185 | 11:56 AM | 🔵 | Live View uses SSE for real-time updates | ~2273 |
-| #169 | 11:55 AM | 🔵 | Dashboard references worker connections | ~757 |
-| #163 | 11:55 AM | 🔵 | Worker/spawn code in UI views | ~758 |
-| #162 | 11:55 AM | 🔵 | Exploring Settings View Implementation | ~5369 |
+| #209 | 11:57 AM | 🔵 | MemoriesView component structure | ~1593 |
+| #202 | 11:57 AM | 🔵 | Dashboard View Uses SSE | ~1658 |
+| #185 | 11:56 AM | 🔵 | Live View uses SSE | ~2273 |
+| #169 | 11:55 AM | 🔵 | Dashboard references workers | ~757 |
+| #163 | 11:55 AM | 🔵 | Worker/spawn code in UI | ~758 |
+| #162 | 11:55 AM | 🔵 | Settings View Implementation | ~5369 |
 
 ## Key Insights
 
-- **Real-time architecture**: Live View uses Server-Sent Events (SSE) via `/api/stream/events` for real-time updates
-- **Worker integration**: Dashboard and other UI components reference worker connections, suggesting backend process management
-- **Settings complexity**: Settings.tsx implements comprehensive tabbed navigation with React hooks for state management
-- **Recent fixes**: Completed task deduplication (SHA-256 hashing), fixed code snippet extraction (newline normalization), and optimized session queries
-- **Next steps**: Test deduplication under load, verify production snippet extraction, and monitor database performance improvements
+- **SSE Implementation**: Multiple components (DashboardView, Live.tsx) use Server-Sent Events (SSE) for real-time updates, indicating a strong focus on live data streaming.
+- **Worker Integration**: Worker-related code is present in Dashboard, Settings, and Live views, suggesting backend worker processes are managed or monitored via the UI.
+- **Task Deduplication**: Recent changes include SHA-256-based task deduplication to prevent duplicate processing, addressing potential efficiency issues.
+- **Performance Fixes**: Resolved N+1 query problems and added database indexes to optimize session queries and overall performance.
+- **Code Extraction Fix**: Fixed code snippet extraction by normalizing escaped newlines, ensuring proper handling of API outputs.
 </claude-mem-context>

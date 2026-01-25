@@ -30,3 +30,6 @@ export * from './plugins.js';
 
 // Memory sharing types
 export * from './sharing.js';
+
+// Metrics configuration types
+export * from './metrics.js';

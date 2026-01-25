@@ -7,18 +7,22 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #241 | 11:59 AM | 🔵 | Exploring Hooks Router Implementation | ~3455 |
+| #200 | 11:56 AM | 🟠 | Add auto-sppawn config to worker API | ~4607 |
+| #198 | 11:56 AM | 🔵 | Exploring Data Router Structure | ~2113 |
+| #194 | 11:56 AM | 🔵 | Backend routes structure overview | ~1464 |
 | #186 | 11:56 AM | 🔵 | Workers Router API Structure | ~2960 |
 | #168 | 11:55 AM | 🔵 | Worker spawning API endpoints | ~1480 |
 | #161 | 11:55 AM | 🔵 | Workers Router API Structure | ~2922 |
 | #71 | 11:35 AM | 🔄 | Optimize session enrichment | ~5555 |
 | #67 | 11:33 AM | 🔵 | Session data enrichment process | ~1604 |
-| #60 | 11:32 AM | 🔵 | Data Router Implementation | ~4896 |
+| #60 | 11:32 AM | 🔵 | Examining Data Router Implementation | ~4896 |
 
 ## Key Insights
 
-- **Worker Management API**: Comprehensive router for worker operations (spawn/terminate/stats) discovered in `workers.ts`
-- **Performance Fix**: Resolved N+1 query problem in session enrichment by implementing batch operations
-- **Data Flow**: Session enrichment process adds observation counts, first prompts, and file metadata
-- **Deduplication**: Implemented SHA-256 hashing for task deduplication to prevent duplicate processing
-- **Code Extraction**: Fixed snippet extraction by normalizing escaped newlines in API outputs
+- **Router Architecture**: Backend uses modular router structure with 20+ specialized routers (HealthRouter, DataRouter, WorkersRouter)
+- **Worker Management**: Comprehensive worker API with spawning, termination, and auto-spawn configuration capabilities
+- **Performance Fix**: Resolved N+1 query problem in session enrichment by implementing batch fetching
+- **Task Deduplication**: Implemented SHA-256 hashing for task deduplication with `deduplication_key` field
+- **Code Extraction**: Fixed code snippet extraction by normalizing escaped newlines in API outputs
 </claude-mem-context>

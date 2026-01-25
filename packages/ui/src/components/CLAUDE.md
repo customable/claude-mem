@@ -7,32 +7,15 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15041 | 12:05 AM | 🟠 | Added Capability Overview Section | ~5606 |
-| #15035 | 12:04 AM | 🟠 | Added capability distribution tracking | ~5618 |
-| #15034 | 12:04 AM | 🟠 | Enhanced capability display | ~5793 |
-| #15030 | 12:03 AM | 🟠 | Enhanced WorkerStatus with parsing | ~6128 |
-| #15028 | 12:02 AM | 🔵 | WorkerStatus component structure | ~5113 |
-
-### Jan 24, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #13529 | 7:23 PM | 🟠 | Added CodeSnippets component | ~4265 |
-| #13528 | 7:22 PM | 🟠 | Import CodeSnippets component | ~3908 |
-| #13527 | 7:22 PM | 🟠 | Created CodeSnippets component | ~5080 |
-| #13517 | 7:21 PM | 🔵 | ObservationDetails structure | ~3629 |
-| #12716 | 11:38 AM | 🔵 | UI component with view toggle | ~1134 |
-| #12710 | 11:38 AM | 🔴 | Prevent event propagation | ~4320 |
-| #12708 | 11:37 AM | 🔵 | ObservationDetails view toggle | ~1731 |
-| #12256 | 10:33 AM | 🔵 | ObservationDetails structure | ~3611 |
-| #12253 | 10:32 AM | 🔴 | Prevent event propagation | ~4532 |
-| #11872 | 10:38 PM | 🔵 | StatusBar uses SSE for monitoring | ~1367 |
+| #210 | 11:57 AM | 🟠 | Added Auto-Spawn Status Indicator | ~5481 |
+| #206 | 11:57 AM | 🔵 | WorkerStatus Component Overview | ~5211 |
+| #192 | 11:56 AM | 🔵 | WorkerStatus Component Overview | ~5189 |
 
 ## Key Insights
 
-- **Worker Capability Enhancements**: Major updates to `WorkerStatus` component including capability parsing, color coding, and distribution tracking (addressing issues #224 and #226).
-- **Code Display Improvements**: New `CodeSnippets` component with syntax highlighting and copy functionality enhances observation details.
-- **UI Fixes**: Multiple fixes for event propagation in tab buttons to prevent unintended behaviors.
-- **Search & Lifecycle**: Implemented BM25 ranking for FTS5 search and subagent lifecycle hooks with SSE integration.
-- **Next Steps**: Focus on UI bundle optimization, TypeScript error resolution, and production testing of new features.
+- Implemented task deduplication using SHA-256 hashing of payloads
+- Fixed code snippet extraction by normalizing escaped newlines in API outputs
+- Optimized session queries to resolve N+1 issues with batch operations
+- Added UI indicator for auto-spawn status in WorkerStatus component
+- Discovered and addressed database performance issues (missing indexes, malformed JSON)
 </claude-mem-context>
