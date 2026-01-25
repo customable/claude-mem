@@ -62,6 +62,10 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         run: pnpm run build
 
+      - name: Run tests
+        if: steps.check.outputs.skip != 'true'
+        run: pnpm run test
+
       - name: Type check
         if: steps.check.outputs.skip != 'true'
         run: pnpm run typecheck
