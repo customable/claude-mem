@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1165 | 2:34 PM | 🔵 | StatusBar uses SSE for health monitoring | ~1211 |
-| #1163 | 2:34 PM | 🔵 | App.tsx reveals UI architecture | ~2288 |
-| #837 | 1:24 PM | 🔵 | App.tsx navigation system analysis | ~2296 |
-| #835 | 1:24 PM | 🔵 | Dashboard View Implementation | ~3466 |
-| #833 | 1:24 PM | 🔵 | Layout CSS responsive design | ~2065 |
-| #831 | 1:23 PM | 🔵 | Sidebar Component Structure | ~1828 |
-| #641 | 12:46 PM | 🔵 | SSE Hook Implementation | ~2838 |
-| #639 | 12:46 PM | 🟠 | WebSocket hook for real-time comms | ~5993 |
-| #574 | 12:38 PM | 🟠 | Added "Tasks" to Sidebar | ~2431 |
-| #566 | 12:37 PM | 🟠 | TasksView navigation integration | ~2619 |
-| #565 | 12:37 PM | 🟠 | Added 'tasks' view to navigation | ~3191 |
-| #564 | 12:36 PM | 🟠 | Created Tasks View Component | ~6856 |
-| #563 | 12:35 PM | 🔵 | API Client Methods Analysis | ~2327 |
-| #561 | 12:35 PM | 🟠 | Added task API endpoints | ~5957 |
-| #560 | 12:35 PM | 🔵 | API Client Methods Discovery | ~2194 |
-| #559 | 12:35 PM | 🟠 | Added Task interfaces | ~5799 |
-| #558 | 12:35 PM | 🔵 | SSE Hook Analysis | ~2849 |
-| #557 | 12:35 PM | 🔵 | API Client Interface Definitions | ~1139 |
-| #556 | 12:35 PM | 🔵 | Task-related variables found | ~765 |
-| #555 | 12:35 PM | 🔵 | API Client Structure | ~1518 |
-| #552 | 12:34 PM | 🔵 | Dashboard component analysis | ~3451 |
-| #537 | 12:34 PM | 🔵 | LiveView Component Analysis | ~4626 |
-| #497 | 12:28 PM | 🔄 | Refactored App with sidebar | ~6421 |
-| #496 | 12:28 PM | 🟠 | Added layout.css import | ~1329 |
-| #492 | 12:28 PM | 🟠 | Created Sidebar Component | ~2670 |
-| #490 | 12:27 PM | 🟠 | Added responsive layout CSS | ~3209 |
-| #489 | 12:27 PM | 🔵 | UI styling architecture | ~1008 |
-| #488 | 12:27 PM | 🔵 | Tailwind CSS configuration | ~1032 |
-| #484 | 12:26 PM | 🔵 | App.tsx structure analysis | ~2422 |
-| #375 | 12:16 PM | 🟠 | Replaced spawn with modal | ~5240 |
+| #1476 | 3:27 PM | 🔵 | Dashboard component structure | ~3448 |
+| #1474 | 3:27 PM | 🔵 | App.tsx UI architecture | ~2285 |
+| #1472 | 3:26 PM | 🔵 | View navigation system | ~1300 |
+| #1439 | 3:21 PM | 🔵 | Documents View analysis | ~5445 |
+| #1437 | 3:20 PM | 🟠 | Added document actions | ~5826 |
+| #1435 | 3:20 PM | 🟠 | DocumentCard export/preview | ~5473 |
+| #1434 | 3:20 PM | 🔵 | Markdown rendering | ~1969 |
+| #1432 | 3:19 PM | 🔵 | DocumentCard structure | ~1697 |
+| #1431 | 3:19 PM | 🟠 | Document export/preview | ~5799 |
+| #1430 | 3:18 PM | 🔵 | Located DocumentCard | ~700 |
+| #1429 | 3:18 PM | 🟠 | Preview state added | ~5453 |
+| #1428 | 3:18 PM | 🔵 | Search/filter UI | ~1284 |
+| #1427 | 3:18 PM | 🟠 | Preview modal/export | ~5743 |
+| #1426 | 3:18 PM | 🔵 | Empty state handling | ~1259 |
+| #1425 | 3:17 PM | 🔵 | Filtering logic | ~1385 |
+| #1424 | 3:17 PM | 🟠 | Export/preview functions | ~6999 |
+| #1423 | 3:17 PM | 🔵 | Client-side filtering | ~1723 |
+| #1422 | 3:17 PM | 🔵 | Title handling logic | ~1869 |
+| #1401 | 3:02 PM | 🔄 | Remove unused variable | ~5614 |
+| #1400 | 3:02 PM | 🟠 | Source tool counting | ~5747 |
+| #1398 | 3:02 PM | 🟠 | Clear filters button | ~7207 |
+| #1397 | 3:02 PM | 🔵 | Filter controls | ~1366 |
+| #1396 | 3:02 PM | 🟠 | Copy functionality | ~5448 |
+| #1395 | 3:02 PM | 🔵 | Delete/copy features | ~1608 |
+| #1394 | 3:01 PM | 🔴 | Title display fix | ~6519 |
+| #1390 | 3:01 PM | 🟠 | Copy button added | ~5549 |
+| #1389 | 3:01 PM | 🟠 | DocumentCard enhancements | ~7230 |
+| #1388 | 3:01 PM | 🔵 | DocumentCard metadata | ~1334 |
+| #1375 | 3:00 PM | 🔵 | Documents view structure | ~5355 |
+| #1371 | 2:59 PM | 🔵 | API client structure | ~5531 |
 
 ## Key Insights
 
-- **Task Management System**: Significant work on task management features including new API endpoints, interfaces, and a comprehensive Tasks View with Kanban/list views and filtering capabilities.
-- **UI Architecture**: Major refactoring from tab-based to responsive sidebar navigation using CSS-only toggle patterns, with DaisyUI and Tailwind CSS for styling.
-- **Real-time Features**: Implementation of WebSocket and SSE hooks for real-time communication, including worker status monitoring and task progress updates.
-- **Bun Compatibility Issues**: Ongoing work to replace Bun with Node-compatible alternatives across documentation, build scripts, and Docker configurations.
-- **Testing Infrastructure**: Comprehensive test suites added for error handling, XML parsing, and retry utilities, with Vitest configuration adjustments for stability.
+- **Document Management Enhancements**: Added preview modal, export (Markdown), and improved title handling with fallback logic
+- **Filtering Improvements**: Implemented source tool tabs with counts and clear filters button
+- **UI/UX Updates**: Enhanced DocumentCard with copy functionality and better metadata display
+- **Code Quality**: Removed unused variables and maintained TypeScript type safety
+- **Next Steps**: Focus on mobile responsiveness, pagination, and remaining UI enhancements (Issue #285)
 </claude-mem-context>

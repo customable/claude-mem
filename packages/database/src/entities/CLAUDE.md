@@ -20,12 +20,12 @@
 | #975 | 1:58 PM | 🔵 | Summary Entity Structure | ~1126 |
 | #974 | 1:58 PM | 🔵 | ObservationLink Entity Structure | ~1143 |
 | #973 | 1:58 PM | 🔵 | CodeSnippet Entity Structure | ~1177 |
-| #972 | 1:58 PM | 🔵 | Session Entity Structure Analysis | ~1223 |
-| #971 | 1:58 PM | 🔵 | ClaudeMd Entity Structure | ~1040 |
-| #970 | 1:58 PM | 🔵 | Repository Entity Structure | ~944 |
-| #969 | 1:58 PM | 🔵 | Document Entity Structure Analysis | ~1322 |
-| #967 | 1:58 PM | 🔵 | Observation Entity Structure | ~1963 |
-| #966 | 1:58 PM | 🔵 | Task Entity Structure Analysis | ~1413 |
+| #972 | 1:57 PM | 🔵 | Session Entity Structure Analysis | ~1223 |
+| #971 | 1:57 PM | 🔵 | ClaudeMd Entity Structure | ~1040 |
+| #970 | 1:57 PM | 🔵 | Repository Entity Structure | ~944 |
+| #969 | 1:57 PM | 🔵 | Document Entity Structure Analysis | ~1322 |
+| #967 | 1:57 PM | 🔵 | Observation Entity Structure Analysis | ~1963 |
+| #966 | 1:57 PM | 🔵 | Task Entity Structure Analysis | ~1413 |
 | #953 | 1:53 PM | 🔄 | Remove compressedObservation relation | ~1723 |
 | #949 | 1:51 PM | 🟠 | Add compressed_observation_id field | ~1698 |
 | #948 | 1:51 PM | 🔄 | Remove unused imports | ~1682 |
@@ -34,15 +34,15 @@
 | #938 | 1:48 PM | 🔵 | ArchivedOutput Entity Structure | ~1414 |
 | #933 | 1:46 PM | 🔵 | Session Entity Structure Analysis | ~1324 |
 | #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure | ~1328 |
-| #662 | 12:49 PM | 🔵 | Observation Entity Structure | ~1985 |
+| #662 | 12:49 PM | 🔵 | Observation Entity Structure Analysis | ~1985 |
 | #661 | 12:49 PM | 🟠 | Add ArchivedOutput entity export | ~1228 |
 | #660 | 12:49 PM | 🟠 | Create ArchivedOutput entity | ~1882 |
 
 ## Key Insights
 
-- **Entity Structure Deep Dive**: Extensive analysis of database entities (e.g., `Observation`, `Session`, `ArchivedOutput`) reveals a well-structured Mikro-ORM-based schema for tracking coding sessions, achievements, and project metadata.
-- **ArchivedOutput Refinement**: Iterative improvements to the `ArchivedOutput` entity (e.g., adding `compressed_observation_id`, removing redundant fields) to support Endless Mode (Issue #109) for perfect recall.
-- **UI and Migration Focus**: Recent sessions highlight UI issues (achievements, heatmap) and a runtime migration from Bun to Node.js, requiring follow-up actions for stability and usability.
-- **Task Progress**: Multiple tasks completed (e.g., copy/refresh actions, document filtering) with pending UI fixes (mobile responsiveness, pagination) and backend health endpoint misconfiguration.
-- **Gamification and Analytics**: Entities like `Achievement` and `DailyStats` indicate a focus on gamification and learning insights, suggesting a user engagement strategy.
+- **Entity Structure Discovery**: Comprehensive analysis of database entities (Session, Observation, ArchivedOutput, etc.) reveals a well-structured Mikro-ORM-based schema for tracking Claude Code SDK sessions, observations, and project metadata.
+- **ArchivedOutput Refinement**: Multiple refactoring steps (#939, #940, #948, #953) indicate ongoing optimization of the `ArchivedOutput` entity for Endless Mode (Issue #109), focusing on performance and relationship simplification.
+- **Feature Additions**: New fields like `compressed_observation_id` (#949) and entity exports (#661) suggest active development of core functionality for observation management.
+- **UI Improvements**: Session summaries highlight completed UI enhancements (document preview, filtering) and pending tasks (mobile responsiveness, pagination).
+- **Migration Context**: Runtime migration from Bun to Node.js noted in summaries, requiring stability verification.
 </claude-mem-context>

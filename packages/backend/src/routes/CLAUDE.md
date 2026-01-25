@@ -35,9 +35,9 @@
 
 ## Key Insights
 
-- **Backend Architecture**: The project has a well-structured backend with modular routers (HealthRouter, DataRouter, WorkersRouter, etc.) and a BaseRouter providing common utilities.
-- **Search Functionality**: Implements both semantic (Qdrant) and full-text (SQLite FTS5) search with fallback mechanisms and date range filtering.
-- **Worker Management**: Comprehensive worker management API with auto-spawn configuration, stats, and lifecycle management.
-- **Performance Optimization**: Recent refactoring addressed N+1 query problems in session enrichment by batching observation counts and file stats.
-- **UI and Task Progress**: Multiple UI improvements completed (copy/refresh actions, filtering), with remaining tasks focused on mobile responsiveness, pagination, and backend health endpoint fixes.
+- **Backend Architecture**: The project has a well-structured backend with modular routers (HealthRouter, DataRouter, WorkersRouter, etc.), each handling specific API endpoints.
+- **Session Enrichment Optimization**: Refactored session enrichment logic to batch fetch observation counts and file stats, addressing N+1 query performance issues.
+- **Search Functionality**: Implemented both semantic (Qdrant) and full-text (SQLite FTS5) search with fallback mechanisms and date range filtering.
+- **Worker Management**: Comprehensive worker management API with auto-spawn configuration, spawning/termination endpoints, and status checks.
+- **UI Improvements**: Recent focus on document preview modals, export functionality, title handling, and filtering enhancements.
 </claude-mem-context>
