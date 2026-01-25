@@ -36,7 +36,7 @@
     "@claude-mem/types": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.19.30",
+    "@types/node": "^24.10.9",
     "typescript": "^5.9.3"
   },
   "files": [

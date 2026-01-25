@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/eventsource": "^3.0.0",
-    "@types/node": "^22.19.7",
+    "@types/node": "^24.10.9",
     "typescript": "^5.9.3",
     "zod": "^4.3.6"
   }
