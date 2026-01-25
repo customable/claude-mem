@@ -101,9 +101,12 @@ export interface ObservationTask extends BaseTask {
     subtitle?: string;
     narrative?: string;
     facts?: string[];
+    concept?: string;
     concepts?: string[];
     filesRead?: string[];
     filesModified?: string[];
+    gitBranch?: string;
+    decisionCategory?: string;
   };
 }
 

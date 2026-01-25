@@ -7,23 +7,37 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1934 | 4:47 PM | 🟠 | Add new observation fields: concept, gitBranch, decisionCategory | ~2835 |
+| #1931 | 4:47 PM | 🟠 | Added new fields to ObservationResult interface | ~2551 |
+| #1928 | 4:47 PM | 🟠 | Added new fields to observation parsing | ~3707 |
+| #1925 | 4:46 PM | 🔄 | Expanded observation types in XML parser | ~3323 |
+| #1922 | 4:46 PM | 🔵 | Discovered system prompts for observation extraction and summarization | ~3708 |
+| #1910 | 4:44 PM | 🔵 | XML Parser for Agent Responses | ~2203 |
+| #1908 | 4:44 PM | 🔵 | Observation Handler Structure and Functionality | ~1937 |
+| #1907 | 4:44 PM | 🔵 | Discovered system prompts for observation extraction and summarization | ~3703 |
+| #1727 | 4:12 PM | 🔵 | CLAUDE.md Handler Implementation Analysis | ~1791 |
+| #1287 | 2:48 PM | 🔵 | Summarize Handler Implementation Review | ~1583 |
+| #1285 | 2:47 PM | 🔵 | XML Parser for Agent Responses | ~2194 |
+| #1284 | 2:47 PM | 🔵 | Observation Handler Structure and Functionality | ~1917 |
+| #1280 | 2:46 PM | 🔵 | Summarize Handler Implementation Review | ~1550 |
+| #1274 | 2:45 PM | 🔵 | Observation Handler Structure and Functionality | ~1880 |
 | #1015 | 2:13 PM | 🔵 | XML Parser for Agent Responses | ~2198 |
-| #887 | 1:35 PM | 🔄 | Refactor embedding handler | ~3727 |
-| #878 | 1:33 PM | 🔵 | Embedding Handler Review | ~1257 |
-| #868 | 1:30 PM | 🔵 | Embedding Handler Review | ~1313 |
-| #747 | 1:05 PM | 🟠 | Added compression handler export | ~1847 |
-| #746 | 1:05 PM | 🟠 | Compression system prompt added | ~5287 |
-| #745 | 1:05 PM | 🔵 | Found system prompts | ~3063 |
-| #744 | 1:05 PM | 🟠 | Implemented compression handler | ~3192 |
-| #743 | 1:04 PM | 🔵 | Discovered task handlers structure | ~912 |
-| #742 | 1:04 PM | 🔵 | Observation Handler Review | ~1945 |
-| #698 | 12:54 PM | 🔵 | Observation Handler Structure | ~1866 |
+| #887 | 1:35 PM | 🔄 | Refactor embedding handler to support multiple providers | ~3727 |
+| #878 | 1:33 PM | 🔵 | Embedding Handler Implementation Review | ~1257 |
+| #868 | 1:30 PM | 🔵 | Embedding Handler Implementation Review | ~1313 |
+| #747 | 1:05 PM | 🟠 | Added compression handler export to handlers index | ~1847 |
+| #746 | 1:05 PM | 🟠 | Added compression system prompt and builder function | ~5287 |
+| #745 | 1:05 PM | 🔵 | Found system prompts for observation extraction and summarization | ~3063 |
+| #744 | 1:05 PM | 🟠 | Implemented compression handler for archived tool outputs | ~3192 |
+| #743 | 1:04 PM | 🔵 | Discovered task handlers structure in worker package | ~912 |
+| #742 | 1:04 PM | 🔵 | Observation Handler Implementation Review | ~1945 |
+| #698 | 12:54 PM | 🔵 | Observation Handler Structure and Functionality | ~1866 |
 
 ## Key Insights
 
-- **Embedding System Refactored**: Moved to a provider registry pattern supporting multiple providers (Mistral, local) with priority-based resolution
-- **Compression System Implemented**: New handler achieves ~95% token reduction for archived tool outputs using dual-memory architecture
-- **XML Parser Discovered**: Regex-based extraction system processes agent responses in XML format for observations/summaries
-- **MikroORM Refactoring Planned**: Entity relationships need updates for PostgreSQL compatibility and missing relations
-- **Worker Architecture Proposed**: New task priority system and worker hub federation architecture in design phase
+- **Enhanced Observation Metadata**: Added three new optional fields (`concept`, `gitBranch`, `decisionCategory`) to the observation data model, expanding metadata capture capabilities.
+- **Expanded Observation Types**: Refactored XML parser to support 20 categorized observation types, improving classification and organization.
+- **Compression Feature**: Implemented a compression handler for archived tool outputs, achieving ~95% token reduction while preserving essential information.
+- **Embedding Handler Refactor**: Updated embedding handler to support multiple providers via a registry system, replacing direct QdrantService usage.
+- **Race Condition Identified**: Discovered a race condition where SSE-Writer overwrites CLAUDE.md during Git operations, requiring implementation of pausing mechanisms.
 </claude-mem-context>

@@ -8,10 +8,42 @@
 import type { ParsedObservation, ParsedSummary } from '../agents/types.js';
 
 /**
- * Valid observation types
+ * Valid observation types - synchronized with ObservationType in @claude-mem/types
  */
-const VALID_TYPES = ['bugfix', 'feature', 'refactor', 'change', 'discovery', 'decision', 'session-request'] as const;
-type ObservationType = typeof VALID_TYPES[number];
+const VALID_TYPES = [
+  // Work Types
+  'bugfix',
+  'feature',
+  'refactor',
+  'change',
+  // Documentation & Config
+  'docs',
+  'config',
+  // Quality & Testing
+  'test',
+  'security',
+  'performance',
+  // Infrastructure
+  'deploy',
+  'infra',
+  'migration',
+  // Knowledge Types
+  'discovery',
+  'decision',
+  'research',
+  // Integration
+  'api',
+  'integration',
+  'dependency',
+  // Planning & Tasks
+  'task',
+  'plan',
+  // Manual Memory
+  'note',
+  // Session
+  'session-request',
+] as const;
+type ObservationType = (typeof VALID_TYPES)[number];
 
 /**
  * Extract content between XML tags
@@ -78,9 +110,12 @@ function parseObservation(xml: string): ParsedObservation | null {
     subtitle: extractTag(xml, 'subtitle') || undefined,
     narrative: extractTag(xml, 'narrative') || undefined,
     facts: parseList(extractTag(xml, 'facts')),
+    concept: extractTag(xml, 'concept') || undefined,
     concepts: parseList(extractTag(xml, 'concepts')),
     filesRead: parseList(extractTag(xml, 'files_read')),
     filesModified: parseList(extractTag(xml, 'files_modified')),
+    gitBranch: extractTag(xml, 'git_branch') || undefined,
+    decisionCategory: extractTag(xml, 'decision_category') || undefined,
   };
 }
 

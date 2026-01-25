@@ -25,7 +25,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js start",
-    "dev": "node --watch dist/cli.js start"
+    "dev": "node --watch dist/cli.js start",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@claude-mem/database": "workspace:*",

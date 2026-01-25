@@ -98,42 +98,42 @@ Nach Änderungen an Backend, Worker oder Hooks:
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1890 | 4:41 PM | 🟣 | Task 2 status updated to completed | ~684 |
-| #1889 | 4:40 PM | 🔵 | UI Component for Session Details | ~1196 |
-| #1888 | 4:40 PM | 🔵 | Located getTypeBadge function | ~722 |
-| #1887 | 4:40 PM | 🔵 | Project deletion behavior in UI | ~1369 |
-| #1886 | 4:40 PM | 🔴 | OBSERVATION_SYSTEM_PROMPT sync issue | ~3021 |
-| #1885 | 4:40 PM | 🔵 | UI displays file read/modified stats | ~1515 |
-| #1884 | 4:39 PM | 🔵 | UI component structure for sessions | ~1802 |
-| #1883 | 4:38 PM | 🔵 | TypeScript type check completed | ~858 |
-| #1882 | 4:38 PM | 🔵 | TypeScript type check passes 7/8 | ~1024 |
-| #1881 | 4:37 PM | 🔵 | TypeScript type check passes | ~951 |
-| #1880 | 4:37 PM | 🔵 | TypeScript type check passes | ~969 |
-| #1879 | 4:36 PM | 🟠 | Added project actions dropdown | ~5651 |
-| #1878 | 4:36 PM | 🔵 | API Client Structure and Types | ~1529 |
-| #1877 | 4:36 PM | 🟠 | Added project actions UI state | ~5849 |
-| #1876 | 4:36 PM | 🟠 | Added ProjectSettings interface | ~5551 |
-| #1875 | 4:35 PM | 🟠 | Add useRef and ProjectSettings | ~5132 |
-| #1874 | 4:35 PM | 🟠 | Added PUT request function | ~5524 |
-| #1873 | 4:35 PM | 🟠 | Added project settings API | ~5650 |
-| #1872 | 4:35 PM | 🔵 | API Client Methods for Data | ~2354 |
-| #1871 | 4:35 PM | 🔵 | API client interfaces and models | ~1519 |
-| #1870 | 4:35 PM | 🔵 | Project parameter usage | ~2949 |
-| #1869 | 4:34 PM | 🔵 | ProjectsView component structure | ~5194 |
-| #1868 | 4:34 PM | 🔵 | API Client Structure and Endpoints | ~3600 |
-| #1867 | 4:34 PM | 🔵 | API client project endpoints | ~877 |
-| #1866 | 4:34 PM | 🔵 | No project modification endpoints | ~723 |
-| #1865 | 4:34 PM | 🔵 | Project deletion/archive/rename | ~712 |
-| #1864 | 4:33 PM | 🔵 | Task list reveals project features | ~862 |
-| #1863 | 4:33 PM | 🟠 | Add project actions | ~797 |
-| #1862 | 4:32 PM | 🔵 | Exploring Projects.tsx | ~5202 |
-| #1861 | 4:32 PM | 🔵 | No project management API | ~720 |
+| #1935 | 4:47 PM | 🔵 | Located ObservationTask interface | ~684 |
+| #1934 | 4:47 PM | 🟠 | Added observation fields: concept, gitBranch, decisionCategory | ~2835 |
+| #1933 | 4:47 PM | 🟣 | Task 5 status updated to completed | ~707 |
+| #1932 | 4:47 PM | 🔵 | Task system architecture overview | ~3213 |
+| #1931 | 4:47 PM | 🟠 | Added fields to ObservationResult interface | ~2551 |
+| #1930 | 4:47 PM | 🔵 | Database model types for claude-mem | ~3322 |
+| #1929 | 4:47 PM | 🟣 | Task 3 status updated to "in_progress" | ~699 |
+| #1928 | 4:47 PM | 🟠 | Added new fields to observation parsing | ~3707 |
+| #1927 | 4:47 PM | 🟣 | Task 5 status updated to "in_progress" | ~695 |
+| #1926 | 4:47 PM | 🟣 | Task 4 status updated to "in_progress" | ~723 |
+| #1925 | 4:46 PM | 🔄 | Expanded observation types in XML parser | ~3323 |
+| #1924 | 4:46 PM | 🟣 | Task status updated from pending to in_progress | ~722 |
+| #1923 | 4:46 PM | 🔄 | Expanded ParsedObservation interface | ~2893 |
+| #1922 | 4:46 PM | 🔵 | Discovered system prompts for observation extraction | ~3708 |
+| #1921 | 4:46 PM | 🟣 | Task 2 status updated to "in_progress" | ~699 |
+| #1920 | 4:46 PM | 🟠 | Update VALID_TYPES in xml-parser.ts | ~928 |
+| #1919 | 4:45 PM | 🟠 | Add new field parsing to xml-parser.ts | ~874 |
+| #1918 | 4:45 PM | 🟠 | Update ParsedObservation type | ~879 |
+| #1917 | 4:45 PM | 🟣 | Run TypeScript check and fix errors | ~741 |
+| #1916 | 4:45 PM | 🔵 | Observation Entity Structure Analysis | ~1961 |
+| #1915 | 4:45 PM | 🟠 | Update OBSERVATION_SYSTEM_PROMPT | ~752 |
+| #1914 | 4:45 PM | 🟠 | Update observation-handler.ts | ~792 |
+| #1913 | 4:45 PM | 🔵 | Database model types for claude-mem | ~3302 |
+| #1912 | 4:45 PM | 🔵 | Agent Interface and Types Structure | ~1705 |
+| #1911 | 4:45 PM | 🔵 | Located ParsedObservation interface | ~694 |
+| #1910 | 4:44 PM | 🔵 | XML Parser for Agent Responses | ~2203 |
+| #1909 | 4:44 PM | 🔵 | Issue #290: Modularize UI Views | ~2299 |
+| #1908 | 4:44 PM | 🔵 | Observation Handler Structure | ~1937 |
+| #1907 | 4:44 PM | 🔵 | Discovered system prompts | ~3703 |
+| #1906 | 4:44 PM | 🔴 | Issue #292: OBSERVATION_SYSTEM_PROMPT out of sync | ~2328 |
 
 ## Key Insights
 
-- **Critical Bug**: OBSERVATION_SYSTEM_PROMPT is missing 9 observation types, causing LLM misclassification (#1886). Requires immediate synchronization with database types.
-- **Project Management**: Added comprehensive project actions (rename, archive, delete) with UI state management (#1879, #1877, #1873). API endpoints for project settings were implemented (#1876, #1874).
-- **Type Safety**: TypeScript checks pass consistently across the monorepo (#1883, #1882, #1881, #1880), confirming codebase integrity.
-- **UI Enhancements**: Discovered and documented UI components for session details, observation types, and file statistics (#1889, #1885, #1884). Project deletion behavior preserves observations (#1887).
-- **Next Steps**: Address the OBSERVATION_SYSTEM_PROMPT bug, finalize project management features, and modularize large UI components (e.g., Settings.tsx).
+- **Observation System Enhancement**: Added new fields (`concept`, `gitBranch`, `decisionCategory`) to observation interfaces and parsing logic, expanding metadata capture capabilities.
+- **Task System Progress**: Multiple tasks updated to "in_progress" and one completed, indicating active development workflow.
+- **Critical Bug Identified**: OBSERVATION_SYSTEM_PROMPT is missing 9 observation types compared to the database definition, requiring synchronization.
+- **UI Refactoring Needed**: Large UI files (e.g., Settings.tsx) identified for modularization to improve maintainability.
+- **Type System Expansion**: Observation types expanded from 7 to 21 categories, improving observation classification granularity.
 </claude-mem-context>

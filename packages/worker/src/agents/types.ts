@@ -86,17 +86,43 @@ export interface AgentProviderDefinition {
 
 /**
  * Parsed observation from agent response
+ * Types synchronized with ObservationType in @claude-mem/types
  */
 export interface ParsedObservation {
-  type: 'bugfix' | 'feature' | 'refactor' | 'change' | 'discovery' | 'decision' | 'session-request';
+  type:
+    | 'bugfix'
+    | 'feature'
+    | 'refactor'
+    | 'change'
+    | 'docs'
+    | 'config'
+    | 'test'
+    | 'security'
+    | 'performance'
+    | 'deploy'
+    | 'infra'
+    | 'migration'
+    | 'discovery'
+    | 'decision'
+    | 'research'
+    | 'api'
+    | 'integration'
+    | 'dependency'
+    | 'task'
+    | 'plan'
+    | 'note'
+    | 'session-request';
   title: string;
   text: string;
   subtitle?: string;
   narrative?: string;
   facts?: string[];
   concepts?: string[];
+  concept?: string;
   filesRead?: string[];
   filesModified?: string[];
+  gitBranch?: string;
+  decisionCategory?: string;
 }
 
 /**
