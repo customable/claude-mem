@@ -7,37 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1421 | 3:17 PM | 🔵 | API routes and session enrichment logic discovered | ~1907 |
+| #1870 | 4:35 PM | 🔵 | Project parameter usage in data routes | ~2949 |
+| #1865 | 4:34 PM | 🔵 | Found project deletion/archive/rename functionality | ~712 |
+| #1845 | 4:31 PM | 🔵 | Subagent Stop Hook Endpoint Implementation | ~1025 |
+| #1843 | 4:30 PM | 🔵 | Exploring API hooks in backend routes | ~951 |
+| #1841 | 4:30 PM | 🟠 | Added writer pause/resume endpoints for git ops | ~5328 |
+| #1840 | 4:29 PM | 🟠 | Added writer control endpoints for git ops | ~3993 |
+| #1839 | 4:29 PM | 🟠 | Add SSEBroadcaster dependency to HooksRouter | ~4149 |
+| #1838 | 4:29 PM | 🔵 | Exploring Hooks Router Structure | ~923 |
+| #1837 | 4:29 PM | 🔵 | Search for "sseBroadcaster" yields no results | ~718 |
+| #1808 | 4:24 PM | 🔵 | Exploring Hooks Router Implementation | ~3495 |
+| #1797 | 4:23 PM | 🟠 | Add SSEBroadcaster dependency to HooksRouter | ~4137 |
+| #1796 | 4:23 PM | 🟠 | Added writer pause/resume endpoints for git ops | ~5454 |
+| #1795 | 4:23 PM | 🟠 | Added writer control endpoints for git ops | ~3994 |
+| #1794 | 4:22 PM | 🔵 | SSE Stream Implementation Analysis | ~1257 |
+| #1782 | 4:21 PM | 🔵 | Examining Hooks Router Implementation | ~3500 |
+| #1421 | 3:17 PM | 🔵 | API routes and session enrichment logic | ~1907 |
 | #1387 | 3:01 PM | 🔵 | Data Router Structure and API Endpoints | ~5010 |
 | #1307 | 2:51 PM | 🔵 | Examining Data Router Implementation | ~4959 |
 | #1301 | 2:50 PM | 🔵 | Search routes implementation analysis | ~4780 |
-| #1223 | 2:40 PM | 🔵 | BaseRouter class provides common route handler utilities | ~1623 |
+| #1223 | 2:40 PM | 🔵 | BaseRouter class utilities | ~1623 |
 | #1162 | 2:34 PM | 🔵 | Health Router Implementation Analysis | ~2278 |
 | #715 | 12:56 PM | 🔵 | Exploring Hooks Router Implementation | ~3483 |
 | #696 | 12:54 PM | 🔵 | Exploring Hooks Router Implementation | ~3460 |
 | #602 | 12:42 PM | 🔵 | Search Router Implementation Analysis | ~4665 |
-| #551 | 12:34 PM | 🔵 | Discovered task-related API endpoints in backend routes | ~980 |
-| #550 | 12:34 PM | 🔵 | Examining task and stats API endpoints in data routes | ~1371 |
+| #551 | 12:34 PM | 🔵 | Discovered task-related API endpoints | ~980 |
+| #550 | 12:34 PM | 🔵 | Examining task and stats API endpoints | ~1371 |
 | #544 | 12:34 PM | 🔵 | Exploring Data Router Structure | ~1984 |
 | #535 | 12:33 PM | 🔵 | SSE Stream Implementation Analysis | ~1255 |
-| #422 | 12:22 PM | 🔵 | Workers Router API Structure and Capabilities | ~3131 |
+| #422 | 12:22 PM | 🔵 | Workers Router API Structure | ~3131 |
 | #363 | 12:15 PM | 🔵 | Examining Workers Router Implementation | ~3120 |
-| #241 | 11:59 AM | 🔵 | Exploring Hooks Router Implementation | ~3455 |
-| #200 | 11:56 AM | 🟣 | Add auto-spawn configuration to worker spawn status endpoint | ~4607 |
-| #198 | 11:56 AM | 🔵 | Exploring Data Router Structure | ~2113 |
-| #194 | 11:56 AM | 🔵 | Backend routes structure overview | ~1464 |
-| #186 | 11:56 AM | 🔵 | Workers Router API Structure and Functionality | ~2960 |
-| #168 | 11:55 AM | 🔵 | Worker spawning API endpoints discovered in workers.ts | ~1480 |
-| #161 | 11:55 AM | 🔵 | Workers Router API Structure | ~2922 |
-| #71 | 11:35 AM | 🔄 | Optimize session enrichment to fix N+1 query problem | ~5555 |
-| #67 | 11:33 AM | 🔵 | Session data enrichment process in data.ts | ~1604 |
-| #60 | 11:32 AM | 🔵 | Examining Data Router Implementation | ~4896 |
 
 ## Key Insights
 
-- **Backend Architecture**: The project has a well-structured backend with modular routers (HealthRouter, DataRouter, WorkersRouter, etc.) and a BaseRouter providing common utilities.
-- **Search Functionality**: Implements both semantic (Qdrant) and full-text (SQLite FTS5) search with fallback mechanisms and date range filtering.
-- **Worker Management**: Comprehensive worker management API with auto-spawn configuration and status monitoring capabilities.
-- **Performance Optimization**: Recent refactoring addressed N+1 query problems in session enrichment logic, significantly improving database query efficiency.
-- **SSE Implementation**: Server-Sent Events (SSE) implementation with keepalive functionality for real-time updates.
+- **SSE-Writer Enhancements**: New endpoints (`/writer/pause`, `/writer/resume`) added to handle Git operation conflicts (Issue #288). SSEBroadcaster dependency integrated for real-time updates.
+- **Project Management**: Extensive use of `project` parameter across data routes for filtering. Project lifecycle operations (delete/archive/rename) exist in backend.
+- **Hooks System**: Comprehensive hooks router handles session lifecycle, tool observations, and subagent events. New SSE capabilities for real-time updates.
+- **Search Architecture**: Dual search system (Qdrant semantic + SQLite FTS5 fallback) with date filtering and pagination.
+- **Race Conditions**: Identified SSE-Writer conflicts during Git operations requiring pause/resume functionality.
 </claude-mem-context>

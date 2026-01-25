@@ -7,25 +7,30 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1801 | 4:23 PM | 🟠 | Added SSE broadcaster to HooksRouter | ~5119 |
+| #1800 | 4:23 PM | 🔵 | SSEBroadcaster usage in backend-service | ~918 |
+| #1799 | 4:23 PM | 🔵 | API route structure and rate limiting | ~1096 |
+| #1793 | 4:22 PM | 🔵 | Backend Service Architecture Overview | ~2407 |
+| #1028 | 2:18 PM | 🔵 | No "bun" references in backend-service | ~813 |
 | #779 | 1:11 PM | 🟠 | Added archivedOutputs to TaskDispatcher | ~5244 |
 | #778 | 1:10 PM | 🔵 | Backend Service Initialization Flow | ~1195 |
-| #770 | 1:09 PM | 🔵 | Backend service initialization and DI | ~1152 |
+| #770 | 1:09 PM | 🔵 | Backend service initialization | ~1152 |
 | #765 | 1:09 PM | 🟣 | TaskService now uses archivedOutputs | ~5035 |
 | #549 | 12:34 PM | 🔵 | Express app middleware setup | ~1280 |
 | #456 | 12:24 PM | 🔵 | Backend Service Architecture Overview | ~2863 |
 | #447 | 12:23 PM | 🔵 | Backend service initialization | ~2270 |
-| #446 | 12:23 PM | 🔵 | TaskDispatcher usage in backend | ~956 |
+| #446 | 12:23 PM | 🔵 | TaskDispatcher usage in backend-service | ~956 |
 | #310 | 12:06 PM | 🔵 | Server module exports identified | ~813 |
 | #309 | 12:06 PM | 🔵 | Express app middleware setup | ~1244 |
 | #306 | 12:06 PM | 🔵 | Files with BackendService references | ~733 |
-| #166 | 11:55 AM | 🔵 | Backend Service Architecture | ~5035 |
+| #166 | 11:55 AM | 🔵 | Backend Service Architecture Overview | ~5035 |
 | #86 | 11:38 AM | 🔵 | TaskDispatcher initialization | ~1155 |
 
 ## Key Insights
 
-- **Archived Outputs Integration**: TaskDispatcher and TaskService now include `archivedOutputs` dependency, enabling better output management and historical task data access.
-- **Backend Service Architecture**: The system uses a hub-and-spoke model with WorkerHub managing WebSocket connections and TaskDispatcher handling task assignment.
-- **Proposed Enhancements**: New architectural proposals include task priority systems, worker hub federation, and unified WebSocket management for distributed worker pools.
-- **Database Evaluation**: Research into alternative database technologies (e.g., PostgreSQL) is underway for scalability and production readiness.
-- **Decoupled Capabilities**: Worker capabilities are abstracted from providers, allowing flexible and extensible worker management.
+- **SSE Integration**: Added SSE broadcasting to HooksRouter (#1801) and discovered existing SSEBroadcaster usage (#1800), indicating real-time event capabilities are being expanded.
+- **Architecture Discoveries**: Multiple observations (#1793, #456, #166) reveal the backend's core structure: Express-based HTTP server, MikroORM for DB, WebSocket for workers, and multi-service orchestration.
+- **Task System Enhancements**: TaskDispatcher and TaskService now integrate archivedOutputs (#779, #765), suggesting improved output management and historical data access.
+- **Initialization Flow**: Detailed backend service startup sequence documented (#778, #770), showing dependency injection patterns for core services.
+- **Next Steps**: Need to address SSE-Writer Git conflicts (#288), modularize large UI components (#290), and fix achievement progress calculations.
 </claude-mem-context>

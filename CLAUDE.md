@@ -96,44 +96,44 @@ Nach Änderungen an Backend, Worker oder Hooks:
 
 ### Jan 25, 2026
 
-| ID    | Time       | T | Title                                                                 | Read       |
-|-------|------------|---|-----------------------------------------------------------------------|------------|
-| #1771 | 4:20 PM    | 🟠 | Add writer:pause/resume SSE event types to backend                     | ~899       |
-| #1770 | 4:20 PM    | 🟠 | Add pause/resume event handling to SSE-Writer                         | ~807       |
-| #1769 | 4:20 PM    | 🟠 | Add interactive charts and comparison mode to Analytics view          | ~1057      |
-| #1768 | 4:20 PM    | 🟣 | Updated TypeScript check command documentation                        | ~3032      |
-| #1767 | 4:20 PM    | 🟠 | Task created: Pause writer during git operations                      | ~875       |
-| #1766 | 4:20 PM    | 🔵 | Issue #288: SSE-Writer interferes with Git operations                 | ~2419      |
-| #1765 | 4:20 PM    | 🔵 | Git status shows local changes and unpushed commits                   | ~910       |
-| #1764 | 4:19 PM    | 🟣 | Comparison mode changed to UI-only placeholder                        | ~5900      |
-| #1763 | 4:19 PM    | 🟣 | Task status updated to completed                                      | ~711       |
-| #1762 | 4:19 PM    | 🟣 | Task 2 status updated to completed                                    | ~694       |
-| #1761 | 4:19 PM    | 🟣 | Task 3 status updated to completed                                    | ~734       |
-| #1760 | 4:19 PM    | ✅ | TypeScript typecheck verification                                      | ~831       |
-| #1759 | 4:19 PM    | 🔴 | Fix tooltip callback parameter in types chart                         | ~6236      |
-| #1758 | 4:19 PM    | 🟣 | Updated development instructions for backend and plugin workflow       | ~2255      |
-| #1757 | 4:19 PM    | 🟠 | Implement mock comparison data generation                             | ~6264      |
-| #1756 | 4:19 PM    | 🟣 | Added reminder about issue dependencies in development instructions    | ~1880      |
-| #1755 | 4:18 PM    | 🟣 | Added reminder to check issue comments and attachments                | ~1882      |
-| #1754 | 4:18 PM    | 🔵 | Analytics View Component Structure                                     | ~5840      |
-| #1753 | 4:18 PM    | 🟠 | Enhanced ChartCard component with chart type toggle and hint           | ~6793      |
-| #1752 | 4:18 PM    | 🟣 | Added UI references section to CLAUDE.md                              | ~1766      |
-| #1751 | 4:17 PM    | 🟠 | Added dynamic chart type switching in fullscreen modal                 | ~6739      |
-| #1750 | 4:17 PM    | 🔵 | Project structure and build system analysis                           | ~1583      |
-| #1749 | 4:17 PM    | 🟣 | Updated development commands in CLAUDE.md                             | ~3489      |
-| #1748 | 4:16 PM    | 🟠 | Added comparison toggle and active filters UI to Analytics view       | ~6879      |
-| #1747 | 4:16 PM    | 🟠 | Added chart type toggle functionality to Analytics view               | ~6793      |
-| #1746 | 4:16 PM    | 🟠 | Added comparison mode to analytics timeline                           | ~6333      |
-| #1745 | 4:16 PM    | 🟠 | Added chart type toggles and comparison mode to Analytics view        | ~6324      |
-| #1744 | 4:16 PM    | 🟠 | Added ChartType type for chart visualization options                   | ~5728      |
-| #1743 | 4:16 PM    | 🟠 | Added interactive chart filtering capabilities                        | ~6887      |
-| #1742 | 4:16 PM    | 🟠 | Added comparison mode to analytics charts                             | ~7373      |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1890 | 4:41 PM | 🟣 | Task 2 status updated to completed | ~684 |
+| #1889 | 4:40 PM | 🔵 | UI Component for Session Details | ~1196 |
+| #1888 | 4:40 PM | 🔵 | Located getTypeBadge function | ~722 |
+| #1887 | 4:40 PM | 🔵 | Project deletion behavior in UI | ~1369 |
+| #1886 | 4:40 PM | 🔴 | OBSERVATION_SYSTEM_PROMPT sync issue | ~3021 |
+| #1885 | 4:40 PM | 🔵 | UI displays file read/modified stats | ~1515 |
+| #1884 | 4:39 PM | 🔵 | UI component structure for sessions | ~1802 |
+| #1883 | 4:38 PM | 🔵 | TypeScript type check completed | ~858 |
+| #1882 | 4:38 PM | 🔵 | TypeScript type check passes 7/8 | ~1024 |
+| #1881 | 4:37 PM | 🔵 | TypeScript type check passes | ~951 |
+| #1880 | 4:37 PM | 🔵 | TypeScript type check passes | ~969 |
+| #1879 | 4:36 PM | 🟠 | Added project actions dropdown | ~5651 |
+| #1878 | 4:36 PM | 🔵 | API Client Structure and Types | ~1529 |
+| #1877 | 4:36 PM | 🟠 | Added project actions UI state | ~5849 |
+| #1876 | 4:36 PM | 🟠 | Added ProjectSettings interface | ~5551 |
+| #1875 | 4:35 PM | 🟠 | Add useRef and ProjectSettings | ~5132 |
+| #1874 | 4:35 PM | 🟠 | Added PUT request function | ~5524 |
+| #1873 | 4:35 PM | 🟠 | Added project settings API | ~5650 |
+| #1872 | 4:35 PM | 🔵 | API Client Methods for Data | ~2354 |
+| #1871 | 4:35 PM | 🔵 | API client interfaces and models | ~1519 |
+| #1870 | 4:35 PM | 🔵 | Project parameter usage | ~2949 |
+| #1869 | 4:34 PM | 🔵 | ProjectsView component structure | ~5194 |
+| #1868 | 4:34 PM | 🔵 | API Client Structure and Endpoints | ~3600 |
+| #1867 | 4:34 PM | 🔵 | API client project endpoints | ~877 |
+| #1866 | 4:34 PM | 🔵 | No project modification endpoints | ~723 |
+| #1865 | 4:34 PM | 🔵 | Project deletion/archive/rename | ~712 |
+| #1864 | 4:33 PM | 🔵 | Task list reveals project features | ~862 |
+| #1863 | 4:33 PM | 🟠 | Add project actions | ~797 |
+| #1862 | 4:32 PM | 🔵 | Exploring Projects.tsx | ~5202 |
+| #1861 | 4:32 PM | 🔵 | No project management API | ~720 |
 
 ## Key Insights
 
-- **SSE-Writer Git Conflict**: The SSE-Writer causes race conditions during Git operations (commits, rebases, merges). A solution is being implemented to pause/resume the writer during Git commands (#1767, #1766).
-- **Analytics Enhancements**: Major updates to the Analytics view, including interactive chart toggles (line/bar), comparison mode with mock data, and dynamic filtering (#1769, #1748, #1747).
-- **Task Management Progress**: Multiple tasks marked as completed, indicating active development and task tracking (#1763, #1762, #1761).
-- **TypeScript Validation**: Recent TypeScript checks passed for 7/8 workspace projects, confirming codebase integrity (#1760).
-- **Documentation Improvements**: Updated CLAUDE.md with development workflows, UI references, and issue-tracking guidelines (#1768, #1758, #1756).
+- **Critical Bug**: OBSERVATION_SYSTEM_PROMPT is missing 9 observation types, causing LLM misclassification (#1886). Requires immediate synchronization with database types.
+- **Project Management**: Added comprehensive project actions (rename, archive, delete) with UI state management (#1879, #1877, #1873). API endpoints for project settings were implemented (#1876, #1874).
+- **Type Safety**: TypeScript checks pass consistently across the monorepo (#1883, #1882, #1881, #1880), confirming codebase integrity.
+- **UI Enhancements**: Discovered and documented UI components for session details, observation types, and file statistics (#1889, #1885, #1884). Project deletion behavior preserves observations (#1887).
+- **Next Steps**: Address the OBSERVATION_SYSTEM_PROMPT bug, finalize project management features, and modularize large UI components (e.g., Settings.tsx).
 </claude-mem-context>

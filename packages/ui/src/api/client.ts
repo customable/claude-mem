@@ -50,6 +50,16 @@ export function del<T>(path: string): Promise<T> {
   return fetchApi<T>(path, { method: 'DELETE' });
 }
 
+/**
+ * PUT request
+ */
+export function put<T>(path: string, body: unknown): Promise<T> {
+  return fetchApi<T>(path, {
+    method: 'PUT',
+    body: JSON.stringify(body),
+  });
+}
+
 // ============================================
 // API Types
 // ============================================
@@ -187,6 +197,17 @@ export interface TechnologyUsageRecord {
   last_used_epoch: number;
   observation_count: number;
   project: string | null;
+}
+
+export interface ProjectSettings {
+  id: number;
+  project: string;
+  display_name?: string;
+  description?: string;
+  archived?: boolean;
+  last_activity_epoch?: number;
+  created_at_epoch: number;
+  updated_at_epoch?: number;
 }
 
 export interface AchievementDefinition {
@@ -438,6 +459,14 @@ export const api = {
       filesRead: Array<{ path: string; count: number }>;
       filesModified: Array<{ path: string; count: number }>;
     }>(`/data/projects/${encodeURIComponent(project)}/files`),
+
+  // Project Settings
+  getProjectSettings: (project: string) =>
+    get<ProjectSettings>(`/data/project-settings/${encodeURIComponent(project)}`),
+  updateProjectSettings: (project: string, settings: Partial<ProjectSettings>) =>
+    put<ProjectSettings>(`/data/project-settings/${encodeURIComponent(project)}`, settings),
+  deleteProjectSettings: (project: string) =>
+    del<void>(`/data/project-settings/${encodeURIComponent(project)}`),
 
   // Logs
   getLogs: (params?: { level?: string; context?: string; limit?: number }) => {

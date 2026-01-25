@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1695 | 4:05 PM | 🟠 | Added embedding provider config to settings UI | ~6125 |
-| #1694 | 4:05 PM | 🟠 | Added "Processing" tab to Settings view | ~5968 |
-| #1692 | 4:05 PM | 🟠 | Add Processing Settings Tab to Settings View | ~5790 |
-| #1691 | 4:05 PM | 🟠 | Extended Settings Interface with New Config Options | ~7511 |
-| #1690 | 4:04 PM | 🔵 | Settings View Component Structure and Validation | ~5552 |
-| #1689 | 4:04 PM | 🟠 | Add 'processing' tab to SettingsTab type | ~5547 |
-| #1674 | 4:02 PM | 🟠 | Added pagination and page size controls to search | ~6836 |
-| #1673 | 4:02 PM | 🟠 | Added search term highlighting to SearchResultCard | ~6728 |
-| #1672 | 4:02 PM | 🔴 | Fixed preview text extraction in Search.tsx | ~5125 |
-| #1669 | 4:01 PM | 🟠 | Enhanced search UI with dropdown and saved searches | ~6890 |
-| #1668 | 4:01 PM | 🟠 | Enhanced SearchView with pagination and validation | ~7430 |
-| #1666 | 4:01 PM | 🟠 | Add saved search functionality to SearchView | ~5135 |
-| #1659 | 4:00 PM | 🔵 | Search View Implementation Analysis | ~3286 |
-| #1624 | 3:50 PM | 🟠 | Add pagination controls to Tasks view | ~6042 |
-| #1620 | 3:49 PM | 🟠 | Added pagination controls to Tasks view | ~6080 |
-| #1619 | 3:49 PM | 🟠 | Add pagination and retry functionality to TasksView | ~6401 |
-| #1617 | 3:49 PM | 🟠 | Enhanced TaskCard with copy and retry functionality | ~7508 |
-| #1614 | 3:48 PM | 🟠 | Add pagination options for task queue | ~5135 |
-| #1612 | 3:48 PM | 🔵 | Exploring Tasks View Component | ~4497 |
-| #1595 | 3:46 PM | 🟠 | Added validation error display to Batch Size input | ~5649 |
-| #1594 | 3:46 PM | 🔄 | Renamed errors parameter in ProviderSettings | ~5398 |
-| #1592 | 3:46 PM | 🔄 | Removed unused `useRef` import from Settings.tsx | ~5398 |
-| #1591 | 3:46 PM | 🟠 | Added validation to Backend Port input | ~5784 |
-| #1590 | 3:46 PM | 🟠 | Added validation to retention settings fields | ~5999 |
-| #1588 | 3:45 PM | 🟠 | Enhanced DATABASE_PORT input with validation | ~5734 |
-| #1586 | 3:45 PM | 🟠 | Add errors prop to ProviderSettings component | ~5543 |
-| #1585 | 3:45 PM | 🟠 | Add errors prop to AdvancedSettings component | ~5438 |
-| #1584 | 3:45 PM | 🟠 | Added error handling to WorkerSettings component | ~6563 |
-| #1583 | 3:45 PM | 🟠 | Added error handling to ContextSettings | ~5838 |
-| #1582 | 3:45 PM | 🟠 | Added validation rules for settings fields | ~6452 |
+| #1889 | 4:40 PM | 🔵 | UI Component for Session Details | ~1196 |
+| #1888 | 4:40 PM | 🔵 | Located getTypeBadge function | ~722 |
+| #1887 | 4:40 PM | 🔵 | Project deletion behavior | ~1369 |
+| #1885 | 4:40 PM | 🔵 | File read/modified statistics | ~1515 |
+| #1884 | 4:39 PM | 🔵 | UI component structure | ~1802 |
+| #1879 | 4:36 PM | 🟠 | Added project actions dropdown | ~5651 |
+| #1877 | 4:36 PM | 🟠 | Added project actions UI state | ~5849 |
+| #1875 | 4:35 PM | 🟠 | Add useRef and ProjectSettings | ~5132 |
+| #1869 | 4:34 PM | 🔵 | ProjectsView component structure | ~5194 |
+| #1862 | 4:32 PM | 🔵 | Projects.tsx UI component | ~5202 |
+| #1764 | 4:20 PM | 🟣 | Comparison mode UI-only | ~5900 |
+| #1759 | 4:19 PM | 🔴 | Fix tooltip callback | ~6236 |
+| #1757 | 4:19 PM | 🟠 | Mock comparison data | ~6264 |
+| #1754 | 4:18 PM | 🔵 | Analytics View Component | ~5840 |
+| #1753 | 4:18 PM | 🟠 | Enhanced ChartCard component | ~6793 |
+| #1751 | 4:17 PM | 🟠 | Dynamic chart type switching | ~6739 |
+| #1748 | 4:17 PM | 🟠 | Added comparison toggle | ~6879 |
+| #1747 | 4:16 PM | 🟠 | Added chart type toggle | ~6793 |
+| #1746 | 4:16 PM | 🟠 | Added comparison mode | ~6333 |
+| #1745 | 4:16 PM | 🟠 | Added chart type toggles | ~6324 |
+| #1744 | 4:16 PM | 🟠 | Added ChartType type | ~5728 |
+| #1743 | 4:16 PM | 🟠 | Interactive chart filtering | ~6887 |
+| #1742 | 4:16 PM | 🟠 | Comparison mode to charts | ~7373 |
+| #1736 | 4:14 PM | 🔵 | Analytics View Structure | ~5811 |
+| #1726 | 4:12 PM | 🟠 | Fullscreen chart functionality | ~7502 |
+| #1722 | 4:11 PM | 🟠 | Top N selector and Export | ~6857 |
+| #1717 | 4:11 PM | 🟠 | Enhanced project chart | ~7154 |
+| #1715 | 4:10 PM | 🟠 | Added useRef import | ~5170 |
+| #1714 | 4:10 PM | 🔵 | Analytics View Structure | ~4305 |
+| #1712 | 4:10 PM | 🟠 | Add chart export | ~5358 |
 
 ## Key Insights
 
-- **Settings UI Expansion**: Major enhancements to the Settings interface, including a new "Processing" tab, embedding provider configuration, and comprehensive validation across all fields (Issue #287).
-- **Search Improvements**: Added pagination, saved searches, term highlighting, and dropdown filters to the SearchView, significantly improving usability.
-- **Task Management**: Implemented pagination, retry functionality, and copy-to-clipboard features in the Tasks view, addressing Issue #285.
-- **Validation System**: Comprehensive validation rules added for ports, worker counts, timeouts, and retention limits, ensuring data integrity.
-- **UI Consistency**: Multiple components (e.g., TaskCard, SearchResultCard) enhanced with better error handling, visual feedback, and user interactions.
+- **Analytics Enhancements**: Major improvements to the Analytics view including comparison mode, chart type toggles, and fullscreen functionality. The UI now supports dynamic data visualization with line/bar chart switching and mock comparison data generation.
+- **Project Management**: Added comprehensive project actions (rename, archive, delete) with proper state management. Project deletion preserves observations and sessions while removing only project settings.
+- **UI Component Structure**: Discovered and documented key UI components (Projects.tsx, Analytics.tsx) with their respective functionalities including session details, observation types, and file statistics.
+- **Bug Fixes**: Resolved tooltip callback issues in charts and simplified comparison mode to be UI-only, removing unnecessary API calls.
+- **Future Work**: Identified opportunities for modularization of large UI components (e.g., Settings.tsx) and need to address race conditions in SSE-Writer during Git operations.
 </claude-mem-context>

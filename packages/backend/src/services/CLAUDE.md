@@ -7,33 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1836 | 4:29 PM | 🟠 | Add writer pause/resume events to SSEBroadcaster | ~4144 |
+| #1835 | 4:29 PM | 🟠 | Added writer pause/resume events to SSEEventType | ~3881 |
+| #1833 | 4:29 PM | 🔵 | SSE Broadcaster Implements Pre-Compact Event | ~1012 |
+| #1831 | 4:28 PM | 🔵 | SSE Event Types Defined in Backend Service | ~1006 |
+| #1830 | 4:28 PM | 🔵 | Search for "writer:pause" in SSE broadcaster service | ~719 |
+| #1809 | 4:24 PM | 🟠 | Added writer:pause and writer:resume events to SSEEventType | ~3897 |
+| #1798 | 4:23 PM | 🟠 | Added writer pause/resume broadcast methods | ~4163 |
+| #1792 | 4:22 PM | 🔵 | SSE Broadcaster Service Implementation | ~2959 |
+| #1790 | 4:22 PM | 🔵 | SSE Broadcaster Service Implementation | ~2968 |
+| #1787 | 4:22 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~2255 |
+| #1271 | 2:45 PM | 🔵 | Task Service Architecture Analysis | ~4960 |
 | #1167 | 2:34 PM | 🔵 | SSE Broadcaster Service Implementation | ~2964 |
 | #1024 | 2:16 PM | 🔵 | Worker process manager uses file path resolution | ~863 |
-| #767 | 1:09 PM | 🟠 | Added compression capability resolution | ~6090 |
+| #767 | 1:09 PM | 🟠 | Added compression capability resolution and fallback logic | ~6090 |
 | #763 | 1:08 PM | 🟠 | Implement Endless Mode for observation tasks | ~6336 |
 | #762 | 1:08 PM | 🟠 | Added compression task queueing functionality | ~5731 |
-| #759 | 1:07 PM | 🟠 | Added archivedOutputs repository to TaskService | ~5267 |
+| #759 | 1:07 PM | 🟠 | Added archivedOutputs repository to TaskService constructor | ~5267 |
 | #758 | 1:07 PM | 🔵 | Examining Task Service Implementation | ~5156 |
-| #757 | 1:07 PM | 🟠 | Added new task types and repository | ~5339 |
-| #714 | 12:56 PM | 🔵 | Session Service Structure and Prompt Handling | ~2673 |
-| #713 | 12:56 PM | 🔵 | Session Service Methods for Observation | ~2099 |
+| #757 | 1:07 PM | 🟠 | Added new task types and repository to task-service.ts | ~5339 |
+| #714 | 12:56 PM | 🔵 | Session Service Structure and Prompt Handling Logic | ~2673 |
+| #713 | 12:56 PM | 🔵 | Session Service Methods for Observation and Completion | ~2099 |
 | #608 | 12:42 PM | 🔵 | Examining Task Service Implementation | ~5206 |
 | #539 | 12:34 PM | 🔵 | SSE Broadcaster Service Implementation | ~2970 |
-| #423 | 12:22 PM | 🔵 | Task Service Structure and Backpressure | ~1680 |
-| #416 | 12:22 PM | 🔵 | Worker Process Manager Implementation | ~5100 |
-| #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service | ~1205 |
-| #218 | 11:58 AM | 🔵 | Task Service Overview and Backpressure | ~1543 |
-| #160 | 11:55 AM | 🔵 | Worker Process Manager Structure | ~1831 |
-| #141 | 11:49 AM | 🔴 | Implement task deduplication for claude-md | ~5706 |
-| #140 | 11:48 AM | 🔵 | Task Service Creates Documentation Tasks | ~1236 |
-| #139 | 11:48 AM | 🔵 | Found queueClaudeMd method | ~1255 |
-| #137 | 11:48 AM | 🔵 | Examining task-service.ts for claude-md | ~1646 |
+| #423 | 12:22 PM | 🔵 | Task Service Structure and Backpressure Handling | ~1680 |
+| #416 | 12:22 PM | 🔵 | Worker Process Manager Implementation Analysis | ~5100 |
+| #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service.ts | ~1205 |
+| #218 | 11:58 AM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1543 |
+| #160 | 11:55 AM | 🔵 | Worker Process Manager Structure and Capabilities | ~1831 |
+| #141 | 11:49 AM | 🔴 | Implement task deduplication for claude-md tasks (Issue #207) | ~5706 |
+| #140 | 11:48 AM | 🔵 | Task Service Creates Documentation Generation Tasks | ~1236 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Added compression task queueing and archived outputs repository to support Endless Mode (Issue #109), enabling archiving and compression of tool outputs.
-- **Task Deduplication**: Fixed duplicate CLAUDE.md tasks by switching to `createIfNotExists` method (Issue #207), improving efficiency in documentation generation.
-- **Bun to Node.js Migration**: Identified deep Bun integration causing compatibility issues; created issues to replace Bun with Node-compatible alternatives across documentation, build scripts, and Docker configurations.
-- **Testing Improvements**: Expanded test coverage for error handling, XML parsing, and retry utilities; configured Vitest to run tests sequentially to prevent RAM issues.
-- **Backpressure Handling**: Task Service implements queue limits to prevent overload (Issue #205), ensuring system stability under high task volumes.
+- **SSE-Writer Enhancements**: Added `writer:pause` and `writer:resume` events to prevent Git conflicts during CLAUDE.md updates (Issues #1836, #1835, #1809, #1798).
+- **Endless Mode Implementation**: Introduced compression task queueing and archived output handling for Endless Mode (Issues #763, #762, #759).
+- **Task Deduplication**: Fixed duplicate `claude-md` tasks by implementing `createIfNotExists` (Issue #141).
+- **Backpressure Handling**: Task Service includes queue limits to prevent overload (Issues #218, #423).
+- **UI Refactoring Needed**: Large components like `Settings.tsx` require modularization for maintainability.
 </claude-mem-context>

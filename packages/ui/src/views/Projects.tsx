@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { api, type Session, type Observation } from '../api/client';
+import { useState, useEffect, useRef } from 'react';
+import { api, type Session, type Observation, type ProjectSettings } from '../api/client';
 import { ObservationDetails } from '../components/ObservationDetails';
 
 interface ProjectStats {
@@ -28,6 +28,32 @@ export function ProjectsView() {
   const [activeTab, setActiveTab] = useState<Tab>('sessions');
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+
+  // Project actions state
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [projectSettings, setProjectSettings] = useState<ProjectSettings | null>(null);
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const actionsMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target as Node)) {
+        setShowActionsMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Fetch project settings when project changes
+  useEffect(() => {
+    if (!selectedProject) return;
+    api.getProjectSettings(selectedProject).then(setProjectSettings).catch(() => setProjectSettings(null));
+  }, [selectedProject]);
 
   useEffect(() => {
     api.getProjects().then((res) => {
@@ -104,15 +130,83 @@ export function ProjectsView() {
           <p className="text-base-content/60">Project-specific overview</p>
         </div>
 
-        <select
-          className="select select-bordered w-full sm:w-64"
-          value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-        >
-          {projects.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
+        <div className="flex items-center gap-2">
+          <select
+            className="select select-bordered w-full sm:w-64"
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+          >
+            {projects.map((p) => (
+              <option key={p} value={p}>
+                {projectSettings?.display_name && p === selectedProject
+                  ? projectSettings.display_name
+                  : p}
+              </option>
+            ))}
+          </select>
+
+          {/* Project Actions Dropdown */}
+          <div className="relative" ref={actionsMenuRef}>
+            <button
+              className="btn btn-ghost btn-square"
+              onClick={() => setShowActionsMenu(!showActionsMenu)}
+              title="Project Actions"
+            >
+              <span className="iconify ph--dots-three-vertical size-5" />
+            </button>
+
+            {showActionsMenu && (
+              <ul className="menu bg-base-200 rounded-box absolute right-0 top-full mt-1 w-48 shadow-lg z-10">
+                <li>
+                  <button
+                    onClick={() => {
+                      setNewDisplayName(projectSettings?.display_name || selectedProject);
+                      setShowRenameModal(true);
+                      setShowActionsMenu(false);
+                    }}
+                  >
+                    <span className="iconify ph--pencil size-4" />
+                    Rename
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={async () => {
+                      setIsActionLoading(true);
+                      try {
+                        await api.updateProjectSettings(selectedProject, {
+                          archived: !projectSettings?.archived,
+                        });
+                        const updated = await api.getProjectSettings(selectedProject);
+                        setProjectSettings(updated);
+                      } catch {
+                        // Ignore errors
+                      }
+                      setIsActionLoading(false);
+                      setShowActionsMenu(false);
+                    }}
+                    disabled={isActionLoading}
+                  >
+                    <span className={`iconify ${projectSettings?.archived ? 'ph--archive-tray' : 'ph--archive'} size-4`} />
+                    {projectSettings?.archived ? 'Unarchive' : 'Archive'}
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="text-error"
+                    onClick={() => {
+                      setShowDeleteModal(true);
+                      setShowActionsMenu(false);
+                    }}
+                  >
+                    <span className="iconify ph--trash size-4" />
+                    Delete
+                  </button>
+                </li>
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -145,17 +239,66 @@ export function ProjectsView() {
         </div>
       )}
 
-      {/* Activity Range */}
+      {/* Project Dashboard */}
       {stats && (
         <div className="card bg-base-200">
-          <div className="card-body py-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-base-content/60">
-                First Activity: <span className="text-base-content">{formatDate(stats.firstActivity)}</span>
-              </span>
-              <span className="text-base-content/60">
-                Last Activity: <span className="text-base-content">{formatDate(stats.lastActivity)}</span>
-              </span>
+          <div className="card-body py-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              {/* Activity Timeline */}
+              <div className="flex items-center gap-4">
+                <div className="text-sm">
+                  <span className="text-base-content/60">First: </span>
+                  <span className="font-medium">{formatDate(stats.firstActivity)}</span>
+                </div>
+                <span className="text-base-content/30">→</span>
+                <div className="text-sm">
+                  <span className="text-base-content/60">Last: </span>
+                  <span className="font-medium">{formatDate(stats.lastActivity)}</span>
+                </div>
+              </div>
+
+              {/* Activity Status */}
+              <div className="flex items-center gap-4">
+                {stats.lastActivity && (
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const lastActive = Date.now() - (stats.lastActivity || 0);
+                      const isRecent = lastActive < 24 * 60 * 60 * 1000; // 24 hours
+                      const isActive = lastActive < 7 * 24 * 60 * 60 * 1000; // 7 days
+                      return (
+                        <>
+                          <span
+                            className={`inline-block w-2 h-2 rounded-full ${
+                              isRecent ? 'bg-success animate-pulse' : isActive ? 'bg-warning' : 'bg-base-content/30'
+                            }`}
+                          />
+                          <span className="text-sm text-base-content/60">
+                            {isRecent ? 'Active today' : isActive ? 'Active this week' : 'Inactive'}
+                          </span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+
+                {/* Average Tokens */}
+                {stats.sessions > 0 && (
+                  <div className="text-sm">
+                    <span className="text-base-content/60">Avg tokens/session: </span>
+                    <span className="font-medium">
+                      {Math.round(stats.tokens / stats.sessions).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {/* Archived Badge */}
+                {projectSettings?.archived && (
+                  <span className="badge badge-warning badge-sm gap-1">
+                    <span className="iconify ph--archive size-3" />
+                    Archived
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -265,45 +408,71 @@ export function ProjectsView() {
           )}
 
           {activeTab === 'files' && files && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="card bg-base-200">
-                <div className="card-body">
-                  <h3 className="card-title text-base">
-                    <span className="iconify ph--eye size-5" />
-                    Most Read Files
-                  </h3>
-                  <div className="space-y-2 mt-2">
-                    {files.filesRead.length === 0 ? (
-                      <p className="text-base-content/50 text-sm">No files tracked</p>
-                    ) : (
-                      files.filesRead.slice(0, 15).map((f, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span className="truncate flex-1 font-mono text-xs">{f.path}</span>
-                          <span className="badge badge-sm badge-ghost ml-2">{f.count}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
+            <div className="space-y-6">
+              {/* File Stats Summary */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-base-200 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold">{files.filesRead.length}</p>
+                  <p className="text-xs text-base-content/60">Files Read</p>
+                </div>
+                <div className="bg-base-200 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold">{files.filesModified.length}</p>
+                  <p className="text-xs text-base-content/60">Files Modified</p>
+                </div>
+                <div className="bg-base-200 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold">
+                    {files.filesRead.reduce((sum, f) => sum + f.count, 0)}
+                  </p>
+                  <p className="text-xs text-base-content/60">Total Reads</p>
+                </div>
+                <div className="bg-base-200 rounded-lg p-4 text-center">
+                  <p className="text-2xl font-bold">
+                    {files.filesModified.reduce((sum, f) => sum + f.count, 0)}
+                  </p>
+                  <p className="text-xs text-base-content/60">Total Modifications</p>
                 </div>
               </div>
 
-              <div className="card bg-base-200">
-                <div className="card-body">
-                  <h3 className="card-title text-base">
-                    <span className="iconify ph--pencil size-5" />
-                    Most Modified Files
-                  </h3>
-                  <div className="space-y-2 mt-2">
-                    {files.filesModified.length === 0 ? (
-                      <p className="text-base-content/50 text-sm">No files tracked</p>
-                    ) : (
-                      files.filesModified.slice(0, 15).map((f, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span className="truncate flex-1 font-mono text-xs">{f.path}</span>
-                          <span className="badge badge-sm badge-ghost ml-2">{f.count}</span>
-                        </div>
-                      ))
-                    )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="card bg-base-200">
+                  <div className="card-body">
+                    <h3 className="card-title text-base">
+                      <span className="iconify ph--eye size-5 text-info" />
+                      Most Read Files
+                    </h3>
+                    <div className="space-y-2 mt-2">
+                      {files.filesRead.length === 0 ? (
+                        <p className="text-base-content/50 text-sm">No files tracked</p>
+                      ) : (
+                        (() => {
+                          const maxCount = Math.max(...files.filesRead.map((f) => f.count));
+                          return files.filesRead.slice(0, 15).map((f, i) => (
+                            <FileItem key={i} file={f} maxCount={maxCount} color="info" />
+                          ));
+                        })()
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card bg-base-200">
+                  <div className="card-body">
+                    <h3 className="card-title text-base">
+                      <span className="iconify ph--pencil size-5 text-warning" />
+                      Most Modified Files
+                    </h3>
+                    <div className="space-y-2 mt-2">
+                      {files.filesModified.length === 0 ? (
+                        <p className="text-base-content/50 text-sm">No files tracked</p>
+                      ) : (
+                        (() => {
+                          const maxCount = Math.max(...files.filesModified.map((f) => f.count));
+                          return files.filesModified.slice(0, 15).map((f, i) => (
+                            <FileItem key={i} file={f} maxCount={maxCount} color="warning" />
+                          ));
+                        })()
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -318,6 +487,112 @@ export function ProjectsView() {
           session={selectedSession}
           onClose={() => setSelectedSession(null)}
         />
+      )}
+
+      {/* Rename Project Modal */}
+      {showRenameModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Rename Project</h3>
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">Display Name</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered"
+                value={newDisplayName}
+                onChange={(e) => setNewDisplayName(e.target.value)}
+                placeholder={selectedProject}
+              />
+              <label className="label">
+                <span className="label-text-alt text-base-content/60">
+                  Original name: {selectedProject}
+                </span>
+              </label>
+            </div>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowRenameModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                disabled={isActionLoading || !newDisplayName.trim()}
+                onClick={async () => {
+                  setIsActionLoading(true);
+                  try {
+                    await api.updateProjectSettings(selectedProject, {
+                      display_name: newDisplayName.trim(),
+                    });
+                    const updated = await api.getProjectSettings(selectedProject);
+                    setProjectSettings(updated);
+                    setShowRenameModal(false);
+                  } catch {
+                    // Ignore errors
+                  }
+                  setIsActionLoading(false);
+                }}
+              >
+                {isActionLoading ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : (
+                  'Save'
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop bg-black/50" onClick={() => setShowRenameModal(false)} />
+        </div>
+      )}
+
+      {/* Delete Project Modal */}
+      {showDeleteModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4 text-error">Delete Project</h3>
+            <p className="mb-4">
+              Are you sure you want to delete <strong>{selectedProject}</strong>?
+            </p>
+            <p className="text-sm text-base-content/60 mb-4">
+              This will delete all project settings. Observations, sessions, and other data
+              associated with this project will NOT be deleted.
+            </p>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-error"
+                disabled={isActionLoading}
+                onClick={async () => {
+                  setIsActionLoading(true);
+                  try {
+                    await api.deleteProjectSettings(selectedProject);
+                    // Refresh project settings
+                    setProjectSettings(null);
+                    setShowDeleteModal(false);
+                  } catch {
+                    // Ignore errors
+                  }
+                  setIsActionLoading(false);
+                }}
+              >
+                {isActionLoading ? (
+                  <span className="loading loading-spinner loading-sm" />
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop bg-black/50" onClick={() => setShowDeleteModal(false)} />
+        </div>
       )}
     </div>
   );
@@ -411,6 +686,75 @@ function formatTime(timestamp: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function getFileIcon(path: string): string {
+  const ext = path.split('.').pop()?.toLowerCase() || '';
+  switch (ext) {
+    case 'ts':
+    case 'tsx':
+      return 'ph--file-ts text-blue-400';
+    case 'js':
+    case 'jsx':
+      return 'ph--file-js text-yellow-400';
+    case 'json':
+      return 'ph--file-code text-green-400';
+    case 'md':
+      return 'ph--file-text text-base-content';
+    case 'css':
+    case 'scss':
+    case 'less':
+      return 'ph--file-css text-purple-400';
+    case 'html':
+      return 'ph--file-html text-orange-400';
+    case 'py':
+      return 'ph--file-py text-blue-300';
+    case 'sql':
+      return 'ph--database text-cyan-400';
+    case 'yml':
+    case 'yaml':
+      return 'ph--file-code text-red-300';
+    default:
+      return 'ph--file text-base-content/60';
+  }
+}
+
+function FileItem({
+  file,
+  maxCount,
+  color,
+}: {
+  file: { path: string; count: number };
+  maxCount: number;
+  color: 'info' | 'warning';
+}) {
+  const parts = file.path.split('/');
+  const filename = parts.pop() || file.path;
+  const directory = parts.length > 0 ? parts.join('/') + '/' : '';
+  const percentage = (file.count / maxCount) * 100;
+
+  return (
+    <div className="group">
+      <div className="flex items-center gap-2">
+        <span className={`iconify ${getFileIcon(file.path)} size-4 shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-1">
+            <span className="font-mono text-xs font-medium truncate">{filename}</span>
+            <span className="badge badge-sm">{file.count}</span>
+          </div>
+          {directory && (
+            <p className="font-mono text-xs text-base-content/40 truncate">{directory}</p>
+          )}
+        </div>
+      </div>
+      <div className="mt-1 h-1 bg-base-300 rounded-full overflow-hidden">
+        <div
+          className={`h-full bg-${color} rounded-full transition-all`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 function SessionDetailModal({

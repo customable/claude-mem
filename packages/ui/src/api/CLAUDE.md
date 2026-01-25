@@ -7,32 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #1629 | 3:51 PM | 🟠 | Add retryTask API endpoint | ~5853 |
-| #1623 | 3:50 PM | 🔵 | API client methods for task data | ~924 |
+| #1878 | 4:36 PM | 🔵 | API Client Structure and Types | ~1529 |
+| #1876 | 4:36 PM | 🟠 | Added ProjectSettings interface | ~5551 |
+| #1874 | 4:35 PM | 🟠 | Added PUT request function | ~5524 |
+| #1873 | 4:35 PM | 🟠 | Added project settings endpoints | ~5650 |
+| #1872 | 4:35 PM | 🔵 | API Client Data Retrieval Methods | ~2354 |
+| #1871 | 4:35 PM | 🔵 | Examining API client interfaces | ~1519 |
+| #1868 | 4:34 PM | 🔵 | API Client Endpoints Overview | ~3600 |
+| #1867 | 4:34 PM | 🔵 | Project-related API endpoints | ~877 |
+| #1866 | 4:34 PM | 🔵 | No project modification endpoints | ~723 |
+| #1861 | 4:32 PM | 🔵 | No project management endpoints | ~720 |
+| #1629 | 3:51 PM | 🟠 | Add retryTask endpoint | ~5853 |
+| #1623 | 3:50 PM | 🔵 | Task data retrieval methods | ~924 |
 | #1622 | 3:49 PM | 🔵 | Discovered task retrieval methods | ~935 |
 | #1621 | 3:49 PM | 🔵 | No retryTask in UI API | ~735 |
-| #1371 | 2:59 PM | 🔵 | API Client Structure | ~5531 |
-| #1169 | 2:34 PM | 🔵 | API Client Capabilities | ~5433 |
+| #1371 | 2:59 PM | 🔵 | API Client Capabilities | ~5531 |
+| #1169 | 2:34 PM | 🔵 | API Client Structure | ~5433 |
 | #563 | 12:36 PM | 🔵 | Document/Code Snippet APIs | ~2327 |
-| #561 | 12:35 PM | 🟠 | Added task API endpoints | ~5957 |
+| #561 | 12:35 PM | 🟠 | Added task-related endpoints | ~5957 |
 | #560 | 12:35 PM | 🔵 | Search/Worker APIs | ~2194 |
 | #559 | 12:35 PM | 🟠 | Added Task interfaces | ~5799 |
-| #557 | 12:35 PM | 🔵 | API Client Interfaces | ~1139 |
-| #556 | 12:35 PM | 🔵 | Task variables in API | ~765 |
+| #557 | 12:35 PM | 🔵 | API Interface Definitions | ~1139 |
+| #556 | 12:35 PM | 🔵 | Task-related variables | ~765 |
 | #555 | 12:35 PM | 🔵 | API Client Types | ~1518 |
 | #364 | 12:15 PM | 🟠 | Provider config in spawnWorker | ~5581 |
-| #362 | 12:15 PM | 🟠 | SpawnStatus provider fields | ~5713 |
-| #360 | 12:14 PM | 🔵 | API Client Overview | ~5584 |
-| #208 | 11:57 AM | 🟠 | Auto-spawn fields added | ~5578 |
-| #203 | 11:57 AM | 🔵 | SpawnStatus/InsightsSummary | ~888 |
-| #195 | 11:56 AM | 🔵 | Worker management APIs | ~1161 |
+| #362 | 12:15 PM | 🟠 | Added provider config fields | ~5713 |
+| #360 | 12:14 PM | 🔵 | API Client Capabilities | ~5584 |
+| #208 | 11:57 AM | 🟠 | Added auto-spawn fields | ~5578 |
+| #203 | 11:57 AM | 🔵 | Discovered SpawnStatus interface | ~888 |
+| #195 | 11:56 AM | 🔵 | SpawnStatus and API endpoints | ~1161 |
 | #171 | 11:55 AM | 🔵 | Spawn status endpoint | ~778 |
 
 ## Key Insights
 
-- **Task Management Expansion**: Added `retryTask` endpoint and enhanced task listing capabilities (Issue #285), including filtering and status counts.
-- **Worker Management**: Extended `SpawnStatus` interface with provider configurations (Issue #254) and auto-spawn controls.
-- **API Client Growth**: Comprehensive API client now supports tasks, workers, documents, and analytics with robust TypeScript interfaces.
-- **UI Improvements**: Implemented pagination, sorting, and validation for tasks/settings (Issue #287).
-- **Race Condition**: Identified SSE-Writer conflict with Git operations (Issue #288) requiring pausing mechanism.
+- **API Client Expansion**: Significant enhancements to the API client including new endpoints for project settings (GET/PUT/DELETE), task management (retryTask, getTasks), and worker spawning with provider configuration.
+- **Missing Functionality**: No project modification endpoints (delete/archive/rename) found in UI API, suggesting these operations may be handled elsewhere or not yet implemented.
+- **Task Management**: Added comprehensive task-related interfaces (TaskStatus, TaskType) and endpoints for task retrieval and retry operations.
+- **Worker Management**: Enhanced spawnWorker function with provider configuration and added auto-spawn fields to SpawnStatus interface.
+- **Data Models**: Discovered and documented key interfaces (ProjectSettings, SpawnStatus, InsightsSummary) that define core data structures.
 </claude-mem-context>
