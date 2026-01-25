@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, IArchivedOutputRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType, CompressionStatus } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, IArchivedOutputRepository, IUserTaskRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType, CompressionStatus, UserTaskStatus } from '@claude-mem/types';
 import {
   cacheManager,
   projectCache,
@@ -48,6 +48,7 @@ export interface DataRouterDeps {
   observationTemplates: IObservationTemplateRepository;
   projectSettings: IProjectSettingsRepository;
   archivedOutputs?: IArchivedOutputRepository;
+  userTasks: IUserTaskRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -138,6 +139,13 @@ export class DataRouter extends BaseRouter {
     this.router.get('/archived-outputs/stats', this.asyncHandler(this.getArchivedOutputsStats.bind(this)));
     this.router.get('/archived-outputs/:id', this.asyncHandler(this.getArchivedOutput.bind(this)));
     this.router.get('/archived-outputs/by-observation/:observationId', this.asyncHandler(this.getArchivedOutputByObservation.bind(this)));
+
+    // User Tasks (Issue #260 - TodoList & PlanMode)
+    this.router.get('/user-tasks', this.asyncHandler(this.listUserTasks.bind(this)));
+    this.router.get('/user-tasks/stats', this.asyncHandler(this.getUserTaskStats.bind(this)));
+    this.router.get('/user-tasks/status/counts', this.asyncHandler(this.getUserTaskCounts.bind(this)));
+    this.router.get('/user-tasks/:id', this.asyncHandler(this.getUserTask.bind(this)));
+    this.router.get('/user-tasks/:id/children', this.asyncHandler(this.getUserTaskChildren.bind(this)));
   }
 
   /**
@@ -1442,5 +1450,100 @@ export class DataRouter extends BaseRouter {
     }
 
     this.success(res, output);
+  }
+
+  // ============================================
+  // User Tasks (Issue #260 - TodoList & PlanMode)
+  // ============================================
+
+  /**
+   * GET /api/data/user-tasks
+   * List user tasks with filtering
+   */
+  private async listUserTasks(req: Request, res: Response): Promise<void> {
+    const { project, sessionId, status, source, parentTaskId, limit, offset } = req.query;
+
+    // Parse status - can be single or comma-separated
+    let statusFilter: UserTaskStatus | UserTaskStatus[] | undefined;
+    const statusStr = getString(status);
+    if (statusStr) {
+      if (statusStr.includes(',')) {
+        statusFilter = statusStr.split(',') as UserTaskStatus[];
+      } else {
+        statusFilter = statusStr as UserTaskStatus;
+      }
+    }
+
+    // Parse parentTaskId - use null for root tasks only
+    let parentFilter: number | null | undefined;
+    const parentStr = getString(parentTaskId);
+    if (parentStr === 'null' || parentStr === 'root') {
+      parentFilter = null;
+    } else if (parentStr) {
+      parentFilter = parseInt(parentStr, 10);
+    }
+
+    const tasks = await this.deps.userTasks.list({
+      project: getString(project),
+      sessionId: getString(sessionId),
+      status: statusFilter,
+      source: getString(source) as 'claude-code' | 'cursor' | 'aider' | 'copilot' | 'manual' | 'api' | undefined,
+      parentTaskId: parentFilter,
+      limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+      offset: this.parseOptionalIntParam(getString(offset)) ?? 0,
+    });
+
+    this.success(res, { data: tasks });
+  }
+
+  /**
+   * GET /api/data/user-tasks/stats
+   * Get user task statistics
+   */
+  private async getUserTaskStats(req: Request, res: Response): Promise<void> {
+    const { project } = req.query;
+
+    const stats = await this.deps.userTasks.getStats(getString(project));
+
+    this.success(res, stats);
+  }
+
+  /**
+   * GET /api/data/user-tasks/status/counts
+   * Get user task counts by status
+   */
+  private async getUserTaskCounts(req: Request, res: Response): Promise<void> {
+    const { project } = req.query;
+
+    const counts = await this.deps.userTasks.countByStatus(getString(project));
+
+    this.success(res, counts);
+  }
+
+  /**
+   * GET /api/data/user-tasks/:id
+   * Get a specific user task by ID
+   */
+  private async getUserTask(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const task = await this.deps.userTasks.findById(id);
+    if (!task) {
+      this.notFound(`User task not found: ${id}`);
+    }
+
+    this.success(res, task);
+  }
+
+  /**
+   * GET /api/data/user-tasks/:id/children
+   * Get child tasks of a user task
+   */
+  private async getUserTaskChildren(req: Request, res: Response): Promise<void> {
+    const id = this.parseIntParam(getString(req.params.id), 'id');
+
+    const children = await this.deps.userTasks.getChildren(id);
+
+    this.success(res, { data: children });
   }
 }

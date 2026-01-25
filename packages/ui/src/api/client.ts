@@ -240,6 +240,61 @@ export interface ArchivedOutputStats {
   avgCompressionRatio: number;
 }
 
+// User Tasks (Issue #260 - TodoList & PlanMode)
+export type UserTaskStatus =
+  | 'pending'
+  | 'in_progress'
+  | 'blocked'
+  | 'more_info_needed'
+  | 'ready_for_review'
+  | 'completed'
+  | 'cancelled';
+
+export type UserTaskSource =
+  | 'claude-code'
+  | 'cursor'
+  | 'aider'
+  | 'copilot'
+  | 'manual'
+  | 'api';
+
+export interface UserTask {
+  id: number;
+  externalId?: string;
+  title: string;
+  description?: string;
+  activeForm?: string;
+  status: UserTaskStatus;
+  priority?: 'low' | 'medium' | 'high';
+  project: string;
+  sessionId?: string;
+  parentTaskId?: number;
+  source: UserTaskSource;
+  sourceMetadata?: Record<string, unknown>;
+  owner?: string;
+  workingDirectory?: string;
+  gitBranch?: string;
+  affectedFiles?: string[];
+  blockedBy?: string[];
+  blocks?: string[];
+  dueAtEpoch?: number;
+  createdAtEpoch: number;
+  updatedAtEpoch: number;
+  completedAtEpoch?: number;
+  costTokens?: number;
+  costUsd?: number;
+}
+
+export interface UserTaskStats {
+  total: number;
+  pending: number;
+  inProgress: number;
+  completed: number;
+  blocked: number;
+}
+
+export type UserTaskCounts = Record<UserTaskStatus, number>;
+
 export interface AchievementDefinition {
   id: string;
   name: string;
@@ -641,4 +696,42 @@ export const api = {
   getArchivedOutputStats: () => get<ArchivedOutputStats>('/data/archived-outputs/stats'),
   getArchivedOutput: (id: number) => get<ArchivedOutput>(`/data/archived-outputs/${id}`),
   getArchivedOutputByObservation: (observationId: number) => get<ArchivedOutput>(`/data/archived-outputs/by-observation/${observationId}`),
+
+  // User Tasks - Issue #260 (TodoList & PlanMode)
+  getUserTasks: (params?: {
+    project?: string;
+    sessionId?: string;
+    status?: UserTaskStatus | UserTaskStatus[];
+    source?: UserTaskSource;
+    parentTaskId?: number | 'root';
+    limit?: number;
+    offset?: number;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.project) query.set('project', params.project);
+    if (params?.sessionId) query.set('sessionId', params.sessionId);
+    if (params?.status) {
+      const statusStr = Array.isArray(params.status) ? params.status.join(',') : params.status;
+      query.set('status', statusStr);
+    }
+    if (params?.source) query.set('source', params.source);
+    if (params?.parentTaskId !== undefined) {
+      query.set('parentTaskId', params.parentTaskId === 'root' ? 'null' : String(params.parentTaskId));
+    }
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    const queryStr = query.toString();
+    return get<{ data: UserTask[] }>(`/data/user-tasks${queryStr ? '?' + queryStr : ''}`).then(res => res.data || []);
+  },
+  getUserTask: (id: number) => get<UserTask>(`/data/user-tasks/${id}`),
+  getUserTaskStats: (project?: string) => {
+    const query = project ? `?project=${encodeURIComponent(project)}` : '';
+    return get<UserTaskStats>(`/data/user-tasks/stats${query}`);
+  },
+  getUserTaskCounts: (project?: string) => {
+    const query = project ? `?project=${encodeURIComponent(project)}` : '';
+    return get<UserTaskCounts>(`/data/user-tasks/status/counts${query}`);
+  },
+  getUserTaskChildren: (id: number) =>
+    get<{ data: UserTask[] }>(`/data/user-tasks/${id}/children`).then(res => res.data || []),
 };

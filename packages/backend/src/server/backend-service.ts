@@ -415,6 +415,7 @@ export class BackendService {
       observationTemplates: this.unitOfWork!.observationTemplates,
       projectSettings: this.unitOfWork!.projectSettings,
       archivedOutputs: this.unitOfWork!.archivedOutputs,
+      userTasks: this.unitOfWork!.userTasks,
     }).router);
 
     // Search routes
