@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.3] - 2026-01-25
+
+### Bug Fixes
+- Added exponential backoff for task retries in the task dispatcher to improve stability and reduce server load during retry attempts.
+
+
 ## [3.0.2] - 2026-01-25
 
 ### Bug Fixes
