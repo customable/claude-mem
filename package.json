@@ -42,5 +42,5 @@
     "pnpm": ">=10.28.1"
   },
   "packageManager": "pnpm@10.28.1",
-  "version": "3.0.3"
+  "version": "3.0.4"
 }

@@ -1,6 +1,6 @@
 {
   "name": "claude-mem",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Persistent memory for Claude Code - modular monorepo edition",
   "author": {
     "name": "Customable",

@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.0.4] - 2026-01-25
+
+### Bug Fixes
+- Fixed handling of undefined tokens in the `formatTokens` function to prevent errors.
+
+
 ## [3.0.3] - 2026-01-25
 
 ### Bug Fixes
