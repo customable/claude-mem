@@ -42,7 +42,7 @@ program
       if (!backendUrl) {
         const host = settings.BACKEND_HOST || '127.0.0.1';
         const port = settings.BACKEND_PORT || 37777;
-        backendUrl = `ws://${host}:${port}`;
+        backendUrl = `ws://${host}:${port}/ws`;
       }
 
       // Override provider if specified

@@ -87,7 +87,12 @@ export class HubServer {
    * Attach to an HTTP server
    */
   attach(server: Server, path = '/ws'): void {
-    this.wss = new WebSocketServer({ server, path });
+    this.wss = new WebSocketServer({
+      server,
+      path,
+      // Disable perMessageDeflate to avoid RSV1 protocol errors
+      perMessageDeflate: false,
+    });
 
     this.wss.on('connection', (ws) => {
       this.handleConnection(ws);
@@ -101,7 +106,12 @@ export class HubServer {
    * Create standalone server
    */
   listen(port: number, host = '0.0.0.0'): void {
-    this.wss = new WebSocketServer({ port, host });
+    this.wss = new WebSocketServer({
+      port,
+      host,
+      // Disable perMessageDeflate to avoid RSV1 protocol errors
+      perMessageDeflate: false,
+    });
 
     this.wss.on('connection', (ws) => {
       this.handleConnection(ws);

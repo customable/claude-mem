@@ -110,9 +110,27 @@ export class HubFederation {
 
   /**
    * Attach to an HTTP server
+   * Uses noServer mode to avoid conflicts with multiple WSS on same server
    */
   attach(server: Server, path = '/ws/hub'): void {
-    this.wss = new WebSocketServer({ server, path });
+    this.wss = new WebSocketServer({
+      noServer: true,
+      // Disable perMessageDeflate to avoid RSV1 protocol errors
+      perMessageDeflate: false,
+    });
+
+    // Handle upgrade events manually - route based on path
+    server.on('upgrade', (request, socket, head) => {
+      const pathname = request.url ? new URL(request.url, 'http://localhost').pathname : '';
+
+      // Only handle our path
+      if (pathname === path) {
+        this.wss!.handleUpgrade(request, socket, head, (ws) => {
+          this.wss!.emit('connection', ws, request);
+        });
+      }
+      // Don't handle other paths - let other handlers deal with them
+    });
 
     this.wss.on('connection', (ws) => {
       this.handleConnection(ws);

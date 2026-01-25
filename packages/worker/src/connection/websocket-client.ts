@@ -116,7 +116,8 @@ export class WebSocketClient {
     logger.info(`Connecting to backend at ${this.backendUrl}`);
 
     try {
-      this.ws = new WebSocket(this.backendUrl);
+      // Disable perMessageDeflate to avoid RSV1 protocol errors
+      this.ws = new WebSocket(this.backendUrl, { perMessageDeflate: false });
       this.setupSocketHandlers();
     } catch (error) {
       const err = error as Error;
