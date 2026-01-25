@@ -27,3 +27,6 @@ export * from './worker-lock.js';
 
 // Tracing
 export * from './tracing.js';
+
+// Offline Queue (Issue #253)
+export * from './offline-queue.js';
