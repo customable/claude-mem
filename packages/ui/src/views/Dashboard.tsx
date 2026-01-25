@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../api/client';
+import { api, ArchivedOutputStats } from '../api/client';
 import { useSSE } from '../hooks/useSSE';
 
 interface Stats {
@@ -15,10 +15,16 @@ interface WorkerStatus {
   version?: string;
 }
 
+interface EndlessModeStatus {
+  enabled: boolean;
+  stats: ArchivedOutputStats | null;
+}
+
 export function DashboardView() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [workerStatus, setWorkerStatus] = useState<WorkerStatus | null>(null);
   const [recentObservations, setRecentObservations] = useState<any[]>([]);
+  const [endlessModeStatus, setEndlessModeStatus] = useState<EndlessModeStatus>({ enabled: false, stats: null });
   const [isLoading, setIsLoading] = useState(true);
 
   // SSE for real-time updates
@@ -85,6 +91,15 @@ export function DashboardView() {
         version: healthRes.version,
       });
       setRecentObservations(obsRes.items || []);
+
+      // Fetch Endless Mode stats (Issue #109)
+      try {
+        const endlessStats = await api.getArchivedOutputStats();
+        setEndlessModeStatus({ enabled: true, stats: endlessStats });
+      } catch {
+        // Endless Mode not enabled or not available
+        setEndlessModeStatus({ enabled: false, stats: null });
+      }
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     } finally {
@@ -215,9 +230,90 @@ export function DashboardView() {
             )}
           </div>
         </div>
+
+        {/* Endless Mode Stats (Issue #109) */}
+        {endlessModeStatus.enabled && endlessModeStatus.stats && (
+          <EndlessModeCard stats={endlessModeStatus.stats} />
+        )}
       </div>
     </div>
   );
+}
+
+function EndlessModeCard({ stats }: { stats: ArchivedOutputStats }) {
+  const compressionPercent = stats.compressionRatio > 0
+    ? Math.round((1 - stats.compressionRatio) * 100)
+    : 0;
+
+  const pendingCount = stats.pendingCount + (stats as any).processingCount || 0;
+  const hasActivity = stats.totalCount > 0;
+
+  return (
+    <div className="card bg-base-200 md:col-span-2">
+      <div className="card-body">
+        <h2 className="card-title text-base">
+          <span className="iconify ph--infinity size-5" />
+          Endless Mode
+          <span className="badge badge-sm badge-primary">Active</span>
+        </h2>
+
+        {!hasActivity ? (
+          <p className="text-base-content/50 text-sm mt-2">
+            No compression activity yet. Tool outputs will be compressed when ENDLESS_MODE is enabled.
+          </p>
+        ) : (
+          <>
+            {/* Progress Bar */}
+            <div className="mt-4">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-base-content/60">Token Savings</span>
+                <span className="font-medium text-success">{compressionPercent}% reduced</span>
+              </div>
+              <progress
+                className="progress progress-success w-full"
+                value={compressionPercent}
+                max="100"
+              />
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold">{stats.completedCount.toLocaleString()}</p>
+                <p className="text-xs text-base-content/60">Compressed</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-warning">{pendingCount}</p>
+                <p className="text-xs text-base-content/60">Pending</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold">{formatTokens(stats.totalOriginalTokens)}</p>
+                <p className="text-xs text-base-content/60">Original Tokens</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-success">{formatTokens(stats.totalCompressedTokens)}</p>
+                <p className="text-xs text-base-content/60">After Compression</p>
+              </div>
+            </div>
+
+            {/* Failed Count Warning */}
+            {stats.failedCount > 0 && (
+              <div className="alert alert-warning mt-4 py-2">
+                <span className="iconify ph--warning size-5" />
+                <span>{stats.failedCount} compression task(s) failed</span>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function formatTokens(tokens: number): string {
+  if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(1)}M`;
+  if (tokens >= 1_000) return `${(tokens / 1_000).toFixed(1)}k`;
+  return tokens.toString();
 }
 
 function StatCard({

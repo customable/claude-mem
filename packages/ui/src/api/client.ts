@@ -210,6 +210,36 @@ export interface ProjectSettings {
   updated_at_epoch?: number;
 }
 
+// Endless Mode (Issue #109)
+export type CompressionStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'skipped';
+
+export interface ArchivedOutput {
+  id: number;
+  session_id: string;
+  project: string;
+  tool_name: string;
+  tool_input: string;
+  tool_output: string;
+  token_count: number;
+  compression_status: CompressionStatus;
+  compressed_observation_id?: number;
+  compressed_token_count?: number;
+  error_message?: string;
+  created_at_epoch: number;
+}
+
+export interface ArchivedOutputStats {
+  totalCount: number;
+  pendingCount: number;
+  completedCount: number;
+  failedCount: number;
+  skippedCount: number;
+  totalOriginalTokens: number;
+  totalCompressedTokens: number;
+  compressionRatio: number;
+  avgCompressionRatio: number;
+}
+
 export interface AchievementDefinition {
   id: string;
   name: string;
@@ -586,4 +616,29 @@ export const api = {
   getTaskCounts: () => get<TaskCounts>('/data/tasks/status/counts'),
   // Retry a failed task (Issue #285)
   retryTask: (id: string) => post<void>(`/data/tasks/${id}/retry`, {}),
+
+  // Archived Outputs - Endless Mode (Issue #109)
+  getArchivedOutputs: (params?: { sessionId?: string; project?: string; status?: CompressionStatus; toolName?: string; limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.sessionId) query.set('sessionId', params.sessionId);
+    if (params?.project) query.set('project', params.project);
+    if (params?.status) query.set('status', params.status);
+    if (params?.toolName) query.set('toolName', params.toolName);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.offset) query.set('offset', String(params.offset));
+    const queryStr = query.toString();
+    return get<{ data: ArchivedOutput[] }>(`/data/archived-outputs${queryStr ? '?' + queryStr : ''}`).then(res => res.data || []);
+  },
+  searchArchivedOutputs: (query: string, params?: { sessionId?: string; project?: string; toolName?: string; limit?: number }) => {
+    const searchParams = new URLSearchParams();
+    searchParams.set('q', query);
+    if (params?.sessionId) searchParams.set('sessionId', params.sessionId);
+    if (params?.project) searchParams.set('project', params.project);
+    if (params?.toolName) searchParams.set('toolName', params.toolName);
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    return get<{ data: ArchivedOutput[]; query: string }>(`/data/archived-outputs/search?${searchParams}`).then(res => res.data || []);
+  },
+  getArchivedOutputStats: () => get<ArchivedOutputStats>('/data/archived-outputs/stats'),
+  getArchivedOutput: (id: number) => get<ArchivedOutput>(`/data/archived-outputs/${id}`),
+  getArchivedOutputByObservation: (observationId: number) => get<ArchivedOutput>(`/data/archived-outputs/by-observation/${observationId}`),
 };
