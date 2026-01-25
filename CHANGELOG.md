@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.49.2] - 2026-01-25
+
+### Bug Fixes
+- Handle FTS5 special characters in search queries
+
+### Improvements
+- Update CLAUDE.md context files
+- Update Node.js to v24
+
+
 ## [2.49.1] - 2026-01-25
 
 ### Bug Fixes

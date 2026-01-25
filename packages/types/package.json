@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/types",
-  "version": "2.49.1",
+  "version": "2.49.2",
   "description": "Shared TypeScript types for claude-mem",
   "type": "module",
   "main": "./dist/index.js",
