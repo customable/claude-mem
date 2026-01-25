@@ -201,12 +201,43 @@ Output format:
 </claude-mem-context>
 
 Type indicators (T column):
-- 🔵 discovery: Information gathering
-- 🟣 change: File modifications
-- 🟠 feature: New functionality
+Work Types:
 - 🔴 bugfix: Bug fixes
-- ✅ decision: Architectural decisions
+- 🟠 feature: New functionality
 - 🔄 refactor: Code restructuring
+- 🟣 change: File modifications
+
+Documentation & Config:
+- 📝 docs: Documentation changes
+- ⚙️ config: Configuration changes
+
+Quality & Testing:
+- 🧪 test: Test implementation
+- 🔒 security: Security fixes
+- ⚡ performance: Performance optimization
+
+Infrastructure:
+- 🚀 deploy: Deployment changes
+- 🏗️ infra: Infrastructure changes
+- 📦 migration: Database migrations
+
+Knowledge Types:
+- 🔵 discovery: Information gathering
+- ✅ decision: Architectural decisions
+- 🔬 research: Investigation/analysis
+
+Integration:
+- 🔌 api: API changes
+- 🔗 integration: Third-party integration
+- 📚 dependency: Package updates
+
+Planning & Tasks:
+- ☑️ task: Todo items
+- 📋 plan: Implementation plans
+
+Other:
+- 📌 note: Manual notes
+- 💬 session-request: User requests
 
 Guidelines:
 - Group observations by date
@@ -296,10 +327,20 @@ For each tool output, extract:
 2. Important file paths, values, or outcomes
 3. Any errors or notable findings
 
+Types of observations:
+- bugfix, feature, refactor, change (Work)
+- docs, config (Documentation & Config)
+- test, security, performance (Quality & Testing)
+- deploy, infra, migration (Infrastructure)
+- discovery, decision, research (Knowledge)
+- api, integration, dependency (Integration)
+- task, plan (Planning)
+- note, session-request (Other)
+
 Output your analysis in this XML format:
 
 <observation>
-  <type>one of: bugfix, feature, refactor, change, discovery, decision</type>
+  <type>one of the types above</type>
   <title>Short, descriptive title (max 80 chars)</title>
   <text>Essential information only. 1-2 sentences maximum. Include specific values, paths, or outcomes that matter.</text>
   <facts>Key facts (one per line, only if significant)</facts>
