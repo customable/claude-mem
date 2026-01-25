@@ -310,7 +310,8 @@ function EndlessModeCard({ stats }: { stats: ArchivedOutputStats }) {
   );
 }
 
-function formatTokens(tokens: number): string {
+function formatTokens(tokens: number | undefined | null): string {
+  if (tokens == null) return '0';
   if (tokens >= 1_000_000) return `${(tokens / 1_000_000).toFixed(1)}M`;
   if (tokens >= 1_000) return `${(tokens / 1_000).toFixed(1)}k`;
   return tokens.toString();
