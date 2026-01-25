@@ -25,8 +25,10 @@ import {
   ObservationLink,
   ObservationTemplate,
   ProjectSettings,
+  Repository,
 } from './entities/index.js';
 import { Migration20260125094906_initial_schema } from './mikro-orm/migrations/Migration20260125094906_initial_schema.js';
+import { Migration20260125100500_fts5_and_repositories } from './mikro-orm/migrations/Migration20260125100500_fts5_and_repositories.js';
 
 /**
  * Database configuration options
@@ -64,6 +66,7 @@ export const entities = [
   ObservationLink,
   ObservationTemplate,
   ProjectSettings,
+  Repository,
 ];
 
 /**
@@ -71,6 +74,7 @@ export const entities = [
  */
 export const migrationsList: Constructor<Migration>[] = [
   Migration20260125094906_initial_schema,
+  Migration20260125100500_fts5_and_repositories,
 ];
 
 /**

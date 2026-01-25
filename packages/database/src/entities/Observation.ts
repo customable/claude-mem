@@ -6,9 +6,9 @@
 
 import { Entity, PrimaryKey, Property, Index, OneToMany, Collection } from '@mikro-orm/core';
 import type { ObservationType } from '@claude-mem/types';
-import { CodeSnippet } from './CodeSnippet.js';
-import { Document } from './Document.js';
-import { ObservationLink } from './ObservationLink.js';
+import type { CodeSnippet } from './CodeSnippet.js';
+import type { Document } from './Document.js';
+import type { ObservationLink } from './ObservationLink.js';
 
 @Entity({ tableName: 'observations' })
 export class Observation {
@@ -122,16 +122,16 @@ export class Observation {
   @Property({ nullable: true, default: 0 })
   importance_boost?: number; // Manual boost (-10 to +10)
 
-  // Relations
-  @OneToMany(() => CodeSnippet, snippet => snippet.observation)
+  // Relations (string references to avoid circular imports)
+  @OneToMany('CodeSnippet', 'observation')
   codeSnippets = new Collection<CodeSnippet>(this);
 
-  @OneToMany(() => Document, doc => doc.observation)
+  @OneToMany('Document', 'observation')
   documents = new Collection<Document>(this);
 
-  @OneToMany(() => ObservationLink, link => link.source)
+  @OneToMany('ObservationLink', 'source')
   outgoingLinks = new Collection<ObservationLink>(this);
 
-  @OneToMany(() => ObservationLink, link => link.target)
+  @OneToMany('ObservationLink', 'target')
   incomingLinks = new Collection<ObservationLink>(this);
 }
