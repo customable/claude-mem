@@ -30,10 +30,10 @@ importers:
         specifier: ^1.4.7
         version: 1.4.7
       cors:
-        specifier: ^2.8.5
+        specifier: ^2.8.6
         version: 2.8.6
       express:
-        specifier: ^4.21.0
+        specifier: ^4.22.1
         version: 4.22.1
       express-rate-limit:
         specifier: ^8.2.1
@@ -48,23 +48,23 @@ importers:
         specifier: ^15.1.3
         version: 15.1.3
       ws:
-        specifier: ^8.18.0
+        specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
       '@types/cookie-parser':
-        specifier: ^1.4.7
+        specifier: ^1.4.10
         version: 1.4.10(@types/express@5.0.6)
       '@types/cors':
-        specifier: ^2.8.17
+        specifier: ^2.8.19
         version: 2.8.19
       '@types/express':
-        specifier: ^5.0.0
+        specifier: ^5.0.6
         version: 5.0.6
       '@types/node':
-        specifier: ^20.0.0
+        specifier: ^20.19.30
         version: 20.19.30
       '@types/ws':
-        specifier: ^8.5.13
+        specifier: ^8.18.1
         version: 8.18.1
       typescript:
         specifier: ^5.9.3
@@ -79,29 +79,29 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@mikro-orm/better-sqlite':
-        specifier: ^6.4.0
+        specifier: ^6.6.5
         version: 6.6.5(@mikro-orm/core@6.6.5)(pg@8.16.3)
       '@mikro-orm/core':
-        specifier: ^6.4.0
+        specifier: ^6.6.5
         version: 6.6.5
       '@mikro-orm/knex':
-        specifier: ^6.4.0
+        specifier: ^6.6.5
         version: 6.6.5(@mikro-orm/core@6.6.5)(better-sqlite3@11.10.0)(mysql2@3.16.0)(pg@8.16.3)
       '@mikro-orm/migrations':
-        specifier: ^6.4.0
+        specifier: ^6.6.5
         version: 6.6.5(@mikro-orm/core@6.6.5)(@types/node@20.19.30)(better-sqlite3@11.10.0)(pg@8.16.3)
       '@mikro-orm/mysql':
-        specifier: ^6.4.0
+        specifier: ^6.6.5
         version: 6.6.5(@mikro-orm/core@6.6.5)(better-sqlite3@11.10.0)(pg@8.16.3)
       '@mikro-orm/postgresql':
-        specifier: ^6.4.0
+        specifier: ^6.6.5
         version: 6.6.5(@mikro-orm/core@6.6.5)(better-sqlite3@11.10.0)
     devDependencies:
       '@mikro-orm/cli':
         specifier: ^6.6.5
         version: 6.6.5(better-sqlite3@11.10.0)(pg@8.16.3)
       '@types/node':
-        specifier: ^20.0.0
+        specifier: ^20.19.30
         version: 20.19.30
       typescript:
         specifier: ^5.9.3
@@ -119,17 +119,17 @@ importers:
         specifier: workspace:*
         version: link:../worker
       '@modelcontextprotocol/sdk':
-        specifier: ^1.0.0
+        specifier: ^1.25.3
         version: 1.25.3(hono@4.11.5)(zod@4.3.6)
       eventsource:
-        specifier: ^3.0.6
+        specifier: ^3.0.7
         version: 3.0.7
     devDependencies:
       '@types/eventsource':
         specifier: ^3.0.0
         version: 3.0.0
       '@types/node':
-        specifier: ^22.10.2
+        specifier: ^22.19.7
         version: 22.19.7
       typescript:
         specifier: ^5.9.3
@@ -145,7 +145,7 @@ importers:
         version: link:../types
     devDependencies:
       '@types/node':
-        specifier: ^20.0.0
+        specifier: ^20.19.30
         version: 20.19.30
       typescript:
         specifier: ^5.9.3
@@ -154,7 +154,7 @@ importers:
   packages/types:
     devDependencies:
       '@types/node':
-        specifier: ^20.0.0
+        specifier: ^20.19.30
         version: 20.19.30
       typescript:
         specifier: ^5.9.3
@@ -185,7 +185,7 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
       '@iconify/tailwind4':
-        specifier: ^1.2.0
+        specifier: ^1.2.1
         version: 1.2.1(tailwindcss@4.1.18)
       '@tailwindcss/vite':
         specifier: ^4.1.18
@@ -215,8 +215,8 @@ importers:
   packages/worker:
     dependencies:
       '@anthropic-ai/sdk':
-        specifier: ^0.52.0
-        version: 0.52.0
+        specifier: ^0.71.2
+        version: 0.71.2(zod@4.3.6)
       '@claude-mem/shared':
         specifier: workspace:*
         version: link:../shared
@@ -224,23 +224,23 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@mistralai/mistralai':
-        specifier: ^1.3.6
+        specifier: ^1.13.0
         version: 1.13.0
       '@qdrant/js-client-rest':
-        specifier: ^1.12.0
+        specifier: ^1.16.2
         version: 1.16.2(typescript@5.9.3)
       '@xenova/transformers':
         specifier: ^2.17.2
         version: 2.17.2
       ws:
-        specifier: ^8.18.0
+        specifier: ^8.19.0
         version: 8.19.0
     devDependencies:
       '@types/node':
-        specifier: ^22.10.2
+        specifier: ^22.19.7
         version: 22.19.7
       '@types/ws':
-        specifier: ^8.5.13
+        specifier: ^8.18.1
         version: 8.18.1
       typescript:
         specifier: ^5.9.3
@@ -251,9 +251,14 @@ packages:
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
 
-  '@anthropic-ai/sdk@0.52.0':
-    resolution: {integrity: sha512-d4c+fg+xy9e46c8+YnrrgIQR45CZlAi7PwdzIfDXDM6ACxEZli1/fxhURsq30ZpMZy6LvSkr41jGq5aF5TD7rQ==}
+  '@anthropic-ai/sdk@0.71.2':
+    resolution: {integrity: sha512-TGNDEUuEstk/DKu0/TflXAEt+p+p/WhTlFzEnoosvbaDU2LTjm42igSdlL0VijrKpWejtOKxX0b8A7uc+XiSAQ==}
     hasBin: true
+    peerDependencies:
+      zod: ^3.25.0 || ^4.0.0
+    peerDependenciesMeta:
+      zod:
+        optional: true
 
   '@babel/code-frame@7.28.6':
     resolution: {integrity: sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==}
@@ -325,6 +330,10 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
+
+  '@babel/runtime@7.28.6':
+    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
+    engines: {node: '>=6.9.0'}
 
   '@babel/template@7.28.6':
     resolution: {integrity: sha512-YA6Ma2KsCdGb+WC6UpBVFJGXL58MDA6oyONbjyF/+5sBgxY/dwkhLogbMT2GXXyU84/IhRw/2D1Os1B/giz+BQ==}
@@ -1772,6 +1781,10 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  json-schema-to-ts@3.1.1:
+    resolution: {integrity: sha512-+DWg8jCJG2TEnpy7kOm/7/AxaYoaRbjVB4LFZLySZlWn8exGs3A4OLJR966cVvU26N7X9TWxl+Jsw7dzAqKT6g==}
+    engines: {node: '>=16'}
+
   json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
 
@@ -2686,6 +2699,9 @@ packages:
   trough@2.2.0:
     resolution: {integrity: sha512-tmMpK00BjZiUyVyvrBK7knerNgmgvcV/KLVyuma/SC+TQN167GrMRciANTz09+k3zW8L8t60jWO1GpfkZdjTaw==}
 
+  ts-algebra@2.0.0:
+    resolution: {integrity: sha512-FPAhNPFMrkwz76P7cdjdmiShwMynZYN6SgOujD1urY4oNm80Ou9oMdmbR45LotcKOXoy7wSmHkRFE6Mxbrhefw==}
+
   tsconfig-paths@4.2.0:
     resolution: {integrity: sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==}
     engines: {node: '>=6'}
@@ -2880,7 +2896,11 @@ snapshots:
       package-manager-detector: 1.6.0
       tinyexec: 1.0.2
 
-  '@anthropic-ai/sdk@0.52.0': {}
+  '@anthropic-ai/sdk@0.71.2(zod@4.3.6)':
+    dependencies:
+      json-schema-to-ts: 3.1.1
+    optionalDependencies:
+      zod: 4.3.6
 
   '@babel/code-frame@7.28.6':
     dependencies:
@@ -2970,6 +2990,8 @@ snapshots:
     dependencies:
       '@babel/core': 7.28.6
       '@babel/helper-plugin-utils': 7.28.6
+
+  '@babel/runtime@7.28.6': {}
 
   '@babel/template@7.28.6':
     dependencies:
@@ -4430,6 +4452,11 @@ snapshots:
 
   jsesc@3.1.0: {}
 
+  json-schema-to-ts@3.1.1:
+    dependencies:
+      '@babel/runtime': 7.28.6
+      ts-algebra: 2.0.0
+
   json-schema-traverse@1.0.0: {}
 
   json-schema-typed@8.0.2: {}
@@ -5623,6 +5650,8 @@ snapshots:
   trim-lines@3.0.1: {}
 
   trough@2.2.0: {}
+
+  ts-algebra@2.0.0: {}
 
   tsconfig-paths@4.2.0:
     dependencies:
