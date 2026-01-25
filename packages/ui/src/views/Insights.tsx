@@ -242,50 +242,105 @@ export function InsightsView() {
         </div>
       </div>
 
-      {/* Achievements */}
-      <div className="space-y-4">
+      {/* Achievements (Issue #282: Add filter tabs) */}
+      <AchievementsSection
+        unlocked={unlockedAchievements}
+        inProgress={inProgressAchievements}
+        locked={lockedAchievements}
+        total={achievements.length}
+      />
+    </div>
+  );
+}
+
+// Achievement filter tabs (Issue #282)
+type AchievementTab = 'unlocked' | 'progress' | 'locked' | 'all';
+
+function AchievementsSection({
+  unlocked,
+  inProgress,
+  locked,
+  total,
+}: {
+  unlocked: AchievementProgress[];
+  inProgress: AchievementProgress[];
+  locked: AchievementProgress[];
+  total: number;
+}) {
+  const [activeTab, setActiveTab] = useState<AchievementTab>('unlocked');
+
+  const tabs: { id: AchievementTab; label: string; count: number; icon: string }[] = [
+    { id: 'unlocked', label: 'Unlocked', count: unlocked.length, icon: 'ph--check-circle' },
+    { id: 'progress', label: 'In Progress', count: inProgress.length, icon: 'ph--hourglass' },
+    { id: 'locked', label: 'Locked', count: locked.length, icon: 'ph--lock-simple' },
+    { id: 'all', label: 'All', count: total, icon: 'ph--list' },
+  ];
+
+  const getVisibleAchievements = (): AchievementProgress[] => {
+    switch (activeTab) {
+      case 'unlocked':
+        return unlocked;
+      case 'progress':
+        return inProgress;
+      case 'locked':
+        return locked;
+      case 'all':
+        return [...unlocked, ...inProgress, ...locked];
+    }
+  };
+
+  const visibleAchievements = getVisibleAchievements();
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <span className="iconify ph--trophy size-6 text-warning" />
           Achievements
-          <span className="badge badge-warning">{unlockedAchievements.length} / {achievements.length}</span>
+          <span className="badge badge-warning">{unlocked.length} / {total}</span>
         </h2>
 
-        {/* Unlocked */}
-        {unlockedAchievements.length > 0 && (
-          <div>
-            <h3 className="text-sm font-medium text-base-content/60 mb-2">Unlocked</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {unlockedAchievements.map((a) => (
-                <AchievementCard key={a.definition.id} achievement={a} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* In Progress */}
-        {inProgressAchievements.length > 0 && (
-          <div>
-            <h3 className="text-sm font-medium text-base-content/60 mb-2">In Progress</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {inProgressAchievements.map((a) => (
-                <AchievementCard key={a.definition.id} achievement={a} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Locked */}
-        {lockedAchievements.length > 0 && (
-          <div>
-            <h3 className="text-sm font-medium text-base-content/60 mb-2">Locked</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {lockedAchievements.map((a) => (
-                <AchievementCard key={a.definition.id} achievement={a} />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Filter Tabs (Issue #282) */}
+        <div className="join">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              className={`join-item btn btn-sm gap-1 ${
+                activeTab === tab.id
+                  ? 'btn-primary'
+                  : tab.count > 0
+                  ? 'btn-outline btn-primary'
+                  : 'btn-ghost'
+              }`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <span className={`iconify ${tab.icon} size-4`} />
+              {tab.label}
+              {tab.count > 0 && (
+                <span className={`badge badge-xs ${activeTab === tab.id ? 'badge-ghost' : 'badge-primary'}`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* Achievements Grid */}
+      {visibleAchievements.length === 0 ? (
+        <div className="card bg-base-200">
+          <div className="card-body items-center justify-center py-12 text-base-content/60">
+            <span className="iconify ph--trophy size-12 mb-2" />
+            <span>No achievements in this category</span>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {visibleAchievements.map((a) => (
+            <AchievementCard key={a.definition.id} achievement={a} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -338,21 +393,25 @@ function AchievementCard({ achievement }: { achievement: AchievementProgress }) 
             <h3 className="font-medium truncate">{definition.name}</h3>
             <p className="text-xs text-base-content/60 truncate">{definition.description}</p>
 
+            {/* Improved progress bar (Issue #282) */}
             {!unlocked && definition.threshold && (
               <div className="mt-2">
                 <div className="flex justify-between text-xs mb-1">
-                  <span>{Math.round(progress * 100)}%</span>
-                  {definition.threshold && (
-                    <span className="text-base-content/40">
-                      {Math.round(progress * definition.threshold)} / {definition.threshold}
-                    </span>
-                  )}
+                  <span className="font-medium">{Math.round(progress * 100)}%</span>
+                  <span className="text-base-content/50">
+                    {Math.round(progress * definition.threshold)} / {definition.threshold}
+                  </span>
                 </div>
                 <progress
-                  className={`progress progress-${colorClass} h-1.5`}
+                  className={`progress progress-${colorClass} h-2`}
                   value={progress * 100}
                   max={100}
                 />
+                {progress > 0 && progress < 1 && (
+                  <p className="text-xs text-base-content/50 mt-1">
+                    {definition.threshold - Math.round(progress * definition.threshold)} more to unlock!
+                  </p>
+                )}
               </div>
             )}
 
