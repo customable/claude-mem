@@ -26,12 +26,39 @@ program
   .description('Backend server for claude-mem - REST API, WebSocket Hub, Task Queue')
   .version(VERSION);
 
+/**
+ * Parse a database connection string or path
+ * Supports: postgres://user:pass@host:port/dbname or sqlite path
+ */
+function parseDatabaseOption(db: string): void {
+  if (db.startsWith('postgres://') || db.startsWith('postgresql://')) {
+    // PostgreSQL connection string
+    try {
+      const url = new URL(db);
+      process.env.CLAUDE_MEM_DATABASE_TYPE = 'postgres';
+      process.env.CLAUDE_MEM_DATABASE_HOST = url.hostname;
+      process.env.CLAUDE_MEM_DATABASE_PORT = url.port || '5432';
+      process.env.CLAUDE_MEM_DATABASE_USER = url.username;
+      process.env.CLAUDE_MEM_DATABASE_PASSWORD = url.password;
+      process.env.CLAUDE_MEM_DATABASE_NAME = url.pathname.slice(1); // Remove leading /
+      logger.info(`Using PostgreSQL: ${url.hostname}:${url.port || 5432}/${url.pathname.slice(1)}`);
+    } catch {
+      throw new Error(`Invalid PostgreSQL connection string: ${db}`);
+    }
+  } else {
+    // SQLite file path
+    process.env.CLAUDE_MEM_DATABASE_TYPE = 'sqlite';
+    process.env.CLAUDE_MEM_DATABASE_PATH = db;
+    logger.info(`Using SQLite: ${db}`);
+  }
+}
+
 program
   .command('start')
   .description('Start the backend server')
   .option('-p, --port <port>', 'HTTP port (default: from settings or 37777)')
   .option('-H, --host <host>', 'Bind address (default: from settings or 0.0.0.0)')
-  .option('-d, --db <path>', 'Database path (default: ~/.claude-mem/claude-mem.db)')
+  .option('-d, --db <path>', 'Database: SQLite path or postgres://user:pass@host:port/dbname')
   .option('--log-level <level>', 'Log level: debug, info, warn, error', 'info')
   .action(async (options) => {
     try {
@@ -52,7 +79,7 @@ program
         process.env.CLAUDE_MEM_BACKEND_BIND = options.host;
       }
       if (options.db) {
-        process.env.CLAUDE_MEM_DATABASE_PATH = options.db;
+        parseDatabaseOption(options.db);
       }
       if (options.logLevel) {
         process.env.CLAUDE_MEM_LOG_LEVEL = options.logLevel;
