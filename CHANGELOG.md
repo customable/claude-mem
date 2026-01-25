@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.49.7] - 2026-01-25
+
+### Bug Fixes
+- Resolve startup issues after Node.js v24 upgrade
+
+### Improvements
+- Clarify typecheck success criteria in documentation
+
+
+## [2.49.6] - 2026-01-25
+
+### Bug Fixes
+- Fixed missing search endpoints and routing issues in MCP
+
+### Improvements
+- Updated Node.js to v24
+
+
+## [2.49.5] - 2026-01-25
+
+### Bug Fixes
+- Updated dependency `eventsource` to v4
+
+### Improvements
+- Updated dependency `pnpm` to v10
+- Updated dependency `react` to a major version
+
+
+## [2.49.4] - 2026-01-25
+
+### Bug Fixes
+- Updated Express dependency to v5
+
+### Improvements
+- Lock file maintenance
+
+
 ## [2.49.3] - 2026-01-25
 
 ### Features

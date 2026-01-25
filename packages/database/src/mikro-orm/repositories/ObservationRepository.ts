@@ -264,6 +264,19 @@ export class MikroOrmObservationRepository implements IObservationRepository {
         sql = sql.andWhere('o.type', filters.type);
       }
     }
+    // Date range filters (Issue #241)
+    if (filters?.dateRange?.start) {
+      const epoch = typeof filters.dateRange.start === 'number'
+        ? filters.dateRange.start
+        : filters.dateRange.start.getTime();
+      sql = sql.andWhere('o.created_at_epoch', '>=', epoch);
+    }
+    if (filters?.dateRange?.end) {
+      const epoch = typeof filters.dateRange.end === 'number'
+        ? filters.dateRange.end
+        : filters.dateRange.end.getTime();
+      sql = sql.andWhere('o.created_at_epoch', '<=', epoch);
+    }
 
     if (options?.orderBy === 'relevance') {
       sql = sql.orderByRaw('rank');
@@ -311,6 +324,19 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       } else {
         sql = sql.andWhere('o.type', filters.type);
       }
+    }
+    // Date range filters (Issue #241)
+    if (filters?.dateRange?.start) {
+      const epoch = typeof filters.dateRange.start === 'number'
+        ? filters.dateRange.start
+        : filters.dateRange.start.getTime();
+      sql = sql.andWhere('o.created_at_epoch', '>=', epoch);
+    }
+    if (filters?.dateRange?.end) {
+      const epoch = typeof filters.dateRange.end === 'number'
+        ? filters.dateRange.end
+        : filters.dateRange.end.getTime();
+      sql = sql.andWhere('o.created_at_epoch', '<=', epoch);
     }
 
     // Always order by relevance (BM25 score - lower is better)
