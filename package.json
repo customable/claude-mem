@@ -30,9 +30,9 @@
     "esbuild": "^0.27.2"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=9.0.0"
+    "node": ">=18.20.8",
+    "pnpm": ">=9.15.9"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@9.15.9",
   "version": "2.49.0"
 }

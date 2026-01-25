@@ -23,16 +23,16 @@
   "dependencies": {
     "@claude-mem/shared": "workspace:*",
     "@claude-mem/types": "workspace:*",
-    "@mikro-orm/better-sqlite": "^6.4.0",
-    "@mikro-orm/core": "^6.4.0",
-    "@mikro-orm/knex": "^6.4.0",
-    "@mikro-orm/migrations": "^6.4.0",
-    "@mikro-orm/mysql": "^6.4.0",
-    "@mikro-orm/postgresql": "^6.4.0"
+    "@mikro-orm/better-sqlite": "^6.6.5",
+    "@mikro-orm/core": "^6.6.5",
+    "@mikro-orm/knex": "^6.6.5",
+    "@mikro-orm/migrations": "^6.6.5",
+    "@mikro-orm/mysql": "^6.6.5",
+    "@mikro-orm/postgresql": "^6.6.5"
   },
   "devDependencies": {
     "@mikro-orm/cli": "^6.6.5",
-    "@types/node": "^20.0.0",
+    "@types/node": "^20.19.30",
     "typescript": "^5.9.3"
   },
   "files": [
