@@ -106,9 +106,12 @@ export class WorkerService {
         capabilities.push('summarize:sdk');
     }
 
-    // Add qdrant capability if available
-    capabilities.push('qdrant:sync');
-    capabilities.push('semantic:search');
+    // Add qdrant capabilities only if vector DB is enabled
+    const settings = loadSettings();
+    if (settings.VECTOR_DB === 'qdrant') {
+      capabilities.push('qdrant:sync');
+      capabilities.push('semantic:search');
+    }
 
     // Context generation capability
     capabilities.push('context:generate');

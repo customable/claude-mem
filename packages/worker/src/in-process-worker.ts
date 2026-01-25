@@ -133,7 +133,13 @@ export class InProcessWorker {
         capabilities.push('summarize:sdk');
     }
 
-    capabilities.push('qdrant:sync');
+    // Add qdrant capabilities only if vector DB is enabled
+    const settings = loadSettings();
+    if (settings.VECTOR_DB === 'qdrant') {
+      capabilities.push('qdrant:sync');
+      capabilities.push('semantic:search');
+    }
+
     capabilities.push('context:generate');
     capabilities.push('claudemd:generate');
 
