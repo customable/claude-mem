@@ -5,16 +5,33 @@
  * Messages are processed on-demand or in batches.
  */
 
-import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, ManyToOne, type Ref } from '@mikro-orm/core';
+import type { Session } from './Session.js';
+import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'raw_messages' })
 export class RawMessage {
   @PrimaryKey()
   id!: number;
 
+  /**
+   * Session ID (FK stored in database)
+   */
   @Property()
   @Index()
   session_id!: string;
+
+  /**
+   * Relation to Session via session_id (Issue #267)
+   * Virtual relation for ORM navigation
+   */
+  @ManyToOne('Session', {
+    fieldName: 'session_id',
+    referencedColumnNames: ['content_session_id'],
+    ref: true,
+    persist: false,
+  })
+  session?: Ref<Session>;
 
   @Property()
   @Index()
@@ -51,8 +68,22 @@ export class RawMessage {
   @Property({ nullable: true })
   processed_at_epoch?: number;
 
+  /**
+   * Observation ID (FK stored in database)
+   */
   @Property({ nullable: true })
-  observation_id?: number; // Reference to generated observation
+  observation_id?: number;
+
+  /**
+   * Relation to generated Observation (Issue #267)
+   * Virtual relation for ORM navigation
+   */
+  @ManyToOne('Observation', {
+    fieldName: 'observation_id',
+    ref: true,
+    persist: false,
+  })
+  observation?: Ref<Observation>;
 
   @Property()
   created_at!: string;

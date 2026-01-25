@@ -4,16 +4,32 @@
  * Session summaries with learning outcomes.
  */
 
-import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, ManyToOne, type Ref } from '@mikro-orm/core';
+import type { Session } from './Session.js';
 
 @Entity({ tableName: 'summaries' })
 export class Summary {
   @PrimaryKey()
   id!: number;
 
+  /**
+   * Session ID (FK stored in database)
+   */
   @Property()
   @Index()
   memory_session_id!: string;
+
+  /**
+   * Relation to Session via memory_session_id (Issue #267)
+   * Virtual relation for ORM navigation
+   */
+  @ManyToOne('Session', {
+    fieldName: 'memory_session_id',
+    referencedColumnNames: ['memory_session_id'],
+    ref: true,
+    persist: false,
+  })
+  session?: Ref<Session>;
 
   @Property()
   @Index()

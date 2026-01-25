@@ -10,6 +10,7 @@ import type { ArchivedOutput } from './ArchivedOutput.js';
 import type { CodeSnippet } from './CodeSnippet.js';
 import type { Document } from './Document.js';
 import type { ObservationLink } from './ObservationLink.js';
+import type { RawMessage } from './RawMessage.js';
 
 @Entity({ tableName: 'observations' })
 @Index({ properties: ['project', 'created_at_epoch'] })
@@ -141,4 +142,8 @@ export class Observation {
   // Endless Mode: archived outputs that were compressed into this observation
   @OneToMany('ArchivedOutput', 'compressedObservation')
   archivedOutputs = new Collection<ArchivedOutput>(this);
+
+  // Lazy Mode: raw messages that generated this observation
+  @OneToMany('RawMessage', 'observation')
+  rawMessages = new Collection<RawMessage>(this);
 }
