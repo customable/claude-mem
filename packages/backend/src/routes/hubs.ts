@@ -28,6 +28,9 @@ export class HubsRouter extends BaseRouter {
   }
 
   protected setupRoutes(): void {
+    // Get hub stats (must be before /:id)
+    this.router.get('/stats', this.asyncHandler(this.getStats.bind(this)));
+
     // List all hubs
     this.router.get('/', this.asyncHandler(this.listHubs.bind(this)));
 
@@ -37,11 +40,32 @@ export class HubsRouter extends BaseRouter {
     // Get hub details
     this.router.get('/:id', this.asyncHandler(this.getHub.bind(this)));
 
+    // Get workers connected to a hub
+    this.router.get('/:id/workers', this.asyncHandler(this.getHubWorkers.bind(this)));
+
     // Update hub configuration
     this.router.patch('/:id', this.asyncHandler(this.updateHub.bind(this)));
+    this.router.put('/:id', this.asyncHandler(this.updateHub.bind(this)));
 
     // Remove a hub
     this.router.delete('/:id', this.asyncHandler(this.removeHub.bind(this)));
+  }
+
+  /**
+   * GET /api/hubs/stats
+   */
+  private async getStats(_req: Request, res: Response): Promise<void> {
+    const hubs = await this.deps.hubRegistry.listHubs();
+    const healthyHubs = hubs.filter((h) => h.status === 'healthy').length;
+    const totalWorkers = hubs.reduce((sum, h) => sum + h.connected_workers, 0);
+    const activeWorkers = hubs.reduce((sum, h) => sum + h.active_workers, 0);
+
+    this.success(res, {
+      totalHubs: hubs.length,
+      healthyHubs,
+      totalWorkers,
+      activeWorkers,
+    });
   }
 
   /**
@@ -50,7 +74,7 @@ export class HubsRouter extends BaseRouter {
   private async listHubs(_req: Request, res: Response): Promise<void> {
     const hubs = await this.deps.hubRegistry.listHubs();
     this.success(res, {
-      hubs: hubs.map((h) => this.deps.hubRegistry.toRecord(h)),
+      data: hubs.map((h) => this.deps.hubRegistry.toRecord(h)),
       total: hubs.length,
     });
   }
@@ -99,6 +123,26 @@ export class HubsRouter extends BaseRouter {
     }
 
     this.success(res, this.deps.hubRegistry.toRecord(hub!));
+  }
+
+  /**
+   * GET /api/hubs/:id/workers
+   */
+  private async getHubWorkers(req: Request, res: Response): Promise<void> {
+    const id = getRequiredString(req.params.id);
+    const hub = await this.deps.hubRegistry.getHub(id);
+
+    if (!hub) {
+      this.notFound(`Hub not found: ${id}`);
+    }
+
+    // Get workers for this hub from registrations
+    const workers = await this.deps.hubRegistry.getHubWorkers(id);
+
+    this.success(res, {
+      data: workers,
+      total: workers.length,
+    });
   }
 
   /**

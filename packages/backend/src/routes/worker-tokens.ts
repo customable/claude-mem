@@ -37,7 +37,8 @@ export class WorkerTokensRouter extends BaseRouter {
     // Get token details
     this.router.get('/:id', this.asyncHandler(this.getToken.bind(this)));
 
-    // Get workers using a token
+    // Get registrations using a token (UI expects /registrations)
+    this.router.get('/:id/registrations', this.asyncHandler(this.getTokenWorkers.bind(this)));
     this.router.get('/:id/workers', this.asyncHandler(this.getTokenWorkers.bind(this)));
 
     // Revoke a token
@@ -50,7 +51,7 @@ export class WorkerTokensRouter extends BaseRouter {
   private async listTokens(_req: Request, res: Response): Promise<void> {
     const tokens = await this.deps.workerTokenService.listTokens();
     this.success(res, {
-      tokens,
+      data: tokens,
       total: tokens.length,
     });
   }
@@ -69,9 +70,11 @@ export class WorkerTokensRouter extends BaseRouter {
     const result = await this.deps.workerTokenService.createToken(input);
 
     // Return the plaintext token - this is the only time it's visible!
+    // UI expects: { token, id, prefix }
     this.created(res, {
-      token: result.token,
-      plainToken: result.plainToken,
+      token: result.plainToken,
+      id: result.token.id,
+      prefix: result.token.tokenPrefix,
       warning: 'Store this token securely - it will not be shown again!',
     });
   }
@@ -91,6 +94,7 @@ export class WorkerTokensRouter extends BaseRouter {
   }
 
   /**
+   * GET /api/worker-tokens/:id/registrations
    * GET /api/worker-tokens/:id/workers
    */
   private async getTokenWorkers(req: Request, res: Response): Promise<void> {
@@ -104,8 +108,7 @@ export class WorkerTokensRouter extends BaseRouter {
     const workers = await this.deps.workerTokenService.getTokenWorkers(id);
 
     this.success(res, {
-      token,
-      workers,
+      data: workers,
       total: workers.length,
     });
   }

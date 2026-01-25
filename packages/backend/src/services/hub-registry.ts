@@ -20,7 +20,9 @@ import type {
 // Import types and values from the mikroOrm namespace
 type SqlEntityManager = mikroOrm.SqlEntityManager;
 type HubType_ = InstanceType<typeof mikroOrm.Hub>;
+type WorkerRegistrationType_ = InstanceType<typeof mikroOrm.WorkerRegistration>;
 const Hub = mikroOrm.Hub;
+const WorkerRegistration = mikroOrm.WorkerRegistration;
 
 const logger = createLogger('hub-registry');
 
@@ -212,6 +214,56 @@ export class HubRegistry {
       if (!hub.labels) return false;
       return Object.entries(labels).every(([key, value]) => hub.labels![key] === value);
     });
+  }
+
+  /**
+   * Get workers connected to a hub
+   * For built-in hub, returns all registrations
+   * For external hubs, returns registrations with matching hubId on their token
+   */
+  async getHubWorkers(hubId: string): Promise<Array<{
+    id: string;
+    systemId: string;
+    hostname?: string;
+    labels?: Record<string, string>;
+    capabilities?: string[];
+    status: string;
+    connectedAt: string;
+    disconnectedAt?: string;
+    lastHeartbeat?: string;
+  }>> {
+    // For built-in hub, get all online registrations
+    // For external hubs, filter by token.hubId
+    const registrations = await this.em.find(
+      WorkerRegistration,
+      { status: 'online' },
+      { populate: ['token'] }
+    );
+
+    const workers = registrations
+      .filter((reg) => {
+        // Access the loaded token entity
+        const token = reg.token.getEntity();
+        if (hubId === BUILTIN_HUB_ID) {
+          // Built-in hub: include if token has no hubId or hubId is builtin
+          return !token.hub_id || token.hub_id === BUILTIN_HUB_ID;
+        }
+        // External hub: include if token's hubId matches
+        return token.hub_id === hubId;
+      })
+      .map((reg) => ({
+        id: reg.id,
+        systemId: reg.system_id,
+        hostname: reg.hostname || undefined,
+        labels: reg.labels || undefined,
+        capabilities: reg.capabilities || undefined,
+        status: reg.status,
+        connectedAt: reg.connected_at.toISOString(),
+        disconnectedAt: reg.disconnected_at?.toISOString(),
+        lastHeartbeat: reg.last_heartbeat?.toISOString(),
+      }));
+
+    return workers;
   }
 
   /**
