@@ -18,6 +18,7 @@ import { getBackendClient } from '../client.js';
 import type { HookInput, HookResult } from '../types.js';
 import { success, skip } from '../types.js';
 import { maybeTransitionToWorker } from '../worker-lifecycle.js';
+import { normalizeToDirectory } from '../utils/path-utils.js';
 
 const logger = createLogger('hook:post-tool-use');
 
@@ -155,8 +156,9 @@ function extractTargetDirectory(toolInput: string): string | undefined {
     }
 
     // Path-based tools: Glob, Grep
+    // Note: path could be a file path for these tools, so normalize (Issue #297)
     if (input.path) {
-      return input.path;
+      return normalizeToDirectory(input.path);
     }
 
     // Notebook tools

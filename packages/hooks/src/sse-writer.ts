@@ -18,6 +18,7 @@
 import { EventSource } from 'eventsource';
 import * as fs from 'fs';
 import * as path from 'path';
+import { normalizeToDirectory } from './utils/path-utils.js';
 
 // Type definitions for eventsource events
 interface MessageEvent {
@@ -63,26 +64,6 @@ function parseArgs(argv: string[]): Args {
 }
 
 /**
- * Normalize a path to a directory (Issue #297)
- *
- * If the path appears to be a file (has an extension like .ts, .js, .tsx),
- * extract the directory portion using path.dirname().
- */
-function normalizeToDirectory(inputPath: string): string {
-  // Check if path has a file extension (common code file extensions)
-  const ext = path.extname(inputPath);
-  const codeExtensions = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.json', '.md', '.py', '.go', '.rs', '.java', '.c', '.cpp', '.h', '.hpp'];
-
-  if (ext && codeExtensions.includes(ext.toLowerCase())) {
-    const dir = path.dirname(inputPath);
-    console.log(`[sse-writer] Normalized file path to directory: ${inputPath} → ${dir}`);
-    return dir;
-  }
-
-  return inputPath;
-}
-
-/**
  * Write or update CLAUDE.md file
  * Preserves user content outside of <claude-mem-context> tags
  *
@@ -91,6 +72,11 @@ function normalizeToDirectory(inputPath: string): string {
 function writeClaudeMd(dir: string, content: string): boolean {
   // Normalize directory path in case a file path was passed (Issue #297)
   const normalizedDir = normalizeToDirectory(dir);
+
+  // Log if path was normalized (Issue #297)
+  if (normalizedDir !== dir) {
+    console.log(`[sse-writer] Normalized file path to directory: ${dir} → ${normalizedDir}`);
+  }
 
   // Validate the path is actually a directory
   try {
