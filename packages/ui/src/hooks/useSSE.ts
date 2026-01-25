@@ -25,7 +25,9 @@ export type SSEEventType =
   | 'task:assigned'
   | 'task:completed'
   | 'task:failed'
-  | 'task:progress';
+  | 'task:progress'
+  | 'user-task:created'
+  | 'user-task:updated';
 
 /**
  * SSE Event payload

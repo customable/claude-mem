@@ -734,4 +734,24 @@ export const api = {
   },
   getUserTaskChildren: (id: number) =>
     get<{ data: UserTask[] }>(`/data/user-tasks/${id}/children`).then(res => res.data || []),
+
+  // User Task Export (Issue #260 Phase 4)
+  exportUserTasks: (params?: { project?: string; status?: string; format?: 'json' | 'markdown' | 'download'; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.project) query.set('project', params.project);
+    if (params?.status) query.set('status', params.status);
+    if (params?.format) query.set('format', params.format);
+    if (params?.limit) query.set('limit', String(params.limit));
+    const queryStr = query.toString();
+    return get<{ exportedAt: string; filters: { project: string; status: string }; count: number; tasks: UserTask[] }>(
+      `/export/user-tasks${queryStr ? '?' + queryStr : ''}`
+    );
+  },
+  exportUserTasksMarkdown: (params?: { project?: string; status?: string }) => {
+    const query = new URLSearchParams();
+    query.set('format', 'markdown');
+    if (params?.project) query.set('project', params.project);
+    if (params?.status) query.set('status', params.status);
+    return fetch(`/api/export/user-tasks?${query}`).then(res => res.text());
+  },
 };

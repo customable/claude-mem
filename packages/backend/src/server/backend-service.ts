@@ -429,6 +429,7 @@ export class BackendService {
       observations: this.unitOfWork!.observations,
       summaries: this.unitOfWork!.summaries,
       sessions: this.unitOfWork!.sessions,
+      userTasks: this.unitOfWork!.userTasks,
     }).router);
 
     // Import routes

@@ -3,10 +3,12 @@
  *
  * Read-only view for monitoring user tasks from CLI tools.
  * Displays tasks created by Claude Code, Cursor, Aider, etc.
+ * Phase 4: SSE real-time updates, export, advanced filters.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api, type UserTask, type UserTaskStatus, type UserTaskSource, type UserTaskStats } from '../api/client';
+import { useSSE } from '../hooks/useSSE';
 
 type ViewMode = 'list' | 'kanban';
 
@@ -461,6 +463,8 @@ function TaskDetailModal({
   );
 }
 
+const PRIORITIES = ['high', 'medium', 'low'] as const;
+
 export function UserTasksView() {
   const [tasks, setTasks] = useState<UserTask[]>([]);
   const [stats, setStats] = useState<UserTaskStats | null>(null);
@@ -470,8 +474,15 @@ export function UserTasksView() {
   const [statusFilter, setStatusFilter] = useState<UserTaskStatus | ''>('');
   const [sourceFilter, setSourceFilter] = useState<UserTaskSource | ''>('');
   const [projectFilter, setProjectFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState<string>('');
   const [projects, setProjects] = useState<string[]>([]);
   const [selectedTask, setSelectedTask] = useState<UserTask | null>(null);
+  const [notification, setNotification] = useState<{ type: 'created' | 'updated'; task: UserTask } | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const notificationTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // SSE for real-time updates (Phase 4)
+  const { lastEvent } = useSSE();
 
   const loadTasks = useCallback(async () => {
     try {
@@ -489,7 +500,12 @@ export function UserTasksView() {
         api.getProjects(),
       ]);
 
-      setTasks(tasksRes);
+      // Apply priority filter client-side
+      const filteredTasks = priorityFilter
+        ? tasksRes.filter((t) => t.priority === priorityFilter)
+        : tasksRes;
+
+      setTasks(filteredTasks);
       setStats(statsRes);
       setProjects(projectsRes.projects);
     } catch (err) {
@@ -497,14 +513,89 @@ export function UserTasksView() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, sourceFilter, projectFilter]);
+  }, [statusFilter, sourceFilter, projectFilter, priorityFilter]);
+
+  // Handle SSE events for real-time updates (Phase 4)
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    if (lastEvent.type === 'user-task:created' || lastEvent.type === 'user-task:updated') {
+      const eventData = lastEvent.data as { task?: UserTask };
+      if (eventData?.task) {
+        // Show notification
+        setNotification({
+          type: lastEvent.type === 'user-task:created' ? 'created' : 'updated',
+          task: eventData.task,
+        });
+
+        // Clear notification after 5 seconds
+        if (notificationTimeout.current) {
+          clearTimeout(notificationTimeout.current);
+        }
+        notificationTimeout.current = setTimeout(() => {
+          setNotification(null);
+        }, 5000);
+
+        // Refresh task list
+        loadTasks();
+      }
+    }
+  }, [lastEvent, loadTasks]);
 
   useEffect(() => {
     loadTasks();
-    // Refresh every 10 seconds
-    const interval = setInterval(loadTasks, 10000);
-    return () => clearInterval(interval);
+    // Refresh every 30 seconds (less frequent since we have SSE)
+    const interval = setInterval(loadTasks, 30000);
+    return () => {
+      clearInterval(interval);
+      if (notificationTimeout.current) {
+        clearTimeout(notificationTimeout.current);
+      }
+    };
   }, [loadTasks]);
+
+  // Export handlers (Phase 4)
+  const handleExportJSON = async () => {
+    try {
+      setExporting(true);
+      const data = await api.exportUserTasks({
+        project: projectFilter || undefined,
+        status: statusFilter || undefined,
+      });
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `user-tasks-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleExportMarkdown = async () => {
+    try {
+      setExporting(true);
+      const markdown = await api.exportUserTasksMarkdown({
+        project: projectFilter || undefined,
+        status: statusFilter || undefined,
+      });
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `user-tasks-${Date.now()}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   // Group tasks by status for kanban view
   const tasksByStatus = TASK_STATUSES.reduce(
@@ -536,6 +627,28 @@ export function UserTasksView() {
             Refresh
           </button>
 
+          {/* Export Dropdown (Phase 4) */}
+          <div className="dropdown dropdown-end">
+            <label tabIndex={0} className="btn btn-sm btn-ghost">
+              <span className={`iconify ${exporting ? 'ph--spinner animate-spin' : 'ph--export'} size-4`} />
+              Export
+            </label>
+            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-40">
+              <li>
+                <button onClick={handleExportJSON} disabled={exporting}>
+                  <span className="iconify ph--file-json size-4" />
+                  JSON
+                </button>
+              </li>
+              <li>
+                <button onClick={handleExportMarkdown} disabled={exporting}>
+                  <span className="iconify ph--file-md size-4" />
+                  Markdown
+                </button>
+              </li>
+            </ul>
+          </div>
+
           {/* View Toggle */}
           <div className="join">
             <button
@@ -553,6 +666,25 @@ export function UserTasksView() {
           </div>
         </div>
       </div>
+
+      {/* Real-time Notification (Phase 4) */}
+      {notification && (
+        <div className={`alert ${notification.type === 'created' ? 'alert-success' : 'alert-info'} shadow-lg`}>
+          <span className={`iconify ${notification.type === 'created' ? 'ph--plus-circle' : 'ph--pencil'} size-5`} />
+          <div>
+            <span className="font-semibold">
+              Task {notification.type === 'created' ? 'Created' : 'Updated'}:
+            </span>
+            <span className="ml-1">{notification.task.title}</span>
+          </div>
+          <button
+            className="btn btn-ghost btn-sm btn-circle"
+            onClick={() => setNotification(null)}
+          >
+            <span className="iconify ph--x size-4" />
+          </button>
+        </div>
+      )}
 
       {/* Stats */}
       {stats && (
@@ -617,6 +749,20 @@ export function UserTasksView() {
           {projects.map((project) => (
             <option key={project} value={project}>
               {project}
+            </option>
+          ))}
+        </select>
+
+        {/* Priority Filter (Phase 4) */}
+        <select
+          className="select select-sm select-bordered"
+          value={priorityFilter}
+          onChange={(e) => setPriorityFilter(e.target.value)}
+        >
+          <option value="">All Priorities</option>
+          {PRIORITIES.map((priority) => (
+            <option key={priority} value={priority}>
+              {priority}
             </option>
           ))}
         </select>
