@@ -18,29 +18,67 @@ interface Session {
   files_modified?: string[];
 }
 
+// Pagination and sorting options (Issue #278)
+const PAGE_SIZES = [20, 50, 100] as const;
+type SortOption = 'date' | 'observations' | 'prompts' | 'status';
+
 export function SessionsView() {
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedSessionId, setExpandedSessionId] = useState<number | null>(null);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [projects, setProjects] = useState<string[]>([]);
   const [projectFilter, setProjectFilter] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(50);
+  const [sortBy, setSortBy] = useState<SortOption>('date');
 
   const fetchSessions = useCallback(async () => {
     setIsLoading(true);
     try {
-      const params: Record<string, string> = { limit: '50' };
+      const params: Record<string, string> = {
+        limit: String(pageSize),
+        offset: String((page - 1) * pageSize),
+      };
       if (projectFilter) {
         params.project = projectFilter;
       }
+      if (statusFilter) {
+        params.status = statusFilter;
+      }
       const data = await api.getSessions(params);
-      setSessions(data.items || []);
+      let items = data.items || [];
+
+      // Client-side sorting (Issue #278)
+      items = [...items].sort((a, b) => {
+        switch (sortBy) {
+          case 'observations':
+            return (b.observation_count ?? 0) - (a.observation_count ?? 0);
+          case 'prompts':
+            return (b.prompt_count ?? 0) - (a.prompt_count ?? 0);
+          case 'status':
+            return (a.status || '').localeCompare(b.status || '');
+          case 'date':
+          default:
+            return new Date(b.started_at).getTime() - new Date(a.started_at).getTime();
+        }
+      });
+
+      setSessions(items);
+      setTotalCount(data.total || items.length);
     } catch (error) {
       console.error('Failed to fetch sessions:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [projectFilter]);
+  }, [projectFilter, statusFilter, page, pageSize, sortBy]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [projectFilter, statusFilter, pageSize]);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -60,16 +98,34 @@ export function SessionsView() {
     setExpandedSessionId(expandedSessionId === id ? null : id);
   };
 
+  const totalPages = Math.ceil(totalCount / pageSize);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      {/* Header (Issue #278: Add sorting and status filter) */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold">Sessions</h1>
-          <p className="text-base-content/60">Browse sessions and explore their timeline</p>
+          <span className="badge badge-neutral badge-sm">{sessions.length} items</span>
+          {totalCount > sessions.length && (
+            <span className="text-xs text-base-content/50">of {totalCount} total</span>
+          )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Status Filter (Issue #278) */}
           <select
-            className="select select-bordered select-sm w-48"
+            className="select select-bordered select-sm w-28"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+          </select>
+
+          {/* Project Filter */}
+          <select
+            className="select select-bordered select-sm w-40"
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
           >
@@ -80,7 +136,33 @@ export function SessionsView() {
               </option>
             ))}
           </select>
-          <button className="btn btn-ghost btn-sm btn-square" onClick={fetchSessions}>
+
+          {/* Sort By (Issue #278) */}
+          <select
+            className="select select-bordered select-sm w-36"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            title="Sort by"
+          >
+            <option value="date">Sort: Date</option>
+            <option value="observations">Sort: Observations</option>
+            <option value="prompts">Sort: Prompts</option>
+            <option value="status">Sort: Status</option>
+          </select>
+
+          {/* Page Size (Issue #278) */}
+          <select
+            className="select select-bordered select-sm w-20"
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+            title="Items per page"
+          >
+            {PAGE_SIZES.map((size) => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+
+          <button className="btn btn-ghost btn-sm btn-square" onClick={fetchSessions} title="Refresh">
             <span className="iconify ph--arrows-clockwise size-4" />
           </button>
         </div>
@@ -107,6 +189,49 @@ export function SessionsView() {
               onOpen={() => setSelectedSession(session)}
             />
           ))}
+
+          {/* Pagination Controls (Issue #278) */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage(1)}
+                disabled={page === 1}
+                title="First page"
+              >
+                <span className="iconify ph--caret-double-left size-4" />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                title="Previous page"
+              >
+                <span className="iconify ph--caret-left size-4" />
+              </button>
+
+              <span className="text-sm px-2">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                title="Next page"
+              >
+                <span className="iconify ph--caret-right size-4" />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage(totalPages)}
+                disabled={page === totalPages}
+                title="Last page"
+              >
+                <span className="iconify ph--caret-double-right size-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -419,9 +544,10 @@ function getTypeBadge(type: string): string {
   }
 }
 
+// Use browser locale for date formatting (Issue #278)
 function formatDate(timestamp: string): string {
   if (!timestamp) return '';
-  return new Date(timestamp).toLocaleDateString('de-DE', {
+  return new Date(timestamp).toLocaleDateString(undefined, {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
@@ -431,7 +557,7 @@ function formatDate(timestamp: string): string {
 
 function formatTime(timestamp: string): string {
   if (!timestamp) return '';
-  return new Date(timestamp).toLocaleTimeString('de-DE', {
+  return new Date(timestamp).toLocaleTimeString(undefined, {
     hour: '2-digit',
     minute: '2-digit',
   });
