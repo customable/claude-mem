@@ -4,8 +4,11 @@
  * AI-generated observations from Claude Code sessions.
  */
 
-import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, OneToMany, Collection } from '@mikro-orm/core';
 import type { ObservationType } from '@claude-mem/types';
+import { CodeSnippet } from './CodeSnippet.js';
+import { Document } from './Document.js';
+import { ObservationLink } from './ObservationLink.js';
 
 @Entity({ tableName: 'observations' })
 export class Observation {
@@ -118,4 +121,17 @@ export class Observation {
 
   @Property({ nullable: true, default: 0 })
   importance_boost?: number; // Manual boost (-10 to +10)
+
+  // Relations
+  @OneToMany(() => CodeSnippet, snippet => snippet.observation)
+  codeSnippets = new Collection<CodeSnippet>(this);
+
+  @OneToMany(() => Document, doc => doc.observation)
+  documents = new Collection<Document>(this);
+
+  @OneToMany(() => ObservationLink, link => link.source)
+  outgoingLinks = new Collection<ObservationLink>(this);
+
+  @OneToMany(() => ObservationLink, link => link.target)
+  incomingLinks = new Collection<ObservationLink>(this);
 }

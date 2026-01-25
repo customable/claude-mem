@@ -4,8 +4,9 @@
  * Cached MCP documentation (Context7, WebFetch, etc.)
  */
 
-import { Entity, PrimaryKey, Property, Index, Unique } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, Unique, ManyToOne } from '@mikro-orm/core';
 import type { DocumentType } from '@claude-mem/types';
+import { Observation } from './Observation.js';
 
 @Entity({ tableName: 'documents' })
 export class Document {
@@ -47,6 +48,10 @@ export class Document {
 
   @Property({ nullable: true })
   observation_id?: number;
+
+  // Relation for eager loading
+  @ManyToOne(() => Observation, { nullable: true, persist: false })
+  observation?: Observation;
 
   @Property({ default: 1 })
   access_count!: number;

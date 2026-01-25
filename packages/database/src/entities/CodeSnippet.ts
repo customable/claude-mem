@@ -4,7 +4,8 @@
  * Extracted code snippets from observations for search and indexing.
  */
 
-import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, ManyToOne } from '@mikro-orm/core';
+import { Observation } from './Observation.js';
 
 @Entity({ tableName: 'code_snippets' })
 export class CodeSnippet {
@@ -14,6 +15,10 @@ export class CodeSnippet {
   @Property()
   @Index()
   observation_id!: number;
+
+  // Relation for eager loading
+  @ManyToOne(() => Observation, { persist: false })
+  observation?: Observation;
 
   @Property()
   @Index()
