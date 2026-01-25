@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.49.5] - 2026-01-25
+
+### Bug Fixes
+- Updated dependency `eventsource` to v4
+
+### Improvements
+- Updated dependency `pnpm` to v10
+- Updated dependency `react` to a major version
+
+
 ## [2.49.4] - 2026-01-25
 
 ### Bug Fixes
