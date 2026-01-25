@@ -22,6 +22,41 @@ import { maybeTransitionToWorker } from '../worker-lifecycle.js';
 const logger = createLogger('hook:post-tool-use');
 
 /**
+ * Claude Code task tools that should be captured (Issue #260)
+ */
+const TASK_TOOLS = new Set([
+  'TaskCreate',
+  'TaskUpdate',
+  'TaskList',
+  'TaskGet',
+]);
+
+/**
+ * TaskCreate tool input structure
+ */
+interface TaskCreateInput {
+  subject: string;
+  description: string;
+  activeForm?: string;
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * TaskUpdate tool input structure
+ */
+interface TaskUpdateInput {
+  taskId: string;
+  status?: 'pending' | 'in_progress' | 'completed';
+  subject?: string;
+  description?: string;
+  activeForm?: string;
+  owner?: string;
+  addBlockedBy?: string[];
+  addBlocks?: string[];
+  metadata?: Record<string, unknown>;
+}
+
+/**
  * Git commands that should pause the SSE-Writer (Issue #288)
  * These commands modify staging area or start multi-step operations
  */
@@ -192,6 +227,50 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
       }
     } catch {
       // Ignore JSON parse errors - not all Bash inputs are JSON
+    }
+  }
+
+  // Handle Claude Code task tools (Issue #260)
+  if (TASK_TOOLS.has(input.toolName) && input.toolInput) {
+    try {
+      const taskInput = JSON.parse(input.toolInput);
+      const gitBranch = getGitBranch(input.cwd);
+
+      if (input.toolName === 'TaskCreate') {
+        const createInput = taskInput as TaskCreateInput;
+        await client.post('/api/hooks/user-task/create', {
+          sessionId: input.sessionId,
+          project: input.project,
+          title: createInput.subject,
+          description: createInput.description,
+          activeForm: createInput.activeForm,
+          workingDirectory: input.cwd,
+          gitBranch,
+          sourceMetadata: createInput.metadata,
+        });
+        logger.debug(`User task created: ${createInput.subject}`);
+      } else if (input.toolName === 'TaskUpdate') {
+        const updateInput = taskInput as TaskUpdateInput;
+        await client.post('/api/hooks/user-task/update', {
+          sessionId: input.sessionId,
+          project: input.project,
+          externalId: updateInput.taskId,
+          title: updateInput.subject,
+          description: updateInput.description,
+          activeForm: updateInput.activeForm,
+          status: updateInput.status,
+          owner: updateInput.owner,
+          blockedBy: updateInput.addBlockedBy,
+          blocks: updateInput.addBlocks,
+          sourceMetadata: updateInput.metadata,
+        });
+        logger.debug(`User task updated: ${updateInput.taskId}`);
+      }
+      // TaskList and TaskGet are read-only, no need to capture
+    } catch (err) {
+      const error = err as Error;
+      logger.warn('Failed to capture user task:', { message: error.message });
+      // Don't block the tool flow
     }
   }
 

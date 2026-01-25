@@ -19,6 +19,8 @@ export { ObservationTemplate } from './ObservationTemplate.js';
 export { ProjectSettings } from './ProjectSettings.js';
 export { Repository } from './Repository.js';
 export { ArchivedOutput } from './ArchivedOutput.js';
+export { UserTask } from './UserTask.js';
 
 // Re-export types
 export type { SessionStatus } from './Session.js';
+export type { UserTaskStatus, UserTaskSource } from './UserTask.js';

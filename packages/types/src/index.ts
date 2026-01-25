@@ -33,3 +33,6 @@ export * from './sharing.js';
 
 // Metrics configuration types
 export * from './metrics.js';
+
+// User task types (Issue #260)
+export * from './user-task.js';

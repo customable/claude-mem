@@ -9,13 +9,14 @@ import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
 import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
-import type { IClaudeMdRepository } from '@claude-mem/types';
+import type { IClaudeMdRepository, IUserTaskRepository, UserTaskStatus } from '@claude-mem/types';
 
 export interface HooksRouterDeps {
   sessionService: SessionService;
   taskService: TaskService;
   claudemd: IClaudeMdRepository;
   sseBroadcaster: SSEBroadcaster;
+  userTasks: IUserTaskRepository;
 }
 
 export class HooksRouter extends BaseRouter {
@@ -51,6 +52,10 @@ export class HooksRouter extends BaseRouter {
     // Writer control for git operations (Issue #288)
     this.router.post('/writer/pause', this.asyncHandler(this.writerPause.bind(this)));
     this.router.post('/writer/resume', this.asyncHandler(this.writerResume.bind(this)));
+
+    // User task tracking from CLI tools (Issue #260)
+    this.router.post('/user-task/create', this.asyncHandler(this.userTaskCreate.bind(this)));
+    this.router.post('/user-task/update', this.asyncHandler(this.userTaskUpdate.bind(this)));
   }
 
   /**
@@ -345,6 +350,133 @@ export class HooksRouter extends BaseRouter {
     this.success(res, {
       success: true,
       paused: false,
+    });
+  }
+
+  /**
+   * POST /api/hooks/user-task/create
+   * Called when Claude Code TaskCreate tool is used (Issue #260)
+   */
+  private async userTaskCreate(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const {
+      project,
+      title,
+      description,
+      activeForm,
+      workingDirectory,
+      gitBranch,
+      sourceMetadata,
+    } = req.body;
+
+    if (!project || !title) {
+      this.badRequest('Missing required fields: project, title');
+    }
+
+    // Create the user task
+    const task = await this.deps.userTasks.create({
+      project,
+      title,
+      description,
+      activeForm,
+      sessionId: contentSessionId,
+      source: 'claude-code',
+      sourceMetadata,
+      workingDirectory,
+      gitBranch,
+      status: 'pending',
+    });
+
+    // Broadcast task creation event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'user-task:created',
+      data: { task, sessionId: contentSessionId },
+    });
+
+    this.success(res, {
+      success: true,
+      taskId: task.id,
+      externalId: task.externalId,
+    });
+  }
+
+  /**
+   * POST /api/hooks/user-task/update
+   * Called when Claude Code TaskUpdate tool is used (Issue #260)
+   */
+  private async userTaskUpdate(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const {
+      project,
+      externalId,
+      title,
+      description,
+      activeForm,
+      status,
+      owner,
+      blockedBy,
+      blocks,
+      sourceMetadata,
+    } = req.body;
+
+    if (!externalId) {
+      this.badRequest('Missing required field: externalId');
+    }
+
+    // Map Claude Code status to our status type
+    const mappedStatus = status as UserTaskStatus | undefined;
+
+    // Update the task by external ID
+    const task = await this.deps.userTasks.updateByExternalId(externalId, {
+      title,
+      description,
+      activeForm,
+      status: mappedStatus,
+      owner,
+      blockedBy,
+      blocks,
+    });
+
+    if (!task) {
+      // Task doesn't exist yet - create it
+      const newTask = await this.deps.userTasks.create({
+        externalId,
+        project: project || 'unknown',
+        title: title || `Task ${externalId}`,
+        description,
+        activeForm,
+        sessionId: contentSessionId,
+        source: 'claude-code',
+        sourceMetadata,
+        status: mappedStatus || 'pending',
+        owner,
+        blockedBy,
+        blocks,
+      });
+
+      this.deps.sseBroadcaster.broadcast({
+        type: 'user-task:created',
+        data: { task: newTask, sessionId: contentSessionId },
+      });
+
+      this.success(res, {
+        success: true,
+        taskId: newTask.id,
+        created: true,
+      });
+      return;
+    }
+
+    // Broadcast task update event for real-time UI updates
+    this.deps.sseBroadcaster.broadcast({
+      type: 'user-task:updated',
+      data: { task, sessionId: contentSessionId },
+    });
+
+    this.success(res, {
+      success: true,
+      taskId: task.id,
+      updated: true,
     });
   }
 }

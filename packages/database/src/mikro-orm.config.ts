@@ -32,12 +32,14 @@ import {
   ProjectSettings,
   Repository,
   ArchivedOutput,
+  UserTask,
 } from './entities/index.js';
 import { Migration20260125094906_initial_schema } from './mikro-orm/migrations/Migration20260125094906_initial_schema.js';
 import { Migration20260125100500_fts5_and_repositories } from './mikro-orm/migrations/Migration20260125100500_fts5_and_repositories.js';
 import { Migration20260125101635_add_performance_indexes } from './mikro-orm/migrations/Migration20260125101635_add_performance_indexes.js';
 import { Migration20260125104748_add_task_deduplication } from './mikro-orm/migrations/Migration20260125104748_add_task_deduplication.js';
 import { Migration20260125124900_add_archived_outputs } from './mikro-orm/migrations/Migration20260125124900_add_archived_outputs.js';
+import { Migration20260125180000_add_user_tasks } from './mikro-orm/migrations/Migration20260125180000_add_user_tasks.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -79,6 +81,7 @@ export const entities = [
   ProjectSettings,
   Repository,
   ArchivedOutput,
+  UserTask,
 ];
 
 /**
@@ -90,6 +93,7 @@ export const migrationsList: Constructor<Migration>[] = [
   Migration20260125101635_add_performance_indexes,
   Migration20260125104748_add_task_deduplication,
   Migration20260125124900_add_archived_outputs,
+  Migration20260125180000_add_user_tasks,
 ];
 
 /**

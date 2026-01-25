@@ -1442,6 +1442,9 @@ import type {
   IAchievementRepository,
 } from './insights.js';
 
+// Import user task repository interface
+import type { IUserTaskRepository } from './user-task.js';
+
 /**
  * Unit of Work - provides access to all repositories
  * with transaction support
@@ -1466,6 +1469,8 @@ export interface IUnitOfWork {
   rawMessages: IRawMessageRepository;
   // Endless Mode (Issue #109)
   archivedOutputs: IArchivedOutputRepository;
+  // User Tasks from CLI tools (Issue #260)
+  userTasks: IUserTaskRepository;
 
   /**
    * Start a transaction

@@ -18,3 +18,4 @@ export { MikroOrmObservationLinkRepository } from './ObservationLinkRepository.j
 export { MikroOrmObservationTemplateRepository } from './ObservationTemplateRepository.js';
 export { MikroOrmProjectSettingsRepository } from './ProjectSettingsRepository.js';
 export { MikroOrmArchivedOutputRepository } from './ArchivedOutputRepository.js';
+export { MikroOrmUserTaskRepository } from './UserTaskRepository.js';

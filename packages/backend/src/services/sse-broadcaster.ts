@@ -34,7 +34,10 @@ export type SSEEventType =
   | 'task:progress'
   | 'claudemd:ready'
   | 'writer:pause'
-  | 'writer:resume';
+  | 'writer:resume'
+  // User task events (Issue #260)
+  | 'user-task:created'
+  | 'user-task:updated';
 
 /**
  * SSE Event payload
