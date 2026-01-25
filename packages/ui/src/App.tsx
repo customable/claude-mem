@@ -3,29 +3,44 @@
  *
  * Dashboard layout with responsive sidebar navigation.
  * Uses DaisyUI 5+ and CSS-only toggle pattern for mobile.
+ *
+ * Views are lazy-loaded for better initial bundle size (Issue #305).
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
 import { WorkerStatus } from './components/WorkerStatus';
 import { Console } from './components/Console';
-import { DashboardView } from './views/Dashboard';
-import { SessionsView } from './views/Sessions';
-import { SearchView } from './views/Search';
-import { SettingsView } from './views/Settings';
-import { LiveView } from './views/Live';
-import { MemoriesView } from './views/Memories';
-import { AnalyticsView } from './views/Analytics';
-import { ProjectsView } from './views/Projects';
-import { DocumentsView } from './views/Documents';
-import { InsightsView } from './views/Insights';
-import { TasksView } from './views/Tasks';
-import { UserTasksView } from './views/UserTasks';
+
+// Lazy-loaded views for code splitting (Issue #305)
+const DashboardView = lazy(() => import('./views/Dashboard').then(m => ({ default: m.DashboardView })));
+const SessionsView = lazy(() => import('./views/Sessions').then(m => ({ default: m.SessionsView })));
+const SearchView = lazy(() => import('./views/Search').then(m => ({ default: m.SearchView })));
+const SettingsView = lazy(() => import('./views/Settings').then(m => ({ default: m.SettingsView })));
+const LiveView = lazy(() => import('./views/Live').then(m => ({ default: m.LiveView })));
+const MemoriesView = lazy(() => import('./views/Memories').then(m => ({ default: m.MemoriesView })));
+const AnalyticsView = lazy(() => import('./views/Analytics').then(m => ({ default: m.AnalyticsView })));
+const ProjectsView = lazy(() => import('./views/Projects').then(m => ({ default: m.ProjectsView })));
+const DocumentsView = lazy(() => import('./views/Documents').then(m => ({ default: m.DocumentsView })));
+const InsightsView = lazy(() => import('./views/Insights').then(m => ({ default: m.InsightsView })));
+const TasksView = lazy(() => import('./views/Tasks').then(m => ({ default: m.TasksView })));
+const UserTasksView = lazy(() => import('./views/UserTasks').then(m => ({ default: m.UserTasksView })));
 
 export type View = 'dashboard' | 'memories' | 'sessions' | 'live' | 'search' | 'analytics' | 'insights' | 'projects' | 'documents' | 'user-tasks' | 'tasks' | 'workers' | 'settings';
 
 const VALID_VIEWS: View[] = ['dashboard', 'memories', 'sessions', 'live', 'search', 'analytics', 'insights', 'projects', 'documents', 'user-tasks', 'tasks', 'workers', 'settings'];
+
+/**
+ * Loading fallback for lazy-loaded views
+ */
+function ViewLoader() {
+  return (
+    <div className="flex items-center justify-center h-64">
+      <span className="loading loading-spinner loading-lg text-primary" />
+    </div>
+  );
+}
 
 function getViewFromHash(): View {
   const hash = window.location.hash.slice(1).split('?')[0];
@@ -117,19 +132,21 @@ export function App() {
           {/* Main Content */}
           <main id="layout-content" className={consoleOpen ? 'pb-80' : ''}>
             <div className="container max-w-6xl mx-auto">
-              {view === 'dashboard' && <DashboardView />}
-              {view === 'memories' && <MemoriesView />}
-              {view === 'sessions' && <SessionsView />}
-              {view === 'live' && <LiveView />}
-              {view === 'search' && <SearchView />}
-              {view === 'analytics' && <AnalyticsView />}
-              {view === 'insights' && <InsightsView />}
-              {view === 'projects' && <ProjectsView />}
-              {view === 'documents' && <DocumentsView />}
-              {view === 'user-tasks' && <UserTasksView />}
-              {view === 'tasks' && <TasksView />}
-              {view === 'workers' && <WorkerStatus />}
-              {view === 'settings' && <SettingsView />}
+              <Suspense fallback={<ViewLoader />}>
+                {view === 'dashboard' && <DashboardView />}
+                {view === 'memories' && <MemoriesView />}
+                {view === 'sessions' && <SessionsView />}
+                {view === 'live' && <LiveView />}
+                {view === 'search' && <SearchView />}
+                {view === 'analytics' && <AnalyticsView />}
+                {view === 'insights' && <InsightsView />}
+                {view === 'projects' && <ProjectsView />}
+                {view === 'documents' && <DocumentsView />}
+                {view === 'user-tasks' && <UserTasksView />}
+                {view === 'tasks' && <TasksView />}
+                {view === 'workers' && <WorkerStatus />}
+                {view === 'settings' && <SettingsView />}
+              </Suspense>
             </div>
           </main>
         </div>
