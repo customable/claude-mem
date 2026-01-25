@@ -180,42 +180,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15545 | 9:34 AM | 🟣 | Restore stashed changes | ~1026 |
-| #15544 | 9:34 AM | 🟣 | Force push rebased eventsource-4.x | ~966 |
-| #15543 | 9:34 AM | 🟣 | Rebase after dependency update | ~853 |
-| #15542 | 9:34 AM | 🔵 | No conflict markers found | ~702 |
-| #15541 | 9:34 AM | 🟣 | Resolve merge conflict in package.json | ~1802 |
-| #15540 | 9:34 AM | 🔵 | Dependency version conflict | ~1162 |
-| #15539 | 9:34 AM | 🟣 | Checkout eventsource-4.x | ~851 |
-| #15538 | 9:34 AM | 🟣 | Force push rebased pnpm-10.x | ~992 |
-| #15537 | 9:34 AM | 🟣 | Discard CLAUDE.md changes | ~891 |
-| #15536 | 9:34 AM | 🔵 | Git rebase in progress | ~1019 |
-| #15535 | 9:34 AM | 🔵 | No conflict markers | ~697 |
-| #15534 | 9:34 AM | 🔵 | Merge conflicts in package.json | ~698 |
-| #15533 | 9:32 AM | 🔴 | Resolved merge conflict | ~2039 |
-| #15532 | 9:32 AM | 🔵 | Project structure discovered | ~1626 |
-| #15531 | 9:32 AM | 🟣 | Checkout pnpm-10.x | ~859 |
-| #15530 | 9:31 AM | 🟣 | Force push rebased node-24.x | ~1024 |
-| #15529 | 9:31 AM | 🟣 | Continue rebase | ~800 |
-| #15528 | 9:31 AM | 🟣 | Update Node.js to v24.13.0 | ~1469 |
-| #15527 | 9:31 AM | 🔵 | Node.js version update | ~1015 |
-| #15526 | 9:31 AM | 🟣 | Checkout node-24.x | ~852 |
-| #15525 | 9:31 AM | 🟣 | Updated main branch | ~1272 |
-| #15524 | 9:31 AM | 🔵 | Fetched updates | ~1092 |
-| #15523 | 9:30 AM | 🔵 | Git remote configuration | ~752 |
-| #15522 | 9:30 AM | 🔵 | PR #246: Update pnpm to v10 | ~1446 |
-| #15521 | 9:30 AM | 🔵 | PR #248: eventsource v4 | ~1365 |
-| #15520 | 9:30 AM | 🔵 | PR #245: Node.js v24 | ~1328 |
-| #15519 | 1:36 AM | 🔴 | MCP search_documents error | ~1320 |
-| #15518 | 1:35 AM | 🔴 | MCP save_memory type error | ~1441 |
-| #15517 | 1:34 AM | 🔴 | MCP date filters broken | ~1439 |
-| #15516 | 1:34 AM | 🔵 | Missing MCP search endpoint | ~1382 |
+| #92 | 11:39 AM | 🔵 | Tool output handling in task dispatcher | ~824 |
+| #91 | 11:38 AM | 🔵 | Observation creation and processing workflow | ~1190 |
+| #90 | 11:38 AM | 🔵 | Querying recent observations from SQLite | ~1335 |
+| #89 | 11:38 AM | 🔵 | Code block extraction logic | ~1449 |
+| #88 | 11:38 AM | 🔵 | Code snippet extraction logic | ~1612 |
+| #87 | 11:38 AM | 🔵 | Code snippet references in backend | ~811 |
+| #86 | 11:38 AM | 🔵 | TaskDispatcher initialization | ~1155 |
+| #85 | 11:38 AM | 🔵 | TaskDispatcher instantiation | ~1162 |
+| #84 | 11:38 AM | 🔵 | CodeSnippets feature in backend | ~2136 |
+| #83 | 11:38 AM | 🔵 | CodeSnippet files in database | ~886 |
+| #82 | 11:37 AM | 🔵 | Database schema analysis | ~1452 |
+| #81 | 11:37 AM | 🟣 | Git diff shows significant changes | ~1045 |
+| #80 | 11:37 AM | 🔵 | No code snippet references in worker | ~701 |
+| #79 | 11:37 AM | 🔵 | Reviewed 15 open issues | ~1567 |
+| #78 | 11:37 AM | 🔵 | Issue #257: Code snippets not saving | ~1186 |
+| #77 | 11:36 AM | 🔵 | API Health Check confirms status | ~786 |
+| #76 | 11:36 AM | 🔴 | Issue created for code snippet bug | ~1406 |
+| #75 | 11:36 AM | 🔴 | Resolved N+1 query problem | ~1074 |
+| #74 | 11:36 AM | ✅ | Closed issue #202 | ~1826 |
+| #73 | 11:36 AM | 🔵 | Git status shows modified files | ~1076 |
+| #72 | 11:35 AM | 🔵 | Module type warning in dev script | ~1267 |
+| #71 | 11:35 AM | 🔄 | Optimized session enrichment | ~5555 |
+| #70 | 11:34 AM | 🔵 | TypeScript typecheck passes | ~962 |
+| #69 | 11:34 AM | 🔴 | Fixed SQL query logic | ~5791 |
+| #68 | 11:33 AM | 🟠 | Added batch query methods | ~5475 |
+| #67 | 11:33 AM | 🔵 | Session data enrichment process | ~1604 |
+| #66 | 11:33 AM | 🔵 | ObservationRepository uses MikroORM | ~5522 |
+| #65 | 11:33 AM | 🔵 | Repository pattern implementation | ~5228 |
+| #64 | 11:32 AM | 🔵 | Batch delete with chunking | ~1969 |
+| #63 | 11:32 AM | 🔵 | Session-based data retrieval | ~1006 |
 
 ## Key Insights
 
-- **Dependency Updates**: Multiple PRs (#245, #246, #248) are pending for Node.js v24, pnpm v10, and eventsource v4. These require review and merging.
-- **Merge Conflicts**: Resolved conflicts in `package.json` for Node.js and pnpm updates, but ensure all branches are synchronized.
-- **MCP Bugs**: Critical issues in MCP tools: invalid memory types, broken date filters, and missing `/api/search/observations` endpoint.
-- **Monorepo Structure**: Project uses pnpm workspaces with multiple packages (e.g., `backend`, `ui`, `plugin`). Ensure updates are compatible across all packages.
-- **Next Steps**: Merge dependency PRs, implement missing API endpoints, and fix MCP tool bugs (date filtering, memory types).
+- **Performance Optimizations**: Resolved N+1 query problem in session listing by adding batch query methods (`getCountsBySessionIds`, `getFileStatsBySessionIds`) and refactoring session enrichment logic.
+- **Code Snippets Bug**: Identified issue #257 where code snippets are not being saved, requiring investigation into database tables, worker functionality, and UI components.
+- **Database Schema**: Confirmed use of MikroORM with FTS5 for full-text search and discovered missing indexes causing performance degradation.
+- **Repository Pattern**: The system uses a repository pattern with interfaces like `IObservationRepository` and `ISessionRepository`, allowing for multiple database backends.
+- **Open Issues**: 15 open issues identified, including high-priority bugs (e.g., code snippets, auto-spawning) and feature requests (e.g., endless mode, provider-agnostic architecture).
 </claude-mem-context>

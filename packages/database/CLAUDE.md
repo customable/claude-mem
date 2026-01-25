@@ -7,47 +7,35 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15372 | 12:54 AM | 🟠 | Add new migration for retry_after field | ~3562 |
-| #15371 | 12:53 AM | 🔵 | Database configuration supports multiple DB types | ~3012 |
-| #15370 | 12:53 AM | 🔵 | Database migration structure discovered | ~1738 |
-| #15368 | 12:53 AM | 🟠 | Add new migration export for AddRetryAfterField | ~2096 |
-| #15367 | 12:53 AM | 🟠 | Add retry_after field to task_queue table | ~1447 |
-| #15364 | 12:53 AM | 🔵 | Database migration files discovered | ~3625 |
-| #15361 | 12:53 AM | 🟠 | Added retryAfter support for exponential backoff | ~4112 |
-| #15359 | 12:53 AM | 🔴 | Add retry_after check to getNextPending query | ~4255 |
-| #15357 | 12:52 AM | 🟠 | Added retryAfter field to Task entity conversion | ~3933 |
-| #15355 | 12:52 AM | 🟠 | Add retry_after field to Task entity | ~1595 |
-| #15354 | 12:52 AM | 🔵 | Task Entity Structure Analysis | ~1293 |
-| #15304 | 12:45 AM | 🟠 | Added batchUpdateStatus method to TaskRepository | ~4013 |
-| #15302 | 12:45 AM | 🟠 | Added batchDelete method to ObservationRepository | ~5903 |
-| #15297 | 12:45 AM | 🔵 | MikroORM Task Repository Implementation | ~2721 |
-| #15296 | 12:45 AM | 🔵 | ObservationRepository's delete and analytics methods | ~1129 |
-| #15214 | 12:32 AM | 🔵 | MikroORM Observation Repository Implementation | ~5557 |
-| #15208 | 12:32 AM | 🔵 | UserPromptRepository implementation | ~1783 |
-
-### Jan 24
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #14990 | 11:54 PM | 🔵 | Found usage of sanitizeFts5Query method | ~781 |
-| #14989 | 11:54 PM | 🔴 | Fix TypeScript type assertion in search results | ~6672 |
-| #14987 | 11:54 PM | 🔵 | ObservationRepository uses FTS5 for semantic search | ~1033 |
-| #14985 | 11:54 PM | 🔄 | Renamed sanitizeFts5Query to parseFts5Query | ~5431 |
-| #14983 | 11:54 PM | 🔵 | ObservationRepository implements search facets | ~1756 |
-| #14972 | 11:52 PM | 🟠 | Enhanced FTS5 search with BM25 ranking | ~7988 |
-| #14969 | 11:51 PM | 🔵 | ObservationRepository uses FTS5 for search | ~1872 |
-| #14965 | 11:51 PM | 🔵 | ObservationRepository contains analytics methods | ~1406 |
-| #14964 | 11:50 PM | 🔵 | DocumentRepository uses FTS5 for full-text search | ~1672 |
-| #14958 | 11:50 PM | 🔵 | ObservationRepository implements FTS5 search | ~1874 |
-| #14954 | 11:50 PM | 🔵 | MikroORM Observation Repository Implementation | ~2388 |
-| #14950 | 11:49 PM | 🔵 | FTS5 Full-Text Search Implementation | ~2095 |
-| #14890 | 11:44 PM | 🔵 | Database schema structure | ~1922 |
+| #41 | 11:19 AM | 🔄 | Removed migrationsList from MikroORM exports | ~1273 |
+| #40 | 11:19 AM | 🔵 | Exploring MikroORM database layer structure | ~1124 |
+| #39 | 11:19 AM | 🔄 | Replace hardcoded migration list with dynamic config | ~2734 |
+| #38 | 11:19 AM | 🔄 | Standardize migrations config across DB types | ~3205 |
+| #37 | 11:19 AM | 🔄 | Update MikroORM config for auto migration discovery | ~4019 |
+| #36 | 11:19 AM | 🔄 | Refactor default SQLite config to use migrationsConfig | ~2353 |
+| #35 | 11:18 AM | 🔄 | Consolidate SQLite migration configuration | ~2469 |
+| #34 | 11:18 AM | 🔵 | Multi-database support with MikroORM | ~2061 |
+| #32 | 11:17 AM | 🟠 | Add new migration for performance indexes | ~2405 |
+| #31 | 11:17 AM | 🟠 | Add new migration for performance indexes | ~2695 |
+| #28 | 11:17 AM | 🟣 | Migration file moved to correct directory | ~806 |
+| #27 | 11:16 AM | 🔵 | Performance indexes added for DB optimization | ~1238 |
+| #25 | 11:16 AM | 🟠 | Generate migration for composite indexes | ~860 |
+| #24 | 11:16 AM | 🔵 | DB migration for repositories table with indexes | ~1147 |
+| #23 | 11:15 AM | 🟠 | Added composite indexes to Task entity | ~1774 |
+| #22 | 11:15 AM | 🟣 | Migration file moved to correct directory | ~815 |
+| #20 | 11:15 AM | 🟠 | Generate migration for composite indexes | ~903 |
+| #19 | 11:15 AM | 🔵 | Database Schema Analysis for claude-mem Project | ~5549 |
+| #18 | 11:15 AM | 🟠 | Added composite index for project and source | ~1776 |
+| #17 | 11:15 AM | 🟠 | Added composite index for project and started_at | ~1596 |
+| #16 | 11:15 AM | 🟠 | Added composite and working dir indexes | ~2554 |
+| #15 | 11:14 AM | 🔵 | Session Entity Structure Analysis | ~1296 |
+| #14 | 11:14 AM | 🔵 | Task Entity Structure Analysis | ~1355 |
 
 ## Key Insights
 
-- **Task Queue Enhancements**: Implemented exponential backoff for task retries via `retry_after` field in task_queue table (Issue #206), including migration, entity updates, and query filtering.
-- **Batch Operations**: Added `batchUpdateStatus` and `batchDelete` methods to handle large datasets efficiently, addressing SQLite IN clause limitations.
-- **Search Improvements**: Enhanced FTS5 search with advanced query parsing (phrase search, OR/AND operators, BM25 ranking) and semantic search capabilities.
-- **Multi-Database Support**: MikroORM configuration supports SQLite, PostgreSQL, and MySQL/MariaDB with 11+ migrations covering schema evolution.
-- **Observability**: Added tracing, structured logging, and Prometheus metrics for better system monitoring.
+- **Database Optimization Focus**: Major refactoring of MikroORM configuration to use dynamic migration discovery and standardization across SQLite, PostgreSQL, and MySQL. Performance indexes were added to key entities (Task, Session, Observation, Document) to improve query efficiency.
+- **Schema Redesign**: Completed database schema redesign with FTS5 full-text search and repositories table, verified with successful migrations.
+- **Multi-Database Support**: The project now consistently supports SQLite (default), PostgreSQL, and MySQL/MariaDB with 15 entities and unified migration configuration.
+- **Performance Improvements**: Composite indexes added to frequently queried fields (e.g., `project` + `created_at_epoch`, `assigned_worker_id` + `status`) to optimize common access patterns.
+- **Next Steps**: Documentation updates and implementation of Worker-Konfigurations-Modal feature are pending based on recent GitHub issue creation.
 </claude-mem-context>

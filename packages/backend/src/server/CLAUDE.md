@@ -7,47 +7,13 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #15336 | 12:50 AM | 🟠 | Add rate limiter imports to backend | ~5158 |
-| #15333 | 12:49 AM | 🟠 | Added rate limiting to expensive API | ~5260 |
-| #15332 | 12:49 AM | 🟠 | Import rate limiter middleware | ~1693 |
-| #15331 | 12:49 AM | 🔵 | Backend API routes and static UI | ~1833 |
-| #15330 | 12:49 AM | 🟠 | Added rate limiting middleware | ~1964 |
-| #15329 | 12:49 AM | 🔵 | Express app middleware pipeline | ~1428 |
-| #15328 | 12:49 AM | 🔵 | Backend service initialization | ~2640 |
-| #15327 | 12:49 AM | 🔵 | Backend Service Architecture | ~2889 |
-| #15111 | 12:20 AM | 🔵 | Backend service routes and UI | ~1177 |
-| #15110 | 12:20 AM | 🟠 | Added Metrics Endpoint | ~5155 |
-| #15109 | 12:19 AM | 🔵 | CleanupRouter usage discovered | ~751 |
-| #15108 | 12:19 AM | 🟠 | Adding MetricsRouter imports | ~4895 |
-| #15107 | 12:19 AM | 🔵 | Backend service config options | ~936 |
-| #15104 | 12:19 AM | 🟠 | Add Prometheus metrics middleware | ~1677 |
-| #15102 | 12:19 AM | 🟠 | Added metricsMiddleware import | ~1538 |
-| #15088 | 12:17 AM | 🔄 | Replace custom request logging | ~2524 |
-| #15087 | 12:17 AM | 🔵 | Express app configuration | ~1519 |
-| #15086 | 12:17 AM | 🟠 | Added request logging middleware | ~1706 |
-| #15085 | 12:17 AM | 🔵 | Backend Service Architecture | ~1916 |
-
-### Jan 24, 2026
-
-| ID | Time | T | Title | Read |
-|----|------|---|-------|------|
-| #14563 | 10:37 PM | 🟠 | Added cleanup API route | ~5164 |
-| #14555 | 10:37 PM | 🔴 | Added cleanup service shutdown | ~5035 |
-| #14552 | 10:37 PM | 🔵 | Backend Service Architecture | ~5003 |
-| #14546 | 10:36 PM | 🟠 | Added automatic cleanup service | ~5346 |
-| #14544 | 10:36 PM | 🟠 | Added cleanup service | ~5159 |
-| #14542 | 10:36 PM | 🟠 | Added CleanupService to Backend | ~5003 |
-| #14539 | 10:36 PM | 🟠 | Adding CleanupService imports | ~4916 |
-| #14538 | 10:36 PM | 🟠 | Added CleanupRouter imports | ~5086 |
-| #14397 | 10:14 PM | 🟠 | Added ShareService to Backend | ~4908 |
-| #14394 | 10:14 PM | 🟠 | Added ShareRouter to backend | ~5080 |
-| #14393 | 10:13 PM | 🟠 | Adding ShareService imports | ~5031 |
+| #86 | 11:38 AM | 🔵 | TaskDispatcher initialization and dependencies | ~1155 |
 
 ## Key Insights
 
-- **Rate Limiting Implementation**: Comprehensive rate limiting added across expensive API endpoints (search, analytics, export) and global API routes (100 req/min limit) to address Issue #205.
-- **Observability Enhancements**: Added Prometheus metrics endpoint, structured request logging middleware, and request ID tracking for improved monitoring and debugging.
-- **Cleanup System**: New CleanupService integrated for memory leak prevention (Issue #101), handling stale sessions and orphaned workers with automatic periodic cleanup.
-- **Sharing Functionality**: Added ShareService and ShareRouter enabling memory sharing and collaboration capabilities.
-- **Architecture Patterns**: Backend service follows modular design with Express for HTTP, MikroORM for DB, and WebSocket for worker communication, with clear separation of concerns.
+- TaskDispatcher relies on multiple dependencies (workerHub, taskQueue, unitOfWork components) and initializes immediately.
+- Performance optimizations completed: Added indexes, refactored session enrichment, and resolved N+1 query issues.
+- UI/UX gaps identified: Worker auto-spawn lacks visibility, and code snippet saving is broken.
+- Metrics tracked via Prometheus for HTTP requests, tasks, workers, and SSE connections.
+- Next steps: Fix code snippet bug, implement worker configuration modal, and update documentation.
 </claude-mem-context>

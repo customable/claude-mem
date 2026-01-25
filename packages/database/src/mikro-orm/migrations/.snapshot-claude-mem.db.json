@@ -2698,6 +2698,16 @@
           "nullable": true,
           "length": null,
           "mappedType": "integer"
+        },
+        "deduplication_key": {
+          "name": "deduplication_key",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
         }
       },
       "name": "tasks",
@@ -2748,6 +2758,16 @@
           ],
           "composite": false,
           "keyName": "tasks_retry_after_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "deduplication_key"
+          ],
+          "composite": false,
+          "keyName": "tasks_deduplication_key_index",
           "constraint": false,
           "primary": false,
           "unique": false
