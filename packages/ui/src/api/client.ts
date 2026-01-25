@@ -548,10 +548,13 @@ export const api = {
     if (params?.limit) query.set('limit', String(params.limit));
     if (params?.offset) query.set('offset', String(params.offset));
     const queryStr = query.toString();
-    return get<{ data: Task[] }>(`/data/tasks${queryStr ? '?' + queryStr : ''}`).then(res => ({
+    return get<{ data: Task[]; total?: number }>(`/data/tasks${queryStr ? '?' + queryStr : ''}`).then(res => ({
       items: res.data || [],
+      total: res.total || res.data?.length || 0,
     }));
   },
   getTask: (id: string) => get<Task>(`/data/tasks/${id}`),
   getTaskCounts: () => get<TaskCounts>('/data/tasks/status/counts'),
+  // Retry a failed task (Issue #285)
+  retryTask: (id: string) => post<void>(`/data/tasks/${id}/retry`, {}),
 };

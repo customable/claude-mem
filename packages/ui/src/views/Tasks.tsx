@@ -13,6 +13,9 @@ type ViewMode = 'list' | 'kanban';
 const TASK_STATUSES: TaskStatus[] = ['pending', 'assigned', 'processing', 'completed', 'failed', 'timeout'];
 const TASK_TYPES: TaskType[] = ['observation', 'summarize', 'embedding', 'claude-md', 'cleanup'];
 
+// Pagination options (Issue #285)
+const PAGE_SIZES = [20, 50, 100] as const;
+
 const STATUS_COLORS: Record<TaskStatus, string> = {
   pending: 'badge-warning',
   assigned: 'badge-info',
@@ -53,8 +56,36 @@ function formatTimestamp(epoch: number): string {
   return date.toLocaleDateString();
 }
 
-function TaskCard({ task, compact = false }: { task: Task; compact?: boolean }) {
+// Copy text to clipboard helper (Issue #285)
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function TaskCard({
+  task,
+  compact = false,
+  onRetry,
+}: {
+  task: Task;
+  compact?: boolean;
+  onRetry?: (taskId: string) => void;
+}) {
   const [expanded, setExpanded] = useState(false);
+  const [copied, setCopied] = useState<'id' | 'payload' | null>(null);
+
+  // Handle copy with feedback (Issue #285)
+  const handleCopy = async (type: 'id' | 'payload') => {
+    const text = type === 'id' ? task.id : JSON.stringify(task.payload, null, 2);
+    if (await copyToClipboard(text)) {
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    }
+  };
 
   return (
     <div className={`card bg-base-200 ${compact ? 'card-compact' : ''}`}>
@@ -89,36 +120,76 @@ function TaskCard({ task, compact = false }: { task: Task; compact?: boolean }) 
         {/* Expand/Collapse */}
         {!compact && (
           <div className="mt-2">
-            <button
-              className="btn btn-xs btn-ghost"
-              onClick={() => setExpanded(!expanded)}
-            >
-              <span className={`iconify ${expanded ? 'ph--caret-up' : 'ph--caret-down'} size-4`} />
-              {expanded ? 'Less' : 'Details'}
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                className="btn btn-xs btn-ghost"
+                onClick={() => setExpanded(!expanded)}
+              >
+                <span className={`iconify ${expanded ? 'ph--caret-up' : 'ph--caret-down'} size-4`} />
+                {expanded ? 'Less' : 'Details'}
+              </button>
+
+              {/* Task Actions (Issue #285) */}
+              <button
+                className="btn btn-xs btn-ghost"
+                onClick={() => handleCopy('id')}
+                title="Copy Task ID"
+              >
+                <span className={`iconify ${copied === 'id' ? 'ph--check' : 'ph--copy'} size-3`} />
+              </button>
+
+              {/* Retry button for failed/timeout tasks (Issue #285) */}
+              {(task.status === 'failed' || task.status === 'timeout') && onRetry && (
+                <button
+                  className="btn btn-xs btn-ghost text-warning"
+                  onClick={() => onRetry(task.id)}
+                  title="Retry Task"
+                >
+                  <span className="iconify ph--arrow-clockwise size-3" />
+                  Retry
+                </button>
+              )}
+            </div>
 
             {expanded && (
               <div className="mt-2 space-y-2">
-                <div className="text-xs">
+                <div className="text-xs flex items-center gap-1">
                   <span className="font-semibold">ID:</span>
-                  <code className="ml-1 text-base-content/70">{task.id}</code>
+                  <code className="text-base-content/70 font-mono">{task.id}</code>
+                  <button
+                    className="btn btn-ghost btn-xs btn-circle"
+                    onClick={() => handleCopy('id')}
+                  >
+                    <span className={`iconify ${copied === 'id' ? 'ph--check text-success' : 'ph--copy'} size-3`} />
+                  </button>
                 </div>
                 <div className="text-xs">
                   <span className="font-semibold">Capability:</span>
                   <span className="ml-1">{task.requiredCapability}</span>
                 </div>
                 {task.error && (
-                  <div className="text-xs text-error">
+                  <div className="text-xs text-error bg-error/10 p-2 rounded">
                     <span className="font-semibold">Error:</span>
                     <span className="ml-1">{task.error}</span>
                   </div>
                 )}
-                <details className="text-xs">
-                  <summary className="cursor-pointer">Payload</summary>
-                  <pre className="mt-1 p-2 bg-base-300 rounded text-xs overflow-x-auto">
-                    {JSON.stringify(task.payload, null, 2)}
+
+                {/* Improved JSON Payload Display (Issue #285) */}
+                <div className="text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">Payload</span>
+                    <button
+                      className="btn btn-ghost btn-xs gap-1"
+                      onClick={() => handleCopy('payload')}
+                    >
+                      <span className={`iconify ${copied === 'payload' ? 'ph--check text-success' : 'ph--copy'} size-3`} />
+                      {copied === 'payload' ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                  <pre className="mt-1 p-2 bg-base-300 rounded text-xs overflow-x-auto max-h-48 font-mono">
+                    <JsonHighlight data={task.payload} />
                   </pre>
-                </details>
+                </div>
               </div>
             )}
           </div>
@@ -126,6 +197,48 @@ function TaskCard({ task, compact = false }: { task: Task; compact?: boolean }) 
       </div>
     </div>
   );
+}
+
+// Simple JSON syntax highlighting component (Issue #285)
+function JsonHighlight({ data }: { data: unknown }) {
+  const json = JSON.stringify(data, null, 2);
+
+  // Simple syntax highlighting by token type
+  const highlighted = json.split('\n').map((line, i) => {
+    // Highlight strings (values in quotes after colon)
+    const parts = line.split(/("(?:[^"\\]|\\.)*")/g);
+    return (
+      <div key={i}>
+        {parts.map((part, j) => {
+          if (part.startsWith('"') && part.endsWith('"')) {
+            // Check if it's a key (followed by :) or value
+            const isKey = line.indexOf(part + ':') !== -1 || line.indexOf(part + ' :') !== -1;
+            return (
+              <span key={j} className={isKey ? 'text-info' : 'text-success'}>
+                {part}
+              </span>
+            );
+          }
+          // Highlight numbers and booleans
+          return (
+            <span key={j}>
+              {part.split(/\b(true|false|null|\d+(?:\.\d+)?)\b/g).map((token, k) => {
+                if (/^(true|false|null)$/.test(token)) {
+                  return <span key={k} className="text-warning">{token}</span>;
+                }
+                if (/^\d+(?:\.\d+)?$/.test(token)) {
+                  return <span key={k} className="text-primary">{token}</span>;
+                }
+                return token;
+              })}
+            </span>
+          );
+        })}
+      </div>
+    );
+  });
+
+  return <>{highlighted}</>;
 }
 
 function KanbanColumn({ title, status, tasks, color }: {
@@ -156,12 +269,16 @@ function KanbanColumn({ title, status, tasks, color }: {
 
 export function TasksView() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [counts, setCounts] = useState<TaskCounts | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');
   const [typeFilter, setTypeFilter] = useState<TaskType | ''>('');
+  // Pagination state (Issue #285)
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(50);
 
   const loadTasks = useCallback(async () => {
     try {
@@ -172,19 +289,36 @@ export function TasksView() {
         api.getTasks({
           status: statusFilter || undefined,
           type: typeFilter || undefined,
-          limit: 100,
+          limit: pageSize,
+          offset: (page - 1) * pageSize,
         }),
         api.getTaskCounts(),
       ]);
 
       setTasks(tasksRes.items);
+      setTotalCount(tasksRes.total || tasksRes.items.length);
       setCounts(countsRes);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load tasks');
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, typeFilter]);
+  }, [statusFilter, typeFilter, page, pageSize]);
+
+  // Reset page when filters change (Issue #285)
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, typeFilter, pageSize]);
+
+  // Retry task handler (Issue #285)
+  const handleRetry = async (taskId: string) => {
+    try {
+      await api.retryTask(taskId);
+      loadTasks();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to retry task');
+    }
+  };
 
   useEffect(() => {
     loadTasks();
@@ -260,8 +394,8 @@ export function TasksView() {
         </div>
       )}
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2">
+      {/* Filters (Issue #285: Added pagination controls) */}
+      <div className="flex flex-wrap items-center gap-2">
         <select
           className="select select-sm select-bordered"
           value={statusFilter}
@@ -284,8 +418,20 @@ export function TasksView() {
           ))}
         </select>
 
-        <span className="text-sm text-base-content/60 self-center">
-          {tasks.length} tasks shown
+        {/* Page Size (Issue #285) */}
+        <select
+          className="select select-sm select-bordered w-20"
+          value={pageSize}
+          onChange={(e) => setPageSize(Number(e.target.value))}
+          title="Items per page"
+        >
+          {PAGE_SIZES.map((size) => (
+            <option key={size} value={size}>{size}</option>
+          ))}
+        </select>
+
+        <span className="text-sm text-base-content/60">
+          Showing {tasks.length} of {totalCount} tasks
         </span>
       </div>
 
@@ -345,9 +491,54 @@ export function TasksView() {
               <p>No tasks in queue</p>
             </div>
           ) : (
-            tasks.map(task => (
-              <TaskCard key={task.id} task={task} />
-            ))
+            <>
+              {tasks.map(task => (
+                <TaskCard key={task.id} task={task} onRetry={handleRetry} />
+              ))}
+
+              {/* Pagination Controls (Issue #285) */}
+              {totalCount > pageSize && (
+                <div className="flex items-center justify-center gap-2 pt-4">
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setPage(1)}
+                    disabled={page === 1}
+                    title="First page"
+                  >
+                    <span className="iconify ph--caret-double-left size-4" />
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    title="Previous page"
+                  >
+                    <span className="iconify ph--caret-left size-4" />
+                  </button>
+
+                  <span className="text-sm px-2">
+                    Page {page} of {Math.ceil(totalCount / pageSize)}
+                  </span>
+
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setPage((p) => Math.min(Math.ceil(totalCount / pageSize), p + 1))}
+                    disabled={page >= Math.ceil(totalCount / pageSize)}
+                    title="Next page"
+                  >
+                    <span className="iconify ph--caret-right size-4" />
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setPage(Math.ceil(totalCount / pageSize))}
+                    disabled={page >= Math.ceil(totalCount / pageSize)}
+                    title="Last page"
+                  >
+                    <span className="iconify ph--caret-double-right size-4" />
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
