@@ -46,3 +46,62 @@
 - **Subagent Absence Confirmed**: No subagent functionality exists in the codebase despite database fields suggesting potential support.
 - **Backend Architecture**: The backend service orchestrates multiple components (sessions, hooks, sharing) with modular route handling and database support.
 </claude-mem-context>
+
+# Package Structure
+
+## Dependency Graph
+
+```
+┌──────────┐
+│  types   │  ← Pure TypeScript interfaces, no runtime code
+└────┬─────┘
+     │
+     ▼
+┌──────────┐
+│  shared  │  ← Runtime utilities: logger, settings, paths
+└────┬─────┘
+     │
+     ├─────────────────┬─────────────────┐
+     ▼                 ▼                 ▼
+┌──────────┐     ┌──────────┐     ┌──────────┐
+│ database │     │  worker  │     │  hooks   │
+│          │     │          │◄────│          │
+└────┬─────┘     └──────────┘     └──────────┘
+     │
+     ▼
+┌──────────┐     ┌──────────┐
+│ backend  │     │    ui    │  ← Communicates via HTTP API
+└──────────┘     └──────────┘
+```
+
+## Package Overview
+
+| Package | Purpose | Key Exports |
+|---------|---------|-------------|
+| **types** | TypeScript definitions | Interfaces, types, enums (no runtime) |
+| **shared** | Runtime utilities | `createLogger`, `loadSettings`, `PATHS` |
+| **database** | Data persistence | MikroORM entities, repositories |
+| **backend** | API server | Express routes, services, WebSocket |
+| **hooks** | Claude integration | Hook handlers for Claude Code events |
+| **worker** | AI processing | Observation extraction, summarization |
+| **ui** | Web interface | React/Vite frontend |
+
+## Guidelines
+
+### Where to put new code?
+
+- **New interface/type?** → `types`
+- **Utility function used by multiple packages?** → `shared`
+- **Database entity or query?** → `database`
+- **API endpoint?** → `backend`
+- **Claude hook handler?** → `hooks`
+- **AI task processing?** → `worker`
+- **UI component?** → `ui`
+
+### Import Rules
+
+1. `types` has no internal dependencies
+2. `shared` only imports from `types`
+3. `database` imports from `shared` and `types`
+4. `backend` can import from all except `hooks` and `ui`
+5. `ui` has no internal dependencies (HTTP API only)
