@@ -19,163 +19,51 @@
 ### CLAUDE.md Dateien
 
 - **Automatisch generierte CLAUDE.md-Dateien regelmäßig mit committen**
-- Diese Dateien werden vom Plugin im `<claude-mem-context>`-Block aktualisiert
-- Beim Committen von Code-Änderungen auch geänderte CLAUDE.md-Dateien mit einschließen
-
-### Dokumentation
-
-- **Wichtige Änderungen eigenständig in der CLAUDE.md dokumentieren**
-- Neue Workflows, Konventionen oder wichtige technische Entscheidungen hier festhalten
-- Bei strukturellen Änderungen am Projekt die entsprechenden Abschnitte aktualisieren
-
-## Wichtige Befehle
-
-### Dev Server Restart
-**IMMER** `pnpm run dev:restart` verwenden um Backend und UI neu zu starten:
-```bash
-pnpm run dev:restart
-```
-
-### TypeScript Check
-```bash
-# Alle Packages auf Root-Ebene
-pnpm run typecheck
-```
-**Erfolgreich wenn:** Alle Packages zeigen "Done" in der Ausgabe. Der Check läuft über 7 Workspace-Packages und ist fertig sobald alle "Done" erscheinen. **Nicht** mehrfach starten oder auf weitere Ausgabe warten!
-
-### Build
-```bash
-pnpm run build
-```
-
-### Plugin Build
-```bash
-pnpm run build:plugin
-```
-
-### Plugin Sync (nach Build!)
-```bash
-pnpm run sync-marketplace
-```
-Synchronisiert das Plugin in alle Claude-Installationen. **Claude Code muss danach neu gestartet werden!**
-
-## Projekt-Struktur
-
-- `packages/types` - Shared TypeScript types
-- `packages/shared` - Shared utilities, constants, logger
-- `packages/database` - SQLite database layer
-- `packages/backend` - Express API server
-- `packages/hooks` - Claude Code hooks handlers
-- `packages/worker` - Background worker for AI tasks
-- `packages/ui` - React/Vite frontend
-
-## Datenbank
-
-SQLite-Datenbank unter `~/.claude-mem/claude-mem.db`
-
-### Wichtige Tabellen
-
-| Tabelle | Beschreibung |
-|---------|--------------|
-| `sdk_sessions` | Claude Code Sessions mit working_directory |
-| `observations` | AI-generierte Observations mit cwd |
-| `session_summaries` | Session-Zusammenfassungen |
-| `project_claudemd` | Generierter CLAUDE.md Content |
-| `task_queue` | Worker Task Queue |
-| `documents` | Gecachte MCP-Dokumentation (Context7, WebFetch) |
-
-### Abfrage-Beispiele
-
-**Hinweis:** MikroORM wird intern im Backend verwendet. Für schnelle Debugging-Abfragen ist die `sqlite3` CLI am einfachsten.
-
-```bash
-# Sessions abfragen (WICHTIG: Tabelle heißt sdk_sessions!)
-sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, content_session_id, working_directory, status FROM sdk_sessions ORDER BY id DESC LIMIT 5;"
-
-# Observations abfragen
-sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, title, type, cwd FROM observations ORDER BY id DESC LIMIT 5;"
-
-# CLAUDE.md Content abfragen
-sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, project, content_session_id, working_directory FROM project_claudemd ORDER BY id DESC LIMIT 5;"
-
-# Task Queue Status
-sqlite3 ~/.claude-mem/claude-mem.db "SELECT type, status, COUNT(*) as count FROM task_queue GROUP BY type, status;"
-```
-
-## CLAUDE.md Auto-Generation
-
-Das Plugin generiert automatisch Context-Sections in CLAUDE.md-Dateien.
-
-**Komponenten:**
-- `SSE-Writer` - Wird beim Session-Start gespawnt, lauscht auf SSE-Events
-- `claude-md` Task - Generiert den Content (AI-basiert)
-- `project_claudemd` Tabelle - Speichert generierten Content
-
-**Timing:**
-- Nach jeder X. Observation wird ein `claude-md` Task gequeued (Standard: 10)
-- Nach Session-Ende wird ebenfalls generiert (via summarize-Task)
-- SSE-Writer empfängt `claudemd:ready` Event und schreibt die Datei
-- Subdirectories mit Observations bekommen automatisch eigene CLAUDE.md Dateien
-
-**Konfiguration:**
-- `CLAUDEMD_ENABLED: true` in `~/.claude-mem/settings.json`
-- `CLAUDEMD_OBSERVATION_INTERVAL: 10` - Anzahl Observations bis zur nächsten Generierung
-
-**Debugging:**
-```bash
-# SSE-Writer Prozesse prüfen
-ps aux | grep sse-writer
-
-# PID-Dateien prüfen
-ls ~/.claude-mem/sse-writer-*.pid
-
-# Generierten Content in DB prüfen
-sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, project, content_session_id FROM project_claudemd ORDER BY id DESC LIMIT 10;"
-```
-
-## Neue Migration erstellen
-
-1. **Migration-Datei erstellen:**
-   ```bash
-   # In packages/database/src/mikro-orm/migrations/
-   Migration20260123000005_CreateDocumentsTable.ts
-   ```
-
-2. **Migration in Index exportieren:**
-   ```typescript
-   // packages/database/src/mikro-orm/migrations/index.ts
-   export { Migration20260123000005_CreateDocumentsTable } from './Migration20260123000005_CreateDocumentsTable.js';
-
-   export const mikroOrmMigrations = [
-     // ... bestehende Migrations
-     'Migration20260123000005_CreateDocumentsTable',
-   ];
-   ```
-
-3. **Migration in Config registrieren:**
-   ```typescript
-   // packages/database/src/mikro-orm.config.ts
-   import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
-
-   export const migrationsList = [
-     // ... bestehende Migrations
-     Migration20260123000005_CreateDocumentsTable,
-   ];
-   ```
-
-4. **Dev-Server neustarten:**
-   ```bash
-   pnpm run dev:restart
-   ```
-   Die Migration wird automatisch beim Start ausgeführt.
-
-## Forgejo Issues
-
-Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
-
-<claude-mem-context>
+- Diese Dateien werden vom Plugin im `<claude-mem-context>
 # Recent Activity
 
 <!-- This section is auto-generated by claude-mem. Edit content outside the tags. -->
 
+### Jan 25
+
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1371 | 2:59 PM | 🔵 | API Client Structure and Capabilities | ~5531 |
+| #1370 | 2:59 PM | 🔵 | Issue #277: UI/Memories pagination and filter UX improvements | ~1229 |
+| #1369 | 2:59 PM | 🔵 | No router files found in the project | ~688 |
+| #1368 | 2:59 PM | 🔵 | Located Document entity files in the codebase | ~794 |
+| #1367 | 2:59 PM | 🔵 | Issue #285: UI/Tasks Enhancement Request | ~1258 |
+| #1366 | 2:59 PM | 🔵 | No Document.entity.ts file found in the project | ~700 |
+| #1365 | 2:59 PM | 🔵 | Found Mistral AI SDK documents module in node_modules | ~1157 |
+| #1364 | 2:58 PM | 🔵 | Retrieved project documentation from git | ~2463 |
+| #1363 | 2:58 PM | 🔵 | Located Documents.tsx file in UI package | ~674 |
+| #1362 | 2:58 PM | 🔵 | Issue #284: Document UI improvements needed | ~1211 |
+| #1361 | 2:58 PM | 🔵 | Reviewed open issues in claude-mem repository | ~1677 |
+| #1360 | 2:57 PM | 🔵 | Reviewed CLAUDE.md for project guidelines and recent activity | ~2339 |
+| #1359 | 2:57 PM | 🔵 | Development workflow guidelines found in CLAUDE.md | ~907 |
+| #1358 | 2:57 PM | 🟣 | Update CLAUDE.md with stricter workflow rules | ~957 |
+| #1357 | 2:57 PM | 🟣 | Updated CLAUDE.md with comprehensive development documentation | ~7354 |
+| #1356 | 2:57 PM | 🔵 | Development workflow and guidelines discovered | ~1247 |
+| #1355 | 2:57 PM | 🔵 | Development workflow guidelines found in CLAUDE.md | ~1150 |
+| #1354 | 2:57 PM | 🟣 | Added mandatory compliance notice to development instructions | ~2379 |
+| #1353 | 2:56 PM | 🟣 | Updated workflow guidelines in CLAUDE.md | ~4462 |
+| #1352 | 2:56 PM | 🔵 | Development instructions file found | ~756 |
+| #1351 | 2:55 PM | 🔵 | Project documentation and structure overview | ~3623 |
+| #1350 | 2:55 PM | ✅ | Closing issue #210: Add comprehensive test suite | ~3700 |
+| #1349 | 2:55 PM | 🔵 | Git status shows modified files | ~861 |
+| #1348 | 2:55 PM | 🔵 | Git status reveals modified and untracked files | ~1182 |
+| #1347 | 2:54 PM | 🟠 | Adding test files and updating CI configuration | ~1250 |
+| #1346 | 2:54 PM | 🟠 | Comprehensive Test Suite Implemented | ~1230 |
+| #1345 | 2:54 PM | 🟠 | Comprehensive test suite added for Issue #210 | ~1261 |
+| #1344 | 2:54 PM | 🟠 | Comprehensive test suite for SearchRouter | ~7363 |
+| #1343 | 2:54 PM | 🟣 | Task 5 status updated to completed | ~718 |
+| #1342 | 2:54 PM | 🔵 | TypeScript typecheck passes for 7 of 8 workspace projects | ~954 |
+
+## Key Insights
+
+- **Testing Expansion**: A comprehensive test suite (416 tests) was added, covering backend routes and worker handlers, with CI updates for coverage reporting.
+- **Documentation Updates**: CLAUDE.md was significantly expanded with stricter workflow rules, compliance notices, and detailed development guidelines.
+- **UI Improvements Needed**: Multiple issues (#277, #284, #285) highlight UI/UX gaps in pagination, filtering, and document management.
+- **Project Structure**: The monorepo uses MikroORM with SQLite, Mistral AI SDK, and has extensive Bun dependencies (transitioning to Node.js).
+- **Task Management**: Task 5 was marked as completed, indicating progress in the project's task tracking system.
 </claude-mem-context>

@@ -7,22 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1431 | 3:19 PM | 🟠 | Add document export and preview functionality | ~5799 |
+| #1430 | 3:18 PM | 🔵 | Located DocumentCard function in Documents.tsx | ~700 |
+| #1429 | 3:18 PM | 🟠 | Add document preview state to DocumentsView | ~5453 |
+| #1428 | 3:18 PM | 🔵 | Documents view implements search and filter UI | ~1284 |
+| #1427 | 3:18 PM | 🟠 | Add document preview modal and export functionality | ~5743 |
+| #1426 | 3:18 PM | 🔵 | Documents view handles empty state and markdown sanitization | ~1259 |
+| #1425 | 3:17 PM | 🔵 | Document filtering and source tool counting logic | ~1385 |
+| #1424 | 3:17 PM | 🟠 | Add document export and preview modal functionality | ~6999 |
+| #1423 | 3:17 PM | 🔵 | Documents view implements client-side search and filtering | ~1723 |
+| #1422 | 3:17 PM | 🔵 | Documents View Component Structure and Title Handling Logic | ~1869 |
+| #1401 | 3:02 PM | 🔄 | Remove unused variable in Documents.tsx | ~5614 |
+| #1400 | 3:02 PM | 🟠 | Add source tool count tracking for document filtering | ~5747 |
+| #1398 | 3:02 PM | 🟠 | Add Clear Filters Button and Source Tabs to Documents View | ~7207 |
+| #1397 | 3:02 PM | 🔵 | Documents view implements filter controls and empty state handling | ~1366 |
+| #1396 | 3:02 PM | 🟠 | Add onCopy handler to DocumentCard component | ~5448 |
+| #1395 | 3:01 PM | 🔵 | Document deletion and copy functionality in Documents view | ~1608 |
+| #1394 | 3:01 PM | 🔴 | Fix document title display and add preview functionality | ~6519 |
+| #1390 | 3:01 PM | 🟠 | Add copy button to document actions | ~5549 |
+| #1389 | 3:01 PM | 🟠 | Enhance DocumentCard with new features and fixes | ~7230 |
+| #1388 | 3:01 PM | 🔵 | DocumentCard component structure and metadata handling | ~1334 |
+| #1375 | 3:00 PM | 🔵 | Documents View Component Structure | ~5355 |
 | #835 | 1:24 PM | 🔵 | Dashboard View Implementation Analysis | ~3466 |
-| #564 | 12:36 PM | 🟠 | Created Tasks View Component | ~6856 |
-| #552 | 12:34 PM | 🔵 | Dashboard Component Structure | ~3451 |
+| #564 | 12:36 PM | 🟠 | Created Tasks View Component with Kanban and List Views | ~6856 |
+| #552 | 12:34 PM | 🔵 | Dashboard component structure and functionality | ~3451 |
 | #537 | 12:34 PM | 🔵 | LiveView Component Analysis | ~4626 |
-| #209 | 11:57 AM | 🔵 | MemoriesView Component Structure | ~1593 |
-| #202 | 11:57 AM | 🔵 | Dashboard Uses SSE for Updates | ~1658 |
-| #185 | 11:56 AM | 🔵 | Live View Uses SSE | ~2273 |
-| #169 | 11:55 AM | 🔵 | Worker Connections in Dashboard | ~757 |
-| #163 | 11:55 AM | 🔵 | Worker/Spawn Code in UI | ~758 |
-| #162 | 11:55 AM | 🔵 | Settings View Implementation | ~5369 |
+| #209 | 11:57 AM | 🔵 | MemoriesView component structure and functionality | ~1593 |
+| #202 | 11:57 AM | 🔵 | Dashboard View Uses SSE for Real-time Updates | ~1658 |
+| #185 | 11:56 AM | 🔵 | Live View uses Server-Sent Events for real-time updates | ~2273 |
+| #169 | 11:55 AM | 🔵 | Dashboard component references worker connections | ~757 |
+| #163 | 11:55 AM | 🔵 | Worker/spawn-related code found in UI views | ~758 |
 
 ## Key Insights
 
-- **Real-time Architecture**: The system heavily relies on Server-Sent Events (SSE) for real-time updates across multiple components (Dashboard, LiveView, MemoriesView).
-- **Worker Management**: Worker connections and capabilities are central to the architecture, with references in Dashboard, Settings, and Live views.
-- **Task System**: A new Tasks View component was created with Kanban and list views, indicating a focus on task management and monitoring.
-- **Federation Proposal**: Recent sessions propose a WorkerHub Federation architecture for distributed worker pools with priority-based routing.
-- **Database Evaluation**: Research into alternative database technologies is underway for potential migration.
+- **Document Management Enhancements**: Significant progress on document-related features including preview modals, export functionality, and improved title handling (Issues #1431, #1429, #1427, #1394).
+- **UI Improvements**: Added source tool filtering, clear filters button, and copy functionality to enhance user experience (Issues #1400, #1398, #1390).
+- **Code Quality**: Removed unused variables and refactored components for better maintainability (Issue #1401).
+- **Real-time Features**: Dashboard and LiveView components leverage Server-Sent Events (SSE) for real-time updates (Issues #202, #185).
+- **Pending Tasks**: Remaining work includes implementing pagination, addressing mobile responsiveness, and refining backend health endpoint configuration.
 </claude-mem-context>
