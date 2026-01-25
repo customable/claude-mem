@@ -62,9 +62,17 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         run: pnpm run build
 
-      - name: Run tests
+      - name: Run tests with coverage
         if: steps.check.outputs.skip != 'true'
-        run: pnpm run test
+        run: pnpm run test:coverage
+
+      - name: Upload coverage report
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
 
       - name: Type check
         if: steps.check.outputs.skip != 'true'
