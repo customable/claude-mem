@@ -98,42 +98,42 @@ Nach Änderungen an Backend, Worker oder Hooks:
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2098 | 5:19 PM | 🔵 | API Client Methods for Insights and Tasks | ~1646 |
-| #2097 | 5:19 PM | 🔵 | Issue #260: TodoList & PlanMode Feature Requirements | ~3559 |
-| #2096 | 5:19 PM | 🔵 | Client.ts file size discovered | ~723 |
-| #2095 | 5:19 PM | 🔵 | Build process completed with CSS warning | ~1483 |
-| #2094 | 5:19 PM | 🔵 | Search for compression and archiving code | ~788 |
-| #2093 | 5:19 PM | 🟠 | Phase 3 Complete: MCP Tools & API Endpoints | ~1118 |
-| #2092 | 5:19 PM | 🟠 | Add Archived Outputs API Endpoints | ~3019 |
-| #2091 | 5:18 PM | 🟠 | Add MCP tools and API endpoints | ~1160 |
-| #2090 | 5:18 PM | 🔵 | Git status reveals modified CLAUDE.md files | ~1155 |
-| #2089 | 5:17 PM | ✅ | TypeScript type check passes for all projects | ~1025 |
-| #2088 | 5:17 PM | 🔴 | TypeScript errors in DataRouter | ~1516 |
-| #2087 | 5:17 PM | 🔄 | Standardize error handling in endpoints | ~7328 |
-| #2086 | 5:16 PM | 🔵 | BaseRouter class utilities discovered | ~1626 |
-| #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints | ~2072 |
-| #2084 | 5:16 PM | 🟠 | Added recall_archived and archived_stats tools | ~6206 |
-| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter | ~5194 |
-| #2082 | 5:15 PM | 🔵 | DataRouter initialization discovered | ~2514 |
-| #2081 | 5:15 PM | 🔵 | Backend API routes structure discovered | ~1198 |
-| #2080 | 5:15 PM | 🟠 | Added archived outputs API endpoints | ~6386 |
-| #2079 | 5:15 PM | 🔵 | Discovered IArchivedOutputRepository Interface | ~2244 |
-| #2078 | 5:15 PM | 🟠 | Added Archived Outputs API Endpoints | ~5296 |
-| #2077 | 5:15 PM | 🔵 | Project settings API endpoints discovered | ~1201 |
-| #2076 | 5:14 PM | 🟠 | Added optional archivedOutputs repository | ~5043 |
-| #2075 | 5:14 PM | 🔵 | Count lines in data.ts | ~721 |
-| #2074 | 5:14 PM | 🔵 | Backend route files discovered | ~1367 |
-| #2073 | 5:14 PM | 🔵 | ArchivedOutput entity and related files | ~1333 |
-| #2072 | 5:14 PM | 🔵 | Endless Mode v7.1 Implementation Analysis | ~6138 |
-| #2071 | 5:14 PM | 🟠 | Add IArchivedOutputRepository and CompressionStatus | ~4942 |
-| #2070 | 5:14 PM | 🔵 | Exploring plugin directory structure | ~2355 |
-| #2069 | 5:14 PM | 🔵 | Examining API routes and session handling | ~2148 |
+| #2128 | 5:27 PM | 🔵 | MikroORM Entity Relations Issue | ~3484 |
+| #2127 | 5:27 PM | 🔄 | Convert compressed_observation_id to ManyToOne | ~2288 |
+| #2126 | 5:26 PM | 🔵 | Database Compatibility for MikroORM | ~1636 |
+| #2125 | 5:26 PM | 🔵 | Located ArchivedOutputRepository | ~767 |
+| #2124 | 5:26 PM | 🔵 | TodoList & PlanMode Requirements | ~3566 |
+| #2123 | 5:26 PM | 🔵 | Claude Code Hook Structures Research | ~6049 |
+| #2122 | 5:25 PM | 🟣 | Pushed UI Improvements to Feature Branch | ~1090 |
+| #2121 | 5:25 PM | 🔵 | Reviewed Open Issues | ~1277 |
+| #2120 | 5:25 PM | 🟣 | Commit Auto-Generated CLAUDE.md | ~840 |
+| #2119 | 5:25 PM | ✅ | Phase 4 Complete: User Experience | ~1578 |
+| #2118 | 5:25 PM | 🔵 | Endless Mode Feature in Settings | ~4696 |
+| #2117 | 5:25 PM | 🔵 | Multiple CLAUDE.md Files Modified | ~1414 |
+| #2116 | 5:24 PM | 🔵 | Endless Mode Feature Proposal | ~3282 |
+| #2115 | 5:24 PM | 🔵 | Search for "endless" in UI Files | ~901 |
+| #2114 | 5:24 PM | 🟠 | Add Endless Mode Dashboard Widget | ~1094 |
+| #2113 | 5:22 PM | 🔵 | Build Process with Chunk Warnings | ~1166 |
+| #2112 | 5:22 PM | 🟠 | Add Endless Mode Stats to Dashboard | ~5064 |
+| #2111 | 5:22 PM | 🔵 | TypeScript Type Check Passes | ~1032 |
+| #2110 | 5:22 PM | 🟠 | Added EndlessModeCard to Dashboard | ~6482 |
+| #2109 | 5:21 PM | 🔵 | API Client Interfaces Discovered | ~1451 |
+| #2108 | 5:21 PM | 🔵 | Dashboard UI Structure | ~1855 |
+| #2107 | 5:21 PM | 🟠 | Add endlessModeStatus to Dashboard | ~4355 |
+| #2106 | 5:21 PM | 🟠 | Add EndlessModeStatus Interface | ~4931 |
+| #2105 | 5:21 PM | 🔵 | Dashboard UI Components | ~2024 |
+| #2104 | 5:20 PM | 🔵 | Dashboard Uses SSE for Updates | ~1897 |
+| #2103 | 5:20 PM | 🔵 | Dashboard.tsx Size | ~1020 |
+| #2102 | 5:20 PM | 🟠 | Add Archived Outputs API Endpoints | ~6588 |
+| #2101 | 5:20 PM | 🔵 | Located Dashboard Component | ~702 |
+| #2100 | 5:20 PM | 🔵 | API Client Structure | ~1519 |
+| #2099 | 5:20 PM | 🟠 | Add Endless Mode Types | ~6161 |
 
 ## Key Insights
 
-- **Archived Outputs Feature**: Major progress on Endless Mode (Issue #109) with new API endpoints, MCP tools, and repository interfaces for archived outputs functionality.
-- **TypeScript Health**: Type checks pass across all workspace projects, though DataRouter has 8 errors needing attention.
-- **Code Quality**: Refactored error handling in archived outputs endpoints to standardize responses.
-- **Documentation**: Multiple CLAUDE.md files modified, indicating ongoing documentation updates.
-- **Build Status**: Successful build with minor CSS warnings and chunk size advisories.
+- **Endless Mode Feature**: A major feature for real-time context compression is being implemented, reducing token usage by ~95% and extending session limits. This includes a dual-memory system and dashboard widgets for tracking compression stats.
+- **MikroORM Refactoring**: Critical issues with MikroORM entity relations (e.g., missing relations in `ArchivedOutput` and `Session` entities) are being addressed, along with database compatibility considerations for SQLite and PostgreSQL.
+- **UI Improvements**: The `Settings.tsx` file was refactored into modular components, and new UI elements (e.g., `EndlessModeCard`) were added to the dashboard for better user experience.
+- **Build Warnings**: The UI package has chunk size warnings (>500 kB), indicating potential optimization needs for CSS and bundle sizes.
+- **Type Safety**: TypeScript checks passed across most packages, ensuring the codebase remains type-safe during development.
 </claude-mem-context>

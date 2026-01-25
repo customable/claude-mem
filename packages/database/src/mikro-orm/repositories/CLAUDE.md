@@ -7,30 +7,29 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #946 | 1:51 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3156 |
+| #2138 | 5:28 PM | 🔴 | Fix MikroORM Ref relation assignment | ~3790 |
+| #2136 | 5:27 PM | 🔴 | Fix compressed_observation_id extraction | ~4770 |
+| #2133 | 5:27 PM | 🔴 | Fix MikroORM relation query | ~3756 |
+| #2132 | 5:27 PM | 🟠 | Add Observation import to ArchivedOutput | ~3254 |
+| #2129 | 5:27 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3156 |
+| #960 | 1:55 PM | 🔵 | TaskRepository uses MikroORM with SQLite | ~1684 |
 | #921 | 1:43 PM | 🔵 | MikroORM Observation Repository | ~5513 |
 | #920 | 1:43 PM | 🔵 | TaskRepository deduplication & batch ops | ~3493 |
 | #915 | 1:42 PM | 🔵 | SessionRepository implementation | ~3205 |
-| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository storage | ~3169 |
+| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository overview | ~3169 |
 | #677 | 12:52 PM | 🟠 | Added ArchivedOutputRepository export | ~1483 |
 | #667 | 12:50 PM | 🟠 | Created ArchivedOutputRepository | ~5277 |
-| #664 | 12:49 PM | 🔵 | Document Repository FTS5 search | ~3251 |
-| #663 | 12:49 PM | 🔵 | MikroORM repository structure | ~1226 |
-| #545 | 12:34 PM | 🔵 | TaskRepository JSON handling | ~3523 |
-| #201 | 11:57 AM | 🔵 | TaskRepository SQLite JSON ops | ~1639 |
-| #128 | 11:46 AM | 🟠 | Task deduplication (Issue #207) | ~5137 |
-| #126 | 11:46 AM | 🟠 | Deduplication key support | ~3840 |
-| #125 | 11:46 AM | 🟠 | Added createHash import | ~3226 |
-| #124 | 11:46 AM | 🔵 | TaskRepository MikroORM review | ~3148 |
-| #69 | 11:34 AM | 🔴 | Fixed SQL file filtering bug | ~5791 |
-| #66 | 11:33 AM | 🔵 | ObservationRepository FTS5 search | ~5522 |
+| #664 | 12:49 PM | 🔵 | Document Repository with FTS5 | ~3251 |
+| #663 | 12:49 PM | 🔵 | MikroORM Repository Structure | ~1226 |
+| #69 | 11:34 AM | 🔴 | Fixed SQL query logic for file filtering | ~5791 |
+| #66 | 11:33 AM | 🔵 | ObservationRepository with FTS5 | ~5522 |
 | #64 | 11:32 AM | 🔵 | Batch delete with chunking | ~1969 |
 
 ## Key Insights
 
-- **Repository Architecture**: MikroORM is used extensively with SQLite-specific features (FTS5, JSON functions) across multiple repositories (Observation, Task, Session, Document, ArchivedOutput).
-- **Endless Mode Storage**: New `ArchivedOutputRepository` implemented for full tool output storage with compression support (Issue #109).
-- **Task Deduplication**: Added SHA-256-based deduplication system (Issue #207) with `createIfNotExists` method to prevent duplicate tasks.
-- **Performance Optimizations**: Batch operations (delete in chunks of 500) and exponential backoff support in TaskRepository.
-- **Bug Fixes**: Corrected SQL query logic in ObservationRepository for file filtering conditions.
+- **Endless Mode Implementation**: Focused on `ArchivedOutputRepository` for compression and storage, with multiple bugfixes addressing MikroORM relation handling and query logic.
+- **Repository Patterns**: Extensive use of MikroORM with SQLite-specific features (FTS5, JSON handling) across repositories (Observation, Task, Session, Document).
+- **Deduplication**: TaskRepository now includes SHA-256-based deduplication (Issue #207) to prevent duplicate task creation.
+- **Performance Optimizations**: Batch operations (e.g., chunked deletes) and relation query fixes improve database efficiency.
+- **UI Progress**: Endless Mode dashboard widget and settings UI completed, with pending optimizations for CSS and chunk sizes.
 </claude-mem-context>

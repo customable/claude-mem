@@ -40,9 +40,9 @@
 
 ## Key Insights
 
-- **Archived Outputs Feature**: Significant progress on implementing archived outputs functionality for "Endless Mode" (Issue #109), including 5 new API endpoints (list, search, stats, get by ID, get by observation ID) and standardized error handling.
-- **SSE Integration**: Added SSEBroadcaster dependency to HooksRouter, enabling real-time updates. New writer pause/resume endpoints support git operations (Issue #288).
-- **Backend Architecture**: Discovered well-organized modular router structure with 20+ specialized routers. DataRouter handles sessions, observations, documents, and analytics with session enrichment logic.
-- **Refactoring**: Standardized error handling across archived outputs endpoints using Express response methods. BaseRouter class provides common utilities for route handlers.
-- **Project Management**: Found project lifecycle operations (delete/archive/rename) and extensive use of project parameters across data routes for filtering and organization.
+- **Archived Outputs Feature**: Significant progress on implementing archived outputs API endpoints for "Endless Mode" (Issue #109), including standardization of error handling and integration with DataRouter.
+- **Backend Architecture**: Discovered a well-organized modular router architecture with 20+ specialized routers, including a BaseRouter class providing common utilities.
+- **SSE Integration**: Added SSEBroadcaster dependency to HooksRouter for real-time updates, with new writer pause/resume endpoints for git operations.
+- **Project Management**: Found existing project deletion/archive/rename functionality in data routes, with extensive use of 'project' parameter across endpoints.
+- **Refactoring**: Completed major refactoring of Settings.tsx (2061 lines) into 17 modular files and addressed inconsistencies in system prompts.
 </claude-mem-context>

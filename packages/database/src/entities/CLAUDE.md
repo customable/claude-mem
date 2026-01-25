@@ -7,6 +7,9 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2127 | 5:27 PM | 🔄 | Convert compressed_observation_id to ManyToOne | ~2288 |
+| #1916 | 4:45 PM | 🔵 | Observation Entity Structure Analysis | ~1961 |
+| #1896 | 4:41 PM | 🔵 | Examining Observation Entity Structure | ~1990 |
 | #1374 | 3:00 PM | 🔵 | Document Entity Structure Analysis | ~1324 |
 | #985 | 1:58 PM | 🔵 | TechnologyUsage Entity Structure | ~1023 |
 | #984 | 1:58 PM | 🔵 | Database entities structure discovered | ~1144 |
@@ -34,15 +37,12 @@
 | #938 | 1:48 PM | 🔵 | ArchivedOutput Entity Structure | ~1414 |
 | #933 | 1:46 PM | 🔵 | Session Entity Structure Analysis | ~1324 |
 | #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure | ~1328 |
-| #662 | 12:49 PM | 🔵 | Observation Entity Structure Analysis | ~1985 |
-| #661 | 12:49 PM | 🟠 | Add ArchivedOutput entity export | ~1228 |
-| #660 | 12:49 PM | 🟠 | Create ArchivedOutput entity | ~1882 |
 
 ## Key Insights
 
-- **Entity Structure Discovery**: Comprehensive analysis of database entities (Session, Observation, ArchivedOutput, etc.) reveals a well-structured Mikro-ORM-based schema for tracking Claude Code SDK sessions, observations, and project metadata.
-- **ArchivedOutput Refinement**: Multiple refactoring steps (#939, #940, #948, #953) indicate ongoing optimization of the `ArchivedOutput` entity for Endless Mode (Issue #109), focusing on performance and relationship simplification.
-- **Feature Additions**: New fields like `compressed_observation_id` (#949) and entity exports (#661) suggest active development of core functionality for observation management.
-- **UI Improvements**: Session summaries highlight completed UI enhancements (document preview, filtering) and pending tasks (mobile responsiveness, pagination).
-- **Migration Context**: Runtime migration from Bun to Node.js noted in summaries, requiring stability verification.
+- **Entity Structure Analysis**: Extensive review of database entities (Observation, Session, Document, etc.) reveals a complex data model for tracking AI-generated observations, user interactions, and project metadata.
+- **Refactoring Focus**: Multiple refactoring efforts on `ArchivedOutput` entity to optimize the relationship with `Observation` (e.g., converting `compressed_observation_id` to ManyToOne, adding indexes).
+- **Endless Mode Development**: Key changes related to Endless Mode (Issue #109), including dual-memory system optimizations and UI components (dashboard widget, settings).
+- **Modularization Efforts**: Large UI files (e.g., `Settings.tsx` at 2061 lines) are being broken into modular components for maintainability.
+- **Type Safety Improvements**: Updates to observation interfaces (new fields like `concept`, `gitBranch`) and system prompts to ensure consistency across the monorepo.
 </claude-mem-context>
