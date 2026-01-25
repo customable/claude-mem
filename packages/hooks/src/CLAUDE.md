@@ -45,9 +45,9 @@
 
 ## Key Insights
 
-- **Subagent Lifecycle Support**: Major feature additions for subagent lifecycle management, including new events ('subagent-start', 'subagent-stop'), handlers, and type extensions. This enables better tracking and control of subagent (Task tool) operations.
-- **Urgent Prompt Detection**: Implemented CAPSLOCK-based urgency detection for user prompts, enhancing the system's ability to prioritize critical messages.
-- **Architecture Discoveries**: Extensive exploration of the hook system architecture, including the plugin entry point, handler registry, and backend client implementation. This provides a solid foundation for future enhancements.
-- **Error Handling Improvements**: Enhanced error handling in FTS5 query parsing and search endpoints, addressing SQLite limitations and improving robustness.
-- **Context Preservation**: Added 'pre-compact' event handling to preserve context before automatic compaction, ensuring critical data isn't lost during memory management.
+- **Subagent Lifecycle Support**: Major feature additions for subagent lifecycle management, including new events ('subagent-start', 'subagent-stop'), handlers, and type definitions. This extends the hook system significantly.
+- **Urgent Prompt Detection**: New functionality to detect urgent/CAPSLOCK prompts (70%+ uppercase letters) and include urgency flags in session initialization.
+- **Architecture Understanding**: Comprehensive analysis of the plugin entry point, hook runner, and backend client architectures, revealing the event-driven system design.
+- **Search System Constraints**: SQLite FTS limitations discovered (standalone wildcards rejected, '-' interpreted as NOT operator), requiring client-side validation.
+- **Error Handling**: Enhanced error handling for FTS5 query parsing and backend communication, with fail-open behavior for subagent handlers.
 </claude-mem-context>

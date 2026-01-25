@@ -179,42 +179,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #15506 | 1:31 AM | 🔵 | Git status reveals modified files | ~947 |
 | #15505 | 1:31 AM | 🔵 | Examining parseFts5Query implementation | ~1302 |
 | #15504 | 1:31 AM | 🔵 | Search API rejects standalone wildcard | ~819 |
 | #15503 | 1:30 AM | 🔵 | Testing parseFts5Query wildcard handling | ~965 |
-| #15502 | 1:30 AM | 🔵 | FTS5 Query Parsing Logic | ~1525 |
-| #15501 | 1:30 AM | 🔵 | SQLite FTS wildcard limitation | ~951 |
-| #15500 | 1:30 AM | 🔵 | Search API fails with wildcard | ~896 |
+| #15502 | 1:30 AM | 🔵 | FTS5 Query Parsing Logic discovered | ~1525 |
+| #15501 | 1:30 AM | 🔵 | SQLite FTS wildcard limitation found | ~951 |
+| #15500 | 1:30 AM | 🔵 | Search API fails with wildcard query | ~896 |
 | #15499 | 1:30 AM | 🟣 | Dev environment restarted | ~1101 |
 | #15498 | 1:30 AM | 🔵 | Backend and SSE writer running | ~1018 |
-| #15497 | 1:30 AM | 🔵 | Wildcard trim logic validation | ~821 |
+| #15497 | 1:30 AM | 🔵 | Wildcard check logic validated | ~821 |
 | #15496 | 1:29 AM | 🔵 | Git history of ObservationRepository | ~895 |
 | #15495 | 1:29 AM | 🔵 | Base Router Class Structure | ~1631 |
 | #15494 | 1:29 AM | 🔵 | Search routes implementation | ~3257 |
 | #15493 | 1:29 AM | 🔵 | MCP Server Implementation | ~3006 |
 | #15492 | 1:29 AM | 🔵 | No "mcp-search*.ts" files found | ~710 |
-| #15491 | 1:29 AM | 🔵 | FTS5 error handling in search | ~1476 |
-| #15490 | 1:29 AM | 🔵 | FTS5 query parsing in ObservationRepo | ~3299 |
-| #15489 | 1:29 AM | 🔵 | SQLite FTS5 search implementation | ~1881 |
+| #15491 | 1:29 AM | 🔵 | FTS5 error handling in search routes | ~1476 |
+| #15490 | 1:29 AM | 🔵 | FTS5 query parsing implementation | ~3299 |
+| #15489 | 1:29 AM | 🔵 | Full-text search using SQLite FTS5 | ~1881 |
 | #15488 | 1:27 AM | 🔵 | Database query for Jan 24 activity | ~4015 |
-| #15487 | 1:26 AM | 🔵 | Inspected sdk_sessions schema | ~1799 |
+| #15487 | 1:26 AM | 🔵 | Inspected sdk_sessions table schema | ~1799 |
 | #15486 | 1:25 AM | 🟣 | Built and synced plugin | ~1674 |
-| #15485 | 1:25 AM | 🟣 | Dev environment restart | ~2458 |
+| #15485 | 1:25 AM | 🟣 | Dev environment restarted | ~2458 |
 | #15484 | 1:24 AM | ✅ | Closed issue #238 | ~1339 |
 | #15483 | 1:24 AM | 🟣 | Pushed changes to remote | ~780 |
 | #15482 | 1:24 AM | 🔴 | Fixed FTS5 special character handling | ~1065 |
-| #15481 | 1:23 AM | 🔵 | Git status shows modifications | ~935 |
+| #15481 | 1:24 AM | 🔵 | Git status shows modified files | ~935 |
 | #15480 | 1:23 AM | 🔵 | Node.js version mismatch | ~1026 |
 | #15479 | 1:23 AM | 🔵 | Suggestion Service details | ~1782 |
 | #15478 | 1:23 AM | 🔵 | Dual search system discovered | ~2973 |
 | #15477 | 1:23 AM | 🔵 | Search functionality usage | ~1055 |
-| #15476 | 1:23 AM | 🔵 | Data Router structure | ~2090 |
 
 ## Key Insights
 
-- **FTS5 Query Handling**: The `parseFts5Query` method in `ObservationRepository.ts` is critical for processing search queries, including handling phrases, operators, and special characters. Standalone wildcards (*) are explicitly rejected due to SQLite FTS limitations.
-- **Search System Architecture**: The backend supports both SQLite FTS5 (full-text) and Qdrant (semantic/vector-based) search, with automatic fallback to FTS5 when Qdrant is unavailable.
-- **Error Handling**: Consistent error handling for FTS5 query parsing errors exists across search endpoints, converting SQLite errors into user-friendly responses.
-- **Recent Fixes**: A bugfix addressed FTS5 special character handling (hyphens and wildcards), improving query robustness and closing issue #238.
-- **Environment Notes**: A Node.js version mismatch (v22.22.0 vs required >=24.13.0) was detected, which may cause compatibility issues. The dev environment was restarted successfully, but build warnings persist.
+- **FTS5 Query Handling**: SQLite FTS5 has limitations with special characters (e.g., `*` as standalone wildcard, `-` as NOT operator). The `parseFts5Query` method handles complex parsing, including phrases, operators, and special characters.
+- **Search System**: The project uses a hybrid search system with both semantic (Qdrant) and full-text (SQLite FTS5) search capabilities, with automatic fallback to FTS5 when Qdrant is unavailable.
+- **Error Handling**: Consistent error handling for FTS5 query parsing errors across search endpoints, converting SQLite errors to user-friendly messages.
+- **Recent Fixes**: Fixed special character handling in search queries (hyphens, wildcards) and improved error messages for invalid queries.
+- **Environment Issues**: Node.js version mismatch (requires >=24.13.0, running v22.22.0) and pending commits for modified files (CLAUDE.md, search.ts, ObservationRepository.ts, package.json).
 </claude-mem-context>

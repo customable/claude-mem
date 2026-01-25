@@ -10,38 +10,38 @@
 | #15495 | 1:29 AM | 🔵 | Base Router Class Structure and Utilities | ~1631 |
 | #15494 | 1:29 AM | 🔵 | Search routes implementation analysis | ~3257 |
 | #15491 | 1:29 AM | 🔵 | FTS5 query parsing error handling | ~1476 |
-| #15478 | 1:23 AM | 🔵 | Search API supports semantic and text | ~2973 |
-| #15476 | 1:23 AM | 🔵 | Exploring Data Router Structure | ~2090 |
-| #15475 | 1:23 AM | 🔴 | Add error handling for FTS5 parsing | ~4303 |
-| #15474 | 1:23 AM | 🔴 | Add error handling in combinedSearch | ~4185 |
-| #15472 | 1:22 AM | 🔴 | Add error handling in search endpoint | ~5046 |
-| #15315 | 12:47 AM | 🔵 | Examining Data Router Implementation | ~4915 |
-| #15314 | 12:47 AM | 🔄 | Replace deletes with batch operations | ~5563 |
-| #15262 | 12:38 AM | 🟠 | Added cache management endpoints | ~3142 |
-| #15259 | 12:37 AM | 🟠 | Added cache endpoints to health router | ~2382 |
-| #15258 | 12:37 AM | 🟠 | Add cacheManager import to health | ~2392 |
-| #15256 | 12:37 AM | 🔵 | Health Router Implementation Analysis | ~2089 |
+| #15478 | 1:23 AM | 🔵 | Dual search system (semantic + text) | ~2973 |
+| #15476 | 1:23 AM | 🔵 | Data Router Structure | ~2090 |
+| #15475 | 1:23 AM | 🔴 | FTS5 error handling in semantic search | ~4303 |
+| #15474 | 1:23 AM | 🔴 | FTS5 error handling in combinedSearch | ~4185 |
+| #15472 | 1:22 AM | 🔴 | FTS5 error handling in search endpoint | ~5046 |
+| #15315 | 12:47 AM | 🔵 | Data Router Implementation | ~4915 |
+| #15314 | 12:47 AM | 🔄 | Batch delete operations (Issue #204) | ~5563 |
+| #15262 | 12:38 AM | 🟠 | Cache management endpoints | ~3142 |
+| #15259 | 12:37 AM | 🟠 | Cache endpoints in health router | ~2382 |
+| #15258 | 12:37 AM | 🟠 | CacheManager import for health routes | ~2392 |
+| #15256 | 12:37 AM | 🔵 | Health Router Implementation | ~2089 |
 | #15255 | 12:37 AM | 🔵 | GDPR compliance in observation mgmt | ~1355 |
-| #15254 | 12:37 AM | 🟠 | Added caching to listProjects endpoint | ~5161 |
-| #15253 | 12:37 AM | 🔴 | Cache invalidation in session deletion | ~5097 |
-| #15252 | 12:37 AM | 🔵 | Examining data route handlers | ~1049 |
-| #15251 | 12:37 AM | 🔴 | Cache invalidation in bulk delete | ~4892 |
-| #15248 | 12:36 AM | 🔴 | Cache invalidation in observation del | ~5098 |
-| #15247 | 12:36 AM | 🔴 | Cache invalidation after creation | ~5026 |
-| #15245 | 12:36 AM | 🟠 | Added caching to analytics/projects | ~5558 |
+| #15254 | 12:37 AM | 🟠 | Caching for listProjects endpoint | ~5161 |
+| #15253 | 12:37 AM | 🔴 | Cache invalidation on session delete | ~5097 |
+| #15252 | 12:37 AM | 🔵 | Session/observation route handlers | ~1049 |
+| #15251 | 12:37 AM | 🔴 | Cache invalidation on bulk delete | ~4892 |
+| #15248 | 12:36 AM | 🔴 | Cache invalidation on observation delete | ~5098 |
+| #15247 | 12:36 AM | 🔴 | Cache invalidation on observation create | ~5026 |
+| #15245 | 12:36 AM | 🟠 | Caching for analytics/projects endpoint | ~5558 |
 | #15244 | 12:36 AM | 🔵 | Manual memory observation endpoint | ~1495 |
 | #15240 | 12:36 AM | 🔵 | Analytics endpoint for project stats | ~1275 |
-| #15237 | 12:35 AM | 🟠 | Added caching to analytics types | ~5296 |
-| #15236 | 12:35 AM | 🟠 | Added caching to analytics timeline | ~5786 |
-| #15235 | 12:35 AM | 🔵 | Analytics endpoints implementation | ~1722 |
-| #15234 | 12:35 AM | 🟠 | Added caching to stats endpoint | ~5437 |
-| #15233 | 12:35 AM | 🔵 | Examining stats endpoint | ~1001 |
+| #15237 | 12:35 AM | 🟠 | Caching for analytics types endpoint | ~5296 |
+| #15236 | 12:35 AM | 🟠 | Caching for analytics timeline endpoint | ~5786 |
+| #15235 | 12:35 AM | 🔵 | Analytics endpoints in data.ts | ~1722 |
+| #15234 | 12:35 AM | 🟠 | Caching for stats endpoint (Issue #203) | ~5437 |
+| #15233 | 12:35 AM | 🔵 | Stats endpoint implementation | ~1001 |
 
 ## Key Insights
 
-- **Search System**: Dual search capability with SQLite FTS5 (full-text) and Qdrant (semantic/vector-based) with automatic fallback. Consistent error handling for FTS5 query parsing across endpoints.
-- **Caching**: Extensive caching implementation across analytics, stats, and data endpoints (1-5 min TTLs) with cache invalidation on data modifications (creates/deletes).
-- **GDPR Compliance**: Bulk deletion with safety filters and cache invalidation ensures data removal compliance.
+- **Search System**: Dual search implementation (SQLite FTS5 + Qdrant semantic) with robust error handling for FTS5 query parsing (wildcards, operators).
+- **Caching**: Extensive caching added across endpoints (analytics, projects, stats) with 1-5 minute TTLs and cache invalidation on CRUD operations.
+- **GDPR Compliance**: Bulk deletion with filters and cache invalidation ensures data consistency and compliance.
 - **Performance**: Batch operations replaced individual deletes (Issue #204), reducing database load.
-- **Health Monitoring**: New cache management endpoints (`/cache/stats`, `/cache/clear`) added to HealthRouter for operational visibility.
+- **Health Monitoring**: New cache management endpoints (`/cache/stats`, `/cache/clear`) for operational visibility.
 </claude-mem-context>
