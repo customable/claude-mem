@@ -4,7 +4,7 @@
  * Represents a Claude Code SDK session.
  */
 
-import { Entity, PrimaryKey, Property, Unique, Index, OneToMany, Collection } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Unique, Index, OneToMany, Collection, Cascade } from '@mikro-orm/core';
 import type { UserPrompt } from './UserPrompt.js';
 import type { Summary } from './Summary.js';
 import type { ClaudeMd } from './ClaudeMd.js';
@@ -69,17 +69,29 @@ export class Session {
   @Property({ default: 0 })
   prompt_counter!: number;
 
-  // Relations - Session as central hub (Issue #267)
-  // Note: These use string references via content_session_id/memory_session_id
-  @OneToMany('UserPrompt', 'session')
+  // Relations - Session as central hub (Issue #267 Phase 4)
+  // Note: These use virtual relations via string session IDs
+  @OneToMany('UserPrompt', 'session', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
   prompts = new Collection<UserPrompt>(this);
 
-  @OneToMany('Summary', 'session')
+  @OneToMany('Summary', 'session', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
   summaries = new Collection<Summary>(this);
 
-  @OneToMany('ClaudeMd', 'contentSession')
+  @OneToMany('ClaudeMd', 'contentSession', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
   claudeMdFiles = new Collection<ClaudeMd>(this);
 
-  @OneToMany('RawMessage', 'session')
+  @OneToMany('RawMessage', 'session', {
+    cascade: [Cascade.PERSIST],
+    orphanRemoval: true,
+  })
   rawMessages = new Collection<RawMessage>(this);
 }

@@ -4,7 +4,7 @@
  * AI-generated observations from Claude Code sessions.
  */
 
-import { Entity, PrimaryKey, Property, Index, OneToMany, Collection } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, OneToMany, Collection, Cascade } from '@mikro-orm/core';
 import type { ObservationType } from '@claude-mem/types';
 import type { ArchivedOutput } from './ArchivedOutput.js';
 import type { CodeSnippet } from './CodeSnippet.js';
@@ -126,24 +126,33 @@ export class Observation {
   @Property({ nullable: true, default: 0 })
   importance_boost?: number; // Manual boost (-10 to +10)
 
-  // Relations (string references to avoid circular imports)
-  @OneToMany('CodeSnippet', 'observation')
+  // Relations with cascade options (Issue #267 Phase 4)
+  @OneToMany('CodeSnippet', 'observation', {
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    orphanRemoval: true,
+  })
   codeSnippets = new Collection<CodeSnippet>(this);
 
-  @OneToMany('Document', 'observation')
+  @OneToMany('Document', 'observation', {
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    orphanRemoval: true,
+  })
   documents = new Collection<Document>(this);
 
-  @OneToMany('ObservationLink', 'source')
+  @OneToMany('ObservationLink', 'source', {
+    cascade: [Cascade.PERSIST, Cascade.REMOVE],
+    orphanRemoval: true,
+  })
   outgoingLinks = new Collection<ObservationLink>(this);
 
   @OneToMany('ObservationLink', 'target')
   incomingLinks = new Collection<ObservationLink>(this);
 
-  // Endless Mode: archived outputs that were compressed into this observation
+  // Endless Mode: archived outputs - keep them even if observation is deleted
   @OneToMany('ArchivedOutput', 'compressedObservation')
   archivedOutputs = new Collection<ArchivedOutput>(this);
 
-  // Lazy Mode: raw messages that generated this observation
+  // Lazy Mode: raw messages - keep them even if observation is deleted
   @OneToMany('RawMessage', 'observation')
   rawMessages = new Collection<RawMessage>(this);
 }
