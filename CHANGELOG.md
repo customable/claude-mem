@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.49.1] - 2026-01-25
+
+### Bug Fixes
+- Updated dependency `@types/eventsource` to v3
+
+### Improvements
+- Updated all non-major dependencies
+
+
 ## [2.49.0] - 2026-01-25
 
 ### Features
