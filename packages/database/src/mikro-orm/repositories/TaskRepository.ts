@@ -124,7 +124,7 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
     const placeholders = capabilities.map(() => '?').join(', ');
     const now = Date.now();
 
-    const row = await knex('task_queue')
+    const row = await knex('tasks')
       .where('status', 'pending')
       // Only get tasks that are ready to be retried (Issue #206)
       .where(function(this: ReturnType<typeof knex>) {
@@ -190,7 +190,7 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
     };
 
     const knex = this.em.getKnex();
-    const rows = await knex('task_queue')
+    const rows = await knex('tasks')
       .select('status')
       .count('* as count')
       .groupBy('status');

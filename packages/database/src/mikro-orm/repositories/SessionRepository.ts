@@ -197,7 +197,7 @@ export class MikroOrmSessionRepository implements ISessionRepository {
       dateFormat = "date(datetime(started_at_epoch / 1000, 'unixepoch'))";
     }
 
-    let query = knex('sdk_sessions')
+    let query = knex('sessions')
       .where('started_at_epoch', '>=', startEpoch)
       .select(
         knex.raw(`${dateFormat} as date`),
@@ -225,7 +225,7 @@ export class MikroOrmSessionRepository implements ISessionRepository {
     // Mark sessions as completed where:
     // - status is 'active'
     // - started_at_epoch is older than threshold (no recent activity)
-    const result = await knex('sdk_sessions')
+    const result = await knex('sessions')
       .where('status', 'active')
       .andWhere('started_at_epoch', '<', staleThreshold)
       .update({
