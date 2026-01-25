@@ -397,6 +397,7 @@ export class BackendService {
       sessionService: this.sessionService!,
       taskService: this.taskService!,
       claudemd: this.unitOfWork!.claudemd,
+      sseBroadcaster: this.sseBroadcaster!,
     }).router);
 
     // Data routes

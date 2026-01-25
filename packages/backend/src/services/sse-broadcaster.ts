@@ -32,7 +32,9 @@ export type SSEEventType =
   | 'task:completed'
   | 'task:failed'
   | 'task:progress'
-  | 'claudemd:ready';
+  | 'claudemd:ready'
+  | 'writer:pause'
+  | 'writer:resume';
 
 /**
  * SSE Event payload
@@ -279,6 +281,30 @@ export class SSEBroadcaster {
       type: 'session:pre-compact',
       data: { sessionId, project },
     });
+  }
+
+  /**
+   * Broadcast writer pause event (Issue #288)
+   * Tells SSE-Writer to pause writing CLAUDE.md during git operations
+   */
+  broadcastWriterPause(sessionId: string, reason: string): void {
+    this.broadcast({
+      type: 'writer:pause',
+      data: { sessionId, reason },
+    });
+    logger.debug(`Writer pause broadcast for session ${sessionId}: ${reason}`);
+  }
+
+  /**
+   * Broadcast writer resume event (Issue #288)
+   * Tells SSE-Writer to resume writing CLAUDE.md after git operations
+   */
+  broadcastWriterResume(sessionId: string): void {
+    this.broadcast({
+      type: 'writer:resume',
+      data: { sessionId },
+    });
+    logger.debug(`Writer resume broadcast for session ${sessionId}`);
   }
 
   /**

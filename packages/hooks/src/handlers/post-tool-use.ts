@@ -22,6 +22,50 @@ import { maybeTransitionToWorker } from '../worker-lifecycle.js';
 const logger = createLogger('hook:post-tool-use');
 
 /**
+ * Git commands that should pause the SSE-Writer (Issue #288)
+ * These commands modify staging area or start multi-step operations
+ */
+const GIT_PAUSE_COMMANDS = [
+  'git add',
+  'git stage',
+  'git rm',
+  'git mv',
+  'git reset',
+  'git rebase',
+  'git merge',
+  'git cherry-pick',
+  'git revert',
+];
+
+/**
+ * Git commands that should resume the SSE-Writer (Issue #288)
+ * These commands finalize operations
+ */
+const GIT_RESUME_COMMANDS = [
+  'git commit',
+  'git stash',
+  'git checkout',
+  'git switch',
+  'git restore',
+];
+
+/**
+ * Check if a bash command is a git pause command
+ */
+function isGitPauseCommand(command: string): boolean {
+  const trimmed = command.trim().toLowerCase();
+  return GIT_PAUSE_COMMANDS.some(cmd => trimmed.startsWith(cmd));
+}
+
+/**
+ * Check if a bash command is a git resume command
+ */
+function isGitResumeCommand(command: string): boolean {
+  const trimmed = command.trim().toLowerCase();
+  return GIT_RESUME_COMMANDS.some(cmd => trimmed.startsWith(cmd));
+}
+
+/**
  * Tools to ignore (pure routing/introspection, no actionable content)
  */
 const IGNORED_TOOLS = new Set([
@@ -124,6 +168,31 @@ export async function handlePostToolUse(input: HookInput): Promise<HookResult> {
   if (!ready) {
     logger.debug('Backend not ready, skipping observation');
     return skip();
+  }
+
+  // Handle git command writer control (Issue #288)
+  if (input.toolName === 'Bash' && input.toolInput) {
+    try {
+      const toolInput = JSON.parse(input.toolInput);
+      const command = toolInput.command || '';
+
+      if (isGitPauseCommand(command)) {
+        // Pause writer during git staging operations
+        await client.post('/api/hooks/writer/pause', {
+          sessionId: input.sessionId,
+          reason: 'git-staging',
+        });
+        logger.debug('Writer paused for git staging operation');
+      } else if (isGitResumeCommand(command)) {
+        // Resume writer after git finalizing operations
+        await client.post('/api/hooks/writer/resume', {
+          sessionId: input.sessionId,
+        });
+        logger.debug('Writer resumed after git operation');
+      }
+    } catch {
+      // Ignore JSON parse errors - not all Bash inputs are JSON
+    }
   }
 
   try {

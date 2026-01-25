@@ -8,12 +8,14 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
+import type { SSEBroadcaster } from '../services/sse-broadcaster.js';
 import type { IClaudeMdRepository } from '@claude-mem/types';
 
 export interface HooksRouterDeps {
   sessionService: SessionService;
   taskService: TaskService;
   claudemd: IClaudeMdRepository;
+  sseBroadcaster: SSEBroadcaster;
 }
 
 export class HooksRouter extends BaseRouter {
@@ -45,6 +47,10 @@ export class HooksRouter extends BaseRouter {
     // Subagent lifecycle hooks (Issue #232)
     this.router.post('/subagent/start', this.asyncHandler(this.subagentStart.bind(this)));
     this.router.post('/subagent/stop', this.asyncHandler(this.subagentStop.bind(this)));
+
+    // Writer control for git operations (Issue #288)
+    this.router.post('/writer/pause', this.asyncHandler(this.writerPause.bind(this)));
+    this.router.post('/writer/resume', this.asyncHandler(this.writerResume.bind(this)));
   }
 
   /**
@@ -298,6 +304,47 @@ export class HooksRouter extends BaseRouter {
 
     this.success(res, {
       success: true,
+    });
+  }
+
+  /**
+   * POST /api/hooks/writer/pause
+   * Pause SSE-Writer during git operations (Issue #288)
+   */
+  private async writerPause(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+    const { reason } = req.body;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    // Broadcast pause event to all SSE clients (including SSE-Writer)
+    this.deps.sseBroadcaster.broadcastWriterPause(contentSessionId, reason || 'git-operation');
+
+    this.success(res, {
+      success: true,
+      paused: true,
+    });
+  }
+
+  /**
+   * POST /api/hooks/writer/resume
+   * Resume SSE-Writer after git operations (Issue #288)
+   */
+  private async writerResume(req: Request, res: Response): Promise<void> {
+    const contentSessionId = req.body.sessionId || req.body.contentSessionId;
+
+    if (!contentSessionId) {
+      this.badRequest('Missing required field: sessionId');
+    }
+
+    // Broadcast resume event to all SSE clients (including SSE-Writer)
+    this.deps.sseBroadcaster.broadcastWriterResume(contentSessionId);
+
+    this.success(res, {
+      success: true,
+      paused: false,
     });
   }
 }

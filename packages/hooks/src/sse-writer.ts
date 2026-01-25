@@ -143,6 +143,9 @@ function main(): void {
   let sessionEnded = false;
   let sessionEndTimeout: NodeJS.Timeout | null = null;
 
+  // Track if writing is paused during git operations (Issue #288)
+  let writerPaused = false;
+
   es.onopen = () => {
     connected = true;
     console.log('[sse-writer] Connected to SSE stream');
@@ -182,6 +185,33 @@ function main(): void {
     try {
       const data = JSON.parse(event.data);
 
+      // Handle writer:pause event (Issue #288)
+      if (data.type === 'writer:pause' && data.data) {
+        const payload = data.data as { sessionId: string; reason?: string };
+        if (payload.sessionId === args.session) {
+          writerPaused = true;
+          console.log(`[sse-writer] Writing paused: ${payload.reason || 'unknown reason'}`);
+        }
+      }
+
+      // Handle writer:resume event (Issue #288)
+      if (data.type === 'writer:resume' && data.data) {
+        const payload = data.data as { sessionId: string };
+        if (payload.sessionId === args.session) {
+          writerPaused = false;
+          console.log('[sse-writer] Writing resumed');
+          // Write any pending content that was queued during pause
+          if (pendingWrites.size > 0) {
+            console.log(`[sse-writer] Writing ${pendingWrites.size} queued file(s)...`);
+            for (const [dir, content] of pendingWrites) {
+              console.log(`[sse-writer] Writing queued CLAUDE.md to ${dir}`);
+              writeClaudeMd(dir, content);
+            }
+            pendingWrites.clear();
+          }
+        }
+      }
+
       // Handle claudemd:ready event
       if (data.type === 'claudemd:ready' && data.data) {
         const payload = data.data as {
@@ -210,6 +240,13 @@ function main(): void {
           console.warn(
             `[sse-writer] Directory mismatch: ${payload.workingDirectory} is not within ${args.dir}`
           );
+          return;
+        }
+
+        // Check if writing is paused (Issue #288: git operations in progress)
+        if (writerPaused) {
+          console.log(`[sse-writer] Queueing write (paused): ${payload.workingDirectory}`);
+          pendingWrites.set(payload.workingDirectory, payload.content);
           return;
         }
 
