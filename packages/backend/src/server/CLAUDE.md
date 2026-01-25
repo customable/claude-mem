@@ -9,8 +9,8 @@
 |----|------|---|-------|------|
 | #779 | 1:11 PM | 🟠 | Added archivedOutputs to TaskDispatcher | ~5244 |
 | #778 | 1:10 PM | 🔵 | Backend Service Initialization Flow | ~1195 |
-| #770 | 1:09 PM | 🔵 | Backend service initialization | ~1152 |
-| #765 | 1:09 PM | 🟣 | TaskService archivedOutputs dependency | ~5035 |
+| #770 | 1:09 PM | 🔵 | Backend service initialization and DI | ~1152 |
+| #765 | 1:09 PM | 🟣 | TaskService now uses archivedOutputs | ~5035 |
 | #549 | 12:34 PM | 🔵 | Express app middleware setup | ~1280 |
 | #456 | 12:24 PM | 🔵 | Backend Service Architecture Overview | ~2863 |
 | #447 | 12:23 PM | 🔵 | Backend service initialization | ~2270 |
@@ -23,9 +23,9 @@
 
 ## Key Insights
 
-- **ArchivedOutputs Integration**: TaskDispatcher and TaskService now include archivedOutputs dependency, enabling management of archived outputs in the task processing workflow.
-- **Backend Architecture**: The BackendService orchestrates multiple services (WorkerHub, TaskDispatcher, SSEBroadcaster) and supports both SQLite and PostgreSQL databases.
-- **Middleware Setup**: Express app uses CORS, cookie parsing, and structured logging middleware with configurable authentication options.
-- **WebSocket Integration**: Implemented WebSocket hooks with channel subscriptions and reconnection logic for real-time UI updates.
-- **Next Steps**: Test Endless Mode compression workflow, verify conditional Qdrant capabilities, and evaluate database options for production deployment.
+- **Archived Outputs Integration**: TaskDispatcher and TaskService now include `archivedOutputs` dependency, enabling better output management and historical task data access.
+- **Backend Service Architecture**: The system uses a hub-and-spoke model with WorkerHub managing WebSocket connections and TaskDispatcher handling task assignment.
+- **Proposed Enhancements**: New architectural proposals include task priority systems, worker hub federation, and unified WebSocket management for distributed worker pools.
+- **Database Evaluation**: Research into alternative database technologies (e.g., PostgreSQL) is underway for scalability and production readiness.
+- **Decoupled Capabilities**: Worker capabilities are abstracted from providers, allowing flexible and extensible worker management.
 </claude-mem-context>
