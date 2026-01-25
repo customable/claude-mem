@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,6 +30,7 @@ ChartJS.register(
 );
 
 type Period = 'day' | 'week' | 'month';
+type TopN = 5 | 10 | 20;
 
 interface TimelineData {
   date: string;
@@ -59,6 +60,14 @@ export function AnalyticsView() {
   const [types, setTypes] = useState<TypeData[]>([]);
   const [projectStats, setProjectStats] = useState<ProjectData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [topN, setTopN] = useState<TopN>(10);
+  const [fullscreenChart, setFullscreenChart] = useState<string | null>(null);
+
+  // Chart refs for PNG export
+  const timelineChartRef = useRef<ChartJS<'line'>>(null);
+  const tokensChartRef = useRef<ChartJS<'bar'>>(null);
+  const typesChartRef = useRef<ChartJS<'doughnut'>>(null);
+  const projectsChartRef = useRef<ChartJS<'bar'>>(null);
 
   useEffect(() => {
     api.getProjects().then((res) => setProjects(res.projects || []));
@@ -150,21 +159,93 @@ export function AnalyticsView() {
     ],
   }), [types]);
 
-  const projectChartData = useMemo(() => ({
-    labels: projectStats.slice(0, 10).map((p) => p.project),
-    datasets: [
-      {
-        label: 'Observations',
-        data: projectStats.slice(0, 10).map((p) => p.observations),
-        backgroundColor: 'rgba(99, 102, 241, 0.8)',
-      },
-      {
-        label: 'Sessions',
-        data: projectStats.slice(0, 10).map((p) => p.sessions),
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-      },
-    ],
-  }), [projectStats]);
+  const projectChartData = useMemo(() => {
+    const topProjects = projectStats.slice(0, topN);
+    const otherProjects = projectStats.slice(topN);
+
+    // Calculate "Other" totals if there are remaining projects
+    const hasOther = otherProjects.length > 0;
+    const otherObs = otherProjects.reduce((sum, p) => sum + p.observations, 0);
+    const otherSessions = otherProjects.reduce((sum, p) => sum + p.sessions, 0);
+
+    const labels = topProjects.map((p) => p.project);
+    const obsData = topProjects.map((p) => p.observations);
+    const sessData = topProjects.map((p) => p.sessions);
+
+    if (hasOther) {
+      labels.push(`Other (${otherProjects.length})`);
+      obsData.push(otherObs);
+      sessData.push(otherSessions);
+    }
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: 'Observations',
+          data: obsData,
+          backgroundColor: 'rgba(99, 102, 241, 0.8)',
+        },
+        {
+          label: 'Sessions',
+          data: sessData,
+          backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        },
+      ],
+    };
+  }, [projectStats, topN]);
+
+  // Export functions
+  const exportToCSV = () => {
+    const rows = [
+      ['Date', 'Observations', 'Sessions', 'Tokens'],
+      ...timeline.map((d) => [d.date, d.observations, d.sessions, d.tokens]),
+    ];
+    const csv = rows.map((r) => r.join(',')).join('\n');
+    downloadFile(csv, 'analytics-timeline.csv', 'text/csv');
+  };
+
+  const exportProjectsCSV = () => {
+    const rows = [
+      ['Project', 'Observations', 'Sessions', 'Tokens'],
+      ...projectStats.map((p) => [p.project, p.observations, p.sessions, p.tokens]),
+    ];
+    const csv = rows.map((r) => r.join(',')).join('\n');
+    downloadFile(csv, 'analytics-projects.csv', 'text/csv');
+  };
+
+  const exportTypesCSV = () => {
+    const rows = [
+      ['Type', 'Count'],
+      ...types.map((t) => [t.type, t.count]),
+    ];
+    const csv = rows.map((r) => r.join(',')).join('\n');
+    downloadFile(csv, 'analytics-types.csv', 'text/csv');
+  };
+
+  const exportChartPNG = (chartRef: React.RefObject<ChartJS | null>, filename: string) => {
+    if (chartRef.current) {
+      const url = chartRef.current.toBase64Image();
+      downloadFile(url, filename, 'image/png', true);
+    }
+  };
+
+  const downloadFile = (content: string, filename: string, type: string, isDataUrl = false) => {
+    const a = document.createElement('a');
+    if (isDataUrl) {
+      a.href = content;
+    } else {
+      const blob = new Blob([content], { type });
+      a.href = URL.createObjectURL(blob);
+    }
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    if (!isDataUrl) {
+      URL.revokeObjectURL(a.href);
+    }
+  };
 
   const chartOptions = {
     responsive: true,
@@ -247,6 +328,35 @@ export function AnalyticsView() {
             <option value={90}>Last 90 days</option>
             <option value={365}>Last year</option>
           </select>
+
+          <select
+            className="select select-sm select-bordered"
+            value={topN}
+            onChange={(e) => setTopN(Number(e.target.value) as TopN)}
+          >
+            <option value={5}>Top 5</option>
+            <option value={10}>Top 10</option>
+            <option value={20}>Top 20</option>
+          </select>
+
+          {/* Export Dropdown */}
+          <div className="dropdown dropdown-end">
+            <button tabIndex={0} className="btn btn-sm btn-outline">
+              <span className="iconify ph--download size-4" />
+              Export
+            </button>
+            <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-200 rounded-box w-52 z-10">
+              <li className="menu-title">CSV Data</li>
+              <li><button onClick={exportToCSV}>Timeline Data</button></li>
+              <li><button onClick={exportProjectsCSV}>Projects Data</button></li>
+              <li><button onClick={exportTypesCSV}>Types Data</button></li>
+              <li className="menu-title">PNG Charts</li>
+              <li><button onClick={() => exportChartPNG(timelineChartRef, 'timeline-chart.png')}>Activity Timeline</button></li>
+              <li><button onClick={() => exportChartPNG(tokensChartRef, 'tokens-chart.png')}>Token Usage</button></li>
+              <li><button onClick={() => exportChartPNG(typesChartRef, 'types-chart.png')}>Observation Types</button></li>
+              <li><button onClick={() => exportChartPNG(projectsChartRef, 'projects-chart.png')}>Top Projects</button></li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -274,61 +384,124 @@ export function AnalyticsView() {
 
       {/* Timeline Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card bg-base-200">
-          <div className="card-body">
-            <h2 className="card-title text-base">
-              <span className="iconify ph--chart-line size-5" />
-              Activity Timeline
-            </h2>
-            <div className="h-64">
-              <Line data={timelineChartData} options={chartOptions} />
-            </div>
-          </div>
-        </div>
+        <ChartCard
+          title="Activity Timeline"
+          icon="ph--chart-line"
+          onFullscreen={() => setFullscreenChart('timeline')}
+        >
+          <Line ref={timelineChartRef} data={timelineChartData} options={chartOptions} />
+        </ChartCard>
 
-        <div className="card bg-base-200">
-          <div className="card-body">
-            <h2 className="card-title text-base">
-              <span className="iconify ph--coins size-5" />
-              Token Usage
-            </h2>
-            <div className="h-64">
-              <Bar data={tokensChartData} options={chartOptions} />
-            </div>
-          </div>
-        </div>
+        <ChartCard
+          title="Token Usage"
+          icon="ph--coins"
+          onFullscreen={() => setFullscreenChart('tokens')}
+        >
+          <Bar ref={tokensChartRef} data={tokensChartData} options={chartOptions} />
+        </ChartCard>
       </div>
 
       {/* Type Distribution and Project Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card bg-base-200">
-          <div className="card-body">
-            <h2 className="card-title text-base">
-              <span className="iconify ph--chart-pie size-5" />
-              Observation Types
-            </h2>
-            <div className="h-64">
-              <Doughnut data={typesChartData} options={doughnutOptions} />
-            </div>
-          </div>
-        </div>
+        <ChartCard
+          title="Observation Types"
+          icon="ph--chart-pie"
+          onFullscreen={() => setFullscreenChart('types')}
+        >
+          <Doughnut ref={typesChartRef} data={typesChartData} options={doughnutOptions} />
+        </ChartCard>
 
-        <div className="card bg-base-200">
-          <div className="card-body">
-            <h2 className="card-title text-base">
-              <span className="iconify ph--folder-open size-5" />
-              Top Projects
-            </h2>
-            <div className="h-64">
-              <Bar
-                data={projectChartData}
-                options={{
-                  ...chartOptions,
-                  indexAxis: 'y' as const,
-                }}
-              />
+        <ChartCard
+          title={`Top ${topN} Projects`}
+          icon="ph--folder-open"
+          onFullscreen={() => setFullscreenChart('projects')}
+        >
+          <Bar
+            ref={projectsChartRef}
+            data={projectChartData}
+            options={{
+              ...chartOptions,
+              indexAxis: 'y' as const,
+            }}
+          />
+        </ChartCard>
+      </div>
+
+      {/* Fullscreen Modal */}
+      {fullscreenChart && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-4xl w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-lg">
+                {fullscreenChart === 'timeline' && 'Activity Timeline'}
+                {fullscreenChart === 'tokens' && 'Token Usage'}
+                {fullscreenChart === 'types' && 'Observation Types'}
+                {fullscreenChart === 'projects' && `Top ${topN} Projects`}
+              </h3>
+              <button
+                className="btn btn-ghost btn-sm btn-circle"
+                onClick={() => setFullscreenChart(null)}
+              >
+                <span className="iconify ph--x size-5" />
+              </button>
+            </div>
+            <div className="h-[60vh]">
+              {fullscreenChart === 'timeline' && (
+                <Line data={timelineChartData} options={chartOptions} />
+              )}
+              {fullscreenChart === 'tokens' && (
+                <Bar data={tokensChartData} options={chartOptions} />
+              )}
+              {fullscreenChart === 'types' && (
+                <Doughnut data={typesChartData} options={doughnutOptions} />
+              )}
+              {fullscreenChart === 'projects' && (
+                <Bar
+                  data={projectChartData}
+                  options={{
+                    ...chartOptions,
+                    indexAxis: 'y' as const,
+                  }}
+                />
+              )}
             </div>
           </div>
+          <div className="modal-backdrop" onClick={() => setFullscreenChart(null)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ChartCard({
+  title,
+  icon,
+  onFullscreen,
+  children,
+}: {
+  title: string;
+  icon: string;
+  onFullscreen: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="card bg-base-200">
+      <div className="card-body">
+        <div className="flex items-center justify-between">
+          <h2 className="card-title text-base">
+            <span className={`iconify ${icon} size-5`} />
+            {title}
+          </h2>
+          <button
+            className="btn btn-ghost btn-xs btn-circle"
+            onClick={onFullscreen}
+            title="Fullscreen"
+          >
+            <span className="iconify ph--arrows-out size-4" />
+          </button>
+        </div>
+        <div className="h-64">
+          {children}
         </div>
       </div>
     </div>
