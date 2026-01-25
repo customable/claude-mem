@@ -64,36 +64,20 @@ SQLite-Datenbank unter `~/.claude-mem/claude-mem.db`
 
 ### Abfrage-Beispiele
 
-**Hinweis:** MikroORM wird intern im Backend verwendet. Für schnelle Debugging-Abfragen ist `bun:sqlite` einfacher (kein Connection-Setup).
+**Hinweis:** MikroORM wird intern im Backend verwendet. Für schnelle Debugging-Abfragen ist die `sqlite3` CLI am einfachsten.
 
 ```bash
 # Sessions abfragen (WICHTIG: Tabelle heißt sdk_sessions!)
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, content_session_id, working_directory, status FROM sdk_sessions ORDER BY id DESC LIMIT 5').all());
-"
+sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, content_session_id, working_directory, status FROM sdk_sessions ORDER BY id DESC LIMIT 5;"
 
 # Observations abfragen
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, title, type, cwd FROM observations ORDER BY id DESC LIMIT 5').all());
-"
+sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, title, type, cwd FROM observations ORDER BY id DESC LIMIT 5;"
 
 # CLAUDE.md Content abfragen
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, project, content_session_id, working_directory FROM project_claudemd ORDER BY id DESC LIMIT 5').all());
-"
+sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, project, content_session_id, working_directory FROM project_claudemd ORDER BY id DESC LIMIT 5;"
 
 # Task Queue Status
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT type, status, COUNT(*) as count FROM task_queue GROUP BY type, status').all());
-"
+sqlite3 ~/.claude-mem/claude-mem.db "SELECT type, status, COUNT(*) as count FROM task_queue GROUP BY type, status;"
 ```
 
 ## CLAUDE.md Auto-Generation
@@ -124,11 +108,7 @@ ps aux | grep sse-writer
 ls ~/.claude-mem/sse-writer-*.pid
 
 # Generierten Content in DB prüfen
-bun -e "
-import Database from 'bun:sqlite';
-const db = new Database('/home/jonas/.claude-mem/claude-mem.db', { readonly: true });
-console.log(db.query('SELECT id, project, content_session_id FROM project_claudemd ORDER BY id DESC').all());
-"
+sqlite3 ~/.claude-mem/claude-mem.db "SELECT id, project, content_session_id FROM project_claudemd ORDER BY id DESC LIMIT 10;"
 ```
 
 ## Neue Migration erstellen
