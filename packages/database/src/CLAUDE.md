@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #946 | 1:51 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3156 |
-| #940 | 1:48 PM | 🔄 | Add explicit field name and index to compressedObservation relation | ~1573 |
-| #939 | 1:48 PM | 🔄 | Remove redundant compressed_observation_id field from ArchivedOutput | ~1675 |
-| #938 | 1:48 PM | 🔵 | ArchivedOutput Entity Structure for Endless Mode | ~1414 |
-| #933 | 1:46 PM | 🔵 | Session Entity Structure Analysis | ~1324 |
-| #929 | 1:46 PM | 🔵 | Database configuration structure and supported databases | ~2481 |
-| #925 | 1:44 PM | 🟠 | Comprehensive test suite for ObservationRepository | ~8042 |
-| #924 | 1:43 PM | 🟠 | Comprehensive TaskRepository test suite created | ~6729 |
-| #923 | 1:43 PM | 🟠 | Added SessionRepository test suite | ~5807 |
-| #922 | 1:43 PM | 🔵 | MikroORM Database Initializer Structure | ~1604 |
-| #921 | 1:43 PM | 🔵 | Exploring MikroORM Observation Repository Implementation | ~5513 |
-| #920 | 1:43 PM | 🔵 | TaskRepository implements deduplication and batch operations | ~3493 |
-| #916 | 1:42 PM | 🔵 | Database configuration structure and supported databases | ~2493 |
-| #915 | 1:42 PM | 🔵 | Examined SessionRepository implementation | ~3205 |
-| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3169 |
-| #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure for Endless Mode | ~1328 |
-| #699 | 12:54 PM | 🔵 | Discovered archived_outputs table structure for Endless Mode | ~1653 |
-| #686 | 12:52 PM | 🟠 | Add new migration for archived outputs | ~3075 |
-| #685 | 12:52 PM | 🟠 | Added archivedOutputs repository to UnitOfWork | ~3109 |
-| #683 | 12:52 PM | 🟠 | Added archivedOutputs repository to UnitOfWork | ~3016 |
-| #682 | 12:52 PM | 🟠 | Add ArchivedOutput entity to MikroORM configuration | ~2896 |
-| #681 | 12:52 PM | 🟠 | Add new migration for archived outputs | ~3054 |
-| #680 | 12:52 PM | 🟠 | Add ArchivedOutput entity to MikroORM configuration | ~2858 |
-| #679 | 12:52 PM | 🔵 | MikroORM Unit of Work Implementation Analysis | ~2493 |
-| #678 | 12:52 PM | 🔵 | Database Configuration Structure Analysis | ~2325 |
-| #677 | 12:51 PM | 🟠 | Added ArchivedOutputRepository export to MikroORM repositories | ~1483 |
-| #676 | 12:51 PM | 🟠 | Added archivedOutputs repository initialization | ~3107 |
-| #675 | 12:51 PM | 🟠 | Create migration for archived_outputs table | ~2193 |
-| #674 | 12:51 PM | 🟠 | Added ArchivedOutputRepository import to UnitOfWork | ~2804 |
-| #672 | 12:51 PM | 🟠 | Add new migration export for archived outputs | ~1402 |
+| #2438 | 6:17 PM | 🔵 | Discovered MikroORM repository exports structure | ~1594 |
+| #2427 | 6:14 PM | 🔵 | Exploring Observation Entity Structure | ~1819 |
+| #2426 | 6:14 PM | 🔵 | Database configuration and migration structure discovered | ~1596 |
+| #2425 | 6:14 PM | 📝 | Reviewed MikroORM configuration file header | ~1371 |
+| #2424 | 6:14 PM | 🔵 | Discovered MikroORM entity configuration | ~1773 |
+| #2423 | 6:14 PM | 🟠 | Add UserTask entity exports to database entities index | ~1794 |
+| #2422 | 6:14 PM | 🔵 | Database entities structure discovered | ~1006 |
+| #2420 | 6:13 PM | 🔵 | Exploring MikroORM Observation Repository Implementation | ~2134 |
+| #2413 | 6:12 PM | 🔵 | Database entities structure discovered | ~1326 |
+| #2396 | 6:11 PM | 🔵 | Task Entity Structure Analysis | ~1730 |
+| #2343 | 6:02 PM | 🔵 | Found getStats method in ArchivedOutputRepository | ~1982 |
+| #2336 | 6:02 PM | 🔵 | Finding references to "archivedOutputs" in database package | ~1175 |
+| #2316 | 6:01 PM | 🔵 | ArchivedOutput Entity Structure for Endless Mode | ~1781 |
+| #2192 | 5:40 PM | 🟠 | Added composite indexes to RawMessage entity for query optimization | ~1850 |
+| #2186 | 5:38 PM | 🔄 | Improved index documentation for ArchivedOutput entity | ~1813 |
+| #2185 | 5:38 PM | 🟠 | Added composite index for session-based time queries | ~1517 |
+| #2184 | 5:37 PM | 🔄 | Removed redundant entity-level indexes for better locality | ~1863 |
+| #2183 | 5:37 PM | 🔵 | Database entities use extensive indexing for query optimization | ~5695 |
+| #2182 | 5:36 PM | 🔄 | Enhanced Session entity relations with cascade and orphan removal | ~2807 |
+| #2181 | 5:36 PM | 🟠 | Add Cascade import to Session entity | ~1724 |
+| #2179 | 5:36 PM | 🔄 | Add cascade options to Observation entity relations | ~3759 |
+| #2178 | 5:36 PM | 🔵 | Observation Entity Structure Analysis | ~2137 |
+| #2176 | 5:36 PM | 🟠 | Add Cascade import to Observation entity | ~2237 |
+| #2175 | 5:35 PM | 🔄 | Refactor RawMessage observation relation to separate FK and virtual relation | ~2098 |
+| #2174 | 5:35 PM | 🔄 | Refactor UserPrompt entity to separate FK column from ORM relation | ~2469 |
+| #2173 | 5:35 PM | 🔄 | Separate physical FK column from virtual ORM relation in Summary entity | ~2065 |
+| #2171 | 5:34 PM | 🔄 | Refactor RawMessage entity to separate session_id and session relation | ~2251 |
+| #2170 | 5:34 PM | 🔄 | Refactor ClaudeMd entity to separate FK properties from relations | ~2622 |
+| #2168 | 5:33 PM | 🔵 | Examined UserPromptRepository implementation | ~1781 |
+| #2167 | 5:33 PM | 🔄 | Convert session_id to ManyToOne relation in RawMessage | ~1798 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant progress on ArchivedOutput functionality for Endless Mode (Issue #109), including entity structure, repository implementation, and database migrations.
-- **Database Architecture**: Comprehensive MikroORM setup with multi-database support (SQLite, PostgreSQL, MySQL) and robust repository pattern implementation.
-- **Testing Infrastructure**: Comprehensive test suites added for core repositories (Observation, Task, Session) ensuring data layer reliability.
-- **Performance Optimization**: Database schema refinements including index additions and field removals for better performance.
-- **Architecture Patterns**: Clear use of Unit of Work pattern and repository pattern throughout the database layer.
+- **Database Optimization**: Extensive work on query optimization through composite indexes (RawMessage, ArchivedOutput, Summary entities) and cascade/orphan removal configurations (Session, Observation entities).
+- **Entity Relationships**: Major refactoring to separate physical FK columns from ORM relations across multiple entities (RawMessage, UserPrompt, Summary, ClaudeMd).
+- **New Features**: Added UserTask entity exports and cascade operations support for Session and Observation entities.
+- **Discovery Phase**: Comprehensive exploration of MikroORM configuration, entity structures, and repository implementations.
+- **Performance Focus**: Removed redundant indexes and improved documentation for better query performance and code clarity.
 </claude-mem-context>

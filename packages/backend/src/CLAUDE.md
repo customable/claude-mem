@@ -7,6 +7,20 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
+| #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
+| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
+| #2350 | 6:03 PM | 🔵 | Located ACHIEVEMENTS constant in insights-service.ts | ~1067 |
+| #2344 | 6:02 PM | 🔵 | Backend service routes and dependencies | ~1231 |
+| #2335 | 6:02 PM | 🔵 | Backend API routes for project settings and archived outputs | ~1694 |
+| #2327 | 6:02 PM | 🔵 | Archived outputs feature depends on Endless Mode | ~1275 |
+| #2317 | 6:01 PM | 🔵 | Metrics Router Implementation Analysis | ~1938 |
+| #2313 | 6:00 PM | 🔵 | Found references to "archived-output" in backend routes | ~1125 |
+| #2227 | 5:48 PM | 🔵 | Discovered files related to observation creation events | ~1292 |
+| #2218 | 5:48 PM | 🔵 | Search for observation and vector-related code in task-service.ts | ~1087 |
+| #2217 | 5:48 PM | 🔵 | Semantic search task execution uses polling mechanism | ~2097 |
+| #2215 | 5:48 PM | 🔵 | No vector/semantic search references in session-service.ts | ~1066 |
+| #2214 | 5:48 PM | 🔵 | No Qdrant sync functionality found in backend | ~1095 |
 | #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
 | #2212 | 5:47 PM | 🔵 | Discovered usage of executeSemanticSearch in backend | ~1403 |
 | #2087 | 5:17 PM | 🔄 | Standardize error handling in archived outputs endpoints | ~7328 |
@@ -23,26 +37,12 @@
 | #2069 | 5:14 PM | 🔵 | Examining API routes and session handling in data.ts | ~2148 |
 | #2068 | 5:14 PM | 🔵 | Backend routes structure overview | ~1420 |
 | #2067 | 5:14 PM | 🔵 | Exploring Data Router Structure | ~2089 |
-| #2065 | 5:13 PM | 🔵 | No files found with "archived" or "ArchivedOutput" in routes | ~713 |
-| #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
-| #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
-| #2052 | 5:11 PM | 🔵 | Compression task handling in task-dispatcher.ts | ~1741 |
-| #1870 | 4:35 PM | 🔵 | Project parameter usage in data routes | ~2949 |
-| #1865 | 4:34 PM | 🔵 | Found project deletion/archive/rename functionality in data routes | ~712 |
-| #1858 | 4:32 PM | 🟠 | Add SSE broadcaster to HooksRouter initialization | ~5135 |
-| #1845 | 4:31 PM | 🔵 | Subagent Stop Hook Endpoint Implementation | ~1025 |
-| #1844 | 4:30 PM | 🔵 | Backend API routes structure discovered | ~988 |
-| #1843 | 4:30 PM | 🔵 | Exploring API hooks in backend routes | ~951 |
-| #1842 | 4:30 PM | 🔵 | HooksRouter initialization in backend service | ~851 |
-| #1841 | 4:29 PM | 🟠 | Added writer pause/resume endpoints for git operations | ~5328 |
-| #1840 | 4:29 PM | 🟠 | Added writer control endpoints for git operations | ~3993 |
-| #1839 | 4:29 PM | 🟠 | Add SSEBroadcaster dependency to HooksRouter | ~4149 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with archived outputs API endpoints, compression logic, and UI components. The synchronous implementation causes 110s latency per tool use, requiring async optimization.
-- **Archived Outputs System**: New API endpoints for archived outputs (list, search, stats, get by ID/observation ID) were added, along with MikroORM entity relations and repository dependencies.
-- **Backend Architecture**: Discovered modular router structure with 20+ specialized routers, BaseRouter utilities, and standardized error handling patterns.
-- **Task System**: TaskService implements backpressure mechanism (Issue #205) and handles compression tasks, while task-dispatcher processes archived outputs.
-- **UI Improvements**: Settings.tsx was refactored into 17 modular files, and new dashboard widgets (EndlessModeCard) and settings UI (ProcessingSettings) were added for Endless Mode.
+- **Achievement System**: The `insights-service.ts` handles achievement unlocking logic, including bugfix tracking and daily stats updates. A bug in progress calculation prevents partial achievements from being tracked.
+- **Archived Outputs**: New API endpoints for archived outputs were added, but the feature depends on "Endless Mode" and lacks a stats endpoint. Error handling was standardized across these endpoints.
+- **Backend Structure**: The backend uses a modular router architecture with specialized routers (e.g., Data, Search, Export). The `DataRouter` was extended to support archived outputs.
+- **Semantic Search**: Uses a polling mechanism in `task-service.ts` but lacks vector database or Qdrant synchronization. No task queue functions were found in backend services.
+- **Next Steps**: Fix SSE writer path handling, implement achievement progress calculation, and add the missing `GET /api/data/archived-outputs/stats` endpoint.
 </claude-mem-context>

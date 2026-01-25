@@ -40,9 +40,9 @@
 
 ## Key Insights
 
-- **SSE Writer Issues**: The SSE writer process was not running due to incorrect file path handling, requiring fixes for directory resolution.
-- **Achievement System Bug**: Achievement progress calculation was flawed, preventing partial progress tracking and requiring automatic calculation logic.
-- **Missing API Endpoint**: The `GET /api/data/archived-outputs/stats` endpoint was missing, impacting data retrieval for archived outputs.
-- **Endless Mode Implementation**: New features were added for Endless Mode, including compression task queueing and archived output handling.
-- **Task Service Enhancements**: The Task Service was updated with backpressure mechanisms, new task types, and improved compression capabilities.
+- **Achievement System**: The `insights-service.ts` implements achievement unlocking logic based on user activity thresholds and includes a `updateDailyStats` method for tracking daily metrics.
+- **Task Management**: The `task-service.ts` features a backpressure mechanism, Endless Mode for archiving outputs, and compression task queueing, indicating a robust task handling system.
+- **SSE Integration**: The SSE Broadcaster service supports real-time events, including new `writer:pause` and `writer:resume` events, enhancing UI responsiveness.
+- **Missing Features**: No vector/semantic search or task queue functions were found in key services, suggesting potential gaps in functionality.
+- **Bugfix Tracking**: The `insights-service.ts` contains logic for tracking bugfixes, though inconsistencies in property naming (`bugfixCount` vs. `bugFixCount`) were noted.
 </claude-mem-context>
