@@ -318,7 +318,8 @@ export class TaskService {
     // Use targetDirectory for the output path, fallback to workingDirectory
     const outputDirectory = params.targetDirectory || params.workingDirectory || '';
 
-    const task = await this.taskQueue.create<ClaudeMdTask>({
+    // Use createIfNotExists for deduplication (Issue #207)
+    const task = await this.taskQueue.createIfNotExists<ClaudeMdTask>({
       type: 'claude-md',
       requiredCapability: 'claudemd:generate',
       priority: this.defaultPriority - 30, // Lowest priority - documentation can wait
@@ -334,6 +335,12 @@ export class TaskService {
         summaries,
       } as ClaudeMdTask['payload'] & { observations: typeof observations; summaries: typeof summaries },
     });
+
+    if (!task) {
+      const targetInfo = params.targetDirectory ? ` (target: ${params.targetDirectory})` : '';
+      logger.debug(`Claude-md task deduplicated for project ${params.project}${targetInfo}`);
+      return null as unknown as ClaudeMdTask; // Caller doesn't check return value
+    }
 
     this.sseBroadcaster.broadcastTaskQueued(task.id, 'claude-md');
     const targetInfo = params.targetDirectory ? ` (target: ${params.targetDirectory})` : '';

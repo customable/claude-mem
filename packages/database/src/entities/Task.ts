@@ -63,4 +63,8 @@ export class Task {
   @Property({ nullable: true })
   @Index()
   retry_after?: number; // epoch - when task can be retried (Issue #206)
+
+  @Property({ nullable: true })
+  @Index()
+  deduplication_key?: string; // Hash of type+payload for deduplication (Issue #207)
 }

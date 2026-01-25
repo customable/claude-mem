@@ -6,7 +6,7 @@
  */
 
 import type { SqlEntityManager } from '@mikro-orm/knex';
-import { randomUUID } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import type {
   ITaskQueueRepository,
   TaskQueryFilters,
@@ -41,7 +41,17 @@ function toTask(entity: TaskEntity): Task {
     assignedAt: entity.assigned_at || undefined,
     completedAt: entity.completed_at || undefined,
     retryAfter: entity.retry_after || undefined,
+    deduplicationKey: entity.deduplication_key || undefined,
   } as Task;
+}
+
+/**
+ * Generate a deduplication key from task type and payload (Issue #207)
+ */
+function generateDeduplicationKey(type: string, payload: unknown): string {
+  const normalized = JSON.stringify(payload, Object.keys(payload as object).sort());
+  const hash = createHash('sha256').update(normalized).digest('hex').slice(0, 16);
+  return `${type}:${hash}`;
 }
 
 export class MikroOrmTaskRepository implements ITaskQueueRepository {
@@ -50,6 +60,10 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
   async create<T extends Task>(input: CreateTaskInput<T>): Promise<T> {
     const id = randomUUID();
     const now = Date.now();
+
+    // Generate deduplication key if not provided (Issue #207)
+    const dedupKey = input.deduplicationKey
+      ?? generateDeduplicationKey(input.type, input.payload);
 
     const entity = this.em.create(TaskEntity, {
       id,
@@ -64,11 +78,33 @@ export class MikroOrmTaskRepository implements ITaskQueueRepository {
       retry_count: 0,
       max_retries: input.maxRetries,
       created_at: now,
+      deduplication_key: dedupKey,
     });
 
     this.em.persist(entity);
     await this.em.flush();
     return toTask(entity) as T;
+  }
+
+  /**
+   * Create a task only if no duplicate exists (Issue #207)
+   * Returns null if a duplicate pending/assigned/processing task exists
+   */
+  async createIfNotExists<T extends Task>(input: CreateTaskInput<T>): Promise<T | null> {
+    const dedupKey = input.deduplicationKey
+      ?? generateDeduplicationKey(input.type, input.payload);
+
+    // Check for existing active task with same deduplication key
+    const existing = await this.em.findOne(TaskEntity, {
+      deduplication_key: dedupKey,
+      status: { $in: ['pending', 'assigned', 'processing'] },
+    });
+
+    if (existing) {
+      return null; // Duplicate found, skip creation
+    }
+
+    return this.create({ ...input, deduplicationKey: dedupKey });
   }
 
   async findById(id: string): Promise<Task | null> {

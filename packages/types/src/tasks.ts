@@ -50,6 +50,8 @@ export interface BaseTask {
   maxRetries: number;
   /** Unix timestamp (ms) for when the task can be retried (Issue #206) */
   retryAfter?: number;
+  /** Hash of type+payload for deduplication (Issue #207) */
+  deduplicationKey?: string;
 }
 
 /**

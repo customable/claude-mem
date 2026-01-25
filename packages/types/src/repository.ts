@@ -730,6 +730,12 @@ export interface ITaskQueueRepository {
   create<T extends Task>(input: CreateTaskInput<T>): Promise<T>;
 
   /**
+   * Create a task only if no duplicate exists (Issue #207)
+   * Returns null if an active task with same deduplication key exists
+   */
+  createIfNotExists<T extends Task>(input: CreateTaskInput<T>): Promise<T | null>;
+
+  /**
    * Find task by ID
    */
   findById(id: string): Promise<Task | null>;
