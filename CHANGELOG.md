@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.49.3] - 2026-01-25
+
+### Features
+- None
+
+### Bug Fixes
+- Updated all non-major dependencies
+
+### Improvements
+- Updated CLAUDE.md context files
+- Updated plugin dependencies
+
+
 ## [2.49.2] - 2026-01-25
 
 ### Bug Fixes
