@@ -930,11 +930,15 @@ export class TaskDispatcher {
       context?: string;
     }> = [];
 
+    // Normalize escaped newlines to real newlines (Issue #257)
+    // Tool outputs from API may contain literal \n instead of actual newlines
+    const normalizedText = text.replace(/\\n/g, '\n');
+
     // Match fenced code blocks: ```language\ncode\n```
     const fencedCodeRegex = /```(\w+)?\s*\n([\s\S]*?)```/g;
     let match: RegExpExecArray | null;
 
-    while ((match = fencedCodeRegex.exec(text)) !== null) {
+    while ((match = fencedCodeRegex.exec(normalizedText)) !== null) {
       const rawLanguage = match[1]?.toLowerCase();
       const code = match[2].trim();
 
@@ -945,7 +949,7 @@ export class TaskDispatcher {
           : this.detectLanguage(code);
 
         // Try to extract file path from context (line before code block)
-        const beforeBlock = text.slice(0, match.index);
+        const beforeBlock = normalizedText.slice(0, match.index);
         const filePath = this.extractFilePath(beforeBlock);
 
         // Extract line numbers if present in the context
