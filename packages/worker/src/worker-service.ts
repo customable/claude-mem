@@ -49,11 +49,11 @@ export class WorkerService {
   constructor(config: WorkerServiceConfig = {}) {
     const settings = loadSettings();
 
-    // Determine capabilities
-    const capabilities = config.capabilities || this.detectCapabilities();
-
-    // Initialize agent
+    // Initialize agent first (needed for detectCapabilities)
     this.agent = getDefaultAgent();
+
+    // Determine capabilities using priority chain (Issue #265)
+    const capabilities = this.resolveCapabilities(config, settings);
 
     // Build metadata, including spawnedId if this worker was spawned by backend
     const metadata: Record<string, unknown> = {
@@ -83,6 +83,58 @@ export class WorkerService {
       onTaskCancelled: this.handleTaskCancelled.bind(this),
       onError: this.handleError.bind(this),
     });
+  }
+
+  /**
+   * Resolve capabilities using priority chain (Issue #265)
+   *
+   * Priority (highest first):
+   * 1. CLI argument (config.capabilities)
+   * 2. Environment variable (WORKER_CAPABILITIES)
+   * 3. Profile from settings
+   * 4. Auto-detection (fallback)
+   */
+  private resolveCapabilities(
+    config: WorkerServiceConfig,
+    settings: ReturnType<typeof loadSettings>
+  ): WorkerCapability[] {
+    // 1. CLI argument (highest priority)
+    if (config.capabilities?.length) {
+      logger.info(`Using CLI capabilities: ${config.capabilities.join(', ')}`);
+      return config.capabilities;
+    }
+
+    // 2. Environment variable
+    const envCaps = process.env.WORKER_CAPABILITIES;
+    if (envCaps) {
+      const caps = envCaps.split(',').map(c => c.trim()) as WorkerCapability[];
+      logger.info(`Using env capabilities: ${caps.join(', ')}`);
+      return caps;
+    }
+
+    // 3. Profile from settings (via WORKER_PROFILE env var)
+    const profileName = process.env.WORKER_PROFILE;
+    if (profileName && settings.WORKER_PROFILES) {
+      try {
+        const profiles = JSON.parse(settings.WORKER_PROFILES);
+        if (Array.isArray(profiles)) {
+          const profile = profiles.find(
+            (p: { name?: string }) => p.name === profileName
+          );
+          if (profile?.capabilities?.length) {
+            logger.info(`Using profile "${profileName}": ${profile.capabilities.join(', ')}`);
+            return profile.capabilities as WorkerCapability[];
+          }
+        }
+      } catch {
+        logger.warn('Failed to parse WORKER_PROFILES setting');
+      }
+      logger.warn(`Profile "${profileName}" not found, using auto-detection`);
+    }
+
+    // 4. Auto-detection (fallback)
+    logger.info('Using auto-detected capabilities');
+    return this.detectCapabilities();
   }
 
   /**

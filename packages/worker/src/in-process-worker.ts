@@ -81,11 +81,11 @@ export class InProcessWorker {
     this.maxRuntimeMs = (options.maxRuntimeMin ?? settings.IN_PROCESS_WORKER_TIMEOUT) * 60 * 1000;
     this.onExit = options.onExit;
 
-    // Initialize agent
+    // Initialize agent first (needed for detectCapabilities)
     this.agent = getDefaultAgent();
 
-    // Determine capabilities
-    const capabilities = options.capabilities || this.detectCapabilities();
+    // Determine capabilities using priority chain (Issue #265)
+    const capabilities = this.resolveCapabilities(options, settings);
 
     // Build metadata
     const metadata: Record<string, unknown> = {
@@ -112,6 +112,58 @@ export class InProcessWorker {
       onTaskCancelled: this.handleTaskCancelled.bind(this),
       onError: this.handleError.bind(this),
     });
+  }
+
+  /**
+   * Resolve capabilities using priority chain (Issue #265)
+   *
+   * Priority (highest first):
+   * 1. Options argument (options.capabilities)
+   * 2. Environment variable (WORKER_CAPABILITIES)
+   * 3. Profile from settings (WORKER_PROFILE env var)
+   * 4. Auto-detection (fallback)
+   */
+  private resolveCapabilities(
+    options: InProcessWorkerOptions,
+    settings: ReturnType<typeof loadSettings>
+  ): WorkerCapability[] {
+    // 1. Options argument (highest priority)
+    if (options.capabilities?.length) {
+      logger.info(`Using provided capabilities: ${options.capabilities.join(', ')}`);
+      return options.capabilities;
+    }
+
+    // 2. Environment variable
+    const envCaps = process.env.WORKER_CAPABILITIES;
+    if (envCaps) {
+      const caps = envCaps.split(',').map(c => c.trim()) as WorkerCapability[];
+      logger.info(`Using env capabilities: ${caps.join(', ')}`);
+      return caps;
+    }
+
+    // 3. Profile from settings (via WORKER_PROFILE env var)
+    const profileName = process.env.WORKER_PROFILE;
+    if (profileName && settings.WORKER_PROFILES) {
+      try {
+        const profiles = JSON.parse(settings.WORKER_PROFILES);
+        if (Array.isArray(profiles)) {
+          const profile = profiles.find(
+            (p: { name?: string }) => p.name === profileName
+          );
+          if (profile?.capabilities?.length) {
+            logger.info(`Using profile "${profileName}": ${profile.capabilities.join(', ')}`);
+            return profile.capabilities as WorkerCapability[];
+          }
+        }
+      } catch {
+        logger.warn('Failed to parse WORKER_PROFILES setting');
+      }
+      logger.warn(`Profile "${profileName}" not found, using auto-detection`);
+    }
+
+    // 4. Auto-detection (fallback)
+    logger.info('Using auto-detected capabilities');
+    return this.detectCapabilities();
   }
 
   /**
