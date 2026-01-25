@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.49.0] - 2026-01-25
+
+### Features
+- Implemented exponential backoff for task retries
+- Added rate limiting to prevent API abuse
+- Introduced batch operations for observations and tasks in the database
+
+
 ## [2.48.1] - 2026-01-24
 
 ### Features
