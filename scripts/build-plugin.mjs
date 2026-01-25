@@ -168,7 +168,6 @@ async function buildPlugin() {
     },
     engines: {
       node: '>=18.0.0',
-      bun: '>=1.0.0',
     },
   };
   fs.writeFileSync(
