@@ -121,24 +121,28 @@ export function DashboardView() {
           label="Observations"
           value={stats?.observations ?? 0}
           color="primary"
+          href="memories"
         />
         <StatCard
           icon="ph--file-text"
           label="Summaries"
           value={stats?.summaries ?? 0}
           color="secondary"
+          href="sessions"
         />
         <StatCard
           icon="ph--clock-counter-clockwise"
           label="Sessions"
           value={stats?.sessions ?? 0}
           color="accent"
+          href="sessions"
         />
         <StatCard
           icon="ph--folder-open"
           label="Projects"
           value={stats?.projects ?? 0}
           color="info"
+          href="projects"
         />
       </div>
 
@@ -179,10 +183,19 @@ export function DashboardView() {
         {/* Recent Activity */}
         <div className="card bg-base-200">
           <div className="card-body">
-            <h2 className="card-title text-base">
-              <span className="iconify ph--clock size-5" />
-              Recent Activity
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="card-title text-base">
+                <span className="iconify ph--clock size-5" />
+                Recent Activity
+              </h2>
+              <a
+                href="#live"
+                className="btn btn-ghost btn-xs gap-1"
+              >
+                View all
+                <span className="iconify ph--arrow-right size-3" />
+              </a>
+            </div>
             {recentObservations.length === 0 ? (
               <p className="text-base-content/50 text-sm mt-2">No recent activity</p>
             ) : (
@@ -212,23 +225,48 @@ function StatCard({
   label,
   value,
   color,
+  trend,
+  href,
 }: {
   icon: string;
   label: string;
   value: number;
   color: string;
+  trend?: { value: number; period: string }; // e.g., { value: 12, period: 'vs last week' }
+  href?: string; // Navigation target (hash route)
 }) {
+  const handleClick = () => {
+    if (href) {
+      window.location.hash = href;
+    }
+  };
+
   return (
-    <div className="card bg-base-200">
+    <div
+      className={`card bg-base-200 ${href ? 'cursor-pointer hover:bg-base-300 transition-colors' : ''}`}
+      onClick={handleClick}
+      role={href ? 'button' : undefined}
+      tabIndex={href ? 0 : undefined}
+      onKeyDown={href ? (e) => e.key === 'Enter' && handleClick() : undefined}
+    >
       <div className="card-body p-4">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg bg-${color}/10`}>
             <span className={`iconify ${icon} size-5 text-${color}`} />
           </div>
-          <div>
+          <div className="flex-1">
             <p className="text-2xl font-bold">{value.toLocaleString()}</p>
             <p className="text-xs text-base-content/60">{label}</p>
           </div>
+          {trend && (
+            <div className={`text-right ${trend.value >= 0 ? 'text-success' : 'text-error'}`}>
+              <div className="flex items-center gap-0.5 text-sm font-medium">
+                <span className={`iconify ${trend.value >= 0 ? 'ph--trend-up' : 'ph--trend-down'} size-4`} />
+                <span>{Math.abs(trend.value)}%</span>
+              </div>
+              <p className="text-xs text-base-content/40">{trend.period}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
