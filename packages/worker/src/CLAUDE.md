@@ -5,44 +5,44 @@
 
 ### Jan 25
 
-| ID   | Time      | T    | Title                                                                 | Read     |
-|------|-----------|------|-----------------------------------------------------------------------|----------|
-| #823 | 1:22 PM   | 🟠   | Implement capability resolution priority chain (Issue #265)            | ~5750    |
-| #820 | 1:21 PM   | 🔵   | In-Process Worker Architecture Analysis                                | ~4738    |
-| #819 | 1:21 PM   | 🟠   | Implement capability resolution priority chain (Issue #265)            | ~5686    |
-| #818 | 1:21 PM   | 🔄   | Refactor capability resolution in InProcessWorker                      | ~5050    |
-| #817 | 1:20 PM   | 🔵   | WorkerService initialization and capability detection                 | ~1666    |
-| #816 | 1:19 PM   | 🔵   | In-process worker initialization and capability detection              | ~1688    |
-| #814 | 1:19 PM   | 🟠   | Added worker profiles display to config command and new profiles command | ~4856    |
-| #813 | 1:19 PM   | 🔄   | Reorder agent initialization and capability resolution                | ~4555    |
-| #812 | 1:18 PM   | 🟠   | Add worker capability configuration system (Issue #265)                | ~6143    |
-| #806 | 1:17 PM   | 🔵   | Worker CLI Structure and Configuration                                | ~1729    |
-| #756 | 1:07 PM   | 🟠   | Added compression task handling to in-process worker                   | ~5499    |
-| #755 | 1:06 PM   | 🟠   | Add compression capability to worker agent detection                  | ~5126    |
-| #754 | 1:06 PM   | 🔵   | In-Process Worker Architecture Analysis                                | ~4507    |
-| #753 | 1:06 PM   | 🟠   | Add compression task support to in-process worker                     | ~5555    |
-| #752 | 1:06 PM   | 🟠   | Added compression task handling to worker service                      | ~5336    |
-| #751 | 1:06 PM   | 🟠   | Add compression capability to worker service                          | ~4741    |
-| #750 | 1:06 PM   | 🟠   | Add compression task support to worker service                         | ~5198    |
-| #749 | 1:06 PM   | 🔵   | Worker Service Architecture Overview                                   | ~3970    |
-| #747 | 1:05 PM   | 🟠   | Added compression handler export to handlers index                     | ~1847    |
-| #746 | 1:05 PM   | 🟠   | Added compression system prompt and builder function                   | ~5287    |
-| #745 | 1:05 PM   | 🔵   | Found system prompts for observation extraction and summarization      | ~3063    |
-| #744 | 1:05 PM   | 🟠   | Implemented compression handler for archived tool outputs              | ~3192    |
-| #743 | 1:04 PM   | 🔵   | Discovered task handlers structure in worker package                    | ~912     |
-| #742 | 1:04 PM   | 🔵   | Observation Handler Implementation Review                              | ~1945    |
-| #698 | 12:54 PM  | 🔵   | Observation Handler Structure and Functionality                        | ~1866    |
-| #625 | 12:45 PM  | 🔵   | Worker Service Architecture Overview                                   | ~3966    |
-| #624 | 12:45 PM  | 🔵   | WebSocket Client Implementation Analysis                                | ~2450    |
-| #621 | 12:45 PM  | 🔵   | In-Process Worker Architecture Analysis                                | ~4551    |
-| #614 | 12:43 PM  | 🔴   | Conditional Qdrant capabilities based on vector DB setting              | ~4335    |
-| #612 | 12:43 PM  | 🟣   | Conditional Qdrant Capabilities Based on Vector DB Setting             | ~4899    |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #1059 | 2:25 PM | 🔴 | Filter undefined embeddings in Mistral provider | ~2160 |
+| #1058 | 2:25 PM | 🔴 | Improved error logging in worker CLI | ~2980 |
+| #1057 | 2:25 PM | 🔵 | Worker initialization and error handling discovered | ~1023 |
+| #1056 | 2:25 PM | 🔵 | Mistral embedding provider supports batch operations | ~949 |
+| #1027 | 2:18 PM | 🔵 | CLI entry point detection logic found in worker-service.ts | ~996 |
+| #1017 | 2:13 PM | 🟠 | Created comprehensive XML parser test suite | ~6280 |
+| #1016 | 2:13 PM | 🟠 | Created comprehensive test suite for retry utilities | ~5245 |
+| #1015 | 2:13 PM | 🔵 | XML Parser for Agent Responses | ~2198 |
+| #1013 | 2:13 PM | 🔵 | Exponential Backoff Retry Utilities Implementation | ~2228 |
+| #887 | 1:35 PM | 🔄 | Refactor embedding handler to support multiple providers | ~3727 |
+| #886 | 1:35 PM | 🔴 | Fix resource leak in QdrantService.close() | ~3919 |
+| #885 | 1:34 PM | 🔄 | Refactor embed method to use embedding provider | ~4507 |
+| #884 | 1:34 PM | 🔵 | Qdrant Service Implementation Analysis | ~3736 |
+| #883 | 1:34 PM | 🔄 | Replace direct embedding model with provider registry | ~4900 |
+| #882 | 1:34 PM | 🔄 | Replace direct transformer.js usage with embedding provider registry | ~4556 |
+| #878 | 1:33 PM | 🔵 | Embedding Handler Implementation Review | ~1257 |
+| #877 | 1:33 PM | 🟠 | Implement Embedding Provider Registry (Issue #112) | ~2557 |
+| #876 | 1:32 PM | 🟠 | Added Mistral Embedding Provider Implementation | ~2798 |
+| #874 | 1:31 PM | 🟠 | Create Embedding Provider Interface (Issue #112) | ~1783 |
+| #873 | 1:31 PM | 🟠 | Local Embedding Provider Implementation | ~2900 |
+| #871 | 1:31 PM | 🔵 | Qdrant Service Implementation Analysis | ~3729 |
+| #868 | 1:30 PM | 🔵 | Embedding Handler Implementation Review | ~1313 |
+| #823 | 1:22 PM | 🟠 | Implement capability resolution priority chain (Issue #265) | ~5750 |
+| #820 | 1:21 PM | 🔵 | In-Process Worker Architecture Analysis | ~4738 |
+| #819 | 1:21 PM | 🟠 | Implement capability resolution priority chain (Issue #265) | ~5686 |
+| #818 | 1:21 PM | 🔄 | Refactor capability resolution in InProcessWorker | ~5050 |
+| #817 | 1:20 PM | 🔵 | WorkerService initialization and capability detection | ~1666 |
+| #816 | 1:19 PM | 🔵 | In-process worker initialization and capability detection | ~1688 |
+| #814 | 1:19 PM | 🟠 | Added worker profiles display to config command and new profiles command | ~4856 |
+| #813 | 1:19 PM | 🔄 | Reorder agent initialization and capability resolution | ~4555 |
 
 ## Key Insights
 
-- **Capability Resolution System**: A priority-based capability resolution system was implemented (Issue #265), checking capabilities in order: CLI arguments → environment variables → profiles → auto-detection. This refactors the previous simple fallback approach.
-- **Compression Feature**: Comprehensive compression support was added across the system, including handlers, prompts, and task processing for both worker service and in-process workers, aiming for ~95% token reduction.
-- **Worker Architecture**: Detailed analysis of both WorkerService (WebSocket-based) and InProcessWorker (blocking, no auto-reconnect) architectures, revealing their distinct lifecycle characteristics and communication patterns.
-- **Configuration Enhancements**: New 'profiles' command added to CLI, and worker profiles display integrated into 'config' command for better visibility of worker configurations.
-- **Qdrant Capabilities**: Fixed conditional Qdrant capabilities to only activate when vector DB is explicitly set to 'qdrant', preventing unnecessary capability assignments.
+- **Embedding Provider System**: Implemented a new provider-agnostic abstraction with registry pattern, supporting both local (transformers.js) and remote (Mistral) providers. Refactored QdrantService and embedding-handler to use this system.
+- **Worker Capabilities**: Enhanced capability resolution with priority chain (CLI > env vars > profiles) and added worker profiles management commands.
+- **Testing Improvements**: Created comprehensive test suites for XML parsing and retry utilities, ensuring robustness.
+- **Resource Management**: Fixed resource leaks in QdrantService.close() and improved error handling in worker CLI.
+- **Architecture Decisions**: Discovered and documented the decoupled worker capabilities system and proposed task priority system for future implementation.
 </claude-mem-context>

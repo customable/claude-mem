@@ -160,42 +160,42 @@ Repository: `customable/claude-mem` auf der lokalen Forgejo-Instanz
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #956 | 1:54 PM | 🟣 | Update capability requirement in test | ~4704 |
-| #955 | 1:53 PM | 🟣 | Update fallback capabilities in test | ~5226 |
-| #954 | 1:53 PM | 🔵 | Task creation test with priority/retries | ~983 |
-| #953 | 1:53 PM | 🔄 | Remove compressedObservation relation | ~1723 |
-| #952 | 1:53 PM | 🔵 | Fallback capabilities pattern found | ~946 |
-| #951 | 1:52 PM | 🔵 | Worker Capabilities System Architecture | ~2722 |
-| #950 | 1:52 PM | 🟣 | Update test capability from 'llm' | ~5302 |
-| #949 | 1:51 PM | 🟠 | Add compressed_observation_id field | ~1698 |
-| #948 | 1:51 PM | 🔄 | Remove unused imports from entity | ~1682 |
-| #947 | 1:51 PM | 🔴 | TypeScript errors in database package | ~1752 |
-| #946 | 1:51 PM | 🔵 | ArchivedOutputRepository discovered | ~3156 |
-| #945 | 1:51 PM | 🔵 | WorkerCapability type definition found | ~1409 |
-| #944 | 1:50 PM | 🔵 | Test suite passes with migrations | ~1785 |
-| #943 | 1:49 PM | 🔵 | Database tests passing | ~2855 |
-| #942 | 1:49 PM | 🔵 | Database tests running with migrations | ~3341 |
-| #941 | 1:49 PM | 🔴 | Database tests failing (duplicate fields) | ~3511 |
-| #940 | 1:48 PM | 🔄 | Add explicit field name/index | ~1573 |
-| #939 | 1:48 PM | 🔄 | Remove redundant field | ~1675 |
-| #938 | 1:47 PM | 🔵 | ArchivedOutput entity structure | ~1414 |
-| #937 | 1:47 PM | 🟠 | Add SWC plugin to Vite config | ~1735 |
-| #936 | 1:47 PM | 🟠 | Install SWC plugin for Vitest | ~1125 |
-| #935 | 1:46 PM | 🔵 | Project structure analysis | ~1498 |
-| #934 | 1:46 PM | 🔵 | Database package TypeScript config | ~907 |
-| #933 | 1:46 PM | 🔵 | Session entity structure | ~1324 |
-| #932 | 1:46 PM | 🔵 | TypeScript config discovered | ~981 |
-| #931 | 1:46 PM | 🔵 | Test files in shared package | ~871 |
-| #930 | 1:46 PM | 🔵 | Vitest configuration analysis | ~1048 |
-| #929 | 1:46 PM | 🔵 | Database config structure | ~2481 |
-| #928 | 1:46 PM | 🔴 | Database tests failing (decorators) | ~3208 |
-| #927 | 1:46 PM | 🔵 | No database config files found | ~708 |
+| #1165 | 2:34 PM | 🔵 | StatusBar uses SSE for health monitoring | ~1211 |
+| #1164 | 2:34 PM | 🟠 | Implement queue status indicator | ~931 |
+| #1163 | 2:34 PM | 🔵 | App.tsx reveals UI architecture | ~2288 |
+| #1162 | 2:34 PM | 🔵 | Health Router implementation analysis | ~2278 |
+| #1161 | 2:34 PM | 🔵 | No Header components in UI package | ~683 |
+| #1160 | 2:34 PM | 🔵 | Health/Status API endpoints found | ~724 |
+| #1159 | 2:34 PM | 🔵 | Reviewed open issues | ~1478 |
+| #1158 | 2:34 PM | 🟠 | Make WebUI fully responsive | ~2784 |
+| #1157 | 2:33 PM | 🔵 | Comprehensive test suite proposal | ~3727 |
+| #1156 | 2:33 PM | 🔵 | Queue status indicator feature request | ~1295 |
+| #1155 | 2:33 PM | 🔵 | Git status shows clean directory | ~680 |
+| #1154 | 2:32 PM | ✅ | Close CLAUDE.md database query update | ~1234 |
+| #1153 | 2:32 PM | 🔵 | Reviewed project activity log | ~1312 |
+| #1152 | 2:32 PM | 🟣 | Replace bun with node in hooks.json | ~1101 |
+| #1151 | 2:32 PM | 🔵 | Migration from Bun to Node.js | ~1051 |
+| #1150 | 2:31 PM | 🟣 | Task 7 status updated | ~712 |
+| #1149 | 2:31 PM | 🟣 | Remove bun engine requirement | ~913 |
+| #1148 | 2:31 PM | 🟣 | Update shebangs from bun to node | ~1062 |
+| #1147 | 2:31 PM | ✅ | Remove bun.lock files | ~861 |
+| #1146 | 2:31 PM | ✅ | Replace Bun in healthcheck | ~1152 |
+| #1145 | 2:31 PM | ✅ | Remove bun fallback | ~987 |
+| #1144 | 2:31 PM | 🟣 | Update CLI execution method | ~2186 |
+| #1143 | 2:31 PM | 🟣 | Update DB query examples | ~5666 |
+| #1142 | 2:31 PM | 🟣 | Task 7 completed | ~688 |
+| #1141 | 2:31 PM | 🔵 | Bun to Node migration complete | ~1070 |
+| #1140 | 2:31 PM | 🔵 | Legacy SQLite removed | ~892 |
+| #1139 | 2:31 PM | 🟣 | Update CLAUDE.md DB examples | ~818 |
+| #1138 | 2:31 PM | ✅ | WebSocket/SSE for queue updates | ~1175 |
+| #1137 | 2:31 PM | 🟠 | Add queue status indicator | ~1695 |
+| #1136 | 2:31 PM | 🟣 | Simplified DB query command | ~3874 |
 
 ## Key Insights
 
-- **Capability System Refinement**: Major updates to worker capabilities system, moving from generic 'llm' to specific capability types ('observation:mistral', 'summarize:mistral') with fallback patterns
-- **Database Schema Evolution**: Significant changes to ArchivedOutput entity (field additions/removals, indexing) for Endless Mode storage
-- **TypeScript Migration Issues**: Multiple test failures due to decorator metadata and type mismatches during TypeScript migration
-- **Build System Enhancements**: Added SWC plugin support for Vite/Vitest to improve TypeScript decorator handling
-- **Test Suite Stability**: Database tests now passing after migration fixes, with 195 tests across 8 files succeeding
+- **Bun to Node Migration Complete**: All Bun-specific implementations have been replaced with Node.js equivalents, including CLI execution, database queries, and plugin hooks.
+- **Queue Status Feature**: New feature request to add a queue status indicator in the UI header, requiring backend API enhancements and real-time updates via WebSocket/SSE.
+- **Responsive UI Needed**: Critical usability issues on mobile/tablet devices identified, requiring responsive design improvements.
+- **Testing Strategy**: Comprehensive test suite proposal discovered, including unit, integration, and E2E testing with Vitest and Playwright.
+- **Health Monitoring**: StatusBar component uses SSE for system health monitoring, with backend health endpoints already implemented.
 </claude-mem-context>

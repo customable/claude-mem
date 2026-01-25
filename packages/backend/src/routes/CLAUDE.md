@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1162 | 2:34 PM | 🔵 | Health Router Implementation Analysis | ~2278 |
 | #715 | 12:56 PM | 🔵 | Exploring Hooks Router Implementation | ~3483 |
 | #696 | 12:54 PM | 🔵 | Exploring Hooks Router Implementation | ~3460 |
 | #602 | 12:42 PM | 🔵 | Search Router Implementation Analysis | ~4665 |
@@ -15,9 +16,9 @@
 | #544 | 12:34 PM | 🔵 | Exploring Data Router Structure | ~1984 |
 | #535 | 12:33 PM | 🔵 | SSE Stream Implementation Analysis | ~1255 |
 | #422 | 12:22 PM | 🔵 | Workers Router API Structure | ~3131 |
-| #363 | 12:15 PM | 🔵 | Examining Workers Router Implementation | ~3120 |
-| #241 | 11:59 AM | 🔵 | Exploring Hooks Router Implementation | ~3455 |
-| #200 | 11:56 AM | 🟠 | Add auto-spawn config to worker API | ~4607 |
+| #363 | 12:15 PM | 🔵 | Examining Workers Router | ~3120 |
+| #241 | 11:59 AM | 🔵 | Exploring Hooks Router | ~3455 |
+| #200 | 11:56 AM | 🟠 | Add auto-spawn config to workers | ~4607 |
 | #198 | 11:56 AM | 🔵 | Exploring Data Router Structure | ~2113 |
 | #194 | 11:56 AM | 🔵 | Backend routes structure overview | ~1464 |
 | #186 | 11:56 AM | 🔵 | Workers Router API Structure | ~2960 |
@@ -25,13 +26,13 @@
 | #161 | 11:55 AM | 🔵 | Workers Router API Structure | ~2922 |
 | #71 | 11:35 AM | 🔄 | Optimize session enrichment | ~5555 |
 | #67 | 11:33 AM | 🔵 | Session data enrichment process | ~1604 |
-| #60 | 11:32 AM | 🔵 | Examining Data Router Implementation | ~4896 |
+| #60 | 11:32 AM | 🔵 | Examining Data Router | ~4896 |
 
 ## Key Insights
 
-- **Router Architecture**: The backend uses a modular router system with specialized endpoints for hooks, search, data, workers, and SSE streams. Key files include `hooks.ts`, `search.ts`, `data.ts`, and `workers.ts`.
-- **Worker Management**: The workers router provides comprehensive API endpoints for spawning, terminating, and managing workers, with auto-spawn configuration support.
-- **Performance Optimization**: Session enrichment logic was refactored to batch fetch observation counts and file stats, addressing N+1 query issues.
-- **Real-time Communication**: The system uses a hybrid SSE/WebSocket architecture for real-time updates, with plans to unify under WebSocket.
-- **Search Capabilities**: Supports both semantic (Qdrant) and full-text (SQLite FTS5) search with conditional vector database integration.
+- **Router Architecture**: The backend uses a modular router system with 20+ specialized routers (e.g., HealthRouter, DataRouter, WorkersRouter), indicating a well-organized structure.
+- **Worker Management**: The WorkersRouter provides comprehensive API endpoints for worker lifecycle management, including auto-spawn configuration.
+- **Performance Optimization**: Session enrichment logic was refactored to batch fetch data, resolving an N+1 query problem.
+- **Search Capabilities**: The system supports both semantic (Qdrant) and full-text (SQLite FTS5) search with fallback mechanisms.
+- **Bun Migration**: Ongoing effort to replace Bun with Node-compatible alternatives due to compatibility issues, affecting documentation, build scripts, and Docker configurations.
 </claude-mem-context>
