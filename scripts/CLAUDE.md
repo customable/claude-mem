@@ -10,16 +10,16 @@
 | #1153 | 2:32 PM | 🔵 | Reviewed project activity log | ~1312 |
 | #1121 | 2:30 PM | 🔵 | Plugin build dependencies | ~1077 |
 | #1116 | 2:30 PM | 🟣 | Removed Bun engine requirement | ~3213 |
-| #1109 | 2:30 PM | 🟣 | Removed Bun fallback | ~3439 |
+| #1109 | 2:30 PM | 🟣 | Removed Bun fallback in install | ~3439 |
 | #1108 | 2:30 PM | 🔵 | Dependency install logic | ~964 |
 | #1032 | 2:19 PM | 🔵 | Dev restart script workflow | ~2137 |
 | #1031 | 2:19 PM | 🔵 | Marketplace sync script | ~2891 |
 
 ## Key Insights
 
-- **Bun deprecation**: Project is systematically removing Bun support (engine requirements, fallbacks, lock files) in favor of Node.js compatibility
-- **Build system**: Dependency management now uses npm exclusively, with marketplace sync scripts handling multi-instance deployments
-- **Testing focus**: Recent work emphasizes test coverage (error handling, XML parsing, retries) with Vitest/SWC configuration
-- **Architecture**: Modular design with clear separation between backend, worker services, and plugin marketplace integration
-- **Next steps**: Complete Bun removal, expand test coverage, and ensure Node.js/npm compatibility across all components
+- **Bun deprecation**: Project is systematically removing Bun support (engine requirements, fallbacks) in favor of Node.js ≥18
+- **Build system**: Uses npm directly now, with marketplace sync scripts handling multi-instance plugin deployment
+- **Development workflow**: Automated via `dev-restart.js` for dependency syncing and service restarts
+- **Dependencies**: Core plugins rely on `@xenova/transformers`, `@qdrant/js-client-rest`, and SSE for real-time updates
+- **Next steps**: Complete Bun-to-Node migration, implement UI improvements, and test Node.js compatibility
 </claude-mem-context>

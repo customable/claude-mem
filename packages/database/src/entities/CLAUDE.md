@@ -7,36 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1374 | 3:00 PM | 🔵 | Document Entity Structure Analysis | ~1324 |
+| #985 | 1:58 PM | 🔵 | TechnologyUsage Entity Structure | ~1023 |
+| #984 | 1:58 PM | 🔵 | Database entities structure discovered | ~1144 |
+| #983 | 1:58 PM | 🔵 | Achievement Entity Structure | ~981 |
+| #982 | 1:58 PM | 🔵 | ProjectSettings Entity Structure | ~1207 |
+| #981 | 1:58 PM | 🔵 | ArchivedOutput Entity Structure | ~1365 |
+| #980 | 1:58 PM | 🔵 | UserPrompt Entity Structure Analysis | ~1138 |
+| #979 | 1:58 PM | 🔵 | ObservationTemplate Entity Structure | ~1082 |
+| #978 | 1:58 PM | 🔵 | RawMessage Entity Structure Analysis | ~1276 |
+| #977 | 1:58 PM | 🔵 | DailyStats entity structure | ~1172 |
+| #975 | 1:58 PM | 🔵 | Summary Entity Structure | ~1126 |
+| #974 | 1:58 PM | 🔵 | ObservationLink Entity Structure | ~1143 |
+| #973 | 1:58 PM | 🔵 | CodeSnippet Entity Structure | ~1177 |
+| #972 | 1:58 PM | 🔵 | Session Entity Structure Analysis | ~1223 |
+| #971 | 1:58 PM | 🔵 | ClaudeMd Entity Structure | ~1040 |
+| #970 | 1:58 PM | 🔵 | Repository Entity Structure | ~944 |
+| #969 | 1:58 PM | 🔵 | Document Entity Structure Analysis | ~1322 |
+| #967 | 1:58 PM | 🔵 | Observation Entity Structure | ~1963 |
+| #966 | 1:58 PM | 🔵 | Task Entity Structure Analysis | ~1413 |
 | #953 | 1:53 PM | 🔄 | Remove compressedObservation relation | ~1723 |
 | #949 | 1:51 PM | 🟠 | Add compressed_observation_id field | ~1698 |
 | #948 | 1:51 PM | 🔄 | Remove unused imports | ~1682 |
-| #940 | 1:48 PM | 🔄 | Add explicit field name/index | ~1573 |
+| #940 | 1:48 PM | 🔄 | Add explicit field name and index | ~1573 |
 | #939 | 1:48 PM | 🔄 | Remove redundant field | ~1675 |
-| #938 | 1:48 PM | 🔵 | ArchivedOutput entity structure | ~1414 |
-| #933 | 1:46 PM | 🔵 | Session entity analysis | ~1324 |
+| #938 | 1:48 PM | 🔵 | ArchivedOutput Entity Structure | ~1414 |
+| #933 | 1:46 PM | 🔵 | Session Entity Structure Analysis | ~1324 |
 | #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure | ~1328 |
-| #662 | 12:49 PM | 🔵 | Observation entity analysis | ~1985 |
-| #661 | 12:49 PM | 🟠 | Export ArchivedOutput entity | ~1228 |
+| #662 | 12:49 PM | 🔵 | Observation Entity Structure | ~1985 |
+| #661 | 12:49 PM | 🟠 | Add ArchivedOutput entity export | ~1228 |
 | #660 | 12:49 PM | 🟠 | Create ArchivedOutput entity | ~1882 |
-| #654 | 12:48 PM | 🔵 | Database entities overview | ~1057 |
-| #538 | 12:34 PM | 🔵 | Task entity analysis | ~1435 |
-| #217 | 11:58 AM | 🔵 | Observation entity analysis | ~1635 |
-| #184 | 11:56 AM | 🔵 | Database entities overview | ~1002 |
-| #180 | 11:56 AM | 🔵 | Task entity analysis | ~1416 |
-| #122 | 11:45 AM | 🟠 | Add deduplication_key field | ~1653 |
-| #119 | 11:45 AM | 🔵 | Task entity analysis | ~1280 |
-| #23 | 11:15 AM | 🟠 | Add composite indexes to Task | ~1774 |
-| #18 | 11:15 AM | 🟠 | Add composite index to Document | ~1776 |
-| #17 | 11:15 AM | 🟠 | Add composite index to Session | ~1596 |
-| #16 | 11:14 AM | 🟠 | Add indexes to Observation | ~2554 |
-| #15 | 11:14 AM | 🔵 | Session entity analysis | ~1296 |
-| #14 | 11:14 AM | 🔵 | Task entity analysis | ~1355 |
 
 ## Key Insights
 
-- **Database Optimization**: Multiple composite indexes were added to core entities (Task, Session, Document, Observation) to improve query performance, particularly for common access patterns.
-- **ArchivedOutput Entity**: New entity created for Endless Mode (Issue #109) to store full tool outputs, with a refactored structure removing redundant relations while maintaining compressed observation references.
-- **Task System Enhancements**: Added deduplication_key field to Task entity and composite indexes for worker assignment and capability-based routing, supporting the proposed task priority system.
-- **Entity Structure Analysis**: Comprehensive review of core entities (Session, Observation, Task) revealing the hub-and-spoke architecture with WorkerHub managing WebSocket connections.
-- **Next Steps**: Implement task priority system and WorkerHub Federation, complete test suite for new embedding provider system, and evaluate database migration options.
+- **Entity Structure Deep Dive**: Extensive analysis of database entities (e.g., `Observation`, `Session`, `ArchivedOutput`) reveals a well-structured Mikro-ORM-based schema for tracking coding sessions, achievements, and project metadata.
+- **ArchivedOutput Refinement**: Iterative improvements to the `ArchivedOutput` entity (e.g., adding `compressed_observation_id`, removing redundant fields) to support Endless Mode (Issue #109) for perfect recall.
+- **UI and Migration Focus**: Recent sessions highlight UI issues (achievements, heatmap) and a runtime migration from Bun to Node.js, requiring follow-up actions for stability and usability.
+- **Task Progress**: Multiple tasks completed (e.g., copy/refresh actions, document filtering) with pending UI fixes (mobile responsiveness, pagination) and backend health endpoint misconfiguration.
+- **Gamification and Analytics**: Entities like `Achievement` and `DailyStats` indicate a focus on gamification and learning insights, suggesting a user engagement strategy.
 </claude-mem-context>

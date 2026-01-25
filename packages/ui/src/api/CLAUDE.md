@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1371 | 2:59 PM | 🔵 | API Client Structure and Capabilities | ~5531 |
 | #1169 | 2:34 PM | 🔵 | API Client Structure and Capabilities | ~5433 |
 | #563 | 12:36 PM | 🔵 | API Client Methods for Documents, Code Snippets, and Insights | ~2327 |
 | #561 | 12:35 PM | 🟠 | Added task-related API endpoints to client | ~5957 |
@@ -25,9 +26,9 @@
 
 ## Key Insights
 
-- **API Client Expansion**: Significant enhancements to the API client, including new task management endpoints (`getTasks`, `getTask`, `getTaskCounts`) and interfaces (`Task`, `TaskCounts`). This suggests a focus on improving task handling capabilities.
-- **Worker Management**: Multiple discoveries and features related to worker spawning and management, including provider configurations and auto-spawn fields. This indicates ongoing work to enhance worker functionality and flexibility.
-- **Bun to Node.js Migration**: Recent sessions highlight a strategic shift from Bun to Node.js due to compatibility issues. Key areas affected include build scripts, Docker configurations, and plugin hooks.
-- **Testing Improvements**: Comprehensive test suites were added for error handling, XML parsing, and retry utilities, with adjustments to Vitest configuration to prevent RAM issues. This reflects a commitment to improving code reliability and test coverage.
-- **Modular Architecture**: The project's architecture is modular, with clear separation of concerns in the API client (e.g., documents, code snippets, insights, search, and analytics). This design facilitates maintainability and scalability.
+- **API Client Expansion**: Significant enhancements to the API client, including new task management endpoints (`getTasks`, `getTask`, `getTaskCounts`) and interfaces (`Task`, `TaskCounts`). This suggests a focus on improving task handling and monitoring capabilities.
+- **Worker Management**: Multiple discoveries and features related to worker spawning and management, including provider configuration support and auto-spawn functionality. This indicates ongoing work to make worker management more flexible and automated.
+- **Comprehensive Testing**: Recent sessions highlight extensive test coverage (416 tests across 18 files) and CI/CD improvements, emphasizing a strong focus on reliability and maintainability.
+- **Runtime Migration**: The project is transitioning from Bun to Node.js for broader compatibility, with files already identified for migration. This is a critical architectural shift.
+- **UI and UX Focus**: Multiple UI improvement issues were created, targeting dashboard, search, and analytics features, indicating a push to enhance user experience.
 </claude-mem-context>
