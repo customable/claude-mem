@@ -68,6 +68,13 @@ function parseArgs(argv: string[]): Args {
  */
 function writeClaudeMd(dir: string, content: string): void {
   const filePath = path.join(dir, 'CLAUDE.md');
+  const startTag = '<claude-mem-context>';
+
+  // Validate content has required tags (Issue #291)
+  if (!content.includes(startTag)) {
+    console.error(`[sse-writer] Received content without claude-mem-context tags, skipping`);
+    return;
+  }
 
   try {
     if (fs.existsSync(filePath)) {
@@ -77,6 +84,7 @@ function writeClaudeMd(dir: string, content: string): void {
       fs.writeFileSync(filePath, updated);
     } else {
       // Create new file
+      console.log(`[sse-writer] Creating new CLAUDE.md in ${dir}`);
       fs.writeFileSync(filePath, content);
     }
   } catch (error) {
@@ -92,15 +100,24 @@ function replaceContextSection(existing: string, newContent: string): string {
   const startTag = '<claude-mem-context>';
   const endTag = '</claude-mem-context>';
 
+  // Validate that newContent has the required tags (Issue #291)
+  if (!newContent.includes(startTag) || !newContent.includes(endTag)) {
+    console.error('[sse-writer] Invalid content: missing claude-mem-context tags');
+    // Wrap content in tags as fallback
+    newContent = `${startTag}\n${newContent}\n${endTag}`;
+  }
+
   const startIdx = existing.indexOf(startTag);
   const endIdx = existing.indexOf(endTag);
 
   if (startIdx === -1 || endIdx === -1) {
     // No existing section, append with newlines
+    console.log('[sse-writer] No existing claude-mem-context section, appending');
     return existing.trimEnd() + '\n\n' + newContent + '\n';
   }
 
   // Replace existing section (include the end tag in replacement)
+  console.log(`[sse-writer] Updating existing claude-mem-context section`);
   return (
     existing.slice(0, startIdx) +
     newContent +
