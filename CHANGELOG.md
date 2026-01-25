@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.49.4] - 2026-01-25
+
+### Bug Fixes
+- Updated Express dependency to v5
+
+### Improvements
+- Lock file maintenance
+
+
 ## [2.49.3] - 2026-01-25
 
 ### Features
