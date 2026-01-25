@@ -7,38 +7,39 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2168 | 5:33 PM | 🔵 | Examined UserPromptRepository implementation | ~1781 |
 | #2140 | 5:29 PM | 🟠 | Add MikroORM ref import to ArchivedOutputRepository | ~3659 |
 | #2139 | 5:28 PM | 🔄 | Refactor: Use MikroORM reference for relation | ~3644 |
 | #2138 | 5:28 PM | 🔴 | Fix MikroORM Ref relation assignment | ~3790 |
 | #2136 | 5:27 PM | 🔴 | Fix compressed_observation_id extraction | ~4770 |
 | #2133 | 5:27 PM | 🔴 | Fix MikroORM relation query | ~3756 |
 | #2132 | 5:27 PM | 🟠 | Add Observation import to ArchivedOutputRepository | ~3254 |
-| #2129 | 5:27 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3156 |
-| #960 | 1:55 PM | 🔵 | TaskRepository uses MikroORM with SQLite JSON | ~1684 |
-| #946 | 1:51 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3156 |
+| #2129 | 5:27 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3156 |
+| #960 | 1:55 PM | 🔵 | TaskRepository uses MikroORM with SQLite-specific JSON | ~1684 |
+| #946 | 1:51 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3156 |
 | #921 | 1:43 PM | 🔵 | Exploring MikroORM Observation Repository | ~5513 |
 | #920 | 1:43 PM | 🔵 | TaskRepository implements deduplication | ~3493 |
 | #915 | 1:42 PM | 🔵 | Examined SessionRepository implementation | ~3205 |
-| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository for Endless Mode | ~3169 |
+| #710 | 12:55 PM | 🔵 | ArchivedOutputRepository for Endless Mode storage | ~3169 |
 | #677 | 12:52 PM | 🟠 | Added ArchivedOutputRepository export | ~1483 |
-| #667 | 12:50 PM | 🟠 | Created ArchivedOutputRepository | ~5277 |
+| #667 | 12:50 PM | 🟠 | Created ArchivedOutputRepository for Endless Mode | ~5277 |
 | #664 | 12:49 PM | 🔵 | Examined MikroORM Document Repository | ~3251 |
 | #663 | 12:49 PM | 🔵 | MikroORM Repository Structure Overview | ~1226 |
 | #545 | 12:34 PM | 🔵 | Examining TaskRepository implementation | ~3523 |
-| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite JSON | ~1639 |
+| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite-specific JSON | ~1639 |
 | #128 | 11:46 AM | 🟠 | Added task deduplication functionality | ~5137 |
 | #126 | 11:46 AM | 🟠 | Added deduplication key support | ~3840 |
 | #125 | 11:46 AM | 🟠 | Added createHash import to TaskRepository | ~3226 |
 | #124 | 11:46 AM | 🔵 | Examining TaskRepository implementation | ~3148 |
 | #69 | 11:34 AM | 🔴 | Fixed SQL query logic for file filtering | ~5791 |
 | #66 | 11:33 AM | 🔵 | ObservationRepository uses MikroORM with FTS5 | ~5522 |
-| #64 | 11:32 AM | 🔵 | ObservationRepository batch delete with chunking | ~1969 |
+| #64 | 11:32 AM | 🔵 | ObservationRepository implements batch delete | ~1969 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant work on `ArchivedOutputRepository` for Endless Mode storage, including MikroORM relation fixes and compression handling.
-- **Task Deduplication**: Added SHA-256-based deduplication to `TaskRepository` to prevent duplicate task creation (Issue #207).
-- **MikroORM Optimization**: Multiple fixes for MikroORM reference handling, relation queries, and SQLite-specific optimizations.
-- **Repository Structure**: Discovered and documented the MikroORM repository architecture, including FTS5 search and batch operations.
-- **UI Progress**: Completed Endless Mode dashboard widget and settings UI, with pending optimizations for build warnings.
+- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with the creation and refinement of `ArchivedOutputRepository`, including MikroORM relation fixes and compression support.
+- **Task Deduplication**: Implemented SHA-256-based deduplication in `TaskRepository` (Issue #207) to prevent duplicate task creation, improving system reliability.
+- **MikroORM Refactoring**: Multiple fixes and optimizations in MikroORM repositories, including proper use of `ref()` for relations and query corrections for better data integrity.
+- **Performance Bottleneck**: Identified 110s latency in synchronous Endless Mode v7.1, requiring async compression implementation for optimization.
+- **Repository Structure**: Comprehensive exploration of MikroORM repositories (Observation, Session, Document, Task) revealing robust FTS5 search, batch operations, and SQLite-specific optimizations.
 </claude-mem-context>

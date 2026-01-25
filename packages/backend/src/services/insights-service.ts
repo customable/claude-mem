@@ -218,7 +218,6 @@ export class InsightsService {
     sessionCount?: number;
     projectCount?: number;
     decisionCount?: number;
-    errorCount?: number;
     bugFixCount?: number;
     discoveryCount?: number;
     tokensUsed?: number;
@@ -241,6 +240,10 @@ export class InsightsService {
 
   /**
    * Check and update achievements based on current stats
+   *
+   * Always calculates progress for all threshold-based achievements,
+   * regardless of whether the threshold is met. This allows the
+   * "In Progress" tab to show partial completion (Issue #296).
    */
   async checkAchievements(): Promise<AchievementProgress[]> {
     const updated: AchievementProgress[] = [];
@@ -249,60 +252,124 @@ export class InsightsService {
     const totalObservations = await this.observations.count({});
     const summary = await this.getSummary(365); // Full year for streak calculation
     const technologies = await this.technologyUsage.getTopTechnologies(100);
-    const projects = await this.observations.count({}); // Placeholder - need project count
 
-    // Check observation milestones
+    // Get type-specific counts (using correct ObservationType values)
+    const decisionCount = await this.observations.count({ type: 'decision' });
+    const bugfixCount = await this.observations.count({ type: 'bugfix' });
+    const discoveryCount = await this.observations.count({ type: 'discovery' });
+
+    // Calculate language count
+    const languageCount = technologies.filter(t => t.category === 'language').length;
+
+    // Helper to track progress (always updates, no threshold check)
+    const trackProgress = async (achievementId: string, current: number, threshold: number) => {
+      const progress = await this.updateProgressIfNeeded(achievementId, current / threshold);
+      if (progress) updated.push(progress);
+    };
+
+    // ========================================
+    // Single-event achievements (unlocked at 1)
+    // ========================================
     if (totalObservations >= 1) {
       const progress = await this.unlockIfNotUnlocked('first-observation');
       if (progress) updated.push(progress);
     }
-    if (totalObservations >= 10) {
-      const progress = await this.updateProgressIfNeeded('observations-10', totalObservations / 10);
+    if (decisionCount >= 1) {
+      const progress = await this.unlockIfNotUnlocked('first-decision');
       if (progress) updated.push(progress);
     }
-    if (totalObservations >= 100) {
-      const progress = await this.updateProgressIfNeeded('observations-100', totalObservations / 100);
+    if (bugfixCount >= 1) {
+      const progress = await this.unlockIfNotUnlocked('first-bugfix');
+      if (progress) updated.push(progress);
+      const errorProgress = await this.unlockIfNotUnlocked('first-error');
+      if (errorProgress) updated.push(errorProgress);
+    }
+    if (discoveryCount >= 1) {
+      const progress = await this.unlockIfNotUnlocked('first-discovery');
       if (progress) updated.push(progress);
     }
-    if (totalObservations >= 1000) {
-      const progress = await this.updateProgressIfNeeded('observations-1000', totalObservations / 1000);
-      if (progress) updated.push(progress);
-    }
-
-    // Check technology count (languages)
-    const languageCount = technologies.filter(t => t.category === 'language').length;
-    if (languageCount >= 3) {
-      const progress = await this.updateProgressIfNeeded('polyglot-3', languageCount / 3);
-      if (progress) updated.push(progress);
-    }
-    if (languageCount >= 5) {
-      const progress = await this.updateProgressIfNeeded('polyglot-5', languageCount / 5);
+    if (summary.totalSessions >= 1) {
+      const progress = await this.unlockIfNotUnlocked('first-session');
       if (progress) updated.push(progress);
     }
 
-    // Check streak achievements
-    if (summary.currentStreak >= 3) {
-      const progress = await this.updateProgressIfNeeded('streak-3', summary.currentStreak / 3);
-      if (progress) updated.push(progress);
-    }
-    if (summary.currentStreak >= 7) {
-      const progress = await this.updateProgressIfNeeded('streak-7', summary.currentStreak / 7);
-      if (progress) updated.push(progress);
-    }
-    if (summary.currentStreak >= 30) {
-      const progress = await this.updateProgressIfNeeded('streak-30', summary.currentStreak / 30);
-      if (progress) updated.push(progress);
-    }
+    // ========================================
+    // Observation milestones (always track progress)
+    // ========================================
+    await trackProgress('observations-10', totalObservations, 10);
+    await trackProgress('observations-100', totalObservations, 100);
+    await trackProgress('observations-500', totalObservations, 500);
+    await trackProgress('observations-1000', totalObservations, 1000);
+    await trackProgress('observations-5000', totalObservations, 5000);
+    await trackProgress('observations-10000', totalObservations, 10000);
 
-    // Check project milestones
-    if (summary.totalProjects >= 3) {
-      const progress = await this.updateProgressIfNeeded('projects-3', summary.totalProjects / 3);
-      if (progress) updated.push(progress);
-    }
-    if (summary.totalProjects >= 10) {
-      const progress = await this.updateProgressIfNeeded('projects-10', summary.totalProjects / 10);
-      if (progress) updated.push(progress);
-    }
+    // ========================================
+    // Session milestones
+    // ========================================
+    await trackProgress('sessions-10', summary.totalSessions, 10);
+    await trackProgress('sessions-50', summary.totalSessions, 50);
+    await trackProgress('sessions-100', summary.totalSessions, 100);
+    await trackProgress('sessions-500', summary.totalSessions, 500);
+    await trackProgress('sessions-1000', summary.totalSessions, 1000);
+
+    // ========================================
+    // Token milestones
+    // ========================================
+    await trackProgress('tokens-100k', summary.totalTokens, 100000);
+    await trackProgress('tokens-1m', summary.totalTokens, 1000000);
+    await trackProgress('tokens-10m', summary.totalTokens, 10000000);
+    await trackProgress('tokens-50m', summary.totalTokens, 50000000);
+    await trackProgress('tokens-100m', summary.totalTokens, 100000000);
+    await trackProgress('tokens-500m', summary.totalTokens, 500000000);
+
+    // ========================================
+    // Decision milestones
+    // ========================================
+    await trackProgress('decisions-10', decisionCount, 10);
+    await trackProgress('decisions-50', decisionCount, 50);
+    await trackProgress('decisions-100', decisionCount, 100);
+
+    // ========================================
+    // Bug fix milestones (using error count as proxy)
+    // ========================================
+    await trackProgress('bug-hunter-10', bugfixCount, 10);
+    await trackProgress('bug-hunter-50', bugfixCount, 50);
+    await trackProgress('bug-hunter-100', bugfixCount, 100);
+    await trackProgress('bug-hunter-500', bugfixCount, 500);
+
+    // ========================================
+    // Discovery milestones
+    // ========================================
+    await trackProgress('discoveries-10', discoveryCount, 10);
+    await trackProgress('discoveries-50', discoveryCount, 50);
+    await trackProgress('discoveries-100', discoveryCount, 100);
+    await trackProgress('discoveries-500', discoveryCount, 500);
+
+    // ========================================
+    // Language (polyglot) milestones
+    // ========================================
+    await trackProgress('polyglot-3', languageCount, 3);
+    await trackProgress('polyglot-5', languageCount, 5);
+    await trackProgress('polyglot-10', languageCount, 10);
+
+    // ========================================
+    // Project milestones
+    // ========================================
+    await trackProgress('projects-3', summary.totalProjects, 3);
+    await trackProgress('projects-10', summary.totalProjects, 10);
+    await trackProgress('projects-25', summary.totalProjects, 25);
+    await trackProgress('projects-50', summary.totalProjects, 50);
+
+    // ========================================
+    // Streak milestones
+    // ========================================
+    await trackProgress('streak-3', summary.currentStreak, 3);
+    await trackProgress('streak-7', summary.currentStreak, 7);
+    await trackProgress('streak-14', summary.currentStreak, 14);
+    await trackProgress('streak-30', summary.currentStreak, 30);
+    await trackProgress('streak-60', summary.currentStreak, 60);
+    await trackProgress('streak-100', summary.currentStreak, 100);
+    await trackProgress('streak-365', summary.currentStreak, 365);
 
     logger.debug(`Checked achievements, ${updated.length} updated`);
     return updated;

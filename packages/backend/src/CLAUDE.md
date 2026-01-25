@@ -7,6 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
+| #2212 | 5:47 PM | 🔵 | Discovered usage of executeSemanticSearch in backend | ~1403 |
 | #2087 | 5:17 PM | 🔄 | Standardize error handling in archived outputs endpoints | ~7328 |
 | #2086 | 5:17 PM | 🔵 | BaseRouter class provides common route utilities | ~1626 |
 | #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints for Endless Mode | ~2072 |
@@ -24,7 +26,7 @@
 | #2065 | 5:13 PM | 🔵 | No files found with "archived" or "ArchivedOutput" in routes | ~713 |
 | #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
 | #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
-| #2052 | 5:12 PM | 🔵 | Compression task handling in task-dispatcher.ts | ~1741 |
+| #2052 | 5:11 PM | 🔵 | Compression task handling in task-dispatcher.ts | ~1741 |
 | #1870 | 4:35 PM | 🔵 | Project parameter usage in data routes | ~2949 |
 | #1865 | 4:34 PM | 🔵 | Found project deletion/archive/rename functionality in data routes | ~712 |
 | #1858 | 4:32 PM | 🟠 | Add SSE broadcaster to HooksRouter initialization | ~5135 |
@@ -32,17 +34,15 @@
 | #1844 | 4:30 PM | 🔵 | Backend API routes structure discovered | ~988 |
 | #1843 | 4:30 PM | 🔵 | Exploring API hooks in backend routes | ~951 |
 | #1842 | 4:30 PM | 🔵 | HooksRouter initialization in backend service | ~851 |
-| #1841 | 4:30 PM | 🟠 | Added writer pause/resume endpoints for git operations | ~5328 |
+| #1841 | 4:29 PM | 🟠 | Added writer pause/resume endpoints for git operations | ~5328 |
 | #1840 | 4:29 PM | 🟠 | Added writer control endpoints for git operations | ~3993 |
 | #1839 | 4:29 PM | 🟠 | Add SSEBroadcaster dependency to HooksRouter | ~4149 |
-| #1838 | 4:29 PM | 🔵 | Exploring Hooks Router Structure | ~923 |
-| #1837 | 4:29 PM | 🔵 | Search for "sseBroadcaster" in hooks.ts yields no results | ~718 |
 
 ## Key Insights
 
-- **Archived Outputs Feature Development**: Significant work on implementing archived outputs functionality for Endless Mode (Issue #109), including new API endpoints, error handling standardization, and DataRouter integration.
-- **Backend Architecture**: Discovered a well-organized backend with modular routers (20+ specialized routers) and clear separation of concerns across Health, Data, Workers, and other domains.
-- **SSE Integration**: Added Server-Sent Events (SSE) capabilities to HooksRouter for real-time updates, including writer pause/resume functionality for git operations.
-- **Task Management**: Explored TaskService with backpressure mechanism (Issue #205) and compression task handling logic in task-dispatcher.ts.
-- **UI Refactoring**: Completed modularization of Settings.tsx (17 files) and addressed system prompt inconsistencies, with TypeScript checks passing across most packages.
+- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with archived outputs API endpoints, compression logic, and UI components. The synchronous implementation causes 110s latency per tool use, requiring async optimization.
+- **Archived Outputs System**: New API endpoints for archived outputs (list, search, stats, get by ID/observation ID) were added, along with MikroORM entity relations and repository dependencies.
+- **Backend Architecture**: Discovered modular router structure with 20+ specialized routers, BaseRouter utilities, and standardized error handling patterns.
+- **Task System**: TaskService implements backpressure mechanism (Issue #205) and handles compression tasks, while task-dispatcher processes archived outputs.
+- **UI Improvements**: Settings.tsx was refactored into 17 modular files, and new dashboard widgets (EndlessModeCard) and settings UI (ProcessingSettings) were added for Endless Mode.
 </claude-mem-context>

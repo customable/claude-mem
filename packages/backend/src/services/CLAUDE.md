@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
 | #2055 | 5:12 PM | 🔵 | Endless Mode archiving logic in Task Service | ~2332 |
 | #2053 | 5:12 PM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1643 |
 | #1836 | 4:29 PM | 🟠 | Add writer pause/resume events to SSEBroadcaster | ~4144 |
@@ -36,13 +37,12 @@
 | #416 | 12:22 PM | 🔵 | Worker Process Manager Implementation Analysis | ~5100 |
 | #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service.ts | ~1205 |
 | #218 | 11:58 AM | 🔵 | Task Service Overview and Backpressure Mechanism | ~1543 |
-| #160 | 11:55 AM | 🔵 | Worker Process Manager Structure and Capabilities | ~1831 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with archiving logic, compression capabilities, and fallback mechanisms added to TaskService.
-- **SSE Event System Expansion**: New writer pause/resume events added to SSEEventType and SSEBroadcaster, enhancing real-time UI control during git operations.
-- **Task Management Enhancements**: Backpressure mechanism (Issue #205) and compression task queueing improve system reliability and performance.
-- **Architecture Discoveries**: Deep exploration of core services (TaskService, SessionService, SSEBroadcaster) revealing event-driven architecture and worker management patterns.
-- **Type System Improvements**: Added new observation fields (concept, gitBranch, decisionCategory) and expanded observation types for better data consistency.
+- **Endless Mode Implementation**: Significant progress on Endless Mode (Issue #109) with archiving logic, compression capabilities, and task queueing functionality added to TaskService.
+- **SSE Event System Expansion**: New writer pause/resume events added to SSEEventType and SSEBroadcaster, enhancing real-time UI control.
+- **Task Management Architecture**: Deep analysis of TaskService reveals sophisticated backpressure handling and multiple task types (observation, summarization, compression, etc.).
+- **Session Service Discoveries**: SessionService handles prompt filtering and subagent event tracking, with methods for observation queuing and session completion.
+- **Performance Bottleneck**: Endless Mode v7.1 has synchronous 110s latency per tool use that needs optimization (asynchronous compression).
 </claude-mem-context>
