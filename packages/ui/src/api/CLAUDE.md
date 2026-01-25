@@ -7,6 +7,10 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1629 | 3:51 PM | 🟠 | Add retryTask API endpoint and enhance task listing | ~5853 |
+| #1623 | 3:50 PM | 🔵 | API client methods for task data retrieval | ~924 |
+| #1622 | 3:49 PM | 🔵 | Discovered API client methods for task retrieval | ~935 |
+| #1621 | 3:49 PM | 🔵 | Search for "retryTask" yields no results in UI API | ~735 |
 | #1371 | 2:59 PM | 🔵 | API Client Structure and Capabilities | ~5531 |
 | #1169 | 2:34 PM | 🔵 | API Client Structure and Capabilities | ~5433 |
 | #563 | 12:36 PM | 🔵 | API Client Methods for Documents, Code Snippets, and Insights | ~2327 |
@@ -26,9 +30,9 @@
 
 ## Key Insights
 
-- **API Client Expansion**: Significant enhancements to the API client, including new task management endpoints (`getTasks`, `getTask`, `getTaskCounts`) and interfaces (`Task`, `TaskCounts`). This suggests a focus on improving task handling and monitoring capabilities.
-- **Worker Management**: Multiple discoveries and features related to worker spawning and management, including provider configuration support and auto-spawn functionality. This indicates ongoing work to make worker management more flexible and automated.
-- **Comprehensive Testing**: Recent sessions highlight extensive test coverage (416 tests across 18 files) and CI/CD improvements, emphasizing a strong focus on reliability and maintainability.
-- **Runtime Migration**: The project is transitioning from Bun to Node.js for broader compatibility, with files already identified for migration. This is a critical architectural shift.
-- **UI and UX Focus**: Multiple UI improvement issues were created, targeting dashboard, search, and analytics features, indicating a push to enhance user experience.
+- **Task Management Enhancements**: Added `retryTask` API endpoint and enhanced task listing capabilities (Issue #285). The API client now supports task filtering, single task retrieval, and status statistics.
+- **Worker Management**: Extended `SpawnStatus` interface with provider configuration fields (Issue #254) and auto-spawn capabilities. The `spawnWorker` function now supports provider-specific configurations.
+- **API Client Expansion**: Discovered and documented extensive API client methods for tasks, workers, documents, and analytics. The client now includes comprehensive TypeScript interfaces for task management.
+- **UI Improvements**: Completed multiple UI enhancements including worker termination dialogs, task pagination, and settings validation. Addressed issues like achievement progress bar bugs and race conditions with SSE-Writer during Git operations.
+- **Modularization Plans**: Identified the need for UI modularization (Issue #290) to address monolithic file structures and improve maintainability.
 </claude-mem-context>
