@@ -64,6 +64,20 @@ function getCapabilityColor(type: string): string {
   return colors[type] || 'badge-outline';
 }
 
+/**
+ * Generate a friendly worker name from the ID (Issue #286)
+ * "worker-1089-17693477" -> "Worker #1089"
+ */
+function getFriendlyWorkerName(workerId: string): string {
+  // Try to extract a number from the worker ID
+  const match = workerId.match(/worker-(\d+)/);
+  if (match) {
+    return `Worker #${match[1]}`;
+  }
+  // For other formats, just show first 8 chars
+  return workerId.slice(0, 8);
+}
+
 export function WorkerStatus() {
   const [workers, setWorkers] = useState<Worker[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,6 +86,12 @@ export function WorkerStatus() {
   const [spawning, setSpawning] = useState(false);
   const [terminatingId, setTerminatingId] = useState<string | null>(null);
   const [showSpawnModal, setShowSpawnModal] = useState(false);
+  // Confirmation dialog state (Issue #286)
+  const [confirmTerminate, setConfirmTerminate] = useState<{
+    workerId: string;
+    workerName: string;
+    isIdle: boolean;
+  } | null>(null);
   const { workerTasks, lastEvent } = useSSE();
 
   // Initial fetch
@@ -143,7 +163,15 @@ export function WorkerStatus() {
     }
   };
 
-  const handleTerminate = async (spawnedId: string) => {
+  // Confirm termination dialog (Issue #286)
+  const handleRequestTerminate = (spawnedId: string, workerName: string, isIdle: boolean) => {
+    setConfirmTerminate({ workerId: spawnedId, workerName, isIdle });
+  };
+
+  const handleTerminate = async () => {
+    if (!confirmTerminate) return;
+    const spawnedId = confirmTerminate.workerId;
+    setConfirmTerminate(null);
     setTerminatingId(spawnedId);
     setError(null);
     try {
@@ -373,7 +401,7 @@ export function WorkerStatus() {
                       worker={worker}
                       currentTaskId={taskInfo?.taskId || worker.currentTaskId || null}
                       currentTaskType={taskInfo?.taskType || worker.currentTaskType || null}
-                      onTerminate={handleTerminate}
+                      onRequestTerminate={handleRequestTerminate}
                       isTerminating={false}
                     />
                   );
@@ -399,7 +427,7 @@ export function WorkerStatus() {
                       worker={worker}
                       currentTaskId={taskInfo?.taskId || worker.currentTaskId || null}
                       currentTaskType={taskInfo?.taskType || worker.currentTaskType || null}
-                      onTerminate={handleTerminate}
+                      onRequestTerminate={handleRequestTerminate}
                       isTerminating={terminatingId === worker.metadata?.spawnedId}
                     />
                   );
@@ -418,6 +446,41 @@ export function WorkerStatus() {
         spawnStatus={spawnStatus}
         isSpawning={spawning}
       />
+
+      {/* Terminate Confirmation Dialog (Issue #286) */}
+      {confirmTerminate && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg flex items-center gap-2">
+              <span className="iconify ph--warning text-warning size-6" />
+              Stop {confirmTerminate.workerName}?
+            </h3>
+            <p className="py-4">
+              {confirmTerminate.isIdle ? (
+                <>This worker is currently idle and will be stopped immediately.</>
+              ) : (
+                <>This worker is currently processing a task. It will finish the current task before stopping.</>
+              )}
+            </p>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setConfirmTerminate(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-error"
+                onClick={handleTerminate}
+              >
+                <span className="iconify ph--stop size-4" />
+                {confirmTerminate.isIdle ? 'Stop Now' : 'Stop After Task'}
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setConfirmTerminate(null)} />
+        </div>
+      )}
     </div>
   );
 }
@@ -426,13 +489,13 @@ function WorkerItem({
   worker,
   currentTaskId,
   currentTaskType,
-  onTerminate,
+  onRequestTerminate,
   isTerminating,
 }: {
   worker: Worker;
   currentTaskId: string | null;
   currentTaskType: string | null;
-  onTerminate: (id: string) => void;
+  onRequestTerminate: (id: string, name: string, isIdle: boolean) => void;
   isTerminating: boolean;
 }) {
   const isIdle = !currentTaskId;
@@ -441,6 +504,8 @@ function WorkerItem({
   const spawnedId = worker.metadata?.spawnedId;
   const isSpawned = !!spawnedId;
   const isPendingTermination = worker.pendingTermination;
+  // Friendly worker name (Issue #286)
+  const friendlyName = getFriendlyWorkerName(worker.id);
 
   return (
     <div className={`card bg-base-100 card-border transition-all ${
@@ -451,13 +516,18 @@ function WorkerItem({
           : ''
     }`}>
       <div className="card-body p-4">
-        {/* Header */}
+        {/* Header (Issue #286: Improved worker name display) */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className={`iconify ph--cpu size-5 ${
               isPendingTermination ? 'text-error' : isIdle ? 'text-primary' : 'text-warning'
             }`} />
-            <span className="font-mono text-sm">{worker.id.slice(0, 20)}</span>
+            <div className="flex flex-col">
+              <span className="font-medium text-sm">{friendlyName}</span>
+              <span className="font-mono text-xs text-base-content/50" title={worker.id}>
+                {worker.id.slice(0, 16)}...
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {isPendingTermination ? (
@@ -477,17 +547,21 @@ function WorkerItem({
                 {isIdle ? 'Idle' : 'Working'}
               </div>
             )}
+            {/* Improved terminate button (Issue #286) */}
             {isSpawned && spawnedId && !isPendingTermination && (
               <button
-                onClick={() => onTerminate(spawnedId)}
-                className="btn btn-error btn-xs"
+                onClick={() => onRequestTerminate(spawnedId, friendlyName, isIdle)}
+                className="btn btn-error btn-xs gap-1"
                 disabled={isTerminating}
-                title={isIdle ? 'Stop this worker' : 'Queue termination after task completes'}
+                title={isIdle ? 'Stop this worker immediately' : 'Stop after current task completes'}
               >
                 {isTerminating ? (
                   <span className="loading loading-spinner loading-xs" />
                 ) : (
-                  <span className="iconify ph--stop size-3" />
+                  <>
+                    <span className="iconify ph--stop size-3" />
+                    Stop
+                  </>
                 )}
               </button>
             )}
