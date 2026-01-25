@@ -21,6 +21,8 @@ export const standardLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
+  // Disable trust proxy validation - this is a local tool
+  validate: { trustProxy: false },
   handler: (req, res) => {
     logger.warn('Rate limit exceeded', {
       ip: req.ip,
@@ -41,6 +43,7 @@ export const expensiveLimiter = rateLimit({
   message: { error: 'Rate limit exceeded for expensive operations' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   handler: (req, res) => {
     logger.warn('Expensive operation rate limit exceeded', {
       ip: req.ip,
@@ -61,6 +64,7 @@ export const searchLimiter = rateLimit({
   message: { error: 'Search rate limit exceeded, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   handler: (req, res) => {
     logger.warn('Search rate limit exceeded', {
       ip: req.ip,
@@ -92,6 +96,7 @@ export const workerSpawnLimiter = rateLimit({
   message: { error: 'Worker spawn rate limit exceeded' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   handler: (req, res) => {
     logger.warn('Worker spawn rate limit exceeded', {
       ip: req.ip,
@@ -114,6 +119,8 @@ export const projectLimiter = rateLimit({
   message: { error: 'Project rate limit exceeded' },
   standardHeaders: true,
   legacyHeaders: false,
+  // Disable validations - this is a local tool, not exposed to the internet
+  validate: { trustProxy: false, keyGeneratorIpFallback: false },
 });
 
 /**
@@ -126,6 +133,7 @@ export const adminLimiter = rateLimit({
   message: { error: 'Admin rate limit exceeded' },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   handler: (req, res) => {
     logger.warn('Admin rate limit exceeded', {
       ip: req.ip,

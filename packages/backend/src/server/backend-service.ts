@@ -506,7 +506,8 @@ export class BackendService {
         this.app.use(express.static(uiPath));
 
         // SPA fallback - serve index.html for all non-API routes
-        this.app.get('*', (req, res, next) => {
+        // Express 5 requires named wildcards
+        this.app.get('/{*path}', (req, res, next) => {
           // Skip API routes
           if (req.path.startsWith('/api') || req.path.startsWith('/ws')) {
             return next();
