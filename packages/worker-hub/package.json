@@ -1,6 +1,6 @@
 {
   "name": "@claude-mem/worker-hub",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "Standalone worker hub for distributed deployments",
   "type": "module",
   "main": "dist/index.js",

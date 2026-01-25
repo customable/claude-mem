@@ -1,5 +1,78 @@
 # Changelog
 
+## [3.0.0] - 2026-01-25
+
+### Features
+- Worker hub federation with UI improvements and task tracking
+- Complete hub federation with UI and standalone package
+- WorkerHub federation with token-based auth
+- PostgreSQL support as migration target
+- PostgreSQL connection string support in CLI
+- Legacy database migration CLI
+- Unified WebSocket system with channels
+- User task tracking from CLI tools
+- User Tasks view and API endpoints
+- Phase 4 extensions for user tasks
+- Provider-agnostic architecture
+- Endless Mode dashboard widget with compression stats
+- MCP tools and API endpoints for archived output recall
+- Interactive charts, comparison mode, and type toggle in Analytics
+- Export options and improvements to Analytics
+- Enhanced Search view with pagination, preview, and saved searches
+- Project management and improved Files tab
+- Document preview modal
+- Queue status indicator in header
+- Responsive sidebar navigation with hamburger menu
+- Worker configuration modal
+- Offline queue for graceful degradation
+- File logging in dev/debug mode
+- Task deduplication to prevent queue overload
+- FTS5 full-text search and repositories table
+- MikroORM relations for FK relationships
+
+### Bug Fixes
+- Extract taskId from toolOutput in TaskCreate hook
+- Add missing hub stats and worker endpoints for UI
+- Add missing POST /api/admin/shutdown endpoint
+- Handle file paths as targetDirectory in SSE-Writer
+- Calculate achievement progress for all thresholds
+- Fix TypeScript errors and metrics config
+- Fix claude-mem-context tags validation
+- Pause SSE-Writer during git operations
+- Fix OBSERVATION_SYSTEM_PROMPT sync with ObservationType
+- Sync CLAUDEMD and COMPRESSION prompts with ObservationType
+- Normalize escaped newlines for code snippet extraction
+- Resolve N+1 query problem in listSessions
+
+### Improvements
+- UI improvements including lazy loading for large JavaScript bundle
+- Modularized Settings view into components
+- Enhanced live view filters, timestamps, and export
+- Improved dashboard stat cards and recent activity
+- Added pagination and sorting in Sessions view
+- Added pagination and JSON formatting in Tasks view
+- Added pagination and filters in Memories view
+- Added achievement filter tabs and improved progress bars
+- Added terminate confirmation and friendly names for workers
+- Added input validation and confirmation dialogs in Settings
+- Updated CLAUDE.md with development guidelines and stricter workflow rules
+- Updated database examples to sqlite3 CLI
+- Removed bun.lock files and bun engine requirement
+- Replaced bun with node in various configurations
+- Updated dependencies and fixed entity/test issues
+- Added comprehensive test suite for backend, worker, and shared packages
+- Made Qdrant capabilities conditional on VECTOR_DB setting
+- Added composite indexes for common query patterns
+- Added cascade and orphan removal options in database
+- Added Session as hub with entity relations
+- Added ManyToOne relation ArchivedOutput → Observation
+- Added Auto-Spawn status display in Worker overview
+- Added publishConfig and release workflow for Forgejo registry
+- Added CLI entry points for backend and worker packages
+- Added package structure documentation
+- Updated README with current database schema and features
+
+
 ## [2.49.7] - 2026-01-25
 
 ### Bug Fixes
