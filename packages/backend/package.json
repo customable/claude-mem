@@ -22,7 +22,7 @@
     "@claude-mem/types": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
-    "express": "^4.22.1",
+    "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "express-slow-down": "^3.0.1",
     "lru-cache": "^11.2.4",
