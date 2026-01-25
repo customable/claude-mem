@@ -7,44 +7,44 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2385 | 6:08 PM | 🔵 | SSE Writer Implementation Analysis | ~1998 |
-| #2372 | 6:06 PM | 🔵 | Achievement unlocking logic found | ~1592 |
-| #2371 | 6:06 PM | 🔵 | Bug fix tracking across packages | ~1625 |
-| #2368 | 6:06 PM | 🔵 | Daily stats tracking method | ~1270 |
-| #2366 | 6:06 PM | 🔵 | Bugfix tracking in insights-service | ~1384 |
-| #2362 | 6:05 PM | 🔵 | ObservationType definition found | ~1252 |
-| #2360 | 6:04 PM | 🔵 | Database type definitions | ~1806 |
-| #2357 | 6:04 PM | 🔵 | InsightsSummary interface | ~1673 |
-| #2350 | 6:03 PM | 🔵 | ACHIEVEMENTS constant location | ~1067 |
-| #2344 | 6:02 PM | 🔵 | Backend service routes | ~1231 |
-| #2343 | 6:02 PM | 🔵 | ArchivedOutputRepository stats | ~1982 |
-| #2336 | 6:02 PM | 🔵 | Archived outputs references | ~1175 |
-| #2335 | 6:02 PM | 🔵 | Archived outputs API routes | ~1694 |
-| #2328 | 6:02 PM | 🔵 | DataRouter initialization | ~1858 |
-| #2327 | 6:02 PM | 🔵 | Archived outputs feature | ~1275 |
-| #2326 | 6:02 PM | 🔵 | SSE Writer spawning | ~2333 |
-| #2319 | 6:01 PM | 🔵 | Repository pattern types | ~2065 |
-| #2317 | 6:01 PM | 🔵 | Metrics router implementation | ~1938 |
-| #2316 | 6:01 PM | 🔵 | ArchivedOutput entity | ~1781 |
-| #2315 | 6:01 PM | 🔵 | SSE Writer pattern | ~1272 |
-| #2313 | 6:00 PM | 🔵 | Archived outputs routes | ~1125 |
-| #2288 | 5:56 PM | 🔵 | OpenAI embedding model | ~1142 |
-| #2280 | 5:55 PM | 🔵 | Achievement system | ~2190 |
-| #2276 | 5:55 PM | 🔵 | Mistral embedding provider | ~1841 |
-| #2272 | 5:54 PM | 🔵 | Insights achievements | ~1066 |
-| #2268 | 5:54 PM | 🔵 | Progress and achievement | ~1083 |
-| #2257 | 5:53 PM | 🟠 | OpenAI Agent implemented | ~2970 |
-| #2256 | 5:53 PM | 🔵 | Worker package.json | ~1619 |
-| #2254 | 5:53 PM | 🔵 | Mistral agent analysis | ~2149 |
-| #2250 | 5:52 PM | 🔵 | Worker capability logic | ~1969 |
+| #2570 | 6:42 PM | 🔵 | Found broadcastClaudeMdReady method in SSE broadcaster | ~2155 |
+| #2567 | 6:42 PM | 🔵 | Discovered files related to ClaudeMd task processing | ~1234 |
+| #2566 | 6:42 PM | 🔵 | Working directory handling in task dispatcher | ~1466 |
+| #2563 | 6:41 PM | 🔵 | Identifying files related to ClaudeMD state and directory handling | ~1342 |
+| #2560 | 6:41 PM | 🔵 | Identified files containing targetDirectory or claudemd:ready patterns | ~767 |
+| #2537 | 6:36 PM | 🔵 | ExportRouter initialization in backend service | ~1334 |
+| #2534 | 6:35 PM | 🔵 | User Tasks View Component Structure | ~2333 |
+| #2529 | 6:34 PM | 🔵 | Discovered user-task event types in SSE broadcaster and hooks | ~1294 |
+| #2526 | 6:34 PM | 🔵 | SSE usage found in UI package | ~1410 |
+| #2510 | 6:29 PM | 🔵 | Backend service routes and dependencies discovered | ~1293 |
+| #2509 | 6:29 PM | 🔵 | DataRouter instantiation found in backend-service.ts | ~754 |
+| #2502 | 6:28 PM | 🔵 | User Task Type System Structure | ~2197 |
+| #2501 | 6:28 PM | 🔵 | Sidebar Component Structure and Navigation Logic | ~1887 |
+| #2473 | 6:22 PM | 🔵 | API Rate Limiting and Router Structure | ~1805 |
+| #2472 | 6:22 PM | 🔵 | HooksRouter usage found in backend-service.ts | ~1107 |
+| #2462 | 6:20 PM | 🔵 | Hook handlers registry structure discovered | ~1475 |
+| #2458 | 6:20 PM | 🔵 | Hook system types and structure discovered | ~1933 |
+| #2449 | 6:17 PM | 🟠 | Add user_tasks table migration for CLI task tracking | ~2548 |
+| #2446 | 6:17 PM | 🔵 | Migration for archived_outputs table discovered | ~1932 |
+| #2442 | 6:17 PM | 🟠 | Add MikroOrmUserTaskRepository export to repositories index | ~1722 |
+| #2441 | 6:17 PM | 🟠 | Add user task types export to types index | ~1573 |
+| #2439 | 6:17 PM | 🔵 | MikroORM Database Initializer Structure | ~1931 |
+| #2438 | 6:17 PM | 🔵 | Discovered MikroORM repository exports structure | ~1594 |
+| #2434 | 6:16 PM | 🔵 | Found Mikro-ORM initializer files in database package | ~1168 |
+| #2432 | 6:16 PM | 🔵 | Exploring shared TypeScript types in claude-mem | ~1425 |
+| #2431 | 6:15 PM | 🟠 | Added User Task Types and Repository Interface | ~3097 |
+| #2427 | 6:14 PM | 🔵 | Exploring Observation Entity Structure | ~1819 |
+| #2426 | 6:14 PM | 🔵 | Database configuration and migration structure discovered | ~1596 |
+| #2425 | 6:14 PM | 📝 | Reviewed MikroORM configuration file header | ~1371 |
+| #2424 | 6:14 PM | 🔵 | Discovered MikroORM entity configuration | ~1773 |
 
 ## Key Insights
 
-- **SSE Writer Issues**: The SSE writer process is not running due to incorrect file path handling, requiring fixes for proper CLAUDE.md updates.
-- **Achievement System Bug**: Achievement progress is not calculated for partial completions, needing logic updates for proper tracking.
-- **Missing API Endpoint**: The `GET /api/data/archived-outputs/stats` endpoint is missing and needs implementation.
-- **Embedding Providers**: The project uses both OpenAI and Mistral embedding providers, with configurable models and fallback mechanisms.
-- **Worker Architecture**: The worker system uses a priority-based capability resolution (CLI > env > settings > auto-detection) for distributed AI processing.
+- **Event-Driven Architecture**: The system heavily relies on SSE (Server-Sent Events) for real-time updates, with a robust hook system for event handling (e.g., `user-task:created`, `user-task:updated`).
+- **Task Management**: A new `user_tasks` table and related infrastructure were added to track CLI tool tasks, including status lifecycle, priority, and cost tracking.
+- **Database Structure**: MikroORM is used for database operations, supporting SQLite, PostgreSQL, and MySQL, with a well-defined entity and repository structure.
+- **Component Discovery**: Key components like `UserTasks.tsx`, `Sidebar`, and `ExportRouter` were explored, revealing the UI and backend service architecture.
+- **Performance Metrics**: High token compression efficiency (94.5%) was noted, alongside potential optimizations for search results and task queue handling.
 </claude-mem-context>
 
 # Package Structure

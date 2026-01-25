@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #2537 | 6:36 PM | 🔵 | ExportRouter initialization in backend service | ~1334 |
 | #2510 | 6:29 PM | 🔵 | Backend service routes and dependencies discovered | ~1293 |
 | #2509 | 6:29 PM | 🔵 | DataRouter instantiation found in backend-service.ts | ~754 |
 | #2473 | 6:22 PM | 🔵 | API Rate Limiting and Router Structure | ~1805 |
@@ -24,7 +25,7 @@
 | #779 | 1:11 PM | 🟠 | Added archivedOutputs to TaskDispatcher initialization | ~5244 |
 | #778 | 1:10 PM | 🔵 | Backend Service Initialization Flow | ~1195 |
 | #770 | 1:09 PM | 🔵 | Backend service initialization and dependency injection | ~1152 |
-| #765 | 1:09 PM | 🟠 | TaskService now receives archivedOutputs dependency | ~5035 |
+| #765 | 1:09 PM | 🟣 | TaskService now receives archivedOutputs dependency | ~5035 |
 | #549 | 12:34 PM | 🔵 | Express app setup with middleware and configuration options | ~1280 |
 | #456 | 12:24 PM | 🔵 | Backend Service Architecture Overview | ~2863 |
 | #447 | 12:23 PM | 🔵 | Backend service initialization and architecture overview | ~2270 |
@@ -37,9 +38,9 @@
 
 ## Key Insights
 
-- **Architecture Discovery**: Extensive exploration of the backend service architecture, including Express middleware, MikroORM database integration, and WebSocket communication.
-- **Feature Additions**: Added `archivedOutputs` to `DataRouter` and `TaskDispatcher` initialization, enhancing historical data management capabilities.
-- **SSE Integration**: Multiple additions of SSE (Server-Sent Events) broadcaster to `HooksRouter`, enabling real-time event broadcasting.
-- **Rate Limiting**: Discovered and documented API rate limiting configurations across various endpoints (search, analytics, export, etc.).
-- **Dependency Injection**: Observed consistent use of dependency injection patterns, particularly with `unitOfWork` components and service initialization.
+- **Architecture Discovery**: Extensive exploration of backend service architecture, revealing Express-based routing, MikroORM database integration, and WebSocket communication.
+- **Feature Additions**: Added `archivedOutputs` to DataRouter and TaskDispatcher, extending functionality for historical data management.
+- **Real-time Capabilities**: Enhanced HooksRouter with SSE broadcaster for real-time event broadcasting.
+- **API Structure**: Discovered rate-limited API endpoints (search, analytics, export, import) with dependency injection patterns.
+- **Optimization Focus**: Identified token compression (94.5% reduction) and UI build warnings as areas needing attention.
 </claude-mem-context>
