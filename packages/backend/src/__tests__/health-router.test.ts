@@ -176,8 +176,8 @@ describe('HealthRouter', () => {
         (layer: { route?: unknown }) => layer.route
       ).length;
 
-      // Expected routes: health, core-ready, ready, readiness, version, status, admin/restart, cache/stats, cache/clear
-      expect(routeCount).toBe(9);
+      // Expected routes: health, core-ready, ready, readiness, version, status, admin/restart, admin/shutdown, cache/stats, cache/clear
+      expect(routeCount).toBe(10);
     });
   });
 });
