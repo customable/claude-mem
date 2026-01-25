@@ -7,42 +7,41 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #15495 | 1:29 AM | 🔵 | Base Router Class Structure and Utilities | ~1631 |
+| #15494 | 1:29 AM | 🔵 | Search routes implementation analysis | ~3257 |
+| #15491 | 1:29 AM | 🔵 | FTS5 query parsing error handling | ~1476 |
+| #15478 | 1:23 AM | 🔵 | Search API supports semantic and text | ~2973 |
+| #15476 | 1:23 AM | 🔵 | Exploring Data Router Structure | ~2090 |
+| #15475 | 1:23 AM | 🔴 | Add error handling for FTS5 parsing | ~4303 |
+| #15474 | 1:23 AM | 🔴 | Add error handling in combinedSearch | ~4185 |
+| #15472 | 1:22 AM | 🔴 | Add error handling in search endpoint | ~5046 |
 | #15315 | 12:47 AM | 🔵 | Examining Data Router Implementation | ~4915 |
-| #15314 | 12:47 AM | 🔄 | Replace individual deletes with batch operations | ~5563 |
-| #15262 | 12:38 AM | 🟠 | Added cache management endpoints to HealthRouter | ~3142 |
-| #15259 | 12:37 AM | 🟠 | Added cache management endpoints to health router | ~2382 |
-| #15258 | 12:37 AM | 🟠 | Add cacheManager import to health routes | ~2392 |
+| #15314 | 12:47 AM | 🔄 | Replace deletes with batch operations | ~5563 |
+| #15262 | 12:38 AM | 🟠 | Added cache management endpoints | ~3142 |
+| #15259 | 12:37 AM | 🟠 | Added cache endpoints to health router | ~2382 |
+| #15258 | 12:37 AM | 🟠 | Add cacheManager import to health | ~2392 |
 | #15256 | 12:37 AM | 🔵 | Health Router Implementation Analysis | ~2089 |
-| #15255 | 12:37 AM | 🔵 | GDPR compliance features in observation management | ~1355 |
+| #15255 | 12:37 AM | 🔵 | GDPR compliance in observation mgmt | ~1355 |
 | #15254 | 12:37 AM | 🟠 | Added caching to listProjects endpoint | ~5161 |
-| #15253 | 12:37 AM | 🔴 | Cache invalidation added to session deletion | ~5097 |
-| #15252 | 12:37 AM | 🔵 | Examining data route handlers for session management | ~1049 |
-| #15251 | 12:37 AM | 🔴 | Cache invalidation added to bulk delete observations | ~4892 |
-| #15248 | 12:36 AM | 🔴 | Cache invalidation added to observation deletion | ~5098 |
-| #15247 | 12:36 AM | 🔴 | Cache invalidation added after observation creation | ~5026 |
-| #15245 | 12:36 AM | 🟠 | Added caching to analytics/projects endpoint | ~5558 |
-| #15244 | 12:36 AM | 🔵 | Manual memory observation creation endpoint discovered | ~1495 |
-| #15240 | 12:36 AM | 🔵 | Analytics endpoint implementation for project statistics | ~1275 |
-| #15237 | 12:35 AM | 🟠 | Added caching to analytics types endpoint | ~5296 |
-| #15236 | 12:35 AM | 🟠 | Added caching to analytics timeline endpoint | ~5786 |
-| #15235 | 12:35 AM | 🔵 | Analytics endpoints implementation in data.ts | ~1722 |
+| #15253 | 12:37 AM | 🔴 | Cache invalidation in session deletion | ~5097 |
+| #15252 | 12:37 AM | 🔵 | Examining data route handlers | ~1049 |
+| #15251 | 12:37 AM | 🔴 | Cache invalidation in bulk delete | ~4892 |
+| #15248 | 12:36 AM | 🔴 | Cache invalidation in observation del | ~5098 |
+| #15247 | 12:36 AM | 🔴 | Cache invalidation after creation | ~5026 |
+| #15245 | 12:36 AM | 🟠 | Added caching to analytics/projects | ~5558 |
+| #15244 | 12:36 AM | 🔵 | Manual memory observation endpoint | ~1495 |
+| #15240 | 12:36 AM | 🔵 | Analytics endpoint for project stats | ~1275 |
+| #15237 | 12:35 AM | 🟠 | Added caching to analytics types | ~5296 |
+| #15236 | 12:35 AM | 🟠 | Added caching to analytics timeline | ~5786 |
+| #15235 | 12:35 AM | 🔵 | Analytics endpoints implementation | ~1722 |
 | #15234 | 12:35 AM | 🟠 | Added caching to stats endpoint | ~5437 |
-| #15233 | 12:35 AM | 🔵 | Examining stats endpoint implementation | ~1001 |
-| #15232 | 12:35 AM | 🔵 | Project statistics and file tracking endpoints discovered | ~1683 |
-| #15228 | 12:34 AM | 🟠 | Added cache service imports to data routes | ~5004 |
-| #15225 | 12:34 AM | 🔵 | Exploring Data Router Structure | ~2122 |
-| #15206 | 12:31 AM | 🔵 | Exploring Data Router Structure | ~4875 |
-| #15143 | 12:24 AM | 🔄 | Add explicit type annotation for Express Router | ~2271 |
-| #15139 | 12:24 AM | 🔄 | Simplified worker metadata access and updated session counting | ~3049 |
-| #15128 | 12:22 AM | 🔴 | Fix TypeScript type error in worker metadata access | ~2337 |
-| #15122 | 12:22 AM | 🔄 | Update repository access patterns in metrics.ts | ~4019 |
-| #15100 | 12:19 AM | 🟠 | Added MetricsRouter exports to routes index | ~1596 |
+| #15233 | 12:35 AM | 🔵 | Examining stats endpoint | ~1001 |
 
 ## Key Insights
 
-- **Caching Implementation**: Major focus on adding LRU caching with TTL support across multiple endpoints (projects, analytics, stats) to improve performance and reduce database load.
-- **Cache Invalidation**: Systematic addition of cache invalidation logic after CRUD operations (create, delete, bulk delete) to ensure data consistency, particularly important for GDPR compliance.
-- **Batch Operations**: Refactored observation deletion to use batch operations instead of individual deletes, improving efficiency.
-- **Type Safety**: Several refactoring changes to improve TypeScript type safety, including explicit type annotations and fixing type errors in worker metadata access.
-- **Health & Metrics**: Added cache management endpoints to HealthRouter and integrated MetricsRouter for better observability and system monitoring.
+- **Search System**: Dual search capability with SQLite FTS5 (full-text) and Qdrant (semantic/vector-based) with automatic fallback. Consistent error handling for FTS5 query parsing across endpoints.
+- **Caching**: Extensive caching implementation across analytics, stats, and data endpoints (1-5 min TTLs) with cache invalidation on data modifications (creates/deletes).
+- **GDPR Compliance**: Bulk deletion with safety filters and cache invalidation ensures data removal compliance.
+- **Performance**: Batch operations replaced individual deletes (Issue #204), reducing database load.
+- **Health Monitoring**: New cache management endpoints (`/cache/stats`, `/cache/clear`) added to HealthRouter for operational visibility.
 </claude-mem-context>

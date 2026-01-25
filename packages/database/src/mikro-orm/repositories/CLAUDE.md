@@ -7,6 +7,11 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #15502 | 1:30 AM | 🔵 | FTS5 Query Parsing Logic in ObservationRepository | ~1525 |
+| #15490 | 1:29 AM | 🔵 | FTS5 query parsing and search implementation | ~3299 |
+| #15489 | 1:29 AM | 🔵 | Full-text search implementation using SQLite FTS5 | ~1881 |
+| #15473 | 1:23 AM | 🔵 | Exploring MikroORM Observation Repository | ~5521 |
+| #15469 | 1:22 AM | 🔴 | Enhanced FTS5 query parsing for hyphens/edge cases | ~6647 |
 | #15392 | 12:57 AM | 🔄 | Update TaskRepository.updateStatus parameter type | ~3262 |
 | #15391 | 12:57 AM | 🟣 | Update TaskRepository import to use TaskUpdateExtras | ~3316 |
 | #15386 | 12:56 AM | 🔵 | Task status update logic with exponential backoff | ~1114 |
@@ -37,17 +42,12 @@
 | #14972 | 11:52 PM | 🟠 | Enhanced FTS5 search with advanced query parsing | ~7988 |
 | #14969 | 11:51 PM | 🔵 | ObservationRepository uses FTS5 for search | ~1872 |
 | #14965 | 11:51 PM | 🔵 | ObservationRepository contains analytics methods | ~1406 |
-| #14964 | 11:50 PM | 🔵 | DocumentRepository uses FTS5 for full-text search | ~1672 |
-| #14958 | 11:50 PM | 🔵 | ObservationRepository implements FTS5 search | ~1874 |
-| #14954 | 11:50 PM | 🔵 | Exploring MikroORM Observation Repository | ~2388 |
-| #14789 | 11:23 PM | 🟠 | Add isUrgent field support to UserPrompt update | ~2284 |
-| #14787 | 11:23 PM | 🟠 | Add is_urgent field to UserPrompt entity creation | ~2218 |
 
 ## Key Insights
 
-- **Exponential Backoff Implementation**: Added `retryAfter` field support across TaskRepository methods to enable delayed retries (Issue #206), preventing thundering herd problems.
-- **Batch Operations**: Introduced `batchUpdateStatus` and `batchDelete` methods to optimize bulk operations and reduce database queries (Issue #204).
-- **Type Safety Improvements**: Refactored `TaskUpdateExtras` type usage and fixed TypeScript assertions in search results.
-- **SQLite-Specific Optimizations**: Discovered and documented SQLite-specific JSON queries and FTS5 full-text search implementations.
-- **Search Enhancements**: Upgraded FTS5 query parsing with advanced syntax support (phrase search, OR/AND operators, BM25 ranking).
+- **FTS5 Search Enhancements**: Significant improvements to full-text search capabilities, including advanced query parsing (phrases, operators, wildcards), hyphen handling, and error management for invalid queries.
+- **Task Queue Improvements**: Added exponential backoff support via `retryAfter` field, batch operations for status updates/deletions, and SQLite-specific optimizations.
+- **Type Safety Refactoring**: Multiple changes to improve type safety in TaskRepository, including specific `TaskUpdateExtras` type and proper base type usage.
+- **Database-Specific Optimizations**: SQLite-specific features like JSON queries and FTS5 virtual tables are heavily utilized, requiring direct Knex.js usage where MikroORM lacks support.
+- **Analytics Capabilities**: ObservationRepository includes analytics methods for tracking observations, sessions, and other metrics.
 </claude-mem-context>

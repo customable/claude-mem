@@ -7,9 +7,16 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #15476 | 1:23 AM | 🔵 | Exploring Data Router Structure | ~2090 |
+| #15475 | 1:23 AM | 🔴 | Add error handling for FTS5 query parsing in semantic search fallback | ~4303 |
+| #15474 | 1:23 AM | 🔴 | Add error handling for FTS5 query parsing in combinedSearch | ~4185 |
+| #15472 | 1:22 AM | 🔴 | Add error handling for FTS5 query parsing errors in search endpoint | ~5046 |
+| #15471 | 1:22 AM | 🔵 | Base Router Utility Class Structure | ~1655 |
+| #15470 | 1:22 AM | 🔵 | Identified files using search functionality | ~748 |
+| #15421 | 1:04 AM | 🔵 | Backend package.json structure and dependencies | ~1316 |
 | #15347 | 12:51 AM | 🔵 | Task service uses async queue methods | ~874 |
 | #15346 | 12:51 AM | 🔵 | TypeScript typecheck script requires workspace flag | ~787 |
-| #15345 | 12:51 AM | 🔴 | Add backpressure check to queueClaudeMd method | ~5350 |
+| #15345 | 12:50 AM | 🔴 | Add backpressure check to queueClaudeMd method | ~5350 |
 | #15344 | 12:50 AM | 🔴 | Add backpressure check to queueContextGenerate | ~5141 |
 | #15343 | 12:50 AM | 🔴 | Add backpressure check to queueEmbedding method | ~5271 |
 | #15342 | 12:50 AM | 🔴 | Added backpressure check to queueSummarize method | ~5198 |
@@ -21,7 +28,7 @@
 | #15336 | 12:50 AM | 🟠 | Add rate limiter imports to backend service | ~5158 |
 | #15335 | 12:50 AM | 🔵 | Task Service Structure and Observation Queueing | ~1175 |
 | #15334 | 12:50 AM | 🔵 | Task Service Structure and Dependencies | ~1673 |
-| #15333 | 12:49 AM | 🟠 | Added rate limiting to expensive API routes | ~5260 |
+| #15333 | 12:50 AM | 🟠 | Added rate limiting to expensive API routes | ~5260 |
 | #15332 | 12:49 AM | 🟠 | Import rate limiter middleware for API protection | ~1693 |
 | #15331 | 12:49 AM | 🔵 | Backend API routes and static UI serving | ~1833 |
 | #15330 | 12:49 AM | 🟠 | Added rate limiting middleware to API routes | ~1964 |
@@ -29,20 +36,13 @@
 | #15328 | 12:49 AM | 🔵 | Backend service initialization and API routes | ~2640 |
 | #15327 | 12:49 AM | 🔵 | Backend Service Architecture Overview | ~2889 |
 | #15326 | 12:48 AM | 🔵 | Backend Service CLI Structure and Commands | ~1596 |
-| #15325 | 12:48 AM | 🟠 | Add rate limiter exports to middleware index | ~1345 |
-| #15324 | 12:48 AM | 🔵 | Middleware exports structure discovered | ~977 |
-| #15323 | 12:48 AM | 🟠 | Implemented comprehensive rate limiting middleware | ~3330 |
-| #15322 | 12:48 AM | 🔄 | Remove deprecated @types/express-slow-down package | ~750 |
-| #15321 | 12:48 AM | 🟠 | Add rate limiting dependencies | ~1194 |
-| #15315 | 12:47 AM | 🔵 | Examining Data Router Implementation | ~4915 |
-| #15314 | 12:47 AM | 🔄 | Replace individual deletes with batch operations (Issue #204) | ~5563 |
-| #15284 | 12:43 AM | 🔵 | Backend startup failure due to port conflict | ~13513 |
+| #15325 | 12:48 AM | 🟠 | Added rate limiter exports to middleware index | ~1345 |
 
 ## Key Insights
 
 - **Backpressure Mechanism Implemented**: Added `maxPendingTasks` configuration and `checkBackpressure()` method to TaskService to prevent queue overload (Issue #205).
-- **Rate Limiting Added**: Comprehensive rate limiting middleware implemented for API routes, including standard, expensive, search, and admin endpoints.
-- **Batch Operations Optimization**: Replaced individual deletes with batch operations in DataRouter to improve performance (Issue #204).
-- **Port Conflict Detected**: Backend service failed to start due to port 37777 already in use, indicating a potential running instance.
-- **Monorepo Structure**: TypeScript typecheck script requires workspace flag, confirming the project uses pnpm workspaces.
+- **Rate Limiting Added**: Implemented rate limiting across API routes (standardLimiter, expensiveLimiter, etc.) to prevent abuse and ensure fair usage.
+- **Error Handling for FTS5 Queries**: Added try-catch blocks in search-related methods to handle FTS5 query parsing errors gracefully.
+- **Monorepo Structure**: TypeScript typecheck requires workspace flag, indicating a pnpm-based monorepo setup.
+- **Task Queue Architecture**: Discovered async queue methods (queueObservation, queueSummarize, etc.) and their consistent backpressure checks.
 </claude-mem-context>
