@@ -30,7 +30,7 @@ import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
 import { handleClaudeMdTask } from './handlers/claudemd-handler.js';
 import { handleCompressionTask } from './handlers/compression-handler.js';
-import { getQdrantService } from './services/qdrant-service.js';
+import { getVectorDbProvider } from './vector-db/index.js';
 
 const logger = createLogger('in-process-worker');
 
@@ -411,7 +411,7 @@ export class InProcessWorker {
         return handleEmbeddingTask(payload as EmbeddingTaskPayload, signal);
 
       case 'qdrant-sync':
-        return handleQdrantSyncTask(getQdrantService(), payload as QdrantSyncTaskPayload, signal);
+        return handleQdrantSyncTask(getVectorDbProvider(), payload as QdrantSyncTaskPayload, signal);
 
       case 'context-generate': {
         const contextPayload = payload as import('@claude-mem/types').ContextGenerateTaskPayload;

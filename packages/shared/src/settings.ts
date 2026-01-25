@@ -66,8 +66,9 @@ export interface Settings {
   EMBEDDING_MODEL: string;
 
   // Embedding Provider Configuration (Issue #112)
-  EMBEDDING_PROVIDER: 'local' | 'mistral';
+  EMBEDDING_PROVIDER: 'local' | 'mistral' | 'openai';
   MISTRAL_EMBEDDING_MODEL: string;
+  OPENAI_EMBEDDING_MODEL: string;
 
   // Context Configuration
   CONTEXT_OBSERVATION_LIMIT: number;
@@ -210,6 +211,7 @@ export const DEFAULTS: Settings = {
   // Embedding Provider Configuration (Issue #112)
   EMBEDDING_PROVIDER: 'local',
   MISTRAL_EMBEDDING_MODEL: 'mistral-embed',
+  OPENAI_EMBEDDING_MODEL: 'text-embedding-3-small',
 
   // Context Configuration
   CONTEXT_OBSERVATION_LIMIT: 50,

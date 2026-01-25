@@ -13,6 +13,7 @@ import type {
 } from './types.js';
 import { createLocalProvider } from './local-provider.js';
 import { createMistralProvider } from './mistral-provider.js';
+import { createOpenAIProvider } from './openai-provider.js';
 
 const logger = createLogger('embedding-registry');
 
@@ -114,6 +115,7 @@ export async function resetEmbeddingProviders(): Promise<void> {
 
 registerEmbeddingProvider('local', createLocalProvider);
 registerEmbeddingProvider('mistral', createMistralProvider);
+registerEmbeddingProvider('openai', createOpenAIProvider);
 
 // Log available providers on module load
 logger.debug('Available embedding providers:', {

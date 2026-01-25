@@ -11,11 +11,17 @@ import { loadSettings } from '@claude-mem/shared';
 import type { Agent, AgentProviderDefinition } from './types.js';
 import { createAnthropicAgent } from './anthropic-agent.js';
 import { createMistralAgent } from './mistral-agent.js';
+import { createOpenAIAgent } from './openai-agent.js';
+import { createOpenRouterAgent } from './openrouter-agent.js';
+import { createGeminiAgent } from './gemini-agent.js';
 
 // Re-export types and agents
 export * from './types.js';
 export { AnthropicAgent, createAnthropicAgent } from './anthropic-agent.js';
 export { MistralAgent, createMistralAgent } from './mistral-agent.js';
+export { OpenAIAgent, createOpenAIAgent } from './openai-agent.js';
+export { OpenRouterAgent, createOpenRouterAgent } from './openrouter-agent.js';
+export { GeminiAgent, createGeminiAgent } from './gemini-agent.js';
 
 /**
  * Provider registry - stores provider definitions
@@ -171,15 +177,35 @@ registerProvider({
   priority: 10,
 });
 
-// Placeholder for future providers
-// registerProvider({
-//   name: 'openai',
-//   displayName: 'OpenAI',
-//   envKey: 'OPENAI_API_KEY',
-//   isAvailable: () => !!process.env.OPENAI_API_KEY,
-//   create: () => { throw new Error('OpenAI not yet implemented'); },
-//   priority: 15,
-// });
+// OpenAI (Issue #112)
+registerProvider({
+  name: 'openai',
+  displayName: 'OpenAI',
+  envKey: 'OPENAI_API_KEY',
+  isAvailable: () => !!process.env.OPENAI_API_KEY,
+  create: createOpenAIAgent,
+  priority: 15,
+});
+
+// OpenRouter (Issue #112) - Multi-model support
+registerProvider({
+  name: 'openrouter',
+  displayName: 'OpenRouter',
+  envKey: 'OPENROUTER_API_KEY',
+  isAvailable: () => !!process.env.OPENROUTER_API_KEY,
+  create: createOpenRouterAgent,
+  priority: 5, // Lower priority - use as fallback
+});
+
+// Gemini (Issue #112)
+registerProvider({
+  name: 'gemini',
+  displayName: 'Google Gemini',
+  envKey: 'GEMINI_API_KEY',
+  isAvailable: () => !!process.env.GEMINI_API_KEY,
+  create: createGeminiAgent,
+  priority: 12,
+});
 
 // Legacy type export for backwards compatibility
 export type AIProvider = 'anthropic' | 'mistral' | 'gemini' | 'openai' | 'openrouter';
