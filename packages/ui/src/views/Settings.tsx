@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as React from "react";
 
-type SettingsTab = 'general' | 'provider' | 'context' | 'workers' | 'advanced';
+type SettingsTab = 'general' | 'provider' | 'context' | 'workers' | 'processing' | 'advanced';
 
 // Validation rules (Issue #287)
 interface ValidationRule {
@@ -81,6 +81,7 @@ interface Settings {
 
   // Provider
   AI_PROVIDER?: string;
+  AI_PROVIDER_FALLBACK?: string[]; // Array of provider names
   ENABLED_PROVIDERS?: string; // Comma-separated list
   MISTRAL_API_KEY?: string;
   MISTRAL_MODEL?: string;
@@ -92,6 +93,10 @@ interface Settings {
   OPENAI_MODEL?: string;
   OPENAI_BASE_URL?: string;
   ANTHROPIC_API_KEY?: string;
+
+  // Embedding Provider
+  EMBEDDING_PROVIDER?: string;
+  MISTRAL_EMBEDDING_MODEL?: string;
 
   // Context
   CONTEXT_OBSERVATION_LIMIT?: number;
@@ -105,9 +110,27 @@ interface Settings {
   AUTO_SPAWN_PROVIDERS?: string; // Comma-separated list
   EMBEDDED_WORKER?: boolean;
   WORKER_AUTH_TOKEN?: string;
+  WORKER_MODE?: string;
+  IN_PROCESS_WORKER_TIMEOUT?: number;
+  IN_PROCESS_WORKER_IDLE_EXIT?: number;
+
+  // Worker Restart Policy
+  WORKER_RESTART_POLICY?: string;
+  WORKER_MAX_RESTARTS?: number;
+  WORKER_RESTART_DELAY_MS?: number;
+  WORKER_RESTART_BACKOFF_MULTIPLIER?: number;
+
+  // Worker Capabilities
+  DEFAULT_LLM_PROVIDER?: string;
+  DEFAULT_EMBEDDING_PROVIDER?: string;
+  DEFAULT_VECTORDB_PROVIDER?: string;
+  WORKER_PROFILES?: string;
+  CAPABILITY_LIMITS?: string;
 
   // Advanced
   BACKEND_PORT?: number;
+  BACKEND_WS_PORT?: number;
+  BACKEND_HOST?: string;
   BACKEND_BIND?: string;
   DATABASE_TYPE?: string;
   DATABASE_PATH?: string;
@@ -144,6 +167,34 @@ interface Settings {
   REMOTE_URL?: string;
   REMOTE_TOKEN?: string;
 
+  // Processing Mode
+  PROCESSING_MODE?: string;
+  LAZY_BATCH_INTERVAL?: number;
+  LAZY_PROCESS_ON_SEARCH?: boolean;
+  LAZY_HYBRID_TYPES?: string;
+
+  // Sleep Agent
+  SLEEP_AGENT_ENABLED?: boolean;
+  SLEEP_AGENT_INTERVAL?: number;
+  SLEEP_AGENT_IDLE_TIMEOUT?: number;
+
+  // Endless Mode
+  ENDLESS_MODE_ENABLED?: boolean;
+  ENDLESS_MODE_COMPRESSION_MODEL?: string;
+  ENDLESS_MODE_COMPRESSION_TIMEOUT?: number;
+  ENDLESS_MODE_FALLBACK_ON_TIMEOUT?: boolean;
+  ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS?: boolean;
+  ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD?: number;
+
+  // Cleanup Service
+  CLEANUP_AUTO_ENABLED?: boolean;
+  CLEANUP_INTERVAL_MS?: number;
+  CLEANUP_STALE_TIMEOUT_MS?: number;
+  CLEANUP_TASK_AGE_MS?: number;
+
+  // Docker
+  DOCKER_AUTO_UPDATE_ENABLED?: boolean;
+
   [key: string]: unknown;
 }
 
@@ -152,6 +203,7 @@ const TABS: { id: SettingsTab; label: string; icon: string }[] = [
   { id: 'provider', label: 'AI Provider', icon: 'ph--brain' },
   { id: 'context', label: 'Context', icon: 'ph--stack' },
   { id: 'workers', label: 'Workers', icon: 'ph--cpu' },
+  { id: 'processing', label: 'Processing', icon: 'ph--lightning' },
   { id: 'advanced', label: 'Advanced', icon: 'ph--wrench' },
 ];
 
@@ -374,6 +426,9 @@ export function SettingsView() {
           )}
           {activeTab === 'workers' && (
             <WorkerSettings settings={settings} onChange={handleChange} errors={validationErrors} />
+          )}
+          {activeTab === 'processing' && (
+            <ProcessingSettings settings={settings} onChange={handleChange} errors={validationErrors} />
           )}
           {activeTab === 'advanced' && (
             <AdvancedSettings settings={settings} onChange={handleChange} errors={validationErrors} />
@@ -865,6 +920,37 @@ function ProviderSettings({ settings, onChange, errors: _errors }: TabProps) {
           </FormField>
         </>
       )}
+
+      <div className="divider">Embedding Provider</div>
+
+      <FormField
+        label="Embedding Provider"
+        hint="Provider for generating vector embeddings (semantic search)"
+      >
+        <select
+          className="select select-bordered w-full"
+          value={settings.EMBEDDING_PROVIDER || 'local'}
+          onChange={(e) => onChange('EMBEDDING_PROVIDER', e.target.value)}
+        >
+          <option value="local">Local (Transformers.js)</option>
+          <option value="mistral">Mistral Embed API</option>
+        </select>
+      </FormField>
+
+      {settings.EMBEDDING_PROVIDER === 'mistral' && (
+        <FormField
+          label="Mistral Embedding Model"
+          hint="Model for generating embeddings (requires Mistral API key)"
+        >
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            placeholder="mistral-embed"
+            value={settings.MISTRAL_EMBEDDING_MODEL || ''}
+            onChange={(e) => onChange('MISTRAL_EMBEDDING_MODEL', e.target.value)}
+          />
+        </FormField>
+      )}
     </div>
   );
 }
@@ -1066,6 +1152,120 @@ function WorkerSettings({ settings, onChange, errors }: TabProps) {
         </>
       )}
 
+      <div className="divider">Worker Mode</div>
+
+      <FormField
+        label="Worker Mode"
+        hint="How workers are managed"
+      >
+        <select
+          className="select select-bordered w-full"
+          value={settings.WORKER_MODE || 'spawn'}
+          onChange={(e) => onChange('WORKER_MODE', e.target.value)}
+        >
+          <option value="spawn">Spawn (Separate processes)</option>
+          <option value="in-process">In-Process (Same process)</option>
+          <option value="hybrid">Hybrid (Mixed)</option>
+        </select>
+      </FormField>
+
+      {(settings.WORKER_MODE === 'in-process' || settings.WORKER_MODE === 'hybrid') && (
+        <>
+          <FormField
+            label="In-Process Timeout (minutes)"
+            hint="Maximum runtime for in-process workers"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="30"
+              min="1"
+              value={settings.IN_PROCESS_WORKER_TIMEOUT || ''}
+              onChange={(e) => onChange('IN_PROCESS_WORKER_TIMEOUT', parseInt(e.target.value) || 30)}
+            />
+          </FormField>
+
+          <FormField
+            label="Idle Exit (seconds)"
+            hint="Exit in-process worker after this many idle seconds"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="120"
+              min="0"
+              value={settings.IN_PROCESS_WORKER_IDLE_EXIT || ''}
+              onChange={(e) => onChange('IN_PROCESS_WORKER_IDLE_EXIT', parseInt(e.target.value) || 120)}
+            />
+          </FormField>
+        </>
+      )}
+
+      <div className="divider">Restart Policy</div>
+
+      <FormField
+        label="Restart Policy"
+        hint="When to automatically restart crashed workers"
+      >
+        <select
+          className="select select-bordered w-full"
+          value={settings.WORKER_RESTART_POLICY || 'on-failure'}
+          onChange={(e) => onChange('WORKER_RESTART_POLICY', e.target.value)}
+        >
+          <option value="never">Never</option>
+          <option value="on-failure">On Failure</option>
+          <option value="always">Always</option>
+        </select>
+      </FormField>
+
+      {settings.WORKER_RESTART_POLICY !== 'never' && (
+        <>
+          <FormField
+            label="Max Restarts"
+            hint="Stop restarting after this many attempts (0 = unlimited)"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="5"
+              min="0"
+              value={settings.WORKER_MAX_RESTARTS || ''}
+              onChange={(e) => onChange('WORKER_MAX_RESTARTS', parseInt(e.target.value) || 5)}
+            />
+          </FormField>
+
+          <FormField
+            label="Restart Delay (ms)"
+            hint="Initial delay before restarting"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="3000"
+              min="0"
+              step="1000"
+              value={settings.WORKER_RESTART_DELAY_MS || ''}
+              onChange={(e) => onChange('WORKER_RESTART_DELAY_MS', parseInt(e.target.value) || 3000)}
+            />
+          </FormField>
+
+          <FormField
+            label="Backoff Multiplier"
+            hint="Multiply delay by this factor for each restart"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="2"
+              min="1"
+              step="0.5"
+              value={settings.WORKER_RESTART_BACKOFF_MULTIPLIER || ''}
+              onChange={(e) => onChange('WORKER_RESTART_BACKOFF_MULTIPLIER', parseFloat(e.target.value) || 2)}
+            />
+          </FormField>
+        </>
+      )}
+
       <div className="divider">Authentication</div>
 
       <FormField
@@ -1104,6 +1304,224 @@ function WorkerSettings({ settings, onChange, errors }: TabProps) {
         <span className="iconify ph--info size-5" />
         <span>External workers (non-localhost) always require authentication.</span>
       </div>
+    </div>
+  );
+}
+
+function ProcessingSettings({ settings, onChange, errors: _errors }: TabProps) {
+  return (
+    <div className="space-y-6 max-w-lg">
+      <h3 className="text-lg font-medium">Processing Settings</h3>
+      <p className="text-sm text-base-content/60">
+        Configure how observations are processed and stored
+      </p>
+
+      <FormField
+        label="Processing Mode"
+        hint="Control when observations are processed"
+      >
+        <select
+          className="select select-bordered w-full"
+          value={settings.PROCESSING_MODE || 'normal'}
+          onChange={(e) => onChange('PROCESSING_MODE', e.target.value)}
+        >
+          <option value="normal">Normal (Process immediately)</option>
+          <option value="lazy">Lazy (Batch processing)</option>
+          <option value="hybrid">Hybrid (Mixed by type)</option>
+        </select>
+      </FormField>
+
+      {(settings.PROCESSING_MODE === 'lazy' || settings.PROCESSING_MODE === 'hybrid') && (
+        <>
+          <FormField
+            label="Batch Interval (seconds)"
+            hint="Time between batch processing runs (0 = disabled)"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="0"
+              min="0"
+              value={settings.LAZY_BATCH_INTERVAL || ''}
+              onChange={(e) => onChange('LAZY_BATCH_INTERVAL', parseInt(e.target.value) || 0)}
+            />
+          </FormField>
+
+          <fieldset className="fieldset">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={settings.LAZY_PROCESS_ON_SEARCH ?? true}
+                onChange={(e) => onChange('LAZY_PROCESS_ON_SEARCH', e.target.checked)}
+              />
+              <span className="fieldset-legend">Process on Search</span>
+            </label>
+            <p className="fieldset-label text-base-content/60">
+              Process matching messages when searching
+            </p>
+          </fieldset>
+        </>
+      )}
+
+      {settings.PROCESSING_MODE === 'hybrid' && (
+        <FormField
+          label="Hybrid Types"
+          hint="Comma-separated observation types to process immediately"
+        >
+          <input
+            type="text"
+            className="input input-bordered w-full"
+            placeholder="decision,error"
+            value={settings.LAZY_HYBRID_TYPES || ''}
+            onChange={(e) => onChange('LAZY_HYBRID_TYPES', e.target.value)}
+          />
+        </FormField>
+      )}
+
+      <div className="divider">Sleep Agent</div>
+
+      <fieldset className="fieldset">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={settings.SLEEP_AGENT_ENABLED ?? false}
+            onChange={(e) => onChange('SLEEP_AGENT_ENABLED', e.target.checked)}
+          />
+          <span className="fieldset-legend">Enable Sleep Agent</span>
+        </label>
+        <p className="fieldset-label text-base-content/60">
+          Consolidate and organize memories during idle periods
+        </p>
+      </fieldset>
+
+      {settings.SLEEP_AGENT_ENABLED && (
+        <>
+          <FormField
+            label="Run Interval (seconds)"
+            hint="Time between scheduled runs"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="3600"
+              min="60"
+              value={settings.SLEEP_AGENT_INTERVAL || ''}
+              onChange={(e) => onChange('SLEEP_AGENT_INTERVAL', parseInt(e.target.value) || 3600)}
+            />
+          </FormField>
+
+          <FormField
+            label="Idle Timeout (minutes)"
+            hint="Minutes of inactivity before triggering idle consolidation"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="30"
+              min="1"
+              value={settings.SLEEP_AGENT_IDLE_TIMEOUT || ''}
+              onChange={(e) => onChange('SLEEP_AGENT_IDLE_TIMEOUT', parseInt(e.target.value) || 30)}
+            />
+          </FormField>
+        </>
+      )}
+
+      <div className="divider">Endless Mode</div>
+
+      <fieldset className="fieldset">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={settings.ENDLESS_MODE_ENABLED ?? false}
+            onChange={(e) => onChange('ENDLESS_MODE_ENABLED', e.target.checked)}
+          />
+          <span className="fieldset-legend">Enable Endless Mode</span>
+        </label>
+        <p className="fieldset-label text-base-content/60">
+          Archive and compress tool outputs for extended sessions (experimental)
+        </p>
+      </fieldset>
+
+      {settings.ENDLESS_MODE_ENABLED && (
+        <>
+          <FormField
+            label="Compression Model"
+            hint="Fast model for compressing outputs"
+          >
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              placeholder="claude-haiku-4-5"
+              value={settings.ENDLESS_MODE_COMPRESSION_MODEL || ''}
+              onChange={(e) => onChange('ENDLESS_MODE_COMPRESSION_MODEL', e.target.value)}
+            />
+          </FormField>
+
+          <FormField
+            label="Compression Timeout (ms)"
+            hint="Maximum time for compression (default: 90000)"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="90000"
+              min="1000"
+              step="1000"
+              value={settings.ENDLESS_MODE_COMPRESSION_TIMEOUT || ''}
+              onChange={(e) => onChange('ENDLESS_MODE_COMPRESSION_TIMEOUT', parseInt(e.target.value) || 90000)}
+            />
+          </FormField>
+
+          <fieldset className="fieldset">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={settings.ENDLESS_MODE_FALLBACK_ON_TIMEOUT ?? true}
+                onChange={(e) => onChange('ENDLESS_MODE_FALLBACK_ON_TIMEOUT', e.target.checked)}
+              />
+              <span className="fieldset-legend">Fallback on Timeout</span>
+            </label>
+            <p className="fieldset-label text-base-content/60">
+              Use full output if compression times out
+            </p>
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                className="checkbox"
+                checked={settings.ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS ?? true}
+                onChange={(e) => onChange('ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS', e.target.checked)}
+              />
+              <span className="fieldset-legend">Skip Simple Outputs</span>
+            </label>
+            <p className="fieldset-label text-base-content/60">
+              Don't compress small/simple outputs
+            </p>
+          </fieldset>
+
+          {settings.ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS && (
+            <FormField
+              label="Simple Output Threshold"
+              hint="Token count below which outputs are skipped"
+            >
+              <input
+                type="number"
+                className="input input-bordered w-full"
+                placeholder="1000"
+                min="100"
+                value={settings.ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD || ''}
+                onChange={(e) => onChange('ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD', parseInt(e.target.value) || 1000)}
+              />
+            </FormField>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -1223,15 +1641,39 @@ function AdvancedSettings({ settings, onChange, errors }: TabProps) {
 
       <div className="divider">Network</div>
 
-      <FormField label="Backend Port" hint="HTTP/WebSocket port for the backend" error={errors.BACKEND_PORT}>
+      <div className="grid grid-cols-2 gap-4">
+        <FormField label="Backend Port" hint="HTTP port" error={errors.BACKEND_PORT}>
+          <input
+            type="number"
+            className={`input input-bordered w-full ${errors.BACKEND_PORT ? 'input-error' : ''}`}
+            placeholder="37777"
+            min="1"
+            max="65535"
+            value={settings.BACKEND_PORT || ''}
+            onChange={(e) => onChange('BACKEND_PORT', parseInt(e.target.value) || 37777)}
+          />
+        </FormField>
+
+        <FormField label="WebSocket Port" hint="WS port">
+          <input
+            type="number"
+            className="input input-bordered w-full"
+            placeholder="37778"
+            min="1"
+            max="65535"
+            value={settings.BACKEND_WS_PORT || ''}
+            onChange={(e) => onChange('BACKEND_WS_PORT', parseInt(e.target.value) || 37778)}
+          />
+        </FormField>
+      </div>
+
+      <FormField label="Host" hint="Hostname for the backend">
         <input
-          type="number"
-          className={`input input-bordered w-full ${errors.BACKEND_PORT ? 'input-error' : ''}`}
-          placeholder="37777"
-          min="1"
-          max="65535"
-          value={settings.BACKEND_PORT || ''}
-          onChange={(e) => onChange('BACKEND_PORT', parseInt(e.target.value) || 37777)}
+          type="text"
+          className="input input-bordered w-full"
+          placeholder="127.0.0.1"
+          value={settings.BACKEND_HOST || ''}
+          onChange={(e) => onChange('BACKEND_HOST', e.target.value)}
         />
       </FormField>
 
@@ -1441,6 +1883,89 @@ function AdvancedSettings({ settings, onChange, errors }: TabProps) {
           onChange={(e) => onChange('BATCH_SIZE', parseInt(e.target.value) || 5)}
         />
       </FormField>
+
+      <div className="divider">Cleanup Service</div>
+
+      <fieldset className="fieldset">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={settings.CLEANUP_AUTO_ENABLED ?? true}
+            onChange={(e) => onChange('CLEANUP_AUTO_ENABLED', e.target.checked)}
+          />
+          <span className="fieldset-legend">Auto Cleanup</span>
+        </label>
+        <p className="fieldset-label text-base-content/60">
+          Automatically clean up stale sessions and old tasks
+        </p>
+      </fieldset>
+
+      {settings.CLEANUP_AUTO_ENABLED && (
+        <>
+          <FormField
+            label="Cleanup Interval (ms)"
+            hint="Time between cleanup runs (default: 30 min)"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="1800000"
+              min="60000"
+              step="60000"
+              value={settings.CLEANUP_INTERVAL_MS || ''}
+              onChange={(e) => onChange('CLEANUP_INTERVAL_MS', parseInt(e.target.value) || 1800000)}
+            />
+          </FormField>
+
+          <FormField
+            label="Stale Timeout (ms)"
+            hint="Mark sessions as complete after this idle time (default: 4 hours)"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="14400000"
+              min="60000"
+              step="60000"
+              value={settings.CLEANUP_STALE_TIMEOUT_MS || ''}
+              onChange={(e) => onChange('CLEANUP_STALE_TIMEOUT_MS', parseInt(e.target.value) || 14400000)}
+            />
+          </FormField>
+
+          <FormField
+            label="Task Age (ms)"
+            hint="Remove completed/failed tasks older than this (default: 24 hours)"
+          >
+            <input
+              type="number"
+              className="input input-bordered w-full"
+              placeholder="86400000"
+              min="3600000"
+              step="3600000"
+              value={settings.CLEANUP_TASK_AGE_MS || ''}
+              onChange={(e) => onChange('CLEANUP_TASK_AGE_MS', parseInt(e.target.value) || 86400000)}
+            />
+          </FormField>
+        </>
+      )}
+
+      <div className="divider">Docker</div>
+
+      <fieldset className="fieldset">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="checkbox"
+            checked={settings.DOCKER_AUTO_UPDATE_ENABLED ?? false}
+            onChange={(e) => onChange('DOCKER_AUTO_UPDATE_ENABLED', e.target.checked)}
+          />
+          <span className="fieldset-legend">Auto-Update (Watchtower)</span>
+        </label>
+        <p className="fieldset-label text-base-content/60">
+          Enable Watchtower labels for automatic Docker image updates
+        </p>
+      </fieldset>
 
       <div className="divider">Data Management</div>
 
