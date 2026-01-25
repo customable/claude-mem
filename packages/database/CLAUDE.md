@@ -7,35 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #143 | 11:50 AM | 🔵 | PNPM script execution requires workspace flag | ~781 |
+| #142 | 11:50 AM | 🟠 | Added new migration for task deduplication | ~3232 |
+| #135 | 11:48 AM | 🔵 | Task deduplication migration found | ~967 |
+| #134 | 11:48 AM | 🔵 | Found deduplication migration file | ~833 |
+| #132 | 11:47 AM | 🟠 | Created new database migration for task deduplication | ~851 |
+| #128 | 11:46 AM | 🟠 | Added task deduplication functionality (Issue #207) | ~5137 |
+| #126 | 11:46 AM | 🟠 | Added deduplication key support to TaskRepository | ~3840 |
+| #125 | 11:46 AM | 🟠 | Added createHash import to TaskRepository | ~3226 |
+| #124 | 11:46 AM | 🔵 | Examining TaskRepository implementation for MikroORM | ~3148 |
+| #122 | 11:45 AM | 🟠 | Added deduplication_key field to Task entity | ~1653 |
+| #119 | 11:45 AM | 🔵 | Task Entity Structure Analysis | ~1280 |
+| #83 | 11:38 AM | 🔵 | Located CodeSnippet-related files in database package | ~886 |
+| #69 | 11:34 AM | 🔴 | Fixed SQL query logic for file filtering in ObservationRepository | ~5791 |
+| #66 | 11:33 AM | 🔵 | ObservationRepository uses MikroORM with FTS5 for search | ~5522 |
+| #64 | 11:32 AM | 🔵 | ObservationRepository implements batch delete with chunking | ~1969 |
+| #63 | 11:32 AM | 🔵 | Discovered methods for session-based data retrieval | ~1006 |
+| #51 | 11:21 AM | 🟣 | Removed test migration file | ~723 |
+| #50 | 11:21 AM | 🔴 | Fixed migration path configuration for TypeScript source files | ~2866 |
+| #48 | 11:21 AM | 🟠 | Test migration path after fix | ~860 |
+| #47 | 11:20 AM | 🔵 | Database configuration supports multiple database types | ~1945 |
+| #46 | 11:20 AM | 🟣 | Removed test migration file | ~736 |
+| #44 | 11:20 AM | 🟠 | Created new database migration "test_path" | ~854 |
 | #41 | 11:19 AM | 🔄 | Removed migrationsList from MikroORM exports | ~1273 |
 | #40 | 11:19 AM | 🔵 | Exploring MikroORM database layer structure | ~1124 |
-| #39 | 11:19 AM | 🔄 | Replace hardcoded migration list with dynamic config | ~2734 |
-| #38 | 11:19 AM | 🔄 | Standardize migrations config across DB types | ~3205 |
-| #37 | 11:19 AM | 🔄 | Update MikroORM config for auto migration discovery | ~4019 |
+| #39 | 11:19 AM | 🔄 | Replace hardcoded migration list with dynamic configuration | ~2734 |
+| #38 | 11:19 AM | 🔄 | Standardize migrations configuration across database types | ~3205 |
+| #37 | 11:19 AM | 🔄 | Update MikroORM config to use automatic migration discovery | ~4019 |
 | #36 | 11:19 AM | 🔄 | Refactor default SQLite config to use migrationsConfig | ~2353 |
 | #35 | 11:18 AM | 🔄 | Consolidate SQLite migration configuration | ~2469 |
 | #34 | 11:18 AM | 🔵 | Multi-database support with MikroORM | ~2061 |
-| #32 | 11:17 AM | 🟠 | Add new migration for performance indexes | ~2405 |
-| #31 | 11:17 AM | 🟠 | Add new migration for performance indexes | ~2695 |
-| #28 | 11:17 AM | 🟣 | Migration file moved to correct directory | ~806 |
-| #27 | 11:16 AM | 🔵 | Performance indexes added for DB optimization | ~1238 |
-| #25 | 11:16 AM | 🟠 | Generate migration for composite indexes | ~860 |
-| #24 | 11:16 AM | 🔵 | DB migration for repositories table with indexes | ~1147 |
-| #23 | 11:15 AM | 🟠 | Added composite indexes to Task entity | ~1774 |
-| #22 | 11:15 AM | 🟣 | Migration file moved to correct directory | ~815 |
-| #20 | 11:15 AM | 🟠 | Generate migration for composite indexes | ~903 |
-| #19 | 11:15 AM | 🔵 | Database Schema Analysis for claude-mem Project | ~5549 |
-| #18 | 11:15 AM | 🟠 | Added composite index for project and source | ~1776 |
-| #17 | 11:15 AM | 🟠 | Added composite index for project and started_at | ~1596 |
-| #16 | 11:15 AM | 🟠 | Added composite and working dir indexes | ~2554 |
-| #15 | 11:14 AM | 🔵 | Session Entity Structure Analysis | ~1296 |
-| #14 | 11:14 AM | 🔵 | Task Entity Structure Analysis | ~1355 |
 
 ## Key Insights
 
-- **Database Optimization Focus**: Major refactoring of MikroORM configuration to use dynamic migration discovery and standardization across SQLite, PostgreSQL, and MySQL. Performance indexes were added to key entities (Task, Session, Observation, Document) to improve query efficiency.
-- **Schema Redesign**: Completed database schema redesign with FTS5 full-text search and repositories table, verified with successful migrations.
-- **Multi-Database Support**: The project now consistently supports SQLite (default), PostgreSQL, and MySQL/MariaDB with 15 entities and unified migration configuration.
-- **Performance Improvements**: Composite indexes added to frequently queried fields (e.g., `project` + `created_at_epoch`, `assigned_worker_id` + `status`) to optimize common access patterns.
-- **Next Steps**: Documentation updates and implementation of Worker-Konfigurations-Modal feature are pending based on recent GitHub issue creation.
+- **Task Deduplication Implemented**: Added SHA-256 hashing for task deduplication (Issue #207) with new `deduplication_key` field in Task entity and repository methods.
+- **Database Configuration Refactored**: Consolidated migration configuration across SQLite, PostgreSQL, and MySQL for consistency and automatic discovery.
+- **Bug Fixes Applied**: Resolved SQL query logic in ObservationRepository and fixed migration path issues for TypeScript builds.
+- **Performance Optimizations**: Implemented batch operations for session queries and added proper indexing to address N+1 query problems.
+- **Multi-Database Support**: Confirmed MikroORM setup supports SQLite (default), PostgreSQL, and MySQL with 15 entities and growing migration history.
 </claude-mem-context>

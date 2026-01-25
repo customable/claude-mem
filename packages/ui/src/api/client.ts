@@ -142,6 +142,10 @@ export interface SpawnStatus {
   spawnedCount: number;
   maxWorkers: number;
   canSpawnMore: boolean;
+  // Auto-Spawn status (Issue #256)
+  autoSpawnEnabled?: boolean;
+  autoSpawnCount?: number;
+  autoSpawnProviders?: string[];
 }
 
 // Insights types

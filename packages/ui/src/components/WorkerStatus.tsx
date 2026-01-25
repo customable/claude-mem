@@ -232,6 +232,24 @@ export function WorkerStatus() {
               {spawnStatus.spawnedCount}/{spawnStatus.maxWorkers} spawned
             </span>
           )}
+          {/* Auto-Spawn Status (Issue #256) */}
+          {spawnStatus?.autoSpawnEnabled !== undefined && (
+            <div
+              className={`badge badge-sm ${spawnStatus.autoSpawnEnabled ? 'badge-success' : 'badge-outline opacity-60'}`}
+              title={
+                spawnStatus.autoSpawnEnabled
+                  ? `Auto-spawn: ${spawnStatus.autoSpawnCount ?? 2} worker(s) on startup${
+                      spawnStatus.autoSpawnProviders?.length
+                        ? ` (${spawnStatus.autoSpawnProviders.join(', ')})`
+                        : ''
+                    }`
+                  : 'Auto-spawn disabled'
+              }
+            >
+              <span className={`iconify ${spawnStatus.autoSpawnEnabled ? 'ph--lightning' : 'ph--lightning-slash'} size-3 mr-1`} />
+              Auto-Spawn {spawnStatus.autoSpawnEnabled ? 'On' : 'Off'}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {spawnStatus?.available && spawnStatus.canSpawnMore && (

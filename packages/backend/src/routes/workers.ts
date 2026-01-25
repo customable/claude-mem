@@ -111,6 +111,13 @@ export class WorkersRouter extends BaseRouter {
     const settings = loadSettings();
     const enabledProviders = (settings.ENABLED_PROVIDERS || '').split(',').filter(Boolean);
 
+    // Auto-Spawn settings (Issue #256)
+    const autoSpawnEnabled = settings.AUTO_SPAWN_WORKERS ?? false;
+    const autoSpawnCount = settings.AUTO_SPAWN_WORKER_COUNT ?? 2;
+    const autoSpawnProviders = (settings.AUTO_SPAWN_PROVIDERS || '')
+      .split(',')
+      .filter(Boolean);
+
     if (!this.deps.workerProcessManager) {
       this.success(res, {
         available: false,
@@ -120,6 +127,10 @@ export class WorkersRouter extends BaseRouter {
         canSpawnMore: false,
         enabledProviders,
         defaultProvider: settings.AI_PROVIDER,
+        // Auto-Spawn status (Issue #256)
+        autoSpawnEnabled,
+        autoSpawnCount,
+        autoSpawnProviders,
       });
       return;
     }
@@ -134,6 +145,10 @@ export class WorkersRouter extends BaseRouter {
       canSpawnMore: spawnedCount < settings.MAX_WORKERS,
       enabledProviders,
       defaultProvider: settings.AI_PROVIDER,
+      // Auto-Spawn status (Issue #256)
+      autoSpawnEnabled,
+      autoSpawnCount,
+      autoSpawnProviders,
     });
   }
 
