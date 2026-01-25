@@ -7,29 +7,36 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #953 | 1:53 PM | 🔄 | Remove compressedObservation relation | ~1723 |
+| #949 | 1:51 PM | 🟠 | Add compressed_observation_id field | ~1698 |
+| #948 | 1:51 PM | 🔄 | Remove unused imports | ~1682 |
+| #940 | 1:48 PM | 🔄 | Add explicit field name/index | ~1573 |
+| #939 | 1:48 PM | 🔄 | Remove redundant field | ~1675 |
+| #938 | 1:48 PM | 🔵 | ArchivedOutput entity structure | ~1414 |
+| #933 | 1:46 PM | 🔵 | Session entity analysis | ~1324 |
 | #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure | ~1328 |
-| #662 | 12:49 PM | 🔵 | Observation Entity Structure | ~1985 |
-| #661 | 12:49 PM | 🟠 | Add ArchivedOutput entity export | ~1228 |
+| #662 | 12:49 PM | 🔵 | Observation entity analysis | ~1985 |
+| #661 | 12:49 PM | 🟠 | Export ArchivedOutput entity | ~1228 |
 | #660 | 12:49 PM | 🟠 | Create ArchivedOutput entity | ~1882 |
 | #654 | 12:48 PM | 🔵 | Database entities overview | ~1057 |
-| #538 | 12:34 PM | 🔵 | Task Entity Structure | ~1435 |
-| #217 | 11:58 AM | 🔵 | Observation Entity Analysis | ~1635 |
+| #538 | 12:34 PM | 🔵 | Task entity analysis | ~1435 |
+| #217 | 11:58 AM | 🔵 | Observation entity analysis | ~1635 |
 | #184 | 11:56 AM | 🔵 | Database entities overview | ~1002 |
-| #180 | 11:56 AM | 🔵 | Task Entity Analysis | ~1416 |
-| #122 | 11:45 AM | 🟠 | Added deduplication_key field | ~1653 |
-| #119 | 11:45 AM | 🔵 | Task Entity Analysis | ~1280 |
-| #23 | 11:15 AM | 🟠 | Composite indexes for Task | ~1774 |
-| #18 | 11:15 AM | 🟠 | Composite index for Document | ~1776 |
-| #17 | 11:15 AM | 🟠 | Composite index for Session | ~1596 |
-| #16 | 11:14 AM | 🟠 | Observation entity indexes | ~2554 |
-| #15 | 11:14 AM | 🔵 | Session Entity Analysis | ~1296 |
-| #14 | 11:14 AM | 🔵 | Task Entity Analysis | ~1355 |
+| #180 | 11:56 AM | 🔵 | Task entity analysis | ~1416 |
+| #122 | 11:45 AM | 🟠 | Add deduplication_key field | ~1653 |
+| #119 | 11:45 AM | 🔵 | Task entity analysis | ~1280 |
+| #23 | 11:15 AM | 🟠 | Add composite indexes to Task | ~1774 |
+| #18 | 11:15 AM | 🟠 | Add composite index to Document | ~1776 |
+| #17 | 11:15 AM | 🟠 | Add composite index to Session | ~1596 |
+| #16 | 11:14 AM | 🟠 | Add indexes to Observation | ~2554 |
+| #15 | 11:14 AM | 🔵 | Session entity analysis | ~1296 |
+| #14 | 11:14 AM | 🔵 | Task entity analysis | ~1355 |
 
 ## Key Insights
 
-- **ArchivedOutput Entity**: New entity created for Endless Mode (Issue #109) to store full tool outputs while using compressed observations in context, enabling perfect recall.
-- **Database Optimization**: Multiple composite indexes added to Task, Session, Document, and Observation entities to improve query performance.
-- **Task Deduplication**: Added `deduplication_key` field to Task entity (Issue #207) to prevent duplicate tasks using type+payload hashing.
-- **System Architecture**: Uses capability-based worker routing, hybrid SSE/WebSocket communication, and has potential for federation.
-- **Next Steps**: Implement priority-based capability resolution, design federation routing logic, and evaluate database options for production deployment.
+- **Database Optimization**: Multiple composite indexes were added to core entities (Task, Session, Document, Observation) to improve query performance, particularly for common access patterns.
+- **ArchivedOutput Entity**: New entity created for Endless Mode (Issue #109) to store full tool outputs, with a refactored structure removing redundant relations while maintaining compressed observation references.
+- **Task System Enhancements**: Added deduplication_key field to Task entity and composite indexes for worker assignment and capability-based routing, supporting the proposed task priority system.
+- **Entity Structure Analysis**: Comprehensive review of core entities (Session, Observation, Task) revealing the hub-and-spoke architecture with WorkerHub managing WebSocket connections.
+- **Next Steps**: Implement task priority system and WorkerHub Federation, complete test suite for new embedding provider system, and evaluate database migration options.
 </claude-mem-context>
