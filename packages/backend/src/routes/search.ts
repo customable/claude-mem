@@ -37,6 +37,15 @@ export interface SearchRouterDeps {
   taskService?: TaskService;
 }
 
+/**
+ * Parse ISO 8601 date string to epoch timestamp
+ */
+function parseDate(dateStr: string | undefined): number | undefined {
+  if (!dateStr) return undefined;
+  const date = new Date(dateStr);
+  return isNaN(date.getTime()) ? undefined : date.getTime();
+}
+
 export class SearchRouter extends BaseRouter {
   constructor(private readonly deps: SearchRouterDeps) {
     super();
@@ -48,6 +57,12 @@ export class SearchRouter extends BaseRouter {
 
     // Semantic search (vector-based)
     this.router.get('/semantic', this.asyncHandler(this.semanticSearch.bind(this)));
+
+    // Timeline view around an anchor (Issue #239)
+    this.router.get('/timeline', this.asyncHandler(this.timeline.bind(this)));
+
+    // Get observations by IDs (Issue #240)
+    this.router.get('/observations', this.asyncHandler(this.getObservations.bind(this)));
 
     // Combined search
     this.router.get('/', this.asyncHandler(this.combinedSearch.bind(this)));
@@ -66,6 +81,8 @@ export class SearchRouter extends BaseRouter {
    * - highlight: Include highlights (default: true)
    * - facets: Include facet counts (default: false)
    * - snippetLength: Snippet context length (default: 64)
+   * - dateStart: Start date filter (ISO 8601) (Issue #241)
+   * - dateEnd: End date filter (ISO 8601) (Issue #241)
    */
   private async textSearch(req: Request, res: Response): Promise<void> {
     const startTime = Date.now();
@@ -77,12 +94,18 @@ export class SearchRouter extends BaseRouter {
     const highlight = getString(req.query.highlight) !== 'false';
     const includeFacets = getString(req.query.facets) === 'true';
     const snippetLength = this.parseOptionalIntParam(getString(req.query.snippetLength)) ?? 64;
+    const dateStart = parseDate(getString(req.query.dateStart));
+    const dateEnd = parseDate(getString(req.query.dateEnd));
 
     if (!query) {
       this.badRequest('query parameter is required');
     }
 
-    const filters = { project, type: type as any };
+    // Build filters with date range support (Issue #241)
+    const filters: any = { project, type: type as any };
+    if (dateStart || dateEnd) {
+      filters.dateRange = { start: dateStart, end: dateEnd };
+    }
 
     try {
       // Use enhanced search with ranking and highlights
@@ -225,12 +248,15 @@ export class SearchRouter extends BaseRouter {
   /**
    * GET /api/search
    * Combined search (semantic with text fallback)
+   * Supports dateStart/dateEnd filters (Issue #241)
    */
   private async combinedSearch(req: Request, res: Response): Promise<void> {
     const query = getString(req.query.query) || getString(req.query.q);
     const project = getString(req.query.project);
     const type = getString(req.query.type);
     const limit = this.parseOptionalIntParam(getString(req.query.limit)) ?? 30;
+    const dateStart = parseDate(getString(req.query.dateStart));
+    const dateEnd = parseDate(getString(req.query.dateEnd));
 
     if (!query) {
       this.badRequest('query parameter is required');
@@ -239,11 +265,17 @@ export class SearchRouter extends BaseRouter {
     const settings = loadSettings();
     const vectorDbEnabled = settings.VECTOR_DB === 'qdrant';
 
+    // Build filters with date range (Issue #241)
+    const filters: any = { project, type: type as any };
+    if (dateStart || dateEnd) {
+      filters.dateRange = { start: dateStart, end: dateEnd };
+    }
+
     // Use text search (FTS5) - works reliably regardless of Qdrant status
     try {
       const results = await this.deps.observations.search(
         query!,
-        { project, type: type as any },
+        filters,
         { limit }
       );
 
@@ -253,6 +285,7 @@ export class SearchRouter extends BaseRouter {
         total: results.length,
         mode: 'text',
         vectorDbEnabled,
+        filters: { dateStart, dateEnd, project, type },
       });
     } catch (error) {
       // Handle FTS5 query parsing errors as bad request (Issue #238)
@@ -262,5 +295,122 @@ export class SearchRouter extends BaseRouter {
       }
       throw error;
     }
+  }
+
+  /**
+   * GET /api/search/timeline
+   * Get observations around an anchor point (Issue #239)
+   *
+   * Query parameters:
+   * - anchor: Observation ID to center on
+   * - query: Search query to find anchor (alternative to anchor ID)
+   * - depth_before: Number of observations before anchor (default: 5)
+   * - depth_after: Number of observations after anchor (default: 5)
+   * - project: Filter by project
+   */
+  private async timeline(req: Request, res: Response): Promise<void> {
+    const anchorId = this.parseOptionalIntParam(getString(req.query.anchor));
+    const query = getString(req.query.query);
+    const depthBefore = this.parseOptionalIntParam(getString(req.query.depth_before)) ?? 5;
+    const depthAfter = this.parseOptionalIntParam(getString(req.query.depth_after)) ?? 5;
+    const project = getString(req.query.project);
+
+    let anchorObservation;
+
+    // Find anchor by ID or by search query
+    if (anchorId) {
+      anchorObservation = await this.deps.observations.findById(anchorId);
+      if (!anchorObservation) {
+        this.notFound(`Observation not found: ${anchorId}`);
+      }
+    } else if (query) {
+      // Search and use first result as anchor
+      const searchResults = await this.deps.observations.search(query, { project }, { limit: 1 });
+      if (searchResults.length === 0) {
+        this.notFound('No observations found for query');
+      }
+      anchorObservation = searchResults[0];
+    } else {
+      this.badRequest('Either anchor ID or query is required');
+    }
+
+    const anchorEpoch = anchorObservation!.created_at_epoch;
+
+    // Get observations before anchor
+    const beforeObs = await this.deps.observations.list(
+      {
+        project: project || anchorObservation!.project,
+        dateRange: { end: anchorEpoch - 1 },
+      },
+      { limit: depthBefore, orderBy: 'created_at_epoch', order: 'desc' }
+    );
+
+    // Get observations after anchor
+    const afterObs = await this.deps.observations.list(
+      {
+        project: project || anchorObservation!.project,
+        dateRange: { start: anchorEpoch + 1 },
+      },
+      { limit: depthAfter, orderBy: 'created_at_epoch', order: 'asc' }
+    );
+
+    // Combine: before (reversed) + anchor + after
+    const timeline = [
+      ...beforeObs.reverse(),
+      anchorObservation!,
+      ...afterObs,
+    ];
+
+    this.success(res, {
+      anchor: anchorObservation,
+      before: beforeObs.reverse(),
+      after: afterObs,
+      timeline,
+      total: timeline.length,
+    });
+  }
+
+  /**
+   * GET /api/search/observations
+   * Fetch full details for specific observation IDs (Issue #240)
+   *
+   * Query parameters:
+   * - ids: Comma-separated list of observation IDs
+   * - project: Filter by project (optional)
+   */
+  private async getObservations(req: Request, res: Response): Promise<void> {
+    const idsParam = getString(req.query.ids);
+    const project = getString(req.query.project);
+
+    if (!idsParam) {
+      this.badRequest('ids parameter is required');
+    }
+
+    // Parse comma-separated IDs
+    const ids = idsParam!.split(',')
+      .map(id => parseInt(id.trim(), 10))
+      .filter(id => !isNaN(id));
+
+    if (ids.length === 0) {
+      this.badRequest('No valid IDs provided');
+    }
+
+    // Fetch observations by ID
+    const observations = await Promise.all(
+      ids.map(id => this.deps.observations.findById(id))
+    );
+
+    // Filter nulls and optionally filter by project
+    let results = observations.filter((obs): obs is NonNullable<typeof obs> => obs !== null);
+
+    if (project) {
+      results = results.filter(obs => obs.project === project);
+    }
+
+    this.success(res, {
+      data: results,
+      requested: ids.length,
+      found: results.length,
+    });
   }
 }

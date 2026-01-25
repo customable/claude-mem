@@ -110,9 +110,10 @@ export class DataRouter extends BaseRouter {
     this.router.get('/analytics/projects', this.asyncHandler(this.getAnalyticsProjects.bind(this)));
 
     // Documents (MCP documentation cache)
+    // NOTE: /search must come BEFORE /:id to avoid "search" being parsed as an ID (Issue #243)
     this.router.get('/documents', this.asyncHandler(this.listDocuments.bind(this)));
-    this.router.get('/documents/:id', this.asyncHandler(this.getDocument.bind(this)));
     this.router.get('/documents/search', this.asyncHandler(this.searchDocuments.bind(this)));
+    this.router.get('/documents/:id', this.asyncHandler(this.getDocument.bind(this)));
     this.router.delete('/documents/:id', this.asyncHandler(this.deleteDocument.bind(this)));
 
     // Code Snippets
@@ -419,14 +420,16 @@ export class DataRouter extends BaseRouter {
       });
     }
 
-    // Map type parameter to ObservationType (default: 'note')
+    // Map MCP type parameter to valid ObservationType (Issue #242)
+    // DB allows: decision, bugfix, feature, refactor, discovery, change, session-request
+    // MCP sends: decision, discovery, note, bookmark
     const typeMapping: Record<string, ObservationType> = {
       decision: 'decision',
       discovery: 'discovery',
-      note: 'note',
-      bookmark: 'discovery', // bookmark maps to discovery
+      note: 'discovery',    // note maps to discovery (note not in DB constraint)
+      bookmark: 'decision', // bookmark maps to decision (important marker)
     };
-    const observationType: ObservationType = typeMapping[type] || 'note';
+    const observationType: ObservationType = typeMapping[type] || 'discovery';
 
     // Create the observation
     const observation = await this.deps.observations.create({
