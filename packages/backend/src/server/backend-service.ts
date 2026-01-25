@@ -16,7 +16,7 @@ import type { IUnitOfWork } from '@claude-mem/types';
 import { createApp, finalizeApp } from './app.js';
 import { WorkerHub } from '../websocket/worker-hub.js';
 import { TaskDispatcher } from '../websocket/task-dispatcher.js';
-import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService, CleanupService, createCleanupService } from '../services/index.js';
+import { SSEBroadcaster, TaskService, SessionService, WorkerProcessManager, InsightsService, LazyProcessingService, DecisionService, SleepAgentService, SuggestionService, PluginManager, createPluginManager, ShareService, createShareService, CleanupService, createCleanupService, WorkerTokenService, HubRegistry } from '../services/index.js';
 import {
   HealthRouter,
   HooksRouter,
@@ -37,6 +37,8 @@ import {
   ShareRouter,
   CleanupRouter,
   MetricsRouter,
+  WorkerTokensRouter,
+  HubsRouter,
 } from '../routes/index.js';
 import {
   expensiveLimiter,
@@ -96,6 +98,8 @@ export class BackendService {
   private pluginManager: PluginManager | null = null;
   private shareService: ShareService | null = null;
   private cleanupService: CleanupService | null = null;
+  private workerTokenService: WorkerTokenService | null = null;
+  private hubRegistry: HubRegistry | null = null;
 
   // Initialization state
   private coreReady = false;
@@ -338,6 +342,20 @@ export class BackendService {
         workerProcessManager: this.workerProcessManager!,
       });
 
+      // Initialize worker token service for token-based worker auth (Issue #263)
+      this.workerTokenService = new WorkerTokenService(
+        this.database.getForkedEntityManager()
+      );
+      // Wire token service to WorkerHub for DB-backed token validation
+      this.workerHub!.setWorkerTokenService(this.workerTokenService);
+
+      // Initialize hub registry for distributed worker pools (Issue #263)
+      this.hubRegistry = new HubRegistry(
+        this.database.getForkedEntityManager()
+      );
+      // Register built-in hub on startup
+      await this.hubRegistry.initialize();
+
       // Initialize task dispatcher
       this.taskDispatcher = new TaskDispatcher(
         this.workerHub!,
@@ -480,6 +498,16 @@ export class BackendService {
     // Cleanup routes (process/memory leak prevention - Issue #101)
     this.app.use('/api/cleanup', new CleanupRouter({
       cleanupService: this.cleanupService!,
+    }).router);
+
+    // Worker tokens routes (Issue #263)
+    this.app.use('/api/worker-tokens', new WorkerTokensRouter({
+      workerTokenService: this.workerTokenService!,
+    }).router);
+
+    // Hubs routes (Issue #263)
+    this.app.use('/api/hubs', new HubsRouter({
+      hubRegistry: this.hubRegistry!,
     }).router);
 
     // Metrics endpoint (Issue #209)

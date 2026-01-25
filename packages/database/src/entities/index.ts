@@ -20,7 +20,13 @@ export { ProjectSettings } from './ProjectSettings.js';
 export { Repository } from './Repository.js';
 export { ArchivedOutput } from './ArchivedOutput.js';
 export { UserTask } from './UserTask.js';
+export { WorkerToken } from './WorkerToken.js';
+export { WorkerRegistration } from './WorkerRegistration.js';
+export { Hub } from './Hub.js';
 
 // Re-export types
 export type { SessionStatus } from './Session.js';
 export type { UserTaskStatus, UserTaskSource } from './UserTask.js';
+export type { TokenScope } from './WorkerToken.js';
+export type { RegistrationStatus } from './WorkerRegistration.js';
+export type { HubType, HubStatus } from './Hub.js';

@@ -32,6 +32,7 @@ import type { ConnectedWorker, WorkerStats } from './types.js';
 import { ChannelManager } from './channel-manager.js';
 import type { SSEWriterClient } from './sse-writer-client.js';
 import { shouldDeliverToSSEWriter, SSE_WRITER_CHANNELS } from './sse-writer-client.js';
+import type { WorkerTokenService } from '../services/worker-token-service.js';
 
 const logger = createLogger('worker-hub');
 
@@ -39,6 +40,8 @@ export interface WorkerHubOptions {
   authToken?: string;
   heartbeatIntervalMs?: number;
   heartbeatTimeoutMs?: number;
+  /** Token service for database-backed auth (Issue #263) */
+  workerTokenService?: WorkerTokenService;
 }
 
 /**
@@ -67,6 +70,10 @@ export class WorkerHub {
   private readonly authToken: string | undefined;
   private readonly heartbeatIntervalMs: number;
   private readonly heartbeatTimeoutMs: number;
+  private workerTokenService: WorkerTokenService | undefined;
+
+  // Pending auth state: stores token validation results before registration
+  private pendingTokenAuth: Map<string, { tokenId: string; systemId?: string }> = new Map();
 
   // Event callbacks
   public onWorkerConnected?: (worker: ConnectedWorker) => void;
@@ -80,6 +87,14 @@ export class WorkerHub {
     this.authToken = options.authToken;
     this.heartbeatIntervalMs = options.heartbeatIntervalMs ?? 30000;
     this.heartbeatTimeoutMs = options.heartbeatTimeoutMs ?? 60000;
+    this.workerTokenService = options.workerTokenService;
+  }
+
+  /**
+   * Set the worker token service (for late binding after DB init)
+   */
+  setWorkerTokenService(service: WorkerTokenService): void {
+    this.workerTokenService = service;
   }
 
   /**
@@ -157,19 +172,19 @@ export class WorkerHub {
   /**
    * Handle incoming message from any client type
    */
-  private handleMessage(
+  private async handleMessage(
     clientId: string,
     socket: WebSocket,
     message: WorkerToBackendMessage | SubscribeMessage | UnsubscribeMessage | { type: string },
     connectionInfo: { isLocalhost: boolean; remoteAddress: string; pendingId: string }
-  ): void {
+  ): Promise<void> {
     switch (message.type) {
       case 'auth':
-        this.handleAuth(clientId, socket, message as WorkerToBackendMessage & { type: 'auth' }, connectionInfo);
+        await this.handleAuth(clientId, socket, message as WorkerToBackendMessage & { type: 'auth' }, connectionInfo);
         break;
 
       case 'register':
-        this.handleRegister(clientId, socket, message as WorkerToBackendMessage & { type: 'register' }, connectionInfo);
+        await this.handleRegister(clientId, socket, message as WorkerToBackendMessage & { type: 'register' }, connectionInfo);
         break;
 
       case 'heartbeat':
@@ -224,12 +239,12 @@ export class WorkerHub {
   /**
    * Handle authentication - routes to client-type-specific handler
    */
-  private handleAuth(
+  private async handleAuth(
     clientId: string,
     socket: WebSocket,
     message: WorkerToBackendMessage & { type: 'auth' },
     connectionInfo: { isLocalhost: boolean; remoteAddress: string; pendingId: string }
-  ): void {
+  ): Promise<void> {
     const clientType = this.detectClientType(message as { type: 'auth'; clientType?: string; token?: string; capabilities?: unknown });
 
     switch (clientType) {
@@ -240,7 +255,7 @@ export class WorkerHub {
         this.handleSSEWriterAuth(clientId, socket, message as unknown as SSEWriterAuthMessage, connectionInfo);
         break;
       case 'worker':
-        this.handleWorkerAuth(clientId, socket, message, connectionInfo);
+        await this.handleWorkerAuth(clientId, socket, message, connectionInfo);
         break;
     }
   }
@@ -329,13 +344,40 @@ export class WorkerHub {
 
   /**
    * Handle worker authentication (with token validation)
+   * Supports both database-backed tokens (Issue #263) and config-based tokens
    */
-  private handleWorkerAuth(
+  private async handleWorkerAuth(
     workerId: string,
     socket: WebSocket,
     message: WorkerToBackendMessage & { type: 'auth' },
     connectionInfo: { isLocalhost: boolean; remoteAddress: string }
-  ): void {
+  ): Promise<void> {
+    const token = message.token;
+    const systemId = (message as { systemId?: string }).systemId;
+
+    // Try database-backed token validation first (Issue #263)
+    if (this.workerTokenService && token) {
+      try {
+        const validatedToken = await this.workerTokenService.validateToken(token);
+        if (validatedToken) {
+          // Store pending auth state for registration
+          this.pendingTokenAuth.set(workerId, {
+            tokenId: validatedToken.id,
+            systemId,
+          });
+          this.authenticatedWorkers.add(workerId);
+          this.send(socket, { type: 'auth:success' });
+          logger.info(`Worker ${workerId} authenticated via DB token (${validatedToken.token_prefix}...)`);
+          return;
+        }
+      } catch (error) {
+        const err = error as Error;
+        logger.error(`DB token validation error for ${workerId}:`, { message: err.message });
+        // Fall through to config-based auth
+      }
+    }
+
+    // Fall back to config-based token validation
     // External connections ALWAYS require valid auth token
     if (!connectionInfo.isLocalhost) {
       if (!this.authToken) {
@@ -344,13 +386,13 @@ export class WorkerHub {
         socket.close(4001, 'Unauthorized');
         return;
       }
-      if (message.token !== this.authToken) {
+      if (token !== this.authToken) {
         logger.warn(`External worker ${workerId} rejected - invalid token`);
         this.send(socket, { type: 'auth:failed', reason: 'Invalid token' });
         socket.close(4001, 'Unauthorized');
         return;
       }
-    } else if (this.authToken && message.token !== this.authToken) {
+    } else if (this.authToken && token !== this.authToken) {
       // Localhost with token configured - still validate
       logger.warn(`Authentication failed for ${workerId}`);
       this.send(socket, { type: 'auth:failed', reason: 'Invalid token' });
@@ -358,21 +400,21 @@ export class WorkerHub {
       return;
     }
 
-    // Mark worker as authenticated
+    // Mark worker as authenticated (config-based)
     this.authenticatedWorkers.add(workerId);
     this.send(socket, { type: 'auth:success' });
-    logger.info(`Worker ${workerId} authenticated (localhost: ${connectionInfo.isLocalhost})`);
+    logger.info(`Worker ${workerId} authenticated via config token (localhost: ${connectionInfo.isLocalhost})`);
   }
 
   /**
    * Handle worker registration with capabilities
    */
-  private handleRegister(
+  private async handleRegister(
     workerId: string,
     socket: WebSocket,
     message: WorkerToBackendMessage & { type: 'register' },
     connectionInfo: { isLocalhost: boolean; remoteAddress: string }
-  ): void {
+  ): Promise<void> {
     // External connections MUST be authenticated
     if (!connectionInfo.isLocalhost && !this.authenticatedWorkers.has(workerId)) {
       this.send(socket, { type: 'error', message: 'External workers must authenticate before registering' });
@@ -387,8 +429,14 @@ export class WorkerHub {
     }
 
     // Extract capabilities from the register message
-    const registerMsg = message as { capabilities: WorkerCapability[]; metadata?: Record<string, unknown> };
+    const registerMsg = message as { capabilities: WorkerCapability[]; metadata?: Record<string, unknown>; hostname?: string };
     const capabilities = registerMsg.capabilities;
+
+    // Check for pending token auth (Issue #263)
+    const pendingAuth = this.pendingTokenAuth.get(workerId);
+    const tokenId = pendingAuth?.tokenId;
+    const systemId = pendingAuth?.systemId || workerId;
+
     const worker: ConnectedWorker = {
       id: workerId,
       socket,
@@ -399,6 +447,8 @@ export class WorkerHub {
       currentTaskType: null,
       metadata: registerMsg.metadata,
       latencyHistory: [],
+      tokenId,
+      systemId,
     };
 
     // Setup ping/pong for latency tracking
@@ -415,6 +465,26 @@ export class WorkerHub {
     });
 
     this.workers.set(workerId, worker);
+
+    // Create worker registration in database if using token-based auth (Issue #263)
+    if (tokenId && this.workerTokenService) {
+      try {
+        await this.workerTokenService.registerWorker(tokenId, systemId, {
+          hostname: registerMsg.hostname,
+          workerId,
+          capabilities: capabilities as string[],
+          metadata: registerMsg.metadata,
+        });
+        logger.debug(`Created DB registration for worker ${workerId}`);
+      } catch (error) {
+        const err = error as Error;
+        logger.error(`Failed to create DB registration for ${workerId}:`, { message: err.message });
+        // Continue anyway - worker can still function
+      }
+    }
+
+    // Clean up pending auth state
+    this.pendingTokenAuth.delete(workerId);
 
     this.send(socket, {
       type: 'registered',
@@ -556,6 +626,16 @@ export class WorkerHub {
       this.workers.delete(clientId);
       this.authenticatedWorkers.delete(clientId);
       this.channelManager.removeClient(clientId);
+      this.pendingTokenAuth.delete(clientId);
+
+      // Update DB registration if using token-based auth (Issue #263)
+      if (worker.systemId && this.workerTokenService) {
+        this.workerTokenService.disconnectWorker(worker.systemId).catch((error) => {
+          const err = error as Error;
+          logger.error(`Failed to update DB registration for ${clientId}:`, { message: err.message });
+        });
+      }
+
       logger.info(`Worker ${clientId} disconnected`);
       this.onWorkerDisconnected?.(clientId);
       return;
@@ -581,6 +661,7 @@ export class WorkerHub {
 
     // Clean up auth state for pending connections that never fully registered
     this.authenticatedWorkers.delete(clientId);
+    this.pendingTokenAuth.delete(clientId);
   }
 
   /**

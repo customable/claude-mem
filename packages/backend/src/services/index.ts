@@ -46,3 +46,7 @@ export {
   createCacheKey,
 } from './cache-service.js';
 export type { CacheOptions, CacheStats } from './cache-service.js';
+
+export { WorkerTokenService } from './worker-token-service.js';
+
+export { HubRegistry, BUILTIN_HUB_ID, BUILTIN_HUB_NAME } from './hub-registry.js';

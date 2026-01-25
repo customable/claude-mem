@@ -6,6 +6,9 @@ export { createMikroOrmConfig, type DatabaseOptions, entities, migrationsList } 
 export { MikroOrmUnitOfWork } from './unit-of-work.js';
 export { MikroOrmDatabase, createMikroOrmDatabase } from './initializer.js';
 
+// Re-export EntityManager type for services
+export type { SqlEntityManager } from '@mikro-orm/knex';
+
 // Repository exports
 export {
   MikroOrmSessionRepository,

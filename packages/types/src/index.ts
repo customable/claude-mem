@@ -39,3 +39,6 @@ export * from './user-task.js';
 
 // Channel types for unified WebSocket (Issue #264)
 export * from './channels.js';
+
+// Hub federation types (Issue #263)
+export * from './hub.js';
