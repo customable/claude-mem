@@ -38,7 +38,7 @@ function toRecord(entity: Observation): ObservationRecord {
     files_read: entity.files_read,
     files_modified: entity.files_modified,
     git_branch: entity.git_branch,
-    cwd: entity.cwd,
+    cwd: entity.working_directory,
     prompt_number: entity.prompt_number,
     discovery_tokens: entity.discovery_tokens,
     // Decision tracking
@@ -79,7 +79,7 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       prompt_number: input.promptNumber,
       discovery_tokens: input.discoveryTokens,
       git_branch: input.gitBranch,
-      cwd: input.cwd,
+      working_directory: input.cwd,
       created_at: now.toISOString(),
       created_at_epoch: now.getTime(),
       // Decision tracking
@@ -143,7 +143,7 @@ export class MikroOrmObservationRepository implements IObservationRepository {
       qb.andWhere({ created_at_epoch: { $lte: epoch } });
     }
     if (filters?.cwdPrefix) {
-      qb.andWhere({ cwd: { $like: `${filters.cwdPrefix}%` } });
+      qb.andWhere({ working_directory: { $like: `${filters.cwdPrefix}%` } });
     }
 
     qb.orderBy({ [options?.orderBy || 'created_at_epoch']: options?.order || 'DESC' });

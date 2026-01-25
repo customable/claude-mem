@@ -6,7 +6,7 @@
 
 import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
 
-@Entity({ tableName: 'session_summaries' })
+@Entity({ tableName: 'summaries' })
 export class Summary {
   @PrimaryKey()
   id!: number;

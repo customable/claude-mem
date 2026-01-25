@@ -7,7 +7,7 @@
 import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
 import type { TaskStatus, TaskType } from '@claude-mem/types';
 
-@Entity({ tableName: 'task_queue' })
+@Entity({ tableName: 'tasks' })
 export class Task {
   @PrimaryKey({ type: 'string' })
   id!: string;

@@ -58,7 +58,7 @@ export class Observation {
   git_branch?: string;
 
   @Property({ nullable: true })
-  cwd?: string;
+  working_directory?: string;
 
   @Property({ nullable: true })
   @Index()

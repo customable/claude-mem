@@ -6,7 +6,7 @@
 
 import { Entity, PrimaryKey, Property, Index, Unique } from '@mikro-orm/core';
 
-@Entity({ tableName: 'project_claudemd' })
+@Entity({ tableName: 'claudemd' })
 @Unique({ properties: ['project', 'content_session_id'] })
 export class ClaudeMd {
   @PrimaryKey()

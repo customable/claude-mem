@@ -7,7 +7,8 @@
 import { defineConfig as defineSqliteConfig } from '@mikro-orm/better-sqlite';
 import { defineConfig as definePostgresConfig } from '@mikro-orm/postgresql';
 import { defineConfig as defineMySqlConfig } from '@mikro-orm/mysql';
-import { Migrator } from '@mikro-orm/migrations';
+import { Migrator, Migration } from '@mikro-orm/migrations';
+import type { Constructor } from '@mikro-orm/core';
 import {
   Session,
   Observation,
@@ -16,7 +17,6 @@ import {
   Document,
   Task,
   ClaudeMd,
-  PendingMessage,
   CodeSnippet,
   DailyStats,
   TechnologyUsage,
@@ -26,23 +26,7 @@ import {
   ObservationTemplate,
   ProjectSettings,
 } from './entities/index.js';
-import { Migration20240101000001_InitialSchema } from './mikro-orm/migrations/Migration20240101000001_InitialSchema.js';
-import { Migration20240101000002_FTS5Indexes } from './mikro-orm/migrations/Migration20240101000002_FTS5Indexes.js';
-import { Migration20260123000003_SessionWorkingDirectory } from './mikro-orm/migrations/Migration20260123000003_SessionWorkingDirectory.js';
-import { Migration20260123000004_AddSessionRequestType } from './mikro-orm/migrations/Migration20260123000004_AddSessionRequestType.js';
-import { Migration20260123000005_CreateDocumentsTable } from './mikro-orm/migrations/Migration20260123000005_CreateDocumentsTable.js';
-import { Migration20260124000001_GitWorktreeSupport } from './mikro-orm/migrations/Migration20260124000001_GitWorktreeSupport.js';
-import { Migration20260124000002_CreateCodeSnippetsTable } from './mikro-orm/migrations/Migration20260124000002_CreateCodeSnippetsTable.js';
-import { Migration20260124000003_CreateInsightsTables } from './mikro-orm/migrations/Migration20260124000003_CreateInsightsTables.js';
-import { Migration20260124000004_CreateRawMessagesTable } from './mikro-orm/migrations/Migration20260124000004_CreateRawMessagesTable.js';
-import { Migration20260124000005_AddDecisionTracking } from './mikro-orm/migrations/Migration20260124000005_AddDecisionTracking.js';
-import { Migration20260124000006_AddMemoryTiering } from './mikro-orm/migrations/Migration20260124000006_AddMemoryTiering.js';
-import { Migration20260124000007_AddImportanceScoring } from './mikro-orm/migrations/Migration20260124000007_AddImportanceScoring.js';
-import { Migration20260124000008_CreateObservationLinksTable } from './mikro-orm/migrations/Migration20260124000008_CreateObservationLinksTable.js';
-import { Migration20260124000009_CreateTemplatesTable } from './mikro-orm/migrations/Migration20260124000009_CreateTemplatesTable.js';
-import { Migration20260124000010_CreateProjectSettingsTable } from './mikro-orm/migrations/Migration20260124000010_CreateProjectSettingsTable.js';
-import { Migration20260124000011_AddUrgentPromptField } from './mikro-orm/migrations/Migration20260124000011_AddUrgentPromptField.js';
-import { Migration20260125000001_AddRetryAfterField } from './mikro-orm/migrations/Migration20260125000001_AddRetryAfterField.js';
+import { Migration20260125094906_initial_schema } from './mikro-orm/migrations/Migration20260125094906_initial_schema.js';
 
 /**
  * Database configuration options
@@ -72,7 +56,6 @@ export const entities = [
   Document,
   Task,
   ClaudeMd,
-  PendingMessage,
   CodeSnippet,
   DailyStats,
   TechnologyUsage,
@@ -86,24 +69,8 @@ export const entities = [
 /**
  * All migrations
  */
-export const migrationsList = [
-  Migration20240101000001_InitialSchema,
-  Migration20240101000002_FTS5Indexes,
-  Migration20260123000003_SessionWorkingDirectory,
-  Migration20260123000004_AddSessionRequestType,
-  Migration20260123000005_CreateDocumentsTable,
-  Migration20260124000001_GitWorktreeSupport,
-  Migration20260124000002_CreateCodeSnippetsTable,
-  Migration20260124000003_CreateInsightsTables,
-  Migration20260124000004_CreateRawMessagesTable,
-  Migration20260124000005_AddDecisionTracking,
-  Migration20260124000006_AddMemoryTiering,
-  Migration20260124000007_AddImportanceScoring,
-  Migration20260124000008_CreateObservationLinksTable,
-  Migration20260124000009_CreateTemplatesTable,
-  Migration20260124000010_CreateProjectSettingsTable,
-  Migration20260124000011_AddUrgentPromptField,
-  Migration20260125000001_AddRetryAfterField,
+export const migrationsList: Constructor<Migration>[] = [
+  Migration20260125094906_initial_schema,
 ];
 
 /**
