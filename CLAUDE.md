@@ -98,42 +98,35 @@ Nach Änderungen an Backend, Worker oder Hooks:
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #3093 | 7:56 PM | 🔵 | Database configuration interface discovered | ~1704 |
-| #3092 | 7:55 PM | 🔵 | [Compressed] Edit | ~107 |
-| #3091 | 7:55 PM | 🔵 | Discovered migrate import subcommand help output | ~1602 |
-| #3090 | 7:55 PM | 📚 | Install better-sqlite3 dependency with network retries | ~1535 |
-| #3089 | 7:55 PM | 🔵 | Backend package built successfully | ~1097 |
-| #3088 | 7:53 PM | 🔵 | [Compressed] mcp__context7__query-docs | ~174 |
-| #3087 | 7:53 PM | 🔵 | [Compressed] mcp__context7__query-docs | ~210 |
-| #3086 | 7:53 PM | 🔵 | Discovered Crush library and related Charmbracelet tools | ~1782 |
-| #3085 | 7:53 PM | 🔵 | [Compressed] Write | ~152 |
-| #3084 | 7:53 PM | 🔵 | [Compressed] mcp__context7__query-docs | ~222 |
-| #3083 | 7:53 PM | 🔵 | [Compressed] WebSearch | ~168 |
-| #3082 | 7:53 PM | 🔵 | [Compressed] WebSearch | ~152 |
-| #3081 | 7:53 PM | 🔵 | Discovered CreateObservationInput interface structure | ~1818 |
-| #3080 | 7:53 PM | 🔵 | MikroORM database layer exports structure | ~1445 |
-| #3079 | 7:53 PM | 🔬 | Researching OpenCode AI coding assistant libraries | ~1817 |
-| #3078 | 7:53 PM | 🔵 | Repository Pattern Types and Search Interface | ~2081 |
-| #3077 | 7:53 PM | 🔵 | [Compressed] Edit | ~138 |
-| #3076 | 7:52 PM | 🔵 | MikroORM Database Initializer Structure | ~1937 |
-| #3075 | 7:52 PM | 🔵 | [Compressed] Read | ~113 |
-| #3074 | 7:52 PM | 🔵 | [Compressed] Edit | ~116 |
-| #3073 | 7:51 PM | 📝 | Database layer documentation and structure overview | ~1409 |
-| #3072 | 7:51 PM | 🔵 | Backend package.json analysis | ~1808 |
-| #3071 | 7:51 PM | 🔵 | [Compressed] Edit | ~121 |
-| #3070 | 7:51 PM | 🔵 | [Compressed] mcp__forgejo__edit_issue | ~193 |
-| #3069 | 7:51 PM | 🔵 | [Compressed] Edit | ~97 |
-| #3068 | 7:51 PM | 🟠 | Create migration module for legacy data import | ~1641 |
-| #3067 | 7:51 PM | 🔵 | [Compressed] Write | ~180 |
-| #3066 | 7:50 PM | 🔵 | [Compressed] Write | ~152 |
-| #3065 | 7:50 PM | 🟠 | Create SQLite backup utility for legacy migration | ~2520 |
-| #3064 | 7:49 PM | 🟠 | Create type mapper for legacy migration | ~2350 |
+| #3176 | 8:06 PM | 📋 | Feature prioritization labels added | ~1118 |
+| #3175 | 8:06 PM | 📋 | OpenHands integration plan created | ~2663 |
+| #3174 | 8:06 PM | ☑️ | Labels added to issue #310 | ~1117 |
+| #3173 | 8:06 PM | 🔵 | Settings.ts changes verified | ~1105 |
+| #3172 | 8:06 PM | 🔵 | Legacy settings migration discovered | ~1839 |
+| #3171 | 8:06 PM | ☑️ | Labels added to issue #311 | ~1103 |
+| #3170 | 8:06 PM | 📋 | Goose integration plan created | ~2505 |
+| #3169 | 8:06 PM | 📋 | Cline integration plan created | ~2595 |
+| #3168 | 8:06 PM | 📋 | Gemini CLI integration plan | ~2560 |
+| #3167 | 8:06 PM | 📋 | Codex CLI integration plan | ~3202 |
+| #3166 | 8:05 PM | 🔵 | Multi-database support discovered | ~1634 |
+| #3165 | 8:05 PM | 🟠 | Added DATABASE_URL parsing | ~2148 |
+| #3164 | 8:05 PM | 🔵 | MikroORM database drivers found | ~1661 |
+| #3163 | 8:05 PM | 🔵 | Settings loading logic analyzed | ~1732 |
+| #3162 | 8:05 PM | 🔵 | MikroORM multi-database config | ~2458 |
+| #3160 | 8:05 PM | 🔵 | GitHub workflows in dependencies | ~2279 |
+| #3158 | 8:04 PM | 🔵 | Root markdown files discovered | ~1234 |
+| #3155 | 8:03 PM | 🔵 | Multi-database feature request | ~1747 |
+| #3154 | 8:03 PM | 🔵 | CI/CD workflows in .forgejo | ~1094 |
+| #3153 | 8:03 PM | ⚙️ | CI workflow configuration | ~1954 |
+| #3151 | 8:03 PM | 🔵 | Monorepo structure analyzed | ~1943 |
+| #3148 | 8:02 PM | 🔵 | Recent commits reviewed | ~1431 |
+| #3147 | 8:02 PM | 📝 | Auto-generated CLAUDE.md files | ~1228 |
 
 ## Key Insights
 
-- **Database Migration Progress**: Created migration tools (type mapper, backup utility, migration module) for legacy data import, addressing Issue #198.
-- **MikroORM Integration**: Discovered and documented MikroORM database layer structure, configuration, and repository pattern implementation.
-- **Rebranding Plan**: Established "remembr" as the new brand with domain acquisition and package renaming plans.
-- **Multi-tenancy Strategy**: Evaluated column-based approach for MVP with PostgreSQL for scalability, while maintaining SQLite short-term.
-- **Backend Stability**: Backend package built successfully, confirming TypeScript compilation without errors.
+- **Integration Roadmap**: Multiple AI tool integrations (OpenHands, Goose, Cline, Gemini CLI, Codex CLI) are being planned with detailed implementation strategies.
+- **Database Evolution**: PostgreSQL support was added alongside SQLite, with migration tools and connection string parsing for multi-database compatibility.
+- **Project Rebranding**: The project is transitioning to "remembr" with new infrastructure and SaaS-focused architecture.
+- **CI/CD Pipeline**: Forgejo workflows are configured for automated testing, building, and deployment across the monorepo.
+- **Documentation Focus**: Auto-generated CLAUDE.md files are being maintained to keep documentation synchronized with code changes.
 </claude-mem-context>
