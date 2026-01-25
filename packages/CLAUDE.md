@@ -7,44 +7,44 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #3464 | 8:49 PM | 🟠 | Created Workers View with Tabbed Interface | ~2221 |
+| #3451 | 8:45 PM | 🔵 | SSE Broadcaster Service Structure | ~1670 |
 | #3449 | 8:45 PM | 🔵 | API Client Structure and Types | ~1814 |
 | #3440 | 8:44 PM | 🔵 | SSE Event Type Definition and Usage | ~2338 |
-| #3438 | 8:43 PM | 🔵 | HUB_TOKEN/Settings Interface Files | ~1267 |
-| #3433 | 8:43 PM | 🔵 | Endless Mode & Default Settings | ~2383 |
-| #3428 | 8:42 PM | 🟠 | HubFederation WebSocket Exports | ~2220 |
-| #3426 | 8:41 PM | 🟠 | Worker-Hub Package Index | ~1400 |
-| #3423 | 8:41 PM | 🟠 | Worker Hub CLI Creation | ~2907 |
-| #3417 | 8:39 PM | 🔵 | Worker Package Config | ~1615 |
-| #3415 | 8:39 PM | ⚙️ | Worker-Hub TypeScript Config | ~1304 |
-| #3414 | 8:38 PM | 🟠 | FederatedRouter Exports | ~1972 |
-| #3413 | 8:38 PM | 🟠 | Worker-Hub Package.json | ~1946 |
-| #3407 | 8:37 PM | 🔵 | WebSocket Module Exports | ~1314 |
-| #3393 | 8:32 PM | 🔵 | MikroORM Migration Config | ~2002 |
-| #3392 | 8:32 PM | 📦 | Worker Federation Migration | ~2377 |
-| #3391 | 8:31 PM | 🔵 | Worker Migration Files | ~1436 |
-| #3390 | 8:31 PM | 🔵 | MikroORM Migration Structure | ~1295 |
-| #3385 | 8:30 PM | 🔵 | Hub Registry Filtering | ~1674 |
-| #3377 | 8:30 PM | 🔵 | Worker Token Service Methods | ~1744 |
-| #3371 | 8:28 PM | 🔵 | Worker Token Validation | ~2206 |
-| #3357 | 8:26 PM | 🟠 | SqlEntityManager Type Export | ~1913 |
-| #3356 | 8:26 PM | 🔵 | EntityManager Usage | ~1309 |
-| #3355 | 8:26 PM | 🔵 | Database Module Import | ~1105 |
-| #3354 | 8:26 PM | 🔵 | No MikroORM Dependency | ~1087 |
-| #3353 | 8:26 PM | 🔵 | MikroORM Exports Structure | ~1419 |
-| #3351 | 8:25 PM | 🔵 | MikroORM Initializer | ~1943 |
-| #3349 | 8:25 PM | 📝 | Database Documentation | ~1396 |
-| #3348 | 8:25 PM | 🔵 | Database Entities | ~1574 |
-| #3346 | 8:25 PM | 🔵 | Shared TypeScript Types | ~1544 |
-| #3344 | 8:24 PM | 🔄 | Ref Type Import Separation | ~1981 |
-| #3343 | 8:24 PM | 🔵 | WorkerRegistration Entity | ~1647 |
+| #3438 | 8:43 PM | 🔵 | Discovered files containing HUB_TOKEN or Settings interface | ~1267 |
+| #3433 | 8:43 PM | 🔵 | Exploring Endless Mode and Default Settings Configuration | ~2383 |
+| #3428 | 8:42 PM | 🟠 | Added HubFederation exports to WebSocket module | ~2220 |
+| #3426 | 8:41 PM | 🟠 | Created worker-hub package index file | ~1400 |
+| #3423 | 8:41 PM | 🟠 | Create Worker Hub CLI for distributed deployments | ~2907 |
+| #3417 | 8:39 PM | 🔵 | Worker package configuration and dependencies | ~1615 |
+| #3415 | 8:39 PM | ⚙️ | Created TypeScript configuration for worker-hub package | ~1304 |
+| #3414 | 8:38 PM | 🟠 | Add FederatedRouter and TaskRoutingOptions exports to WebSocket module | ~1972 |
+| #3413 | 8:38 PM | 🟠 | Created worker-hub package.json with CLI and WebSocket dependencies | ~1946 |
+| #3407 | 8:37 PM | 🔵 | WebSocket module exports structure discovered | ~1314 |
+| #3393 | 8:32 PM | 🔵 | MikroORM migration configuration structure discovered | ~2002 |
+| #3392 | 8:32 PM | 📦 | Add new migration for worker federation | ~2377 |
+| #3391 | 8:31 PM | 🔵 | Worker-related migration files discovered | ~1436 |
+| #3390 | 8:31 PM | 🔵 | MikroORM migration files structure discovered | ~1295 |
+| #3385 | 8:30 PM | 🔵 | Hub registry service methods for filtering hubs | ~1674 |
+| #3377 | 8:30 PM | 🔵 | Worker token service methods for heartbeat and registration | ~1744 |
+| #3371 | 8:28 PM | 🔵 | Worker Token Service Implementation Details | ~2206 |
+| #3357 | 8:26 PM | 🟠 | Add SqlEntityManager type re-export for service usage | ~1913 |
+| #3356 | 8:26 PM | 🔵 | EntityManager usage in backend services | ~1309 |
+| #3355 | 8:26 PM | 🔵 | Database module import found in backend service | ~1105 |
+| #3354 | 8:26 PM | 🔵 | No Mikro-ORM dependency found in backend package.json | ~1087 |
+| #3353 | 8:26 PM | 🔵 | MikroORM database layer exports structure | ~1419 |
+| #3351 | 8:25 PM | 🔵 | MikroORM Database Initializer Structure | ~1943 |
+| #3349 | 8:25 PM | 📝 | Database layer documentation and structure overview | ~1396 |
+| #3348 | 8:25 PM | 🔵 | Database entities structure discovered | ~1574 |
+| #3346 | 8:25 PM | 🔵 | Exploring shared TypeScript types in claude-mem system | ~1544 |
 
 ## Key Insights
 
-- **Worker Federation Implementation**: Major progress on Issue #263 with new WorkerToken, WorkerRegistration, and Hub entities, plus WebSocket exports for federated routing (FederatedRouter, HubFederation).
-- **Database Architecture**: MikroORM is central to the system with 20+ entities, migrations, and a clear repository pattern. No direct MikroORM dependency in backend (likely abstracted).
-- **CLI & Distributed Deployment**: New worker-hub package with CLI capabilities for standalone hubs, supporting authentication and WebSocket communication.
-- **Type Safety Improvements**: Refactored type imports (e.g., `Ref`) and added SqlEntityManager exports for better service integration.
-- **Next Steps**: Merge worker federation changes (Issue #263), test distributed deployment, and address multi-database support (SQLite + PostgreSQL).
+- **Worker Federation Architecture**: Significant progress on distributed worker hubs with new CLI tools, WebSocket integrations, and database migrations for worker federation (Issues #263, #109).
+- **Real-time UI Updates**: SSE Broadcaster service now manages Server-Sent Events for real-time UI updates, with defined event types for system notifications.
+- **Database Evolution**: MikroORM migrations added for worker federation, revealing a structured approach to schema changes with explicit migration lists.
+- **Type Safety Improvements**: Added SqlEntityManager type exports and discovered EntityManager usage patterns in backend services.
+- **Integration Points**: Identified multiple integration opportunities (Crush hooks, OpenCode libraries) and documented missing hooks (SessionEnd, Stop, Notification) for future implementation.
 </claude-mem-context>
 
 # Package Structure

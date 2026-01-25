@@ -13,20 +13,24 @@
 | #2929 | 7:35 PM | 🔵 | Subagent Start Hook Handler | ~1628 |
 | #2462 | 6:20 PM | 🔵 | Hook handlers registry structure | ~1475 |
 | #2326 | 6:02 PM | 🔵 | SSE Writer Process Spawning | ~2333 |
-| #2046 | 5:11 PM | 🔵 | Post-tool-use handler analysis | ~3157 |
+| #2046 | 5:11 PM | 🔵 | Post-tool-use handler for observations | ~3157 |
 | #1834 | 4:29 PM | 🟠 | Git command writer control | ~4315 |
-| #1826 | 4:27 PM | 🟠 | Git command detection | ~3971 |
+| #1826 | 4:27 PM | 🟠 | Git command detection for SSE-Writer | ~3971 |
 | #1822 | 4:25 PM | 🔵 | Post-tool-use handler processes | ~2563 |
+| #705 | 12:55 PM | 🔵 | Hook handlers registry structure | ~1486 |
+| #692 | 12:54 PM | 🔵 | Post-tool-use handler processes | ~2584 |
+| #247 | 12:00 PM | 🔵 | Subagent Stop Hook Handler | ~1265 |
+| #245 | 11:59 AM | 🔵 | Subagent Start Hook Handler | ~1328 |
+| #244 | 11:59 AM | 🔵 | Post-tool-use handler processes | ~2609 |
+| #240 | 11:59 AM | 🔵 | Hook handlers registry structure | ~1479 |
+| #239 | 11:59 AM | 🔵 | Session Start Handler Analysis | ~3290 |
+| #233 | 11:59 AM | 🔵 | User prompt submission handler | ~2003 |
 
 ## Key Insights
 
-- **Hook System Architecture**: The project uses a central hook handlers registry with default handlers for events like session-start, user-prompt-submit, and post-tool-use. This event-driven architecture is extensible and supports fail-open behavior for backend communications.
-
-- **Tool Filtering Logic**: The post-tool-use handler excludes meta-tools and claude-mem's own MCP tools to prevent circular observations. This ensures clean data capture for actual tool usage.
-
-- **Git Integration**: Added functionality to pause/resume SSE-Writer during Git operations to prevent conflicts. This includes detection logic for specific Git commands that should trigger these actions.
-
-- **Subagent Lifecycle**: Subagent start/stop handlers record lifecycle events with fail-open behavior, ensuring subagent operations continue even if backend tracking fails.
-
-- **SSE Writer Mechanism**: The session-start handler spawns an SSE writer process for CLAUDE.md updates using Node's child_process.spawn, with PID file management for process control.
+- **Hook System Architecture**: The project uses a central hook handlers registry with default handlers for events like `session-start`, `user-prompt-submit`, and `post-tool-use`. The system is extensible and supports fail-open behavior for backend communications.
+- **Subagent Lifecycle Tracking**: Subagent start/stop handlers record lifecycle events to a backend, ensuring non-blocking behavior with fail-open mechanisms.
+- **Tool Filtering Logic**: The `post-tool-use` handler excludes meta-tools and claude-mem's own tools to avoid circular observations.
+- **Git Integration**: Added Git command detection and SSE-Writer pause/resume logic to prevent conflicts during Git operations.
+- **Missing Hooks**: Identified gaps in the hook system (e.g., `SessionEnd`, `Stop`, `Notification`) for future implementation.
 </claude-mem-context>
