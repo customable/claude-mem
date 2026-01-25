@@ -270,7 +270,8 @@ export class BackendService {
         this.sseBroadcaster!,
         this.unitOfWork.observations,
         this.unitOfWork.sessions,
-        this.unitOfWork.summaries
+        this.unitOfWork.summaries,
+        this.unitOfWork.archivedOutputs
       );
 
       this.sessionService = new SessionService(
@@ -347,6 +348,7 @@ export class BackendService {
           taskService: this.taskService,
           claudemd: this.unitOfWork.claudemd,
           codeSnippets: this.unitOfWork.codeSnippets,
+          archivedOutputs: this.unitOfWork.archivedOutputs,
           onWorkerLinked: (spawnedId, hubWorkerId) => {
             this.workerProcessManager?.linkToHubWorker(spawnedId, hubWorkerId);
           },

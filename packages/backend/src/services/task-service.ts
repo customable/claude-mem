@@ -5,12 +5,13 @@
  * Creates tasks and manages the task queue.
  */
 
-import { createLogger } from '@claude-mem/shared';
+import { createLogger, loadSettings } from '@claude-mem/shared';
 import type {
   ITaskQueueRepository,
   IObservationRepository,
   ISessionRepository,
   ISummaryRepository,
+  IArchivedOutputRepository,
   Task,
   TaskType,
   TaskStatus,
@@ -20,6 +21,7 @@ import type {
   ContextGenerateTask,
   ClaudeMdTask,
   SemanticSearchTask,
+  CompressionTask,
   SemanticSearchTaskPayload,
   WorkerCapability,
   ObservationRecord,
@@ -47,6 +49,7 @@ export class TaskService {
     private readonly observations?: IObservationRepository,
     private readonly sessions?: ISessionRepository,
     private readonly summaries?: ISummaryRepository,
+    private readonly archivedOutputs?: IArchivedOutputRepository,
     options: TaskServiceOptions = {}
   ) {
     this.defaultMaxRetries = options.defaultMaxRetries ?? 3;
@@ -75,6 +78,9 @@ export class TaskService {
 
   /**
    * Queue an observation task
+   *
+   * When ENDLESS_MODE_ENABLED is true, archives the tool output first
+   * and queues a compression task instead of a regular observation task.
    */
   async queueObservation(params: {
     sessionId: string;
@@ -89,6 +95,65 @@ export class TaskService {
     preferredProvider?: string;
   }): Promise<ObservationTask> {
     await this.checkBackpressure();
+    const settings = loadSettings();
+
+    // Endless Mode: Archive and compress instead of direct observation
+    if (settings.ENDLESS_MODE_ENABLED && this.archivedOutputs) {
+      const tokenCount = Math.ceil(params.toolOutput.length / 4); // Rough estimate
+
+      // Skip simple outputs if configured
+      if (settings.ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS &&
+          tokenCount < settings.ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD) {
+        // Fall through to normal observation for simple outputs
+        logger.debug(`Skipping archive for simple output (${tokenCount} tokens < ${settings.ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD})`);
+      } else {
+        // Archive the output
+        const archived = await this.archivedOutputs.create({
+          memorySessionId: params.sessionId,
+          project: params.project,
+          toolName: params.toolName,
+          toolInput: params.toolInput,
+          toolOutput: params.toolOutput,
+          tokenCount,
+        });
+
+        // Queue compression task
+        await this.queueCompression({
+          archivedOutputId: archived.id,
+          sessionId: params.sessionId,
+          project: params.project,
+          toolName: params.toolName,
+          toolInput: params.toolInput,
+          toolOutput: params.toolOutput,
+          tokenCount,
+          preferredProvider: params.preferredProvider,
+        });
+
+        logger.info(`Archived output ${archived.id} for session ${params.sessionId}, queued compression`);
+
+        // Return a placeholder task (compression will create the observation)
+        // The task has already been created by queueCompression
+        return {
+          id: `archived-${archived.id}`,
+          type: 'observation',
+          status: 'pending',
+          requiredCapability: 'observation:mistral',
+          priority: this.defaultPriority,
+          createdAt: Date.now(),
+          retryCount: 0,
+          maxRetries: 0,
+          payload: {
+            sessionId: params.sessionId,
+            project: params.project,
+            toolName: params.toolName,
+            toolInput: '[Archived - see compression task]',
+            toolOutput: '[Archived - see compression task]',
+          },
+        } as ObservationTask;
+      }
+    }
+
+    // Normal observation flow
     const capability = this.resolveCapability('observation', params.preferredProvider);
     const fallbacks = this.getFallbackCapabilities('observation', capability);
 
@@ -192,6 +257,62 @@ export class TaskService {
 
     this.sseBroadcaster.broadcastTaskQueued(task.id, 'embedding');
     logger.info(`Queued embedding task ${task.id} for ${params.observationIds.length} observations`);
+
+    return task;
+  }
+
+  /**
+   * Queue a compression task (Endless Mode - Issue #109)
+   *
+   * Compresses an archived tool output into a concise observation.
+   */
+  async queueCompression(params: {
+    archivedOutputId: number;
+    sessionId: string;
+    project: string;
+    toolName: string;
+    toolInput: string;
+    toolOutput: string;
+    tokenCount?: number;
+    preferredProvider?: string;
+  }): Promise<CompressionTask> {
+    await this.checkBackpressure();
+    const capability = this.resolveCompressionCapability(params.preferredProvider);
+    const fallbacks = this.getCompressionFallbackCapabilities(capability);
+
+    const task = await this.taskQueue.create<CompressionTask>({
+      type: 'compression',
+      requiredCapability: capability,
+      fallbackCapabilities: fallbacks,
+      priority: this.defaultPriority - 10, // Lower priority than observations
+      maxRetries: this.defaultMaxRetries,
+      payload: {
+        archivedOutputId: params.archivedOutputId,
+        sessionId: params.sessionId,
+        project: params.project,
+        toolName: params.toolName,
+        tokenCount: params.tokenCount,
+        // Include archived output data for the worker
+        archivedOutput: {
+          id: params.archivedOutputId,
+          toolName: params.toolName,
+          toolInput: params.toolInput,
+          toolOutput: params.toolOutput,
+          tokenCount: params.tokenCount,
+        },
+      } as CompressionTask['payload'] & {
+        archivedOutput: {
+          id: number;
+          toolName: string;
+          toolInput: string;
+          toolOutput: string;
+          tokenCount?: number;
+        };
+      },
+    });
+
+    this.sseBroadcaster.broadcastTaskQueued(task.id, 'compression');
+    logger.info(`Queued compression task ${task.id} for archived output ${params.archivedOutputId}`);
 
     return task;
   }
@@ -512,5 +633,49 @@ export class TaskService {
 
     // Return all providers except the primary one
     return allProviders[taskType].filter(cap => cap !== primary);
+  }
+
+  /**
+   * Resolve compression capability based on provider preference
+   */
+  private resolveCompressionCapability(preferredProvider?: string): WorkerCapability {
+    if (preferredProvider) {
+      return `compression:${preferredProvider}` as WorkerCapability;
+    }
+
+    // Use configured compression model or default to mistral
+    const settings = loadSettings();
+    const model = settings.ENDLESS_MODE_COMPRESSION_MODEL || 'mistral';
+
+    // Map model names to providers
+    if (model.includes('haiku') || model.includes('claude')) {
+      return 'compression:anthropic';
+    }
+    if (model.includes('mistral')) {
+      return 'compression:mistral';
+    }
+    if (model.includes('gemini')) {
+      return 'compression:gemini';
+    }
+    if (model.includes('gpt')) {
+      return 'compression:openai';
+    }
+
+    return 'compression:mistral';
+  }
+
+  /**
+   * Get fallback capabilities for compression
+   */
+  private getCompressionFallbackCapabilities(primary: WorkerCapability): WorkerCapability[] {
+    const allProviders: WorkerCapability[] = [
+      'compression:mistral',
+      'compression:gemini',
+      'compression:openrouter',
+      'compression:openai',
+      'compression:anthropic',
+    ];
+
+    return allProviders.filter(cap => cap !== primary);
   }
 }

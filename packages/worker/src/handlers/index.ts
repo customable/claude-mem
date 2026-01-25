@@ -9,5 +9,6 @@ export { handleSummarizeTask, type ObservationData } from './summarize-handler.j
 export { handleContextTask, type TimestampedObservation } from './context-handler.js';
 export { handleQdrantSyncTask, type DataProvider, type QdrantSyncResult } from './qdrant-handler.js';
 export { handleSemanticSearchTask, type SemanticSearchResult } from './semantic-search-handler.js';
+export { handleCompressionTask, type ArchivedOutputData } from './compression-handler.js';
 export { parseAgentResponse, parseObservations, parseSummary } from './xml-parser.js';
 export * from './prompts.js';

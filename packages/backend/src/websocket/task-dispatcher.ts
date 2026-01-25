@@ -8,7 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { createLogger, getSettings } from '@claude-mem/shared';
-import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, ICodeSnippetRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, DocumentType, CreateCodeSnippetInput } from '@claude-mem/types';
+import type { ITaskQueueRepository, IObservationRepository, ISessionRepository, ISummaryRepository, IDocumentRepository, IClaudeMdRepository, ICodeSnippetRepository, IArchivedOutputRepository, Task, WorkerCapability, ObservationTaskPayload, ObservationTask, SummarizeTaskPayload, SummarizeTask, ClaudeMdTaskPayload, ClaudeMdTask, CompressionTask, CompressionTaskPayload, DocumentType, CreateCodeSnippetInput } from '@claude-mem/types';
 import { createHash } from 'crypto';
 import type { WorkerHub } from './worker-hub.js';
 import type { ConnectedWorker } from './types.js';
@@ -40,6 +40,8 @@ export interface TaskDispatcherOptions {
   claudemd?: IClaudeMdRepository;
   /** Code snippets repository for storing extracted code */
   codeSnippets?: ICodeSnippetRepository;
+  /** Archived outputs repository for Endless Mode (Issue #109) */
+  archivedOutputs?: IArchivedOutputRepository;
   /** Callback to link spawned worker to hub worker */
   onWorkerLinked?: (spawnedId: string, hubWorkerId: string) => void;
 }
@@ -59,6 +61,7 @@ export class TaskDispatcher {
   private readonly taskService?: TaskService;
   private readonly claudemd?: IClaudeMdRepository;
   private readonly codeSnippets?: ICodeSnippetRepository;
+  private readonly archivedOutputs?: IArchivedOutputRepository;
   private readonly onWorkerLinked?: (spawnedId: string, hubWorkerId: string) => void;
 
   // Track observation counts per session for CLAUDE.md generation
@@ -80,6 +83,7 @@ export class TaskDispatcher {
     this.taskService = options.taskService;
     this.claudemd = options.claudemd;
     this.codeSnippets = options.codeSnippets;
+    this.archivedOutputs = options.archivedOutputs;
     this.onWorkerLinked = options.onWorkerLinked;
 
     // Wire up hub events
@@ -381,6 +385,67 @@ export class TaskDispatcher {
           });
         } else {
           logger.debug(`No claude-md content for task ${taskId}`);
+        }
+      }
+
+      // Handle compression task (Endless Mode - Issue #109): create observation from compressed output
+      if (task?.type === 'compression' && this.observations && this.archivedOutputs && this.sessions) {
+        const compressionResult = result as CompressionTask['result'];
+        const payload = task.payload as CompressionTaskPayload;
+
+        if (compressionResult) {
+          // Look up memory session ID from content session ID
+          const session = await this.sessions.findByContentSessionId(payload.sessionId);
+          const memorySessionId = session?.memory_session_id || payload.sessionId;
+
+          // Get the archived output data (included in the payload by worker)
+          const archivedPayload = payload as CompressionTaskPayload & {
+            archivedOutput?: {
+              id: number;
+              toolName: string;
+              toolInput: string;
+              toolOutput: string;
+              tokenCount?: number;
+            };
+          };
+
+          // Get the project from session or payload
+          const project = (session as { project?: string })?.project || payload.project;
+
+          // Create a compressed observation
+          // Note: The worker returns the observation data in the result
+          const observation = await this.observations.create({
+            memorySessionId,
+            project,
+            type: 'discovery', // Compressed observations are always discoveries
+            title: `[Compressed] ${archivedPayload.archivedOutput?.toolName || 'Tool Output'}`,
+            text: `Compressed from ${compressionResult.originalTokens} to ${compressionResult.compressedTokens} tokens (${compressionResult.compressionRatio.toFixed(1)}% reduction)`,
+            discoveryTokens: compressionResult.compressedTokens,
+          });
+
+          // Update the archived output with the observation ID
+          await this.archivedOutputs.updateCompressionStatus(
+            payload.archivedOutputId,
+            'completed',
+            observation.id,
+            compressionResult.compressedTokens
+          );
+
+          logger.info(`Compression task completed: archived output ${payload.archivedOutputId} -> observation ${observation.id}`);
+
+          // Broadcast observation created event
+          this.sseBroadcaster?.broadcastObservationCreated(observation.id, payload.sessionId);
+        } else {
+          logger.debug(`No compression result for task ${taskId}`);
+
+          // Mark the archived output as failed
+          await this.archivedOutputs.updateCompressionStatus(
+            payload.archivedOutputId,
+            'failed',
+            undefined,
+            undefined,
+            'No result from compression worker'
+          );
         }
       }
 

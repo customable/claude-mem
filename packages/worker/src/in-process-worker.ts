@@ -19,6 +19,7 @@ import type {
   SummarizeTaskPayload,
   EmbeddingTaskPayload,
   ClaudeMdTaskPayload,
+  CompressionTaskPayload,
 } from '@claude-mem/types';
 import { WebSocketClient } from './connection/websocket-client.js';
 import { getDefaultAgent, type Agent } from './agents/index.js';
@@ -28,6 +29,7 @@ import { handleEmbeddingTask } from './handlers/embedding-handler.js';
 import { handleContextTask } from './handlers/context-handler.js';
 import { handleQdrantSyncTask } from './handlers/qdrant-handler.js';
 import { handleClaudeMdTask } from './handlers/claudemd-handler.js';
+import { handleCompressionTask } from './handlers/compression-handler.js';
 import { getQdrantService } from './services/qdrant-service.js';
 
 const logger = createLogger('in-process-worker');
@@ -123,14 +125,17 @@ export class InProcessWorker {
       case 'mistral':
         capabilities.push('observation:mistral');
         capabilities.push('summarize:mistral');
+        capabilities.push('compression:mistral');
         break;
       case 'anthropic':
         capabilities.push('observation:sdk');
         capabilities.push('summarize:sdk');
+        capabilities.push('compression:anthropic');
         break;
       default:
         capabilities.push('observation:sdk');
         capabilities.push('summarize:sdk');
+        capabilities.push('compression:anthropic');
     }
 
     // Add qdrant capabilities only if vector DB is enabled
@@ -385,6 +390,24 @@ export class InProcessWorker {
           claudeMdPayload,
           claudeMdPayload.observations || [],
           claudeMdPayload.summaries || [],
+          signal
+        );
+      }
+
+      case 'compression': {
+        const compressionPayload = payload as CompressionTaskPayload & {
+          archivedOutput: {
+            id: number;
+            toolName: string;
+            toolInput: string;
+            toolOutput: string;
+            tokenCount?: number;
+          };
+        };
+        return handleCompressionTask(
+          this.agent,
+          compressionPayload,
+          compressionPayload.archivedOutput,
           signal
         );
       }

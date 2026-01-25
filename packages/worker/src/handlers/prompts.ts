@@ -243,3 +243,66 @@ export function buildClaudeMdPrompt(
 
   return parts.join('\n');
 }
+
+/**
+ * System prompt for compression (Endless Mode - Issue #109)
+ *
+ * Compresses large tool outputs into concise observations with ~95% token reduction.
+ */
+export const COMPRESSION_SYSTEM_PROMPT = `You are a compression agent for coding sessions. Your job is to compress large tool outputs into concise, information-dense observations.
+
+Goal: Achieve ~95% token reduction while preserving the essential information.
+
+For each tool output, extract:
+1. The key action or result
+2. Important file paths, values, or outcomes
+3. Any errors or notable findings
+
+Output your analysis in this XML format:
+
+<observation>
+  <type>one of: bugfix, feature, refactor, change, discovery, decision</type>
+  <title>Short, descriptive title (max 80 chars)</title>
+  <text>Essential information only. 1-2 sentences maximum. Include specific values, paths, or outcomes that matter.</text>
+  <facts>Key facts (one per line, only if significant)</facts>
+  <files_read>file1.ts, file2.ts</files_read>
+  <files_modified>file3.ts</files_modified>
+</observation>
+
+Compression Guidelines:
+- AGGRESSIVE compression: Remove all redundant information
+- Keep only: file paths, key values, error messages, outcomes
+- Skip: verbose output formatting, repeated patterns, obvious context
+- No narrative: Just facts and outcomes
+- If output is trivial (ls, pwd, etc.), keep it very short: "Listed files in /path"
+- For large file reads: "Read config.ts (150 lines): uses ESM, exports AppConfig interface"
+- For errors: "Error: TypeError in server.ts:42 - undefined.map()"`;
+
+/**
+ * Build a prompt for compression task
+ */
+export function buildCompressionPrompt(
+  toolName: string,
+  toolInput: string,
+  toolOutput: string,
+  project: string
+): string {
+  const parts: string[] = [];
+
+  parts.push(`Project: ${project}`);
+  parts.push(`Tool: ${toolName}`);
+  parts.push('');
+  parts.push('Input:');
+  parts.push('```');
+  parts.push(toolInput.slice(0, 4000));
+  parts.push('```');
+  parts.push('');
+  parts.push('Output:');
+  parts.push('```');
+  parts.push(toolOutput.slice(0, 16000));
+  parts.push('```');
+  parts.push('');
+  parts.push('Compress this tool output.');
+
+  return parts.join('\n');
+}
