@@ -7,22 +7,30 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2923 | 7:35 PM | 📦 | Migration for user_tasks table | ~2075 |
-| #2449 | 6:17 PM | 📦 | Add user_tasks table migration | ~2548 |
-| #2446 | 6:17 PM | 🔵 | Archived_outputs table discovered | ~1932 |
-| #699 | 12:54 PM | 🔵 | Archived_outputs table structure | ~1653 |
-| #675 | 12:51 PM | 📦 | Migration for archived_outputs | ~2193 |
-| #672 | 12:51 PM | 📦 | New migration export added | ~1402 |
-| #670 | 12:51 PM | 🔵 | Migration files exported | ~911 |
-| #669 | 12:51 PM | 🔵 | Task deduplication key added | ~975 |
-| #135 | 11:48 AM | 🔵 | Task deduplication migration | ~967 |
-| #19 | 11:15 AM | 🔵 | Database schema analysis | ~5549 |
+| #3557 | 9:03 PM | 📦 | Add plan mode tracking to sessions table | ~1896 |
+| #3547 | 9:03 PM | 🔵 | Discovered MikroORM migration files structure | ~1407 |
+| #3545 | 9:03 PM | 📦 | Add new migration export for plan_mode_tracking | ~1884 |
+| #3392 | 8:32 PM | 📦 | Add new migration for worker federation | ~2377 |
+| #3390 | 8:31 PM | 🔵 | MikroORM migration files structure discovered | ~1295 |
+| #3282 | 8:16 PM | 📦 | Migration for user_tasks table (Issue #260) | ~2115 |
+| #3023 | 7:45 PM | 📦 | Database migration for user_tasks table | ~2094 |
+| #3009 | 7:44 PM | 📦 | Database migration for task deduplication | ~1376 |
+| #2923 | 7:35 PM | 📦 | Migration for user_tasks table (Issue #260) | ~2075 |
+| #2449 | 6:17 PM | 🟠 | Add user_tasks table migration for CLI task tracking | ~2548 |
+| #2446 | 6:17 PM | 🔵 | Migration for archived_outputs table discovered | ~1932 |
+| #699 | 12:54 PM | 🔵 | Discovered archived_outputs table structure for Endless Mode | ~1653 |
+| #675 | 12:51 PM | 🟠 | Create migration for archived_outputs table | ~2193 |
+| #672 | 12:51 PM | 🟠 | Add new migration export for archived outputs | ~1402 |
+| #670 | 12:51 PM | 🔵 | Migration files exported from index | ~911 |
+| #669 | 12:51 PM | 📦 | Migration for task deduplication key added | ~975 |
+| #135 | 11:48 AM | 🔵 | Task deduplication migration found | ~967 |
+| #19 | 11:15 AM | 🔵 | Database Schema Analysis for claude-mem Project | ~5549 |
 
 ## Key Insights
 
-- **Database Expansion**: Two new tables (`user_tasks` and `archived_outputs`) were added to track CLI task operations and store full tool outputs for Endless Mode.
-- **Deduplication**: Task deduplication functionality was implemented via a `deduplication_key` column in the tasks table.
-- **Migration System**: Mikro-ORM migrations are managed through a central index file, ensuring organized schema updates.
-- **Real-Time Progress**: WebSocket and SSE communication patterns were extended for multi-client support (browser, worker, SSE-writer).
-- **Next Steps**: Complete SSE-Writer migration to WebSocket, test unified real-time events, and resolve remaining type dependencies.
+- **Worker Federation Implementation**: Multiple migrations and exports were added to support worker federation (Issue #263), including token-based auth and a new `worker_federation` table.
+- **Task Tracking Enhancements**: New `user_tasks` table migrations were introduced to track CLI task operations (Issue #260), with deduplication support via a `deduplication_key` column.
+- **Plan Mode Tracking**: Added database schema changes to track plan mode state in sessions, including timestamps and counters.
+- **Archived Outputs for Endless Mode**: Implemented `archived_outputs` table to store full tool outputs for later recall (Issue #109).
+- **MikroORM Migration Patterns**: Discovered and followed MikroORM's migration structure, with a central index file exporting all migration classes.
 </claude-mem-context>
