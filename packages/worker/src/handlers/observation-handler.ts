@@ -22,6 +22,13 @@ export interface ObservationResult {
   text: string;
   type: string;
   tokens: number;
+  // Optional extracted fields
+  subtitle?: string;
+  narrative?: string;
+  facts?: string[];
+  concepts?: string[];
+  filesRead?: string[];
+  filesModified?: string[];
 }
 
 /**

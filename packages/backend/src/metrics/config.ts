@@ -60,6 +60,7 @@ export const METRICS_CONFIG = {
     type: 'gauge',
     name: 'claude_mem_worker_busy_count',
     help: 'Number of workers currently processing tasks',
+    labelNames: [],
   },
 
   // Session Metrics
@@ -73,6 +74,7 @@ export const METRICS_CONFIG = {
     type: 'gauge',
     name: 'claude_mem_active_session_count',
     help: 'Number of currently active sessions',
+    labelNames: [],
   },
 
   // Observation Metrics
@@ -80,6 +82,7 @@ export const METRICS_CONFIG = {
     type: 'gauge',
     name: 'claude_mem_observation_count',
     help: 'Total number of observations',
+    labelNames: [],
   },
   observationsByType: {
     type: 'gauge',
@@ -102,6 +105,7 @@ export const METRICS_CONFIG = {
     type: 'gauge',
     name: 'claude_mem_sse_connection_count',
     help: 'Number of active SSE connections',
+    labelNames: [],
   },
 } as const satisfies MetricsConfigRecord;
 

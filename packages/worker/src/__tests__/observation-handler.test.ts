@@ -43,6 +43,12 @@ function createTestPayload(overrides?: Partial<ObservationTaskPayload>): Observa
   };
 }
 
+// Helper to assert result is defined and return typed result
+function assertResult(result: ObservationResult | undefined): ObservationResult {
+  expect(result).toBeDefined();
+  return result!;
+}
+
 describe('handleObservationTask', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -60,7 +66,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('Test function found');
       expect(result.text).toBe('Found a test function that returns true');
@@ -86,7 +93,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('Function modified');
       expect(result.subtitle).toBe('Minor refactor');
@@ -111,7 +119,8 @@ describe('handleObservationTask', () => {
           `,
         });
 
-        const result = await handleObservationTask(mockAgent, createTestPayload());
+        const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+        const result = assertResult(rawResult);
         expect(result.type).toBe(type);
       }
     });
@@ -134,7 +143,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('First observation');
       expect(result.text).toBe('First text');
@@ -244,7 +254,8 @@ describe('handleObservationTask', () => {
         outputTokens: 25,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('No observation extracted');
       expect(result.text).toBe('');
@@ -257,7 +268,8 @@ describe('handleObservationTask', () => {
         content: '',
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('No observation extracted');
     });
@@ -267,7 +279,8 @@ describe('handleObservationTask', () => {
         content: '<observation><type>discovery</type></observation>',
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('No observation extracted');
     });
@@ -342,7 +355,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       // Unknown types default to 'discovery'
       expect(result.type).toBe('discovery');
@@ -357,7 +371,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('Only title');
       expect(result.text).toBe('');
@@ -372,7 +387,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.title).toBe('Untitled observation');
       expect(result.text).toBe('Only text content');
@@ -390,7 +406,8 @@ describe('handleObservationTask', () => {
         `,
       });
 
-      const result = await handleObservationTask(mockAgent, createTestPayload());
+      const rawResult = await handleObservationTask(mockAgent, createTestPayload());
+      const result = assertResult(rawResult);
 
       expect(result.filesRead).toBeUndefined();
       expect(result.filesModified).toBeUndefined();

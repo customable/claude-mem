@@ -9,6 +9,10 @@ import { BadRequestError, NotFoundError } from '../middleware/error-handler.js';
 
 // Concrete implementation for testing
 class TestRouter extends BaseRouter {
+  public constructor() {
+    super();
+  }
+
   protected setupRoutes(): void {
     this.router.get('/test', (req, res) => {
       this.success(res, { message: 'ok' });

@@ -63,6 +63,15 @@ function createTestObservations(): ObservationData[] {
   ];
 }
 
+// Helper type for summary result
+type SummaryResult = NonNullable<Awaited<ReturnType<typeof handleSummarizeTask>>>;
+
+// Helper to assert result is defined and return typed result
+function assertResult(result: SummaryResult | undefined): SummaryResult {
+  expect(result).toBeDefined();
+  return result!;
+}
+
 describe('handleSummarizeTask', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -82,11 +91,12 @@ describe('handleSummarizeTask', () => {
         `,
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.request).toBe('Fix authentication bug');
       expect(result.investigated).toBe('Login module, password comparison logic');
@@ -107,11 +117,12 @@ describe('handleSummarizeTask', () => {
         `,
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.nextSteps).toBe('Alternative next steps format');
     });
@@ -177,7 +188,8 @@ describe('handleSummarizeTask', () => {
         content: '<summary><request>Test</request></summary>',
       });
 
-      const result = await handleSummarizeTask(mockAgent, createTestPayload(), []);
+      const rawResult = await handleSummarizeTask(mockAgent, createTestPayload(), []);
+      const result = assertResult(rawResult);
 
       expect(result.request).toBe('No observations to summarize');
       expect(result.investigated).toBe('');
@@ -237,11 +249,12 @@ describe('handleSummarizeTask', () => {
         outputTokens: 25,
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.request).toBe('Summary extraction failed');
       expect(result.investigated).toBe('');
@@ -256,11 +269,12 @@ describe('handleSummarizeTask', () => {
         content: '',
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.request).toBe('Summary extraction failed');
     });
@@ -270,11 +284,12 @@ describe('handleSummarizeTask', () => {
         content: '<summary></summary>',
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.request).toBe('Summary extraction failed');
     });
@@ -291,11 +306,12 @@ describe('handleSummarizeTask', () => {
         `,
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.request).toBe('User asked to fix bug');
       expect(result.completed).toBe('Bug was fixed');
@@ -313,11 +329,12 @@ describe('handleSummarizeTask', () => {
         `,
       });
 
-      const result = await handleSummarizeTask(
+      const rawResult = await handleSummarizeTask(
         mockAgent,
         createTestPayload(),
         createTestObservations()
       );
+      const result = assertResult(rawResult);
 
       expect(result.nextSteps).toBe('Review and merge PR');
       expect(result.request).toBe('');
