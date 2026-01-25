@@ -138,6 +138,14 @@ export interface Settings {
   // Worker Profiles and Limits (Issue #224)
   WORKER_PROFILES: string; // JSON array of worker profiles (WorkerConfig[])
   CAPABILITY_LIMITS: string; // JSON object of capability limits (Record<string, number>)
+
+  // Endless Mode (Issue #109) - Real-time context compression
+  ENDLESS_MODE_ENABLED: boolean; // Enable tool output archiving and compression
+  ENDLESS_MODE_COMPRESSION_MODEL: string; // Model for compression (e.g., 'claude-haiku-4-5')
+  ENDLESS_MODE_COMPRESSION_TIMEOUT: number; // Timeout for compression in ms (default: 90000)
+  ENDLESS_MODE_FALLBACK_ON_TIMEOUT: boolean; // Use full output if compression times out
+  ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS: boolean; // Skip compression for simple outputs
+  ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD: number; // Token threshold for "simple" outputs
 }
 
 // ============================================
@@ -268,6 +276,14 @@ export const DEFAULTS: Settings = {
   // Worker Profiles and Limits (Issue #224)
   WORKER_PROFILES: '[]', // Default: no profiles (use legacy behavior)
   CAPABILITY_LIMITS: '{}', // Default: no limits
+
+  // Endless Mode (Issue #109) - Real-time context compression
+  ENDLESS_MODE_ENABLED: false, // Disabled by default (experimental)
+  ENDLESS_MODE_COMPRESSION_MODEL: 'claude-haiku-4-5', // Fast model for compression
+  ENDLESS_MODE_COMPRESSION_TIMEOUT: 90000, // 90 seconds
+  ENDLESS_MODE_FALLBACK_ON_TIMEOUT: true, // Use full output if compression fails
+  ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS: true, // Skip small outputs
+  ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD: 1000, // Outputs under 1000 tokens skip compression
 };
 
 // ============================================
@@ -292,6 +308,9 @@ const BOOLEAN_KEYS: SettingKey[] = [
   'LAZY_PROCESS_ON_SEARCH',
   'CLEANUP_AUTO_ENABLED',
   'DOCKER_AUTO_UPDATE_ENABLED',
+  'ENDLESS_MODE_ENABLED',
+  'ENDLESS_MODE_FALLBACK_ON_TIMEOUT',
+  'ENDLESS_MODE_SKIP_SIMPLE_OUTPUTS',
 ];
 
 /**
@@ -319,6 +338,8 @@ const NUMBER_KEYS: SettingKey[] = [
   'WORKER_MAX_RESTARTS',
   'WORKER_RESTART_DELAY_MS',
   'WORKER_RESTART_BACKOFF_MULTIPLIER',
+  'ENDLESS_MODE_COMPRESSION_TIMEOUT',
+  'ENDLESS_MODE_SIMPLE_OUTPUT_THRESHOLD',
 ];
 
 // ============================================

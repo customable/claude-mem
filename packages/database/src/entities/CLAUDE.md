@@ -5,19 +5,31 @@
 
 ### Jan 25
 
-| ID | Time       | T | Title                                      | Read     |
-|----|------------|---|--------------------------------------------|----------|
-| #23 | 11:15 AM   | 🟠 | Added composite indexes to Task entity      | ~1774    |
-| #18 | 11:15 AM   | 🟠 | Added composite index for project/source    | ~1776    |
-| #17 | 11:15 AM   | 🟠 | Added composite index for project/started_at| ~1596    |
-| #16 | 11:15 AM   | 🟠 | Added Observation entity indexes            | ~2554    |
-| #15 | 11:14 AM   | 🔵 | Session Entity Structure Analysis           | ~1296    |
-| #14 | 11:14 AM   | 🔵 | Task Entity Structure Analysis              | ~1355    |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #701 | 12:54 PM | 🔵 | ArchivedOutput entity structure | ~1328 |
+| #662 | 12:49 PM | 🔵 | Observation Entity Structure | ~1985 |
+| #661 | 12:49 PM | 🟠 | Add ArchivedOutput entity export | ~1228 |
+| #660 | 12:49 PM | 🟠 | Create ArchivedOutput entity | ~1882 |
+| #654 | 12:48 PM | 🔵 | Database entities overview | ~1057 |
+| #538 | 12:34 PM | 🔵 | Task Entity Structure | ~1435 |
+| #217 | 11:58 AM | 🔵 | Observation Entity Analysis | ~1635 |
+| #184 | 11:56 AM | 🔵 | Database entities overview | ~1002 |
+| #180 | 11:56 AM | 🔵 | Task Entity Analysis | ~1416 |
+| #122 | 11:45 AM | 🟠 | Added deduplication_key field | ~1653 |
+| #119 | 11:45 AM | 🔵 | Task Entity Analysis | ~1280 |
+| #23 | 11:15 AM | 🟠 | Composite indexes for Task | ~1774 |
+| #18 | 11:15 AM | 🟠 | Composite index for Document | ~1776 |
+| #17 | 11:15 AM | 🟠 | Composite index for Session | ~1596 |
+| #16 | 11:14 AM | 🟠 | Observation entity indexes | ~2554 |
+| #15 | 11:14 AM | 🔵 | Session Entity Analysis | ~1296 |
+| #14 | 11:14 AM | 🔵 | Task Entity Analysis | ~1355 |
 
 ## Key Insights
 
-- **Database Optimization**: Multiple composite indexes were added to improve query performance across Task, Document, Session, and Observation entities.
-- **Entity Analysis**: Detailed examination of Session and Task entities revealed their roles in session management and task queue coordination.
-- **Next Steps**: Focus on implementing the Worker-Konfigurations-Modal feature and updating documentation based on recent GitHub issues.
-- **Schema Updates**: Successful integration of FTS5 full-text search and repositories table, with verified migrations.
+- **ArchivedOutput Entity**: New entity created for Endless Mode (Issue #109) to store full tool outputs while using compressed observations in context, enabling perfect recall.
+- **Database Optimization**: Multiple composite indexes added to Task, Session, Document, and Observation entities to improve query performance.
+- **Task Deduplication**: Added `deduplication_key` field to Task entity (Issue #207) to prevent duplicate tasks using type+payload hashing.
+- **System Architecture**: Uses capability-based worker routing, hybrid SSE/WebSocket communication, and has potential for federation.
+- **Next Steps**: Implement priority-based capability resolution, design federation routing logic, and evaluate database options for production deployment.
 </claude-mem-context>

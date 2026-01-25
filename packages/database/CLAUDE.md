@@ -7,16 +7,21 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #467 | 12:25 PM | 🔵 | Database package uses MikroORM with multiple SQL drivers | ~1290 |
+| #217 | 11:58 AM | 🔵 | Observation Entity Structure Analysis | ~1635 |
+| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite-specific JSON handling | ~1639 |
+| #184 | 11:56 AM | 🔵 | Database entities structure overview | ~1002 |
+| #180 | 11:56 AM | 🔵 | Task Entity Structure Analysis | ~1416 |
 | #143 | 11:50 AM | 🔵 | PNPM script execution requires workspace flag | ~781 |
-| #142 | 11:50 AM | 🟠 | Added new migration for task deduplication | ~3232 |
+| #142 | 11:50 AM | 🟣 | Added new migration for task deduplication | ~3232 |
 | #135 | 11:48 AM | 🔵 | Task deduplication migration found | ~967 |
 | #134 | 11:48 AM | 🔵 | Found deduplication migration file | ~833 |
-| #132 | 11:47 AM | 🟠 | Created new database migration for task deduplication | ~851 |
-| #128 | 11:46 AM | 🟠 | Added task deduplication functionality (Issue #207) | ~5137 |
-| #126 | 11:46 AM | 🟠 | Added deduplication key support to TaskRepository | ~3840 |
-| #125 | 11:46 AM | 🟠 | Added createHash import to TaskRepository | ~3226 |
+| #132 | 11:47 AM | 🟣 | Created new database migration for task deduplication | ~851 |
+| #128 | 11:46 AM | 🟣 | Added task deduplication functionality (Issue #207) | ~5137 |
+| #126 | 11:46 AM | 🟣 | Added deduplication key support to TaskRepository | ~3840 |
+| #125 | 11:46 AM | 🟣 | Added createHash import to TaskRepository | ~3226 |
 | #124 | 11:46 AM | 🔵 | Examining TaskRepository implementation for MikroORM | ~3148 |
-| #122 | 11:45 AM | 🟠 | Added deduplication_key field to Task entity | ~1653 |
+| #122 | 11:45 AM | 🟣 | Added deduplication_key field to Task entity | ~1653 |
 | #119 | 11:45 AM | 🔵 | Task Entity Structure Analysis | ~1280 |
 | #83 | 11:38 AM | 🔵 | Located CodeSnippet-related files in database package | ~886 |
 | #69 | 11:34 AM | 🔴 | Fixed SQL query logic for file filtering in ObservationRepository | ~5791 |
@@ -25,24 +30,19 @@
 | #63 | 11:32 AM | 🔵 | Discovered methods for session-based data retrieval | ~1006 |
 | #51 | 11:21 AM | 🟣 | Removed test migration file | ~723 |
 | #50 | 11:21 AM | 🔴 | Fixed migration path configuration for TypeScript source files | ~2866 |
-| #48 | 11:21 AM | 🟠 | Test migration path after fix | ~860 |
+| #48 | 11:21 AM | 🟣 | Test migration path after fix | ~860 |
 | #47 | 11:20 AM | 🔵 | Database configuration supports multiple database types | ~1945 |
 | #46 | 11:20 AM | 🟣 | Removed test migration file | ~736 |
-| #44 | 11:20 AM | 🟠 | Created new database migration "test_path" | ~854 |
+| #44 | 11:20 AM | 🟣 | Created new database migration "test_path" | ~854 |
 | #41 | 11:19 AM | 🔄 | Removed migrationsList from MikroORM exports | ~1273 |
 | #40 | 11:19 AM | 🔵 | Exploring MikroORM database layer structure | ~1124 |
 | #39 | 11:19 AM | 🔄 | Replace hardcoded migration list with dynamic configuration | ~2734 |
-| #38 | 11:19 AM | 🔄 | Standardize migrations configuration across database types | ~3205 |
-| #37 | 11:19 AM | 🔄 | Update MikroORM config to use automatic migration discovery | ~4019 |
-| #36 | 11:19 AM | 🔄 | Refactor default SQLite config to use migrationsConfig | ~2353 |
-| #35 | 11:18 AM | 🔄 | Consolidate SQLite migration configuration | ~2469 |
-| #34 | 11:18 AM | 🔵 | Multi-database support with MikroORM | ~2061 |
 
 ## Key Insights
 
-- **Task Deduplication Implemented**: Added SHA-256 hashing for task deduplication (Issue #207) with new `deduplication_key` field in Task entity and repository methods.
-- **Database Configuration Refactored**: Consolidated migration configuration across SQLite, PostgreSQL, and MySQL for consistency and automatic discovery.
-- **Bug Fixes Applied**: Resolved SQL query logic in ObservationRepository and fixed migration path issues for TypeScript builds.
-- **Performance Optimizations**: Implemented batch operations for session queries and added proper indexing to address N+1 query problems.
-- **Multi-Database Support**: Confirmed MikroORM setup supports SQLite (default), PostgreSQL, and MySQL with 15 entities and growing migration history.
+- **Task Deduplication Implemented**: Added SHA-256 hash-based deduplication keys to prevent duplicate task processing (Issue #207 resolved).
+- **Database Architecture**: Uses MikroORM with SQLite (FTS5), PostgreSQL, and MySQL support. Entities include Session, Observation, Task, and Summary.
+- **Repository Patterns**: Repositories implement batch operations (e.g., chunked deletes) and SQLite-specific optimizations (e.g., `json_each()`).
+- **Migration System**: Dynamic migration discovery replaced hardcoded lists, with path fixes for TypeScript builds.
+- **Search Capabilities**: ObservationRepository leverages SQLite FTS5 for full-text search across AI-generated observations.
 </claude-mem-context>

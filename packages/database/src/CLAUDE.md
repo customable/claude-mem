@@ -5,39 +5,44 @@
 
 ### Jan 25
 
-| ID | Time      | T  | Title                                                                 | Read     |
-|----|-----------|----|-----------------------------------------------------------------------|----------|
-| #69 | 11:34 AM  | 🔴 | Fixed SQL query logic for file filtering in ObservationRepository      | ~5791    |
-| #66 | 11:33 AM  | 🔵 | ObservationRepository uses MikroORM with FTS5 for search              | ~5522    |
-| #64 | 11:32 AM  | 🔵 | ObservationRepository implements batch delete with chunking            | ~1969    |
-| #63 | 11:32 AM  | 🔵 | Discovered methods for session-based data retrieval                     | ~1006    |
-| #50 | 11:21 AM  | 🔴 | Fixed migration path configuration for TypeScript source files         | ~2866    |
-| #47 | 11:21 AM  | 🔵 | Database configuration supports multiple database types                | ~1945    |
-| #41 | 11:19 AM  | 🔄 | Removed migrationsList from MikroORM exports                            | ~1273    |
-| #40 | 11:19 AM  | 🔵 | Exploring MikroORM database layer structure                            | ~1124    |
-| #39 | 11:19 AM  | 🔄 | Replace hardcoded migration list with dynamic configuration            | ~2734    |
-| #38 | 11:19 AM  | 🔄 | Standardize migrations configuration across database types             | ~3205    |
-| #37 | 11:19 AM  | 🔄 | Update MikroORM config to use automatic migration discovery            | ~4019    |
-| #36 | 11:19 AM  | 🔄 | Refactor default SQLite config to use migrationsConfig                 | ~2353    |
-| #35 | 11:18 AM  | 🔄 | Consolidate SQLite migration configuration                             | ~2469    |
-| #34 | 11:18 AM  | 🔵 | Multi-database support with MikroORM                                   | ~2061    |
-| #32 | 11:17 AM  | 🟠 | Add new migration for performance indexes                               | ~2405    |
-| #31 | 11:17 AM  | 🟠 | Add new migration for performance indexes                               | ~2695    |
-| #27 | 11:16 AM  | 🔵 | Performance indexes added for database optimization                    | ~1238    |
-| #24 | 11:16 AM  | 🔵 | Database migration for repositories table with performance indexes      | ~1147    |
-| #23 | 11:15 AM  | 🟠 | Added composite indexes to Task entity for query optimization           | ~1774    |
-| #19 | 11:15 AM  | 🔵 | Database Schema Analysis for claude-mem Project                         | ~5549    |
-| #18 | 11:15 AM  | 🟠 | Added composite index for project and source fields                     | ~1776    |
-| #17 | 11:15 AM  | 🟠 | Added composite index for project and started_at_epoch                  | ~1596    |
-| #16 | 11:15 AM  | 🟠 | Added composite and working directory indexes to Observation entity     | ~2554    |
-| #15 | 11:14 AM  | 🔵 | Session Entity Structure Analysis                                       | ~1296    |
-| #14 | 11:14 AM  | 🔵 | Task Entity Structure Analysis                                         | ~1355    |
+| ID | Time | T | Title | Read |
+|----|------|---|-------|------|
+| #686 | 12:52 PM | 🟠 | Add new migration for archived outputs | ~3075 |
+| #685 | 12:52 PM | 🟠 | Added archivedOutputs repository to UnitOfWork | ~3109 |
+| #683 | 12:52 PM | 🟠 | Added archivedOutputs repository to UnitOfWork | ~3016 |
+| #682 | 12:52 PM | 🟠 | Add ArchivedOutput entity to MikroORM config | ~2896 |
+| #681 | 12:52 PM | 🟠 | Add new migration for archived outputs | ~3054 |
+| #680 | 12:52 PM | 🟠 | Add ArchivedOutput entity to MikroORM config | ~2858 |
+| #679 | 12:52 PM | 🔵 | MikroORM Unit of Work Implementation Analysis | ~2493 |
+| #678 | 12:52 PM | 🔵 | Database Configuration Structure Analysis | ~2325 |
+| #677 | 12:52 PM | 🟠 | Added ArchivedOutputRepository export | ~1483 |
+| #676 | 12:51 PM | 🟠 | Added archivedOutputs repository init | ~3107 |
+| #675 | 12:51 PM | 🟠 | Create migration for archived_outputs table | ~2193 |
+| #674 | 12:51 PM | 🟠 | Added ArchivedOutputRepository import | ~2804 |
+| #672 | 12:51 PM | 🟠 | Add new migration export for archived outputs | ~1402 |
+| #670 | 12:51 PM | 🔵 | Migration files exported from index | ~911 |
+| #669 | 12:51 PM | 🔵 | Migration for task deduplication key added | ~975 |
+| #667 | 12:50 PM | 🟠 | Created ArchivedOutputRepository | ~5277 |
+| #664 | 12:49 PM | 🔵 | Examined MikroORM Document Repository | ~3251 |
+| #663 | 12:49 PM | 🔵 | MikroORM Repository Structure Overview | ~1226 |
+| #662 | 12:49 PM | 🔵 | Observation Entity Structure Analysis | ~1985 |
+| #661 | 12:49 PM | 🟠 | Add ArchivedOutput entity export | ~1228 |
+| #660 | 12:49 PM | 🟠 | Create ArchivedOutput entity | ~1882 |
+| #654 | 12:48 PM | 🔵 | Database entities structure overview | ~1057 |
+| #545 | 12:34 PM | 🔵 | Examining TaskRepository implementation | ~3523 |
+| #538 | 12:34 PM | 🔵 | Task Entity Structure Analysis | ~1435 |
+| #217 | 11:58 AM | 🔵 | Observation Entity Structure Analysis | ~1635 |
+| #201 | 11:57 AM | 🔵 | TaskRepository uses MikroORM with SQLite | ~1639 |
+| #184 | 11:56 AM | 🔵 | Database entities structure overview | ~1002 |
+| #180 | 11:56 AM | 🔵 | Task Entity Structure Analysis | ~1416 |
+| #142 | 11:50 AM | 🟠 | Added new migration for task deduplication | ~3232 |
+| #135 | 11:48 AM | 🔵 | Task deduplication migration found | ~967 |
 
 ## Key Insights
 
-- **Performance Optimization**: Multiple composite indexes were added to key entities (Observation, Session, Document, Task) to resolve N+1 query problems and improve query performance.
-- **Database Refactoring**: Significant refactoring of MikroORM configuration to standardize migration handling across SQLite, PostgreSQL, and MySQL, moving from hardcoded lists to dynamic discovery.
-- **Bug Fixes**: Critical fixes applied to SQL query logic in ObservationRepository and migration path configuration for TypeScript files.
-- **Batch Operations**: Implemented batch delete with chunking in ObservationRepository to handle large datasets efficiently.
-- **Multi-Database Support**: Confirmed robust support for SQLite (default), PostgreSQL, and MySQL/MariaDB with consistent migration strategies.
+- **Archived Outputs Feature**: Major development on Endless Mode (Issue #109) with new `ArchivedOutput` entity, repository, and migrations to store full tool outputs while using compressed observations.
+- **Database Architecture**: MikroORM is central to the system, supporting multiple database types (SQLite, PostgreSQL, MySQL) with a well-structured repository pattern.
+- **Task System Enhancements**: Task deduplication functionality added via new migration and repository updates to prevent duplicate task processing.
+- **Entity Relationships**: Core entities include `Session`, `Observation`, `Task`, and now `ArchivedOutput`, forming the backbone of the data model.
+- **Next Steps**: Focus on completing the Endless Mode implementation, testing the new archived outputs functionality, and ensuring proper integration with existing systems.
 </claude-mem-context>

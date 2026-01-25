@@ -11,6 +11,8 @@ import type {
   SessionSummaryRecord,
   UserPromptRecord,
   DocumentRecord,
+  ArchivedOutputRecord,
+  CompressionStatus,
   ObservationType,
   DocumentType,
   SessionStatus,
@@ -1334,6 +1336,102 @@ export interface IProjectSettingsRepository {
 }
 
 // ============================================
+// Archived Output Repository (Endless Mode)
+// ============================================
+
+/**
+ * Archived output creation input
+ */
+export interface CreateArchivedOutputInput {
+  memorySessionId: string;
+  project: string;
+  toolName: string;
+  toolInput: string;
+  toolOutput: string;
+  tokenCount?: number;
+}
+
+/**
+ * Archived output query filters
+ */
+export interface ArchivedOutputQueryFilters {
+  project?: string;
+  sessionId?: string;
+  toolName?: string;
+  compressionStatus?: CompressionStatus | CompressionStatus[];
+  dateRange?: DateRangeFilter;
+}
+
+/**
+ * Archived Output Repository Interface (Endless Mode - Issue #109)
+ */
+export interface IArchivedOutputRepository {
+  /**
+   * Archive a tool output
+   */
+  create(input: CreateArchivedOutputInput): Promise<ArchivedOutputRecord>;
+
+  /**
+   * Find archived output by ID
+   */
+  findById(id: number): Promise<ArchivedOutputRecord | null>;
+
+  /**
+   * Get pending outputs for compression
+   */
+  getPendingCompression(limit?: number): Promise<ArchivedOutputRecord[]>;
+
+  /**
+   * Update compression status
+   */
+  updateCompressionStatus(
+    id: number,
+    status: CompressionStatus,
+    extra?: {
+      compressedObservationId?: number;
+      compressedTokenCount?: number;
+      errorMessage?: string;
+    }
+  ): Promise<ArchivedOutputRecord | null>;
+
+  /**
+   * List archived outputs with filters
+   */
+  list(filters?: ArchivedOutputQueryFilters, options?: QueryOptions): Promise<ArchivedOutputRecord[]>;
+
+  /**
+   * Get archived output by observation ID (for recall)
+   */
+  findByObservationId(observationId: number): Promise<ArchivedOutputRecord | null>;
+
+  /**
+   * Search archived outputs (for MCP recall)
+   */
+  search(query: string, filters?: ArchivedOutputQueryFilters, options?: QueryOptions): Promise<ArchivedOutputRecord[]>;
+
+  /**
+   * Get storage statistics
+   */
+  getStats(): Promise<{
+    totalCount: number;
+    pendingCount: number;
+    completedCount: number;
+    failedCount: number;
+    totalTokensSaved: number;
+  }>;
+
+  /**
+   * Delete an archived output
+   */
+  delete(id: number): Promise<boolean>;
+
+  /**
+   * Cleanup old compressed outputs
+   */
+  cleanup(olderThanDays: number): Promise<number>;
+}
+
+// ============================================
 // Unit of Work Pattern
 // ============================================
 
@@ -1366,6 +1464,8 @@ export interface IUnitOfWork {
   achievements: IAchievementRepository;
   // Lazy mode
   rawMessages: IRawMessageRepository;
+  // Endless Mode (Issue #109)
+  archivedOutputs: IArchivedOutputRepository;
 
   /**
    * Start a transaction
