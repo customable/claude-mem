@@ -149,48 +149,33 @@ export class DataRouter extends BaseRouter {
     const sessionIds = sessions.map(s => s.content_session_id);
     const firstPrompts = await this.deps.userPrompts.getFirstPromptsForSessions(sessionIds);
 
+    // Get observation counts and file stats in batch (Issue #202 - fix N+1 problem)
+    const memorySessionIds = sessions
+      .map(s => s.memory_session_id)
+      .filter((id): id is string => id !== null && id !== undefined);
+
+    const [observationCounts, fileStats] = await Promise.all([
+      this.deps.observations.getCountsBySessionIds(memorySessionIds),
+      this.deps.observations.getFileStatsBySessionIds(memorySessionIds),
+    ]);
+
     // Enrich sessions with observation counts, first prompts, and file info
-    const enrichedSessions = await Promise.all(
-      sessions.map(async (session) => {
-        let observationCount = 0;
-        const filesRead: string[] = [];
-        const filesModified: string[] = [];
+    const enrichedSessions = sessions.map((session) => {
+      const stats = session.memory_session_id
+        ? fileStats.get(session.memory_session_id)
+        : undefined;
 
-        if (session.memory_session_id) {
-          const observations = await this.deps.observations.getBySessionId(session.memory_session_id);
-          observationCount = observations.length;
-
-          // Aggregate files from all observations
-          for (const obs of observations) {
-            if (obs.files_read) {
-              try {
-                const files = JSON.parse(obs.files_read) as string[];
-                for (const f of files) {
-                  if (!filesRead.includes(f)) filesRead.push(f);
-                }
-              } catch { /* ignore parse errors */ }
-            }
-            if (obs.files_modified) {
-              try {
-                const files = JSON.parse(obs.files_modified) as string[];
-                for (const f of files) {
-                  if (!filesModified.includes(f)) filesModified.push(f);
-                }
-              } catch { /* ignore parse errors */ }
-            }
-          }
-        }
-
-        return {
-          ...session,
-          user_prompt: firstPrompts.get(session.content_session_id) || null,
-          observation_count: observationCount,
-          prompt_count: session.prompt_counter ?? 0,
-          files_read: filesRead,
-          files_modified: filesModified,
-        };
-      })
-    );
+      return {
+        ...session,
+        user_prompt: firstPrompts.get(session.content_session_id) || null,
+        observation_count: session.memory_session_id
+          ? observationCounts.get(session.memory_session_id) ?? 0
+          : 0,
+        prompt_count: session.prompt_counter ?? 0,
+        files_read: stats?.filesRead ?? [],
+        files_modified: stats?.filesModified ?? [],
+      };
+    });
 
     const total = await this.deps.sessionService.getSessionCount({
       project: getString(project),

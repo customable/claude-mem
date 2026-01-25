@@ -318,6 +318,18 @@ export interface IObservationRepository {
   getBySessionId(memorySessionId: string, options?: QueryOptions): Promise<ObservationRecord[]>;
 
   /**
+   * Get observation counts for multiple sessions (Issue #202)
+   * Efficient batch query to avoid N+1 problem
+   */
+  getCountsBySessionIds(memorySessionIds: string[]): Promise<Map<string, number>>;
+
+  /**
+   * Get file statistics for multiple sessions (Issue #202)
+   * Returns aggregated files_read and files_modified per session
+   */
+  getFileStatsBySessionIds(memorySessionIds: string[]): Promise<Map<string, { filesRead: string[]; filesModified: string[] }>>;
+
+  /**
    * Get observations for context injection
    */
   getForContext(project: string, limit: number): Promise<ObservationRecord[]>;
