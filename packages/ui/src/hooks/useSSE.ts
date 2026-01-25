@@ -59,12 +59,22 @@ export interface WorkerTaskState {
 }
 
 /**
+ * Queue status for task processing
+ */
+export interface QueueStatus {
+  pending: number;
+  processing: number;
+  failed: number;
+}
+
+/**
  * SSE State
  */
 export interface SSEState {
   status: ConnectionStatus;
   workerCount: number;
   workerTasks: WorkerTaskState;
+  queueStatus: QueueStatus;
   lastEvent: SSEEvent | null;
 }
 
@@ -81,6 +91,7 @@ let globalListeners: Set<(event: SSEEvent) => void> = new Set();
 let globalStatus: ConnectionStatus = 'disconnected';
 let globalWorkerCount = 0;
 let globalWorkerTasks: WorkerTaskState = {};
+let globalQueueStatus: QueueStatus = { pending: 0, processing: 0, failed: 0 };
 
 function notifyListeners(event: SSEEvent) {
   for (const listener of globalListeners) {
@@ -126,6 +137,8 @@ function connectGlobal() {
           }
           break;
         case 'task:assigned':
+          globalQueueStatus.pending = Math.max(0, globalQueueStatus.pending - 1);
+          globalQueueStatus.processing++;
           if (data.data && typeof data.data === 'object') {
             const { workerId, taskId, taskType } = data.data as { workerId: string; taskId: string; taskType?: string };
             if (workerId) {
@@ -145,8 +158,25 @@ function connectGlobal() {
             }
           }
           break;
+        case 'task:queued':
+          globalQueueStatus.pending++;
+          break;
         case 'task:completed':
+          globalQueueStatus.processing = Math.max(0, globalQueueStatus.processing - 1);
+          if (data.data && typeof data.data === 'object' && 'taskId' in data.data) {
+            const taskId = (data.data as { taskId: string }).taskId;
+            // Find worker with this task and clear it
+            for (const [wId, taskInfo] of Object.entries(globalWorkerTasks)) {
+              if (taskInfo?.taskId === taskId) {
+                globalWorkerTasks[wId] = null;
+                break;
+              }
+            }
+          }
+          break;
         case 'task:failed':
+          globalQueueStatus.processing = Math.max(0, globalQueueStatus.processing - 1);
+          globalQueueStatus.failed++;
           if (data.data && typeof data.data === 'object' && 'taskId' in data.data) {
             const taskId = (data.data as { taskId: string }).taskId;
             // Find worker with this task and clear it
@@ -187,6 +217,7 @@ export function useSSE(): UseSSEReturn {
   const [status, setStatus] = useState<ConnectionStatus>(globalStatus);
   const [workerCount, setWorkerCount] = useState(globalWorkerCount);
   const [workerTasks, setWorkerTasks] = useState<WorkerTaskState>({ ...globalWorkerTasks });
+  const [queueStatus, setQueueStatus] = useState<QueueStatus>({ ...globalQueueStatus });
   const [lastEvent, setLastEvent] = useState<SSEEvent | null>(null);
 
   useEffect(() => {
@@ -195,6 +226,7 @@ export function useSSE(): UseSSEReturn {
       setStatus(globalStatus);
       setWorkerCount(globalWorkerCount);
       setWorkerTasks({ ...globalWorkerTasks });
+      setQueueStatus({ ...globalQueueStatus });
       setLastEvent(event);
     };
 
@@ -223,11 +255,29 @@ export function useSSE(): UseSSEReturn {
         .catch(() => {
           // Ignore errors
         });
+
+      // Fetch initial queue status (Issue #275)
+      fetch('/api/data/tasks/status/counts')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data) {
+            globalQueueStatus = {
+              pending: (data.pending || 0) + (data.assigned || 0),
+              processing: data.processing || 0,
+              failed: data.failed || 0,
+            };
+            setQueueStatus({ ...globalQueueStatus });
+          }
+        })
+        .catch(() => {
+          // Ignore errors
+        });
     } else {
       // Sync with current global state
       setStatus(globalStatus);
       setWorkerCount(globalWorkerCount);
       setWorkerTasks({ ...globalWorkerTasks });
+      setQueueStatus({ ...globalQueueStatus });
     }
 
     return () => {
@@ -244,6 +294,7 @@ export function useSSE(): UseSSEReturn {
     status,
     workerCount,
     workerTasks,
+    queueStatus,
     lastEvent,
     reconnect,
   };
