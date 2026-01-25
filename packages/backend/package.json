@@ -32,6 +32,8 @@
     "@claude-mem/database": "workspace:*",
     "@claude-mem/shared": "workspace:*",
     "@claude-mem/types": "workspace:*",
+    "better-sqlite3": "^11.8.1",
+    "commander": "^14.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "express": "^5.2.1",
@@ -42,12 +44,12 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.9",
     "@types/ws": "^8.18.1",
-    "commander": "^14.0.2",
     "typescript": "^5.9.3"
   }
 }

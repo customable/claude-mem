@@ -9,6 +9,13 @@
 import { program } from 'commander';
 import { BackendService } from './server/backend-service.js';
 import { createLogger, initFileLogging, getLogFilePath, loadSettings, VERSION } from '@claude-mem/shared';
+import {
+  analyzeLegacyDatabase,
+  formatAnalysisReport,
+  importLegacyDatabase,
+  formatImportReport,
+  type ConflictStrategy,
+} from './migrate/index.js';
 
 // Initialize file logging
 const fileTransport = initFileLogging('backend');
@@ -137,5 +144,79 @@ program
     console.log(`  Max Workers: ${settings.MAX_WORKERS}`);
     console.log(`  Auto-Spawn: ${settings.AUTO_SPAWN_WORKERS}`);
   });
+
+// Migration commands (Issue #198)
+const migrate = program.command('migrate').description('Import data from legacy thedotmack/claude-mem databases');
+
+migrate
+  .command('analyze')
+  .description('Analyze a legacy database without making changes')
+  .argument('<source-db>', 'Path to legacy SQLite database')
+  .option('-j, --json', 'Output as JSON')
+  .action(async (sourceDb: string, options: { json?: boolean }) => {
+    try {
+      logger.info(`Analyzing legacy database: ${sourceDb}`);
+      const result = analyzeLegacyDatabase(sourceDb);
+
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(formatAnalysisReport(result));
+      }
+
+      if (!result.success) {
+        process.exit(1);
+      }
+    } catch (error) {
+      logger.error('Analysis failed:', error instanceof Error ? { message: error.message } : { error });
+      process.exit(1);
+    }
+  });
+
+migrate
+  .command('import')
+  .description('Import data from a legacy database')
+  .argument('<source-db>', 'Path to legacy SQLite database')
+  .option('-n, --dry-run', 'Analyze only, do not import')
+  .option('--no-backup', 'Skip creating a backup of the target database')
+  .option('-c, --conflict <strategy>', 'Conflict strategy: skip or overwrite', 'skip')
+  .option('-p, --project <projects...>', 'Only import from specific projects')
+  .option('-j, --json', 'Output as JSON')
+  .action(
+    async (
+      sourceDb: string,
+      options: { dryRun?: boolean; backup?: boolean; conflict?: string; project?: string[]; json?: boolean }
+    ) => {
+      try {
+        const conflict = (options.conflict === 'overwrite' ? 'overwrite' : 'skip') as ConflictStrategy;
+
+        logger.info(`Starting import from: ${sourceDb}`);
+        if (options.dryRun) {
+          logger.info('Dry run mode - no changes will be made');
+        }
+
+        const result = await importLegacyDatabase({
+          sourcePath: sourceDb,
+          dryRun: options.dryRun,
+          noBackup: options.backup === false,
+          conflict,
+          projects: options.project,
+        });
+
+        if (options.json) {
+          console.log(JSON.stringify(result, null, 2));
+        } else {
+          console.log(formatImportReport(result));
+        }
+
+        if (!result.success) {
+          process.exit(1);
+        }
+      } catch (error) {
+        logger.error('Import failed:', error instanceof Error ? { message: error.message } : { error });
+        process.exit(1);
+      }
+    }
+  );
 
 program.parse();
