@@ -413,6 +413,7 @@ export class BackendService {
       observationLinks: this.unitOfWork!.observationLinks,
       observationTemplates: this.unitOfWork!.observationTemplates,
       projectSettings: this.unitOfWork!.projectSettings,
+      archivedOutputs: this.unitOfWork!.archivedOutputs,
     }).router);
 
     // Search routes

@@ -236,6 +236,60 @@ async function main(): Promise<void> {
     }
   );
 
+  // Register recall_archived tool (Endless Mode - Issue #109)
+  server.registerTool(
+    'recall_archived',
+    {
+      description: 'Recall full tool outputs that were compressed in Endless Mode. Use this when you need the complete original output from a tool that was summarized.',
+      inputSchema: {
+        query: z.string().optional().describe('Search query to find archived outputs'),
+        observationId: z.number().optional().describe('Observation ID to recall full output for'),
+        sessionId: z.string().optional().describe('Filter by session ID'),
+        project: z.string().optional().describe('Filter by project'),
+        toolName: z.string().optional().describe('Filter by tool name (e.g., Read, Grep, Bash)'),
+        limit: z.number().optional().describe('Max results (default 5)'),
+      },
+    },
+    async (args) => {
+      const params = args as Record<string, unknown>;
+
+      // If observationId is provided, get the specific archived output
+      if (params.observationId) {
+        return callBackendAPI(`/api/data/archived-outputs/by-observation/${params.observationId}`, {});
+      }
+
+      // Otherwise, search archived outputs
+      if (!params.query) {
+        return {
+          content: [{
+            type: 'text' as const,
+            text: 'Error: Either "query" or "observationId" is required'
+          }],
+          isError: true,
+        };
+      }
+
+      const backendParams: Record<string, unknown> = {
+        q: params.query,
+        sessionId: params.sessionId,
+        project: params.project,
+        toolName: params.toolName,
+        limit: params.limit ?? 5,
+      };
+      return callBackendAPI('/api/data/archived-outputs/search', backendParams);
+    }
+  );
+
+  // Register archived_stats tool (Endless Mode - Issue #109)
+  server.registerTool(
+    'archived_stats',
+    {
+      description: 'Get statistics about archived tool outputs and compression efficiency.',
+      inputSchema: {},
+    },
+    async () => callBackendAPI('/api/data/archived-outputs/stats', {})
+  );
+
   // Connect via stdio
   const transport = new StdioServerTransport();
   await server.connect(transport);

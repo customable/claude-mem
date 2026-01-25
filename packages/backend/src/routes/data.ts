@@ -8,7 +8,7 @@ import type { Request, Response } from 'express';
 import { BaseRouter } from './base-router.js';
 import type { SessionService } from '../services/session-service.js';
 import type { TaskService } from '../services/task-service.js';
-import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType } from '@claude-mem/types';
+import type { IObservationRepository, ISummaryRepository, ISessionRepository, IDocumentRepository, IUserPromptRepository, ICodeSnippetRepository, IObservationLinkRepository, IObservationTemplateRepository, IProjectSettingsRepository, IArchivedOutputRepository, ObservationType, DocumentType, TaskStatus, ObservationQueryFilters, ObservationLinkType, CompressionStatus } from '@claude-mem/types';
 import {
   cacheManager,
   projectCache,
@@ -47,6 +47,7 @@ export interface DataRouterDeps {
   observationLinks: IObservationLinkRepository;
   observationTemplates: IObservationTemplateRepository;
   projectSettings: IProjectSettingsRepository;
+  archivedOutputs?: IArchivedOutputRepository;
 }
 
 export class DataRouter extends BaseRouter {
@@ -130,6 +131,13 @@ export class DataRouter extends BaseRouter {
     this.router.get('/project-settings/:project', this.asyncHandler(this.getProjectSettings.bind(this)));
     this.router.put('/project-settings/:project', this.asyncHandler(this.updateProjectSettings.bind(this)));
     this.router.delete('/project-settings/:project', this.asyncHandler(this.deleteProjectSettings.bind(this)));
+
+    // Archived Outputs (Endless Mode - Issue #109)
+    this.router.get('/archived-outputs', this.asyncHandler(this.listArchivedOutputs.bind(this)));
+    this.router.get('/archived-outputs/search', this.asyncHandler(this.searchArchivedOutputs.bind(this)));
+    this.router.get('/archived-outputs/stats', this.asyncHandler(this.getArchivedOutputsStats.bind(this)));
+    this.router.get('/archived-outputs/:id', this.asyncHandler(this.getArchivedOutput.bind(this)));
+    this.router.get('/archived-outputs/by-observation/:observationId', this.asyncHandler(this.getArchivedOutputByObservation.bind(this)));
   }
 
   /**
@@ -1311,5 +1319,128 @@ export class DataRouter extends BaseRouter {
     }
 
     this.noContent(res);
+  }
+
+  // ============================================
+  // Archived Outputs (Endless Mode - Issue #109)
+  // ============================================
+
+  /**
+   * GET /api/data/archived-outputs
+   * List archived outputs with filtering
+   */
+  private async listArchivedOutputs(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const { sessionId, project, status, toolName, limit, offset } = req.query;
+
+    const outputs = await this.deps.archivedOutputs.list(
+      {
+        sessionId: getString(sessionId),
+        project: getString(project),
+        compressionStatus: getString(status) as CompressionStatus | undefined,
+        toolName: getString(toolName),
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 50,
+        offset: this.parseOptionalIntParam(getString(offset)) ?? 0,
+      }
+    );
+
+    this.success(res, { data: outputs });
+  }
+
+  /**
+   * GET /api/data/archived-outputs/search
+   * Search archived outputs (for MCP recall)
+   */
+  private async searchArchivedOutputs(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const { q, sessionId, project, toolName, limit } = req.query;
+
+    if (!q || typeof q !== 'string') {
+      this.badRequest('Query parameter "q" is required');
+    }
+
+    const outputs = await this.deps.archivedOutputs.search(
+      q,
+      {
+        sessionId: getString(sessionId),
+        project: getString(project),
+        toolName: getString(toolName),
+      },
+      {
+        limit: this.parseOptionalIntParam(getString(limit)) ?? 10,
+      }
+    );
+
+    this.success(res, { data: outputs, query: q });
+  }
+
+  /**
+   * GET /api/data/archived-outputs/stats
+   * Get archived output statistics
+   */
+  private async getArchivedOutputsStats(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const stats = await this.deps.archivedOutputs.getStats();
+    this.success(res, stats);
+  }
+
+  /**
+   * GET /api/data/archived-outputs/:id
+   * Get a specific archived output by ID
+   */
+  private async getArchivedOutput(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const id = parseInt(getRequiredString(req.params.id), 10);
+    if (isNaN(id)) {
+      this.badRequest('Invalid ID');
+    }
+
+    const output = await this.deps.archivedOutputs.findById(id);
+    if (!output) {
+      this.notFound(`Archived output not found: ${id}`);
+    }
+
+    this.success(res, output);
+  }
+
+  /**
+   * GET /api/data/archived-outputs/by-observation/:observationId
+   * Get archived output by observation ID (for recall)
+   */
+  private async getArchivedOutputByObservation(req: Request, res: Response): Promise<void> {
+    if (!this.deps.archivedOutputs) {
+      res.status(501).json({ error: 'Archived outputs not available (Endless Mode not enabled)' });
+      return;
+    }
+
+    const observationId = parseInt(getRequiredString(req.params.observationId), 10);
+    if (isNaN(observationId)) {
+      this.badRequest('Invalid observation ID');
+    }
+
+    const output = await this.deps.archivedOutputs.findByObservationId(observationId);
+    if (!output) {
+      this.notFound(`Archived output not found for observation: ${observationId}`);
+    }
+
+    this.success(res, output);
   }
 }
