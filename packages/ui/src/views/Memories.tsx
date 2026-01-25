@@ -17,18 +17,31 @@ interface Filters {
   search: string;
 }
 
+// Page size options for pagination (Issue #277)
+const PAGE_SIZES = [20, 50, 100] as const;
+
 export function MemoriesView() {
   const [filters, setFilters] = useState<Filters>({ project: '', type: '', search: '' });
-  const [limit] = useState(100);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number>(50);
 
   // SSE for real-time updates
   const { lastEvent } = useSSE();
 
-  // Fetch observations
+  // Fetch observations with pagination (Issue #277)
   const { data, loading, error, refetch } = useQuery(
-    () => api.getObservations({ limit, project: filters.project || '' }),
-    [limit, filters.project]
+    () => api.getObservations({
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+      project: filters.project || '',
+    }),
+    [pageSize, page, filters.project]
   );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filters.project, filters.type, filters.search, pageSize]);
 
   // Fetch projects for filter dropdown
   const { data: projectsData } = useQuery(() => api.getProjects(), []);
@@ -60,19 +73,55 @@ export function MemoriesView() {
     return items;
   }, [data, filters.type, filters.search]);
 
-  // Group by date
+  // Calculate total pages (Issue #277)
+  const totalItems = data?.total || observations.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  // Check if any filter is active (Issue #277)
+  const hasActiveFilters = filters.search || filters.type || filters.project;
+
+  // Clear all filters (Issue #277)
+  const clearFilters = () => {
+    setFilters({ project: '', type: '', search: '' });
+    setPage(1);
+  };
+
+  // Format date with relative labels (Issue #277)
+  const formatDateLabel = (dateStr: string): string => {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    // Check if same day
+    const isToday = date.toDateString() === today.toDateString();
+    const isYesterday = date.toDateString() === yesterday.toDateString();
+
+    if (isToday) return 'Today';
+    if (isYesterday) return 'Yesterday';
+
+    // Use browser locale for other dates
+    return date.toLocaleDateString(undefined, {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  // Group by date with improved formatting (Issue #277)
   const groupedByDate = useMemo(() => {
-    const groups: Record<string, Observation[]> = {};
+    const groups: Record<string, { label: string; items: Observation[] }> = {};
 
     observations.forEach((obs) => {
-      const date = new Date(obs.created_at).toLocaleDateString('de-DE', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
-      if (!groups[date]) groups[date] = [];
-      groups[date].push(obs);
+      const dateKey = new Date(obs.created_at).toDateString();
+      if (!groups[dateKey]) {
+        groups[dateKey] = {
+          label: formatDateLabel(obs.created_at),
+          items: [],
+        };
+      }
+      groups[dateKey].items.push(obs);
     });
 
     return groups;
@@ -101,14 +150,29 @@ export function MemoriesView() {
 
   return (
     <div className="space-y-4">
-      {/* Header & Filters */}
-      <div className="flex items-center justify-between gap-4">
+      {/* Header & Filters (Issue #277) */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Memories</h2>
           <span className="badge badge-neutral badge-sm">{observations.length} items</span>
+          {totalItems > observations.length && (
+            <span className="text-xs text-base-content/50">of {totalItems} total</span>
+          )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Clear Filters (Issue #277) */}
+          {hasActiveFilters && (
+            <button
+              className="btn btn-ghost btn-xs gap-1"
+              onClick={clearFilters}
+              title="Clear all filters"
+            >
+              <span className="iconify ph--x size-3" />
+              Clear
+            </button>
+          )}
+
           {/* Search */}
           <label className="input input-sm input-bordered flex items-center gap-2 w-40">
             <span className="iconify ph--magnifying-glass size-4 text-base-content/40" />
@@ -119,6 +183,14 @@ export function MemoriesView() {
               value={filters.search}
               onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
             />
+            {filters.search && (
+              <button
+                className="btn btn-ghost btn-xs btn-circle"
+                onClick={() => setFilters((f) => ({ ...f, search: '' }))}
+              >
+                <span className="iconify ph--x size-3" />
+              </button>
+            )}
           </label>
 
           {/* Project Filter */}
@@ -145,8 +217,20 @@ export function MemoriesView() {
             ))}
           </select>
 
+          {/* Page Size (Issue #277) */}
+          <select
+            className="select select-sm select-bordered w-20"
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
+            title="Items per page"
+          >
+            {PAGE_SIZES.map((size) => (
+              <option key={size} value={size}>{size}</option>
+            ))}
+          </select>
+
           {/* Refresh */}
-          <button onClick={refetch} className="btn btn-ghost btn-sm btn-square">
+          <button onClick={refetch} className="btn btn-ghost btn-sm btn-square" title="Refresh">
             <span className="iconify ph--arrows-clockwise size-4" />
           </button>
         </div>
@@ -170,22 +254,65 @@ export function MemoriesView() {
         </div>
       ) : (
         <div className="space-y-6">
-          {Object.entries(groupedByDate).map(([date, items]) => (
-            <div key={date}>
-              {/* Date Header */}
+          {Object.entries(groupedByDate).map(([dateKey, group]) => (
+            <div key={dateKey}>
+              {/* Date Header (Issue #277: improved localization) */}
               <div className="sticky top-0 z-10 bg-base-200/80 backdrop-blur-sm px-3 py-2 rounded-lg mb-3">
-                <span className="text-sm font-medium">{date}</span>
-                <span className="text-xs text-base-content/50 ml-2">({items.length} items)</span>
+                <span className="text-sm font-medium">{group.label}</span>
+                <span className="text-xs text-base-content/50 ml-2">({group.items.length} items)</span>
               </div>
 
               {/* Timeline Items */}
               <div className="relative pl-6 border-l-2 border-base-300 space-y-3">
-                {items.map((obs) => (
+                {group.items.map((obs) => (
                   <MemoryCard key={obs.id} observation={obs} />
                 ))}
               </div>
             </div>
           ))}
+
+          {/* Pagination Controls (Issue #277) */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-4">
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage(1)}
+                disabled={page === 1}
+                title="First page"
+              >
+                <span className="iconify ph--caret-double-left size-4" />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                title="Previous page"
+              >
+                <span className="iconify ph--caret-left size-4" />
+              </button>
+
+              <span className="text-sm px-2">
+                Page {page} of {totalPages}
+              </span>
+
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                title="Next page"
+              >
+                <span className="iconify ph--caret-right size-4" />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage(totalPages)}
+                disabled={page === totalPages}
+                title="Last page"
+              >
+                <span className="iconify ph--caret-double-right size-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -195,7 +322,8 @@ export function MemoriesView() {
 function MemoryCard({ observation }: { observation: Observation }) {
   const [expanded, setExpanded] = useState(false);
   const config = getTypeConfig(observation.type);
-  const time = new Date(observation.created_at).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+  // Use browser locale for time formatting (Issue #277)
+  const time = new Date(observation.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="relative">
