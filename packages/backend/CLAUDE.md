@@ -7,42 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #2510 | 6:29 PM | 🔵 | Backend service routes and dependencies discovered | ~1293 |
-| #2509 | 6:29 PM | 🔵 | DataRouter instantiation found in backend-service.ts | ~754 |
-| #2473 | 6:22 PM | 🔵 | API Rate Limiting and Router Structure | ~1805 |
-| #2472 | 6:22 PM | 🔵 | HooksRouter usage found in backend-service.ts | ~1107 |
-| #2372 | 6:06 PM | 🔵 | Insights service implements achievement unlocking logic | ~1592 |
-| #2368 | 6:06 PM | 🔵 | Discovered insights-service.ts updateDailyStats method | ~1270 |
-| #2366 | 6:06 PM | 🔵 | Bugfix tracking logic found in insights-service | ~1384 |
-| #2350 | 6:03 PM | 🔵 | Located ACHIEVEMENTS constant in insights-service.ts | ~1067 |
-| #2344 | 6:02 PM | 🔵 | Backend service routes and dependencies | ~1231 |
-| #2335 | 6:02 PM | 🔵 | Backend API routes for project settings and archived outputs | ~1694 |
-| #2328 | 6:02 PM | 🔵 | DataRouter initialization and usage discovered | ~1858 |
-| #2327 | 6:02 PM | 🔵 | Archived outputs feature depends on Endless Mode | ~1275 |
-| #2317 | 6:01 PM | 🔵 | Metrics Router Implementation Analysis | ~1938 |
-| #2313 | 6:00 PM | 🔵 | Found references to "archived-output" in backend routes | ~1125 |
-| #2272 | 5:54 PM | 🔵 | Located files related to insights achievements functionality | ~1066 |
-| #2227 | 5:48 PM | 🔵 | Discovered files related to observation creation events | ~1292 |
-| #2218 | 5:48 PM | 🔵 | Search for observation and vector-related code in task-service.ts | ~1087 |
-| #2217 | 5:48 PM | 🔵 | Semantic search task execution uses polling mechanism | ~2097 |
-| #2215 | 5:48 PM | 🔵 | No vector/semantic search references in session-service.ts | ~1066 |
-| #2214 | 5:48 PM | 🔵 | No Qdrant sync functionality found in backend | ~1095 |
-| #2213 | 5:47 PM | 🔵 | No task queue functions found in backend services | ~1076 |
-| #2212 | 5:47 PM | 🔵 | Discovered usage of executeSemanticSearch in backend | ~1403 |
-| #2087 | 5:17 PM | 🔄 | Standardize error handling in archived outputs endpoints | ~7328 |
-| #2086 | 5:16 PM | 🔵 | BaseRouter class provides common route utilities | ~1626 |
-| #2085 | 5:16 PM | 🔵 | Archived Outputs API Endpoints for Endless Mode | ~2072 |
-| #2083 | 5:15 PM | 🟠 | Added archivedOutputs to DataRouter initialization | ~5194 |
-| #2082 | 5:15 PM | 🔵 | DataRouter initialization and usage in backend service | ~2514 |
-| #2081 | 5:15 PM | 🔵 | Backend API routes structure discovered | ~1198 |
-| #2080 | 5:15 PM | 🟠 | Added archived outputs API endpoints for endless mode | ~6386 |
-| #2078 | 5:15 PM | 🟠 | Added Archived Outputs API Endpoints for Endless Mode | ~5296 |
+| #3068 | 7:51 PM | 🟠 | Create migration module for legacy data import | ~1641 |
+| #3065 | 7:50 PM | 🟠 | Create SQLite backup utility for legacy migration | ~2520 |
+| #3064 | 7:49 PM | 🟠 | Create type mapper for legacy migration | ~2350 |
+| #3052 | 7:47 PM | 🔵 | Backend package.json structure and dependencies | ~1821 |
+| #3050 | 7:47 PM | 🔵 | Base Router Class Structure and Utilities | ~1984 |
+| #3000 | 7:43 PM | 🔵 | Backend Service CLI Structure and Commands | ~2027 |
+| #2881 | 7:32 PM | 🔵 | Backend routes module structure discovered | ~1788 |
+| #2819 | 7:17 PM | 🔵 | Backend service initializes WebSocket and SSE | ~1528 |
+| #2818 | 7:17 PM | 🔵 | Discovered SSEBroadcaster and WorkerHub usage | ~1588 |
+| #2806 | 7:15 PM | 🔵 | Worker task assignment mechanism discovered | ~1484 |
+| #2804 | 7:15 PM | 🔵 | WorkerHub class methods for worker management | ~1974 |
+| #2785 | 7:10 PM | 🔵 | Worker message handling architecture discovered | ~1532 |
+| #2781 | 7:09 PM | 🔵 | WebSocket Server Implementation with Heartbeat | ~1979 |
+| #2775 | 7:09 PM | 🔵 | Worker Hub WebSocket Management Structure | ~1803 |
+| #2774 | 7:08 PM | 🟠 | Created SSE-Writer Client Type for WebSocket | ~2887 |
+| #2767 | 7:08 PM | 🟠 | Added ChannelManager export to WebSocket module | ~1723 |
+| #2766 | 7:08 PM | 🔵 | WebSocket module exports identified | ~1163 |
+| #2736 | 7:00 PM | 🔵 | WebSocket Types Structure | ~1453 |
+| #2732 | 7:00 PM | 🔵 | SSE broadcast mechanism usage across backend | ~1863 |
+| #2731 | 7:00 PM | 🔵 | Backend Service CLI Structure and Commands | ~2029 |
+| #2729 | 7:00 PM | 🔵 | SSE Stream Router Implementation | ~1584 |
+| #2728 | 7:00 PM | 📝 | WebSocket module exports overview | ~1177 |
+| #2722 | 6:59 PM | 🔵 | SSE Broadcaster Service Implementation | ~2299 |
+| #2719 | 6:59 PM | 🔵 | No WebSocket route or subscription patterns | ~1162 |
+| #2718 | 6:59 PM | 🔵 | SSE broadcasting methods for task/worker events | ~2232 |
+| #2714 | 6:59 PM | 🔵 | SSE broadcasting in task dispatcher | ~1448 |
+| #2706 | 6:58 PM | 🔵 | SSE Stream Implementation Analysis | ~1568 |
+| #2704 | 6:58 PM | 🔵 | Backend Service CLI Structure and Commands | ~1982 |
+| #2700 | 6:58 PM | 🔵 | Search for SSE broadcaster usage in task dispatcher | ~1116 |
+| #2699 | 6:58 PM | 🔵 | Identified SSE and event broadcasting implementation | ~1399 |
 
 ## Key Insights
 
-- **Archived Outputs Feature**: The project is actively implementing archived outputs functionality tied to "Endless Mode" (Issue #109), with new API endpoints and DataRouter integration.
-- **Insights & Achievements**: The insights service tracks user activity metrics and implements achievement unlocking logic based on thresholds for observations, decisions, bugfixes, etc.
-- **API Structure**: The backend organizes routes into four main groups (SSE, Data, Search, Export) with dedicated routers and rate limiting configurations.
-- **Search Implementation**: Semantic search uses a polling mechanism through the task service, while vector/Qdrant synchronization functionality appears to be missing or uses different naming.
-- **Error Handling**: Recent refactoring standardized error responses in archived outputs endpoints to use direct Express response methods.
+- **Migration System Created**: New modules for legacy data migration (type mapper, SQLite backup, migration tools) address Issue #198.
+- **WebSocket & SSE Architecture**: Backend uses WorkerHub for WebSocket worker management and SSEBroadcaster for real-time event streaming.
+- **Modular Router Design**: Backend routes are organized into 20 specialized router classes with shared utilities via BaseRouter.
+- **Multi-Tenancy Planning**: Column-based strategy recommended for MVP, with PostgreSQL for long-term scalability (SQLite has distribution issues).
+- **Rebranding Initiative**: Project is transitioning to "remembr" with domain acquisition and package renaming planned.
 </claude-mem-context>

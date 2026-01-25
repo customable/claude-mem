@@ -7,6 +7,7 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #3050 | 7:47 PM | 🔵 | Base Router Class Structure and Utilities | ~1984 |
 | #2881 | 7:32 PM | 🔵 | Backend routes module structure discovered | ~1788 |
 | #2729 | 7:00 PM | 🔵 | SSE Stream Router Implementation | ~1584 |
 | #2706 | 6:58 PM | 🔵 | SSE Stream Implementation Analysis | ~1568 |
@@ -36,13 +37,12 @@
 | #1839 | 4:29 PM | 🟠 | Add SSEBroadcaster dependency to HooksRouter | ~4149 |
 | #1838 | 4:29 PM | 🔵 | Exploring Hooks Router Structure | ~923 |
 | #1837 | 4:29 PM | 🔵 | Search for "sseBroadcaster" in hooks.ts yields no results | ~718 |
-| #1808 | 4:24 PM | 🔵 | Exploring Hooks Router Implementation | ~3495 |
 
 ## Key Insights
 
-- **Archived Outputs Feature**: Extensive work on implementing archived outputs API endpoints tied to "Endless Mode" (Issue #109), including standardized error handling and dependency injection.
-- **SSE Implementation**: Deep exploration of Server-Sent Events (SSE) functionality through StreamRouter, revealing real-time communication patterns and SSEBroadcaster usage.
-- **Backend Architecture**: Modular router structure discovered with 20+ specialized routers, showing well-organized separation of concerns in the backend.
-- **Writer Control**: New WebSocket-based writer pause/resume endpoints added for git operations, indicating migration from SSE to WebSocket for real-time features.
-- **Project Management**: API endpoints for project settings, deletion, and lifecycle management identified, showing comprehensive project handling capabilities.
+- **Archived Outputs Feature**: Extensive work on implementing archived outputs API endpoints for "Endless Mode" (Issue #109), including standardized error handling and dependency injection.
+- **SSE Implementation**: Multiple discoveries around Server-Sent Events (SSE) implementation, including StreamRouter class and SSEBroadcaster integration for real-time updates.
+- **Backend Architecture**: Comprehensive exploration of backend routes structure, revealing modular design with 20+ specialized routers and consistent BaseRouter utilities.
+- **Multi-tenancy Planning**: Research into multi-tenancy strategies (Column, Schema, Database) with PostgreSQL recommended for scalability, alongside SQLite fixes for short-term use.
+- **Rebranding Initiative**: Plans to rebrand to "remembr" with domain acquisition and package renaming, alongside SaaS roadmap development.
 </claude-mem-context>
