@@ -5,16 +5,23 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "claude-mem-backend": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
-    "start": "node dist/backend-service.js",
-    "dev": "node --watch dist/backend-service.js"
+    "start": "node dist/cli.js start",
+    "dev": "node --watch dist/cli.js start"
   },
   "dependencies": {
     "@claude-mem/database": "workspace:*",
@@ -35,6 +42,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.9",
     "@types/ws": "^8.18.1",
+    "commander": "^14.0.2",
     "typescript": "^5.9.3"
   }
 }
