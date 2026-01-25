@@ -7,36 +7,42 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #837 | 1:24 PM | 🔵 | App.tsx reveals UI architecture | ~2296 |
+| #1165 | 2:34 PM | 🔵 | StatusBar uses SSE for health monitoring | ~1211 |
+| #1163 | 2:34 PM | 🔵 | App.tsx reveals UI architecture | ~2288 |
+| #837 | 1:24 PM | 🔵 | App.tsx navigation system analysis | ~2296 |
 | #835 | 1:24 PM | 🔵 | Dashboard View Implementation | ~3466 |
-| #833 | 1:24 PM | 🔵 | Layout CSS responsive sidebar | ~2065 |
-| #831 | 1:24 PM | 🔵 | Sidebar Component Structure | ~1828 |
+| #833 | 1:24 PM | 🔵 | Layout CSS responsive design | ~2065 |
+| #831 | 1:23 PM | 🔵 | Sidebar Component Structure | ~1828 |
 | #641 | 12:46 PM | 🔵 | SSE Hook Implementation | ~2838 |
-| #639 | 12:46 PM | 🟠 | WebSocket hook for real-time | ~5993 |
-| #574 | 12:38 PM | 🟠 | Added "Tasks" navigation item | ~2431 |
-| #566 | 12:37 PM | 🟠 | Added TasksView to navigation | ~2619 |
-| #565 | 12:37 PM | 🟠 | Added 'tasks' view to app | ~3191 |
+| #639 | 12:46 PM | 🟠 | WebSocket hook for real-time comms | ~5993 |
+| #574 | 12:38 PM | 🟠 | Added "Tasks" to Sidebar | ~2431 |
+| #566 | 12:37 PM | 🟠 | TasksView navigation integration | ~2619 |
+| #565 | 12:37 PM | 🟠 | Added 'tasks' view to navigation | ~3191 |
 | #564 | 12:36 PM | 🟠 | Created Tasks View Component | ~6856 |
-| #563 | 12:36 PM | 🔵 | API Client Methods Analysis | ~2327 |
+| #563 | 12:35 PM | 🔵 | API Client Methods Analysis | ~2327 |
 | #561 | 12:35 PM | 🟠 | Added task API endpoints | ~5957 |
 | #560 | 12:35 PM | 🔵 | API Client Methods Discovery | ~2194 |
 | #559 | 12:35 PM | 🟠 | Added Task interfaces | ~5799 |
+| #558 | 12:35 PM | 🔵 | SSE Hook Analysis | ~2849 |
+| #557 | 12:35 PM | 🔵 | API Client Interface Definitions | ~1139 |
+| #556 | 12:35 PM | 🔵 | Task-related variables found | ~765 |
+| #555 | 12:35 PM | 🔵 | API Client Structure | ~1518 |
+| #552 | 12:34 PM | 🔵 | Dashboard component analysis | ~3451 |
+| #537 | 12:34 PM | 🔵 | LiveView Component Analysis | ~4626 |
 | #497 | 12:28 PM | 🔄 | Refactored App with sidebar | ~6421 |
 | #496 | 12:28 PM | 🟠 | Added layout.css import | ~1329 |
-| #492 | 12:28 PM | 🟠 | Create Sidebar Component | ~2670 |
+| #492 | 12:28 PM | 🟠 | Created Sidebar Component | ~2670 |
 | #490 | 12:27 PM | 🟠 | Added responsive layout CSS | ~3209 |
 | #489 | 12:27 PM | 🔵 | UI styling architecture | ~1008 |
-| #488 | 12:27 PM | 🔵 | Tailwind CSS 4+ config | ~1032 |
+| #488 | 12:27 PM | 🔵 | Tailwind CSS configuration | ~1032 |
 | #484 | 12:26 PM | 🔵 | App.tsx structure analysis | ~2422 |
-| #375 | 12:16 PM | 🔄 | Replace spawn with modal | ~5240 |
-| #374 | 12:16 PM | 🟠 | Added SpawnWorkerModal | ~5288 |
-| #370 | 12:16 PM | 🟠 | Add modal import | ~5122 |
+| #375 | 12:16 PM | 🟠 | Replaced spawn with modal | ~5240 |
 
 ## Key Insights
 
-- **Major UI Overhaul**: Transitioned from tab-based to responsive sidebar navigation with mobile-first design (IDs #497, #490, #492)
-- **Task Management System**: Implemented comprehensive task views (Kanban/list), API endpoints, and interfaces (IDs #564, #561, #559)
-- **Real-time Features**: Added WebSocket hook with channel subscriptions and SSE for live updates (IDs #639, #641)
-- **Worker Management**: Enhanced with modal-based spawning interface (IDs #374, #375)
-- **Architecture**: Uses abstract capabilities system with proposed federation and priority-based task routing
+- **Task Management System**: Significant work on task management features including new API endpoints, interfaces, and a comprehensive Tasks View with Kanban/list views and filtering capabilities.
+- **UI Architecture**: Major refactoring from tab-based to responsive sidebar navigation using CSS-only toggle patterns, with DaisyUI and Tailwind CSS for styling.
+- **Real-time Features**: Implementation of WebSocket and SSE hooks for real-time communication, including worker status monitoring and task progress updates.
+- **Bun Compatibility Issues**: Ongoing work to replace Bun with Node-compatible alternatives across documentation, build scripts, and Docker configurations.
+- **Testing Infrastructure**: Comprehensive test suites added for error handling, XML parsing, and retry utilities, with Vitest configuration adjustments for stability.
 </claude-mem-context>

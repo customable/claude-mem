@@ -7,6 +7,10 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1190 | 2:36 PM | 🟠 | Add queue status initialization to SSE hook | ~4844 |
+| #1183 | 2:36 PM | 🔴 | Added missing queueStatus to useSSE hook | ~3589 |
+| #1180 | 2:35 PM | 🟠 | Added QueueStatus interface to SSEState | ~3285 |
+| #1179 | 2:35 PM | 🟠 | Added queueStatus state to useSSE hook | ~4222 |
 | #1175 | 2:35 PM | 🔴 | Fix queue status tracking in task:assigned | ~3756 |
 | #1174 | 2:35 PM | 🟠 | Added task queue status tracking for SSE | ~4268 |
 | #1172 | 2:35 PM | 🟠 | Added globalQueueStatus for task metrics | ~3410 |
@@ -17,9 +21,9 @@
 
 ## Key Insights
 
-- **Task Queue Enhancements**: Added `globalQueueStatus` to track pending/processing/failed tasks, with fixes for event handlers to maintain accurate counts.
-- **Real-Time Features**: Implemented WebSocket hook with reconnection logic and SSE enhancements for task/worker status tracking.
-- **Bun Deprecation**: Identified deep Bun integration causing compatibility issues; planned migration to Node.js across docs, Docker, and build scripts.
-- **Testing Improvements**: Expanded test coverage for middleware/XML/retry utilities, with sequential Vitest execution to avoid RAM issues.
-- **Next Steps**: Prioritize Bun removal (especially plugin hooks), expand E2E testing, and ensure Node.js compatibility.
+- **SSE Hook Enhancements**: Major focus on improving Server-Sent Events (SSE) functionality, particularly around task queue status tracking (pending/processing/failed counts) and real-time updates.
+- **Bug Fixes**: Critical fixes for missing `queueStatus` in hook return values and proper status updates in event handlers.
+- **WebSocket Integration**: New WebSocket hook created for bidirectional communication with exponential backoff reconnection.
+- **Bun Replacement**: Ongoing effort to replace Bun runtime with Node.js alternatives across documentation, build scripts, and Docker configurations.
+- **Testing Improvements**: Expanded test coverage for middleware, XML parsing, and retry utilities, with sequential test execution to prevent RAM issues.
 </claude-mem-context>

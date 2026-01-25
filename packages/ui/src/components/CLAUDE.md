@@ -7,27 +7,28 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1188 | 2:36 PM | 🟠 | Added queue status indicator to StatusBar | ~4817 |
 | #1165 | 2:34 PM | 🔵 | StatusBar uses SSE for health monitoring | ~1211 |
-| #831 | 1:23 PM | 🔵 | Sidebar structure and navigation logic | ~1828 |
-| #574 | 12:38 PM | 🟠 | Added "Tasks" to Sidebar navigation | ~2431 |
-| #492 | 12:28 PM | 🟠 | Created Sidebar component | ~2670 |
-| #375 | 12:16 PM | 🟣 | WorkerStatus spawn button uses modal | ~5240 |
+| #831 | 1:23 PM | 🔵 | Sidebar component structure and navigation | ~1828 |
+| #574 | 12:38 PM | 🟠 | Added "Tasks" navigation item to Sidebar | ~2431 |
+| #492 | 12:28 PM | 🟠 | Create Sidebar Component | ~2670 |
+| #375 | 12:16 PM | 🟣 | Replace direct spawn with modal trigger | ~5240 |
 | #374 | 12:16 PM | 🟠 | Added SpawnWorkerModal to WorkerStatus | ~5288 |
-| #370 | 12:16 PM | 🟠 | Added SpawnWorkerModal import | ~5122 |
-| #368 | 12:16 PM | 🟠 | Worker spawn now uses modal | ~5250 |
-| #367 | 12:16 PM | 🟠 | Added provider config to worker spawn | ~5223 |
+| #370 | 12:16 PM | 🟠 | Add SpawnWorkerModal import | ~5122 |
+| #368 | 12:16 PM | 🟠 | Replace direct spawn with modal | ~5250 |
+| #367 | 12:16 PM | 🟠 | Add provider config to worker spawning | ~5223 |
 | #366 | 12:15 PM | 🟠 | Added showSpawnModal state | ~5174 |
 | #365 | 12:15 PM | 🟠 | Created SpawnWorkerModal component | ~4449 |
 | #357 | 12:14 PM | 🔵 | WorkerStatus component overview | ~5205 |
-| #210 | 11:57 AM | 🟠 | Added auto-spawn status indicator | ~5481 |
+| #210 | 11:57 AM | 🟠 | Added Auto-Spawn Status Indicator | ~5481 |
 | #206 | 11:57 AM | 🔵 | WorkerStatus component overview | ~5211 |
 | #192 | 11:56 AM | 🔵 | WorkerStatus component overview | ~5189 |
 
 ## Key Insights
 
-- **Worker Management Enhancements**: Major UI improvements to worker spawning via modal (SpawnWorkerModal) with provider configuration options (Mistral, Gemini, OpenRouter, etc.). Replaced direct spawn calls with modal-based workflow.
-- **Sidebar Navigation**: New responsive Sidebar component created with "Tasks" navigation item added, improving UI structure and mobile responsiveness.
-- **Real-time Monitoring**: StatusBar and WorkerStatus components leverage SSE for real-time system health and worker status updates.
-- **Bun to Node Migration**: Ongoing effort to replace Bun runtime references with Node-compatible alternatives across documentation, build scripts, and Docker configurations.
-- **Testing Improvements**: Expanded test coverage for middleware, XML parsing, and retry utilities, with Vitest configured for sequential execution to prevent RAM issues.
+- **Worker Management Enhancements**: Major focus on improving worker spawning functionality with modal-based configuration (e.g., SpawnWorkerModal) and provider selection (Mistral, Gemini, etc.).
+- **UI Improvements**: Added queue status indicators to StatusBar and new "Tasks" navigation in Sidebar, enhancing user visibility into system operations.
+- **Architecture Discovery**: Extensive exploration of WorkerStatus and Sidebar components, revealing SSE-based real-time updates and responsive navigation patterns.
+- **Bun to Node Migration**: Ongoing effort to replace Bun with Node-compatible alternatives across documentation, build scripts, and Docker configurations due to compatibility issues.
+- **Testing Expansion**: New test suites for error handling, XML parsing, and retry utilities, with Vitest configured for sequential execution to prevent RAM issues.
 </claude-mem-context>

@@ -25,9 +25,9 @@
 
 ## Key Insights
 
-- **API Client Expansion**: Significant enhancements to the API client, including new task management endpoints (`getTasks`, `getTask`, `getTaskCounts`) and interfaces (`Task`, `TaskStatus`, `TaskType`). This suggests a focus on improving task handling capabilities.
-- **Worker Management**: Added provider configuration support to `spawnWorker` and `SpawnStatus` interface, addressing Issue #254. This enhances flexibility in worker spawning and management.
-- **Bun Replacement**: Multiple issues created to replace Bun with Node-compatible alternatives across documentation, build scripts, Docker configurations, and plugin hooks. This indicates a strategic shift away from Bun due to compatibility concerns.
-- **Testing Improvements**: Comprehensive test suites added for error handling middleware, XML parser utilities, and retry utilities. Vitest configuration modified to run tests sequentially to prevent RAM issues, showing a focus on stability and reliability.
-- **Modular Architecture**: Discovery of key interfaces (`SpawnStatus`, `InsightsSummary`) and API endpoints reveals a modular architecture with clear separation of concerns for worker management, analytics, and document handling.
+- **API Client Expansion**: Significant enhancements to the API client, including new task management endpoints (`getTasks`, `getTask`, `getTaskCounts`) and interfaces (`Task`, `TaskCounts`). This suggests a focus on improving task handling capabilities.
+- **Worker Management**: Multiple discoveries and features related to worker spawning and management, including provider configurations and auto-spawn fields. This indicates ongoing work to enhance worker functionality and flexibility.
+- **Bun to Node.js Migration**: Recent sessions highlight a strategic shift from Bun to Node.js due to compatibility issues. Key areas affected include build scripts, Docker configurations, and plugin hooks.
+- **Testing Improvements**: Comprehensive test suites were added for error handling, XML parsing, and retry utilities, with adjustments to Vitest configuration to prevent RAM issues. This reflects a commitment to improving code reliability and test coverage.
+- **Modular Architecture**: The project's architecture is modular, with clear separation of concerns in the API client (e.g., documents, code snippets, insights, search, and analytics). This design facilitates maintainability and scalability.
 </claude-mem-context>

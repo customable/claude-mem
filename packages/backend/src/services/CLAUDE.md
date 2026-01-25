@@ -7,31 +7,33 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
+| #1167 | 2:34 PM | 🔵 | SSE Broadcaster Service Implementation | ~2964 |
+| #1024 | 2:16 PM | 🔵 | Worker process manager uses file path resolution | ~863 |
 | #767 | 1:09 PM | 🟠 | Added compression capability resolution | ~6090 |
-| #763 | 1:08 PM | 🟠 | Implemented Endless Mode | ~6336 |
-| #762 | 1:08 PM | 🟠 | Added compression task queueing | ~5731 |
-| #759 | 1:07 PM | 🟠 | Added archivedOutputs repository | ~5267 |
-| #758 | 1:07 PM | 🔵 | Examining Task Service | ~5156 |
-| #757 | 1:07 PM | 🟠 | Added new task types | ~5339 |
-| #714 | 12:56 PM | 🔵 | Session Service structure | ~2673 |
-| #713 | 12:56 PM | 🔵 | Session Service methods | ~2099 |
-| #608 | 12:42 PM | 🔵 | Task Service Implementation | ~5206 |
-| #539 | 12:34 PM | 🔵 | SSE Broadcaster Service | ~2970 |
-| #423 | 12:22 PM | 🔵 | Task Service backpressure | ~1680 |
-| #416 | 12:22 PM | 🔵 | Worker Process Manager | ~5100 |
-| #260 | 12:00 PM | 🔵 | Subagent event tracking | ~1205 |
-| #218 | 11:58 AM | 🔵 | Task Service backpressure | ~1543 |
-| #160 | 11:55 AM | 🔵 | Worker Process Manager | ~1831 |
-| #141 | 11:49 AM | 🔴 | Task deduplication fix | ~5706 |
-| #140 | 11:48 AM | 🔵 | Documentation task creation | ~1236 |
+| #763 | 1:08 PM | 🟠 | Implement Endless Mode for observation tasks | ~6336 |
+| #762 | 1:08 PM | 🟠 | Added compression task queueing functionality | ~5731 |
+| #759 | 1:07 PM | 🟠 | Added archivedOutputs repository to TaskService | ~5267 |
+| #758 | 1:07 PM | 🔵 | Examining Task Service Implementation | ~5156 |
+| #757 | 1:07 PM | 🟠 | Added new task types and repository | ~5339 |
+| #714 | 12:56 PM | 🔵 | Session Service Structure and Prompt Handling | ~2673 |
+| #713 | 12:56 PM | 🔵 | Session Service Methods for Observation | ~2099 |
+| #608 | 12:42 PM | 🔵 | Examining Task Service Implementation | ~5206 |
+| #539 | 12:34 PM | 🔵 | SSE Broadcaster Service Implementation | ~2970 |
+| #423 | 12:22 PM | 🔵 | Task Service Structure and Backpressure | ~1680 |
+| #416 | 12:22 PM | 🔵 | Worker Process Manager Implementation | ~5100 |
+| #260 | 12:00 PM | 🔵 | Subagent event tracking in session-service | ~1205 |
+| #218 | 11:58 AM | 🔵 | Task Service Overview and Backpressure | ~1543 |
+| #160 | 11:55 AM | 🔵 | Worker Process Manager Structure | ~1831 |
+| #141 | 11:49 AM | 🔴 | Implement task deduplication for claude-md | ~5706 |
+| #140 | 11:48 AM | 🔵 | Task Service Creates Documentation Tasks | ~1236 |
 | #139 | 11:48 AM | 🔵 | Found queueClaudeMd method | ~1255 |
-| #137 | 11:48 AM | 🔵 | claude-md task creation | ~1646 |
+| #137 | 11:48 AM | 🔵 | Examining task-service.ts for claude-md | ~1646 |
 
 ## Key Insights
 
-- **Endless Mode Implementation**: Added compression capability resolution, archived outputs repository, and compression task queueing functionality (Issues #109, #207).
-- **Task Service Enhancements**: Implemented backpressure handling, task deduplication, and new task types for improved task management.
-- **Worker & Session Management**: Discovered and documented worker process management, session service structure, and SSE broadcaster implementation.
-- **Architecture Proposals**: Created proposals for worker specialization (Issue #265) and federation architecture (Issue #263).
-- **Next Steps**: Test Endless Mode compression workflow, implement priority-based capability resolution, and evaluate database options for production deployment.
+- **Endless Mode Implementation**: Added compression task queueing and archived outputs repository to support Endless Mode (Issue #109), enabling archiving and compression of tool outputs.
+- **Task Deduplication**: Fixed duplicate CLAUDE.md tasks by switching to `createIfNotExists` method (Issue #207), improving efficiency in documentation generation.
+- **Bun to Node.js Migration**: Identified deep Bun integration causing compatibility issues; created issues to replace Bun with Node-compatible alternatives across documentation, build scripts, and Docker configurations.
+- **Testing Improvements**: Expanded test coverage for error handling, XML parsing, and retry utilities; configured Vitest to run tests sequentially to prevent RAM issues.
+- **Backpressure Handling**: Task Service implements queue limits to prevent overload (Issue #205), ensuring system stability under high task volumes.
 </claude-mem-context>
