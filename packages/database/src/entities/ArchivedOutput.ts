@@ -5,8 +5,9 @@
  * Enables perfect recall while using compressed observations in context.
  */
 
-import { Entity, PrimaryKey, Property, Index } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, Index, ManyToOne, type Ref } from '@mikro-orm/core';
 import type { CompressionStatus } from '@claude-mem/types';
+import type { Observation } from './Observation.js';
 
 @Entity({ tableName: 'archived_outputs' })
 @Index({ properties: ['project', 'created_at_epoch'] })
@@ -33,9 +34,19 @@ export class ArchivedOutput {
   @Property({ type: 'text' })
   tool_output!: string; // Full uncompressed output
 
-  @Property({ nullable: true })
+  /**
+   * Relation to the compressed Observation created from this archived output.
+   * Uses Ref<T> for type-safe lazy loading (MikroORM best practice).
+   * The fieldName preserves backwards compatibility with existing data.
+   */
+  @ManyToOne('Observation', {
+    fieldName: 'compressed_observation_id',
+    nullable: true,
+    ref: true,
+    // persist: false would skip FK constraint - keeping true for proper relations
+  })
   @Index()
-  compressed_observation_id?: number;
+  compressedObservation?: Ref<Observation>;
 
   @Property({ default: 'pending' })
   @Index()

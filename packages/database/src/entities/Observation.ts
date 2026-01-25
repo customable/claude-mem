@@ -6,6 +6,7 @@
 
 import { Entity, PrimaryKey, Property, Index, OneToMany, Collection } from '@mikro-orm/core';
 import type { ObservationType } from '@claude-mem/types';
+import type { ArchivedOutput } from './ArchivedOutput.js';
 import type { CodeSnippet } from './CodeSnippet.js';
 import type { Document } from './Document.js';
 import type { ObservationLink } from './ObservationLink.js';
@@ -136,4 +137,8 @@ export class Observation {
 
   @OneToMany('ObservationLink', 'target')
   incomingLinks = new Collection<ObservationLink>(this);
+
+  // Endless Mode: archived outputs that were compressed into this observation
+  @OneToMany('ArchivedOutput', 'compressedObservation')
+  archivedOutputs = new Collection<ArchivedOutput>(this);
 }

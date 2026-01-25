@@ -6,6 +6,7 @@
  */
 
 import type { SqlEntityManager } from '@mikro-orm/knex';
+import { ref } from '@mikro-orm/core';
 import type {
   IArchivedOutputRepository,
   CreateArchivedOutputInput,
@@ -15,11 +16,19 @@ import type {
   CompressionStatus,
 } from '@claude-mem/types';
 import { ArchivedOutput } from '../../entities/ArchivedOutput.js';
+import { Observation } from '../../entities/Observation.js';
 
 /**
  * Convert ArchivedOutput entity to ArchivedOutputRecord
  */
 function toRecord(entity: ArchivedOutput): ArchivedOutputRecord {
+  // Extract the observation ID from the Ref (if populated) or from the raw foreign key
+  let compressedObservationId: number | undefined;
+  if (entity.compressedObservation) {
+    // MikroORM Ref: can be unwrapped or we can get the ID directly
+    compressedObservationId = entity.compressedObservation.id;
+  }
+
   return {
     id: entity.id,
     memory_session_id: entity.memory_session_id,
@@ -27,7 +36,7 @@ function toRecord(entity: ArchivedOutput): ArchivedOutputRecord {
     tool_name: entity.tool_name,
     tool_input: entity.tool_input,
     tool_output: entity.tool_output,
-    compressed_observation_id: entity.compressed_observation_id,
+    compressed_observation_id: compressedObservationId,
     compression_status: entity.compression_status,
     token_count: entity.token_count,
     compressed_token_count: entity.compressed_token_count,
@@ -90,7 +99,8 @@ export class MikroOrmArchivedOutputRepository implements IArchivedOutputReposito
     entity.compression_status = status;
 
     if (extra?.compressedObservationId !== undefined) {
-      entity.compressed_observation_id = extra.compressedObservationId;
+      // Use ref() + getReference to set the Ref relation by ID without loading the entity
+      entity.compressedObservation = ref(this.em.getReference(Observation, extra.compressedObservationId));
     }
     if (extra?.compressedTokenCount !== undefined) {
       entity.compressed_token_count = extra.compressedTokenCount;
@@ -151,7 +161,8 @@ export class MikroOrmArchivedOutputRepository implements IArchivedOutputReposito
   }
 
   async findByObservationId(observationId: number): Promise<ArchivedOutputRecord | null> {
-    const entity = await this.em.findOne(ArchivedOutput, { compressed_observation_id: observationId });
+    // Query by the relation - MikroORM accepts the ID directly for relation queries
+    const entity = await this.em.findOne(ArchivedOutput, { compressedObservation: observationId });
     return entity ? toRecord(entity) : null;
   }
 
